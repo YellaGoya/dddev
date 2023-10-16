@@ -19,3 +19,18 @@
 - api 규격서
 - DB ERD
 - 기획서
+
+## 10-16
+
+### git api 조사 및 회의
+
+- github 로그인으로 받는 토큰 외에 personal token 발급받고 저장하는 로직 회의
+
+### ec2 배포
+
+- ec2 인스턴스 생성
+- mobaXterm 터미널 프로그램과 ec2 서버 연결
+
+### 강의 학습
+
+- 섹션 0. Microservice와 Spring Cloud의 소개 학습
