@@ -26,7 +26,7 @@ public class ProfileDto {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Integer id;
 
 	String url;
 

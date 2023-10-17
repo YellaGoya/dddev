@@ -1,4 +1,4 @@
-package com.d103.dddev.api.common.oauth2.service;
+package com.d103.dddev.api.common.oauth2.utils;
 
 import java.util.Date;
 import java.util.Optional;
@@ -44,8 +44,7 @@ public class JwtService {
 	 */
 	private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
 	private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
-	private static final String UID_CLAIM = "id";
-	private static final String EMAIL_CLAIM = "email";
+	private static final String GITHUB_CLAIM = "githubId";
 	private static final String BEARER = "Bearer ";
 
 	private final UserRepository userRepository;
@@ -53,7 +52,7 @@ public class JwtService {
 	/**
 	 * AccessToken 생성 메소드
 	 */
-	public String createAccessToken(int uid, String email) {
+	public String createAccessToken(Integer githubId) {
 		Date now = new Date();
 		return JWT.create()    // JWT 토큰을 생성하는 빌더 반환
 			.withSubject(ACCESS_TOKEN_SUBJECT) // JWT의 subject 지정 -> accessToken
@@ -61,7 +60,7 @@ public class JwtService {
 			//클레임으로 uid, email 사용.
 			//추가적으로 식별자나, 이름 등의 정보를 더 추가하셔도 됩니다.
 			//추가하실 경우 .withClaim(클래임 이름, 클래임 값) 으로 설정해주시면 됩니다
-			.withClaim(EMAIL_CLAIM, email)    // 이메일
+			.withClaim(GITHUB_CLAIM, githubId)    // 깃허브 아이디 클레임
 			.sign(Algorithm.HMAC512(secretKey)); // HMAC512 알고리즘 사용, application-jwt.yml에서 지정한 secret 키로 암호화
 	}
 
@@ -144,14 +143,14 @@ public class JwtService {
 	 * 유효하다면 getClaim()으로 이메일 추출
 	 * 유효하지 않다면 빈 Optional 객체 반환
 	 */
-	public Optional<String> extractEmail(String accessToken) {
+	public Optional<Integer> extractGithubId(String accessToken) {
 		try {
 			accessToken = extractAccessHeaderToToken(accessToken).get();
 			return Optional.ofNullable(JWT.require(Algorithm.HMAC512(secretKey))
 				.build()
 				.verify(accessToken)
-				.getClaim(EMAIL_CLAIM)
-				.asString());
+				.getClaim(GITHUB_CLAIM)
+				.asInt());
 		} catch (Exception e) {
 			log.error("extractEmail :: 액세스 토큰이 유효하지 않습니다.");
 			e.printStackTrace();
@@ -161,10 +160,10 @@ public class JwtService {
 
 	public Optional<UserDto> getUser(String accessToken) {
 		try {
-			String email = extractEmail(accessToken).orElseThrow(() -> new Exception("이메일이 없습니다."));
-			return userRepository.findByEmail(email);
+			Integer githubId = extractGithubId(accessToken).orElseThrow(() -> new Exception("깃허브 아이디가 없습니다."));
+			return userRepository.findBygithubId(githubId);
 		} catch (Exception e) {
-			log.error("이메일이 없습니다.");
+			log.error("아이디가 없습니다.");
 			return Optional.empty();
 		}
 	}
