@@ -44,7 +44,7 @@ public class SecurityConfig {
 			.and()
 			.authorizeRequests()
 			.antMatchers("/oauth/**").permitAll()
-			.antMatchers("/**", "/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
+			.antMatchers("/", "/**", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
 			.anyRequest().authenticated();
 
 		http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
