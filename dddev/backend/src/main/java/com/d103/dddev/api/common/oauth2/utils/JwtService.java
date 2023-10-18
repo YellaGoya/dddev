@@ -124,12 +124,12 @@ public class JwtService {
 	/**
 	 * Bearer __________형식으로 되어있는 accessToken에서 Bearer를 제거하는 함수
 	 * */
-	public Optional<String> extractAccessHeaderToToken(String accessToken) {
-		if (accessToken.startsWith(BEARER)) {
-			return Optional.ofNullable(accessToken)
+	public Optional<String> extractAccessHeaderToToken(String Authorization) {
+		if (Authorization.startsWith(BEARER)) {
+			return Optional.ofNullable(Authorization)
 				.map(token -> token.replace(BEARER, ""));
 		} else {
-			return Optional.of(accessToken);
+			return Optional.of(Authorization);
 		}
 		// return Optional.ofNullable(accessToken)
 		// 	.filter(token -> token.startsWith(BEARER))
@@ -143,9 +143,9 @@ public class JwtService {
 	 * 유효하다면 getClaim()으로 이메일 추출
 	 * 유효하지 않다면 빈 Optional 객체 반환
 	 */
-	public Optional<Integer> extractGithubId(String accessToken) {
+	public Optional<Integer> extractGithubId(String Authorization) {
 		try {
-			accessToken = extractAccessHeaderToToken(accessToken).get();
+			String accessToken = extractAccessHeaderToToken(Authorization).get();
 			return Optional.ofNullable(JWT.require(Algorithm.HMAC512(secretKey))
 				.build()
 				.verify(accessToken)
@@ -158,14 +158,9 @@ public class JwtService {
 		}
 	}
 
-	public Optional<UserDto> getUser(String accessToken) {
-		try {
-			Integer githubId = extractGithubId(accessToken).orElseThrow(() -> new Exception("깃허브 아이디가 없습니다."));
-			return userRepository.findBygithubId(githubId);
-		} catch (Exception e) {
-			log.error("아이디가 없습니다.");
-			return Optional.empty();
-		}
+	public Optional<UserDto> getUser(String Authorization) throws Exception {
+		Integer githubId = extractGithubId(Authorization).orElseThrow(() -> new NoSuchFieldException("깃허브 아이디가 없습니다."));
+		return userRepository.findBygithubId(githubId);
 	}
 
 	/**

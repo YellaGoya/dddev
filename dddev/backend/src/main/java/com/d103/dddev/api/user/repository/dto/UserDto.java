@@ -13,6 +13,8 @@ import javax.persistence.OneToOne;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 
+import com.d103.dddev.api.file.repository.dto.ProfileDto;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,8 +51,11 @@ public class UserDto {
 
 	private Boolean valid;
 
-	@JoinColumn(name = "refresh_token")
+	@Column(name = "refresh_token")
 	private String refreshToken;
+
+	@Column(name = "personal_access_token")
+	private String personalAccessToken;
 
 	public void updateRefreshToken(String updateRefreshToken){
 		this.refreshToken = updateRefreshToken;

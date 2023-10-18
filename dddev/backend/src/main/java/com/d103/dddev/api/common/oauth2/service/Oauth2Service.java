@@ -1,24 +1,22 @@
 package com.d103.dddev.api.common.oauth2.service;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import com.auth0.jwt.algorithms.Algorithm;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.user.repository.UserRepository;
 import com.d103.dddev.api.user.repository.dto.UserDto;
@@ -35,8 +33,8 @@ public class Oauth2Service {
 	private final UserRepository userRepository;
 
 	private String ACCESS_TOKEN_REQUEST_URL = "https://github.com/login/oauth/access_token";
-	private String USER_INFO_REQUEST_URL = "https://api.github.com/user";
 
+	private String API_URL = "https://api.github.com";
 	private String USER_INFO_REQUEST_TOKEN = "token ";
 
 	private String BEARER = "Bearer ";
@@ -116,6 +114,8 @@ public class Oauth2Service {
 	public Map<String, Object> getUserInfo(String githubAccessToken) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
 
+		String userInfoUrl = API_URL + "/user";
+
 		// header
 		HttpHeaders headers = new HttpHeaders();
 		String userInfoAccessToken = USER_INFO_REQUEST_TOKEN + githubAccessToken;
@@ -125,7 +125,7 @@ public class Oauth2Service {
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
 		ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-			USER_INFO_REQUEST_URL,
+			userInfoUrl,
 			HttpMethod.GET,
 			entity,
 			new ParameterizedTypeReference<Map<String, Object>>() {
@@ -133,6 +133,34 @@ public class Oauth2Service {
 		);
 
 		return response.getBody();
+	}
+
+	// TODO : 테스트해보기.. 확실하지않음.....
+	public Boolean unlink(String accessToken) throws Exception {
+		RestTemplate restTemplate = new RestTemplate();
+
+		String deleteUrl = API_URL + "/applications/" + CLIENT_ID + "/token";
+
+		String authHeader = CLIENT_ID + ":" + CLIENT_SECRET;
+		String base64AuthHeader = "Basic " + Base64.getEncoder().encodeToString(authHeader.getBytes());
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", base64AuthHeader);
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+		requestBody.add("access_token", accessToken);
+
+		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestBody, headers);
+
+		ResponseEntity<String> response = restTemplate.exchange(
+			deleteUrl,
+			HttpMethod.DELETE,
+			entity,
+			String.class
+		);
+
+		return response.getStatusCode().is2xxSuccessful();
 	}
 
 	public Optional<UserDto> getUser(Integer githubId) {

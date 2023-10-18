@@ -30,7 +30,7 @@ public class Oauth2Controller {
 
 	@GetMapping("/sign-in")
 	@ApiOperation(value = "GitHub 로그인 api", notes = "GitHub 로그인 api")
-	public ResponseEntity<String> signIn(@ApiParam(value = "redirect 코드", required = true)  @RequestParam String code, HttpServletResponse response) {
+	public ResponseEntity<String> signIn(@ApiParam(value = "redirect 코드", required = true) @RequestParam String code, HttpServletResponse response) {
 		try {
 			log.info("로그인 api 진입 :: {}", code);
 			Map<String, String> login = oauth2Service.login(code);
@@ -46,12 +46,6 @@ public class Oauth2Controller {
 			log.info("소셜 로그인에 실패했습니다. 에러 메시지 :: {}", e.getMessage());
 			return new ResponseEntity<>("로그인 실패ㅜㅜ!", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-	}
-
-	@GetMapping("/aaaa")
-	public ResponseEntity<?> aaa (@RequestParam String code) {
-		log.info("aaaaaaaa");
-		return new ResponseEntity<>(code, HttpStatus.OK);
 	}
 
 }
