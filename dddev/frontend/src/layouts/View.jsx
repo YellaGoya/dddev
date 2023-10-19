@@ -7,13 +7,16 @@ import Sidemenu from 'markup/pages/components/common/Sidemenu';
 
 const View = ({ children }) => {
   const menuToggle = useSelector((state) => state.menu.menuToggle);
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 
   return (
     <>
       <Topbar />
-      <ViewWrapper>
+      <ViewWrapper $isLoggedIn={isLoggedIn}>
         <Sidemenu />
-        <Main $menuToggle={menuToggle}>{children}</Main>
+        <Main $isLoggedIn={isLoggedIn} $menuToggle={menuToggle}>
+          {children}
+        </Main>
       </ViewWrapper>
     </>
   );

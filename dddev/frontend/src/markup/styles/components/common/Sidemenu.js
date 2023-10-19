@@ -7,7 +7,6 @@ export const SidemenuWrapper = styled.aside`
 
   width: ${({ $menuToggle }) => ($menuToggle ? '275px' : '0px')};
   flex-shrink: 0;
-  height: calc(100vh - 35px);
 
   overflow: hidden;
 
