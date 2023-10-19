@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
@@ -61,7 +60,7 @@ public class ProfileServiceImpl implements ProfileService {
 			.build();
 
 		// db에 저장
-		return profileRepository.save(profileDto);
+		return profileRepository.saveAndFlush(profileDto);
 	}
 
 	@Override
@@ -92,7 +91,7 @@ public class ProfileServiceImpl implements ProfileService {
 			.build();
 
 		// db에 저장
-		return profileRepository.save(profileDto);
+		return profileRepository.saveAndFlush(profileDto);
 	}
 
 	@Override

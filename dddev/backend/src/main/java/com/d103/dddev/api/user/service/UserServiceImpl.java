@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.d103.dddev.api.common.oauth2.Role;
 import com.d103.dddev.api.common.oauth2.service.Oauth2Service;
+import com.d103.dddev.api.common.oauth2.utils.AesUtil;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.user.repository.UserRepository;
@@ -24,21 +26,28 @@ public class UserServiceImpl implements UserService {
 	private final ProfileService profileService;
 	private final Oauth2Service oauth2Service;
 
+	private final AesUtil aesUtil;
+
 	private final Integer DEFAULT_IMG_ID = 1;
 
 	@Override
 	public Optional<UserDto> getUserInfo(Integer github_id) throws Exception {
 		log.info("getUserInfo :: 사용자 정보 조회");
-		return userRepository.findBygithubId(github_id);
+		return userRepository.findByGithubId(github_id);
 	}
 
 	@Override
 	public byte[] getProfile(UserDto userDto) throws Exception {
 		log.info("getProfile :: 사용자 프로필 조회 진입");
-		log.info("getProfile :: 사용자 프로필 dto 조회");
 		ProfileDto profileDto = userDto.getProfileDto();
 
 		return profileService.getProfileByPath(profileDto.getFilePath());
+	}
+
+	@Override
+	public String getPersonalAccessToken(UserDto userDto) throws Exception {
+		log.info("getPersonalAccessToken :: 사용자 personal access token 조회 진입");
+		return decryptPersonalAccessToken(userDto.getPersonalAccessToken());
 	}
 
 	@Override
@@ -50,7 +59,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto modifyNickname(String nickname, UserDto userDto) throws Exception {
 		userDto.setNickname(nickname);
-		return userRepository.save(userDto);
+		return userRepository.saveAndFlush(userDto);
 	}
 
 	@Override
@@ -69,7 +78,16 @@ public class UserServiceImpl implements UserService {
 			profileService.deleteProfile(prevProfile);
 		}
 
-		return userRepository.save(userDto);
+		return userRepository.saveAndFlush(userDto);
+	}
+
+	@Override
+	public UserDto savePersonalAccessToken(String newPersonalAccessToken, UserDto userDto) throws Exception {
+		String encrypted = encryptPersonalAccessToken(newPersonalAccessToken);
+		System.out.println("savepersonalAccessToken - encrypted ::" + encrypted);
+		userDto.setPersonalAccessToken(encrypted);
+		userDto.setRole(Role.USER);
+		return userRepository.saveAndFlush(userDto);
 	}
 
 	@Override
@@ -87,14 +105,13 @@ public class UserServiceImpl implements UserService {
 			profileService.deleteProfile(profileDto);
 		}
 
-		return userRepository.save(userDto);
+		return userRepository.saveAndFlush(userDto);
 	}
 
 	@Override
 	public void deleteUser(UserDto userDto) throws Exception {
 		// 프로필 사진 받아오기
 		ProfileDto profileDto = userDto.getProfileDto();
-
 
 		// 사용자 db에서 삭제
 		userRepository.delete(userDto);
@@ -106,14 +123,20 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Map<String, Object> githubToken(String code) throws Exception {
+	public Map<String, String> githubToken(String code) throws Exception {
 		return oauth2Service.githubToken(code);
 	}
 
-	// TODO : 테스트해보기.. 확실하지않음.....
 	@Override
-	public Boolean unlink(String accessToken) throws Exception {
-		return oauth2Service.unlink(accessToken);
+	public Boolean unlink(String oauthAccessToken) throws Exception {
+		return oauth2Service.unlink(oauthAccessToken);
 	}
 
+	public String encryptPersonalAccessToken(String personalAccessToken) throws Exception {
+		return aesUtil.aes256Encrypt(personalAccessToken);
+	}
+
+	public String decryptPersonalAccessToken(String personalAccessToken) throws Exception {
+		return aesUtil.aes256Decrypt(personalAccessToken);
+	}
 }

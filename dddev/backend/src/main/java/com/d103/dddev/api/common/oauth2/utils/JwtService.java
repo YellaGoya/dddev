@@ -137,10 +137,10 @@ public class JwtService {
 	}
 
 	/**
-	 * AccessToken에서 Email 추출
+	 * AccessToken에서 githubId 추출
 	 * 추출 전에 JWT.require()로 검증기 생성
 	 * verify로 AceessToken 검증 후
-	 * 유효하다면 getClaim()으로 이메일 추출
+	 * 유효하다면 getClaim()으로 githubId 추출
 	 * 유효하지 않다면 빈 Optional 객체 반환
 	 */
 	public Optional<Integer> extractGithubId(String Authorization) {
@@ -160,7 +160,7 @@ public class JwtService {
 
 	public Optional<UserDto> getUser(String Authorization) throws Exception {
 		Integer githubId = extractGithubId(Authorization).orElseThrow(() -> new NoSuchFieldException("깃허브 아이디가 없습니다."));
-		return userRepository.findBygithubId(githubId);
+		return userRepository.findByGithubId(githubId);
 	}
 
 	/**

@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.apache.coyote.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -109,12 +110,49 @@ public class UserController {
 		}
 	}
 
+	@PostMapping("/personal-access-token")
+	@ApiOperation(value = "회원가입 후 personal access token 저장", notes = "회원가입 후 personal access token 저장하는 API")
+	ResponseEntity<String> savePersonalAccessToken(
+		@ApiParam(value = "personal access token") @RequestBody Map<String, String> personalAccessTokenMap,
+		@RequestHeader String Authorization) {
+		try {
+			UserDto userDto = jwtService.getUser(Authorization)
+				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+
+			String newPersonalAccessToken = personalAccessTokenMap.get("personal_access_token");
+
+			userService.savePersonalAccessToken(newPersonalAccessToken, userDto);
+			return new ResponseEntity<>("personal access token 저장 성공!", HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			return new ResponseEntity<>("personal access token 저장 실패..", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PutMapping("/personal-access-token")
+	@ApiOperation(value = "personal access token 수정", notes = "personal access token 수정하는 API")
+	ResponseEntity<String> modifyPersonalAccessToken(
+		@ApiParam(value = "personal access token") @RequestBody Map<String, String> personalAccessTokenMap,
+		@RequestHeader String Authorization) {
+		try {
+			UserDto userDto = jwtService.getUser(Authorization)
+				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+
+			String newPersonalAccessToken = personalAccessTokenMap.get("personal_access_token");
+			userService.savePersonalAccessToken(newPersonalAccessToken, userDto);
+			return new ResponseEntity<>("personal access token 수정 성공!", HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			return new ResponseEntity<>("personal access token 수정 실패..", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	@PutMapping("/nickname")
 	@ApiOperation(value = "사용자 닉네임 수정", notes = "사용자 닉네임 수정 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<UserDto> modifyNickname(@ApiParam(value = "유저 닉네임") Map<String, String> nicknameMap,
+	ResponseEntity<UserDto> modifyNickname(@ApiParam(value = "유저 닉네임") @RequestBody Map<String, String> nicknameMap,
 		@RequestHeader String Authorization) {
 		try {
 			UserDto userDto = jwtService.getUser(Authorization)
@@ -154,6 +192,7 @@ public class UserController {
 		}
 	}
 
+
 	@DeleteMapping("/profile")
 	@ApiOperation(value = "사용자 프로필 사진 삭제", notes = "사용자 프로필 사진 삭제 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "파일 저장 에러"),
@@ -181,14 +220,22 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "파일 저장 에러"),
 		@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<String> deleteUser(@RequestHeader String Authorization) {
+	ResponseEntity<String> deleteUser(@RequestParam String code, @RequestHeader String Authorization) {
 		try {
-
-
+			// 사용자 정보 받아오기
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
+			// github token 받아오기
+			Map<String, String> tokens = userService.githubToken(code);
+			String githubAccessToken = tokens.get("access_token");
+
+			// 깃허브 authorization 삭제하기
+			userService.unlink(githubAccessToken);
+
+			// 사용자 정보 db/서버에서 삭제하기
 			userService.deleteUser(userDto);
+
 			return new ResponseEntity<>("사용자 탈퇴 성공!", HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -197,6 +244,7 @@ public class UserController {
 		} catch (IOException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			return new ResponseEntity<>("사용자 탈퇴 실패..", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
