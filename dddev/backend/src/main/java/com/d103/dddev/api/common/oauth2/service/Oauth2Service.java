@@ -3,9 +3,6 @@ package com.d103.dddev.api.common.oauth2.service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -18,7 +15,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import com.auth0.jwt.algorithms.Algorithm;
+import com.d103.dddev.api.common.oauth2.Role;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.user.repository.UserRepository;
 import com.d103.dddev.api.user.repository.dto.UserDto;
@@ -35,8 +32,8 @@ public class Oauth2Service {
 	private final UserRepository userRepository;
 
 	private String ACCESS_TOKEN_REQUEST_URL = "https://github.com/login/oauth/access_token";
-	private String USER_INFO_REQUEST_URL = "https://api.github.com/user";
 
+	private String API_URL = "https://api.github.com";
 	private String USER_INFO_REQUEST_TOKEN = "token ";
 
 	private String BEARER = "Bearer ";
@@ -53,9 +50,11 @@ public class Oauth2Service {
 	public Map<String, String> login(String code) throws Exception {
 		log.info("login :: github api login 진입");
 		// github에서 access, refresh token 받아오기
-		Map<String, Object> response = githubToken(code);
-		String githubAccessToken = (String)response.get("access_token");
-		String githubRefreshToken = (String)response.get("refresh_token");
+		Map<String, String> response = githubToken(code);
+		String githubAccessToken = response.get("access_token");
+		String githubRefreshToken = response.get("refresh_token");
+
+		System.out.println(githubAccessToken);
 
 		// 사용자 정보 받아오기
 		Map<String, Object> userInfo = getUserInfo(githubAccessToken);
@@ -67,24 +66,24 @@ public class Oauth2Service {
 		String accessToken = BEARER + jwtService.createAccessToken(githubId);
 		String refreshToken = BEARER + jwtService.createRefreshToken();
 
-		// 사용자 정보가 있으면 로그인, 없으면 db에 저장
-		UserDto user = getUser(githubId).orElseGet(() -> saveUser(userInfo));
+		UserDto userDto = getUser(githubId).orElseGet(() -> saveUser(userInfo));
 
 		// refresh token db 저장
-		updateRefreshToken(user, refreshToken);
+		updateRefreshToken(userDto, refreshToken);
 
 		// access, refresh token, 이름
 		Map<String, String> map = new HashMap<>();
 		map.put("Authorization", accessToken);
 		map.put("Authorization-refresh", refreshToken);
 		map.put("name", name);
+		map.put("role", String.valueOf(userDto.getRole()));
 
 		log.info("login :: github api login 성공");
 
 		return map;
 	}
 
-	public Map<String, Object> githubToken(String code) throws Exception {
+	public Map<String, String> githubToken(String code) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
 
 		// header 만들기
@@ -110,11 +109,19 @@ public class Oauth2Service {
 			}
 		);
 
-		return response.getBody();
+		Map<String, Object> responseBody = response.getBody();
+
+		Map<String, String> tokens = new HashMap<>();
+		tokens.put("access_token", (String)responseBody.get("access_token"));
+		tokens.put("refresh_token", (String)responseBody.get("refresh_token"));
+
+		return tokens;
 	}
 
 	public Map<String, Object> getUserInfo(String githubAccessToken) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
+
+		String userInfoUrl = API_URL + "/user";
 
 		// header
 		HttpHeaders headers = new HttpHeaders();
@@ -125,7 +132,7 @@ public class Oauth2Service {
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
 		ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-			USER_INFO_REQUEST_URL,
+			userInfoUrl,
 			HttpMethod.GET,
 			entity,
 			new ParameterizedTypeReference<Map<String, Object>>() {
@@ -135,9 +142,36 @@ public class Oauth2Service {
 		return response.getBody();
 	}
 
-	public Optional<UserDto> getUser(Integer githubId) {
+	// TODO : 테스트해보기.. 확실하지않음.....
+	public Boolean unlink(String oauthAccessToken) throws Exception {
+		RestTemplate restTemplate = new RestTemplate();
+
+		String deleteUrl = API_URL + "/applications/" + CLIENT_ID + "/grant";
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(CLIENT_ID, CLIENT_SECRET);
+		headers.set("Accept", "application/vnd.github+json");	// 옵션
+
+		System.out.println(headers);
+
+		MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+		requestBody.add("access_token", oauthAccessToken);
+
+		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestBody, headers);
+
+		ResponseEntity<Object> response = restTemplate.exchange(
+			deleteUrl,
+			HttpMethod.DELETE,
+			entity,
+			Object.class
+		);
+		System.out.println(response);
+		return response.getStatusCode().is2xxSuccessful();
+	}
+
+	public Optional<UserDto> getUser(Integer githubId) throws Exception {
 		log.info("getUser :: DB에서 사용자 정보 가져오기");
-		return userRepository.findBygithubId(githubId);
+		return userRepository.findByGithubId(githubId);
 	}
 
 	public UserDto saveUser(Map<String, Object> userInfo) {
@@ -149,6 +183,7 @@ public class Oauth2Service {
 			.nickname(name)
 			.githubId(githubId)
 			.valid(true)
+			.role(Role.GUEST)
 			.build();
 
 		return userRepository.save(user);
