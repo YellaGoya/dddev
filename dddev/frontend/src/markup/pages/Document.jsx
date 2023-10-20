@@ -4,6 +4,7 @@ import Index from 'markup/pages/components/document/Index';
 import Issue from 'markup/pages/components/document/Issue';
 import Request from 'markup/pages/components/document/Request';
 import Explore from 'markup/pages/components/document/Explore';
+import Write from 'markup/pages/components/document/Write';
 
 const Document = () => {
   const routes = useRoutes([
@@ -22,6 +23,10 @@ const Document = () => {
     {
       path: '/explore',
       element: <Explore />,
+    },
+    {
+      path: '/docs/:docId',
+      element: <Write />,
     },
   ]);
 

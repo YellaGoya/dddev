@@ -1,8 +1,8 @@
 import { SET_GROUND } from 'redux/actions/ground';
 
 const initialState = {
-  groundId: '',
-  groundName: '',
+  groundId: '101',
+  groundName: 'test',
 };
 
 const groundReducer = (state = initialState, action) => {
