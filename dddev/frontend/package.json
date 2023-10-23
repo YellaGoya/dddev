@@ -2,7 +2,7 @@
   "name": "dddev",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://yellagoya.github.io/toy-react-template",
+  "homepage": "https://yellagoya.github.io/web-rtc-test",
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.7",
     "@testing-library/jest-dom": "^5.17.0",
@@ -11,6 +11,7 @@
     "quill": "^1.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-quill": "^2.0.0",
     "react-redux": "^8.1.3",
     "react-scripts": "5.0.1",
     "redux-persist": "^6.0.0",

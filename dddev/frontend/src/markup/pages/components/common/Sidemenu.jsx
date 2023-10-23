@@ -33,6 +33,7 @@ const Sidemenu = () => {
   const logoutHandler = () => {
     dispatch(logoutUser());
     dispatch(setMenu());
+    console.log('groundId');
     navigate(`/login`);
   };
 

@@ -1,10 +1,10 @@
 import { LOGIN_USER, LOGOUT_USER, UPDATE_TOKENS } from 'redux/actions/user';
 
 const initialState = {
-  isLoggedIn: true,
-  accessToken: 'test',
-  refreshToken: 'test',
-  lastGround: 101,
+  isLoggedIn: false,
+  accessToken: '',
+  refreshToken: '',
+  lastGround: '',
 };
 
 const userReducer = (state = initialState, action) => {

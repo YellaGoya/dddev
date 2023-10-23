@@ -1,6 +1,6 @@
 import { BrowserRouter, useRoutes, Navigate } from 'react-router-dom';
-import { Provider } from 'react-redux';
-// import { Provider, useSelector } from 'react-redux';
+// import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from 'redux/store';
 
@@ -14,21 +14,21 @@ import Document from 'markup/pages/Document';
 import { Global } from 'markup/styles/Global';
 
 const Routing = () => {
-  // const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user);
 
   return useRoutes([
     {
       path: '/',
-      // element: user.isLoggedIn ? (
-      //   user.lastGround === null || user.lastGround === undefined ? (
-      //     <Navigate to="/login/groundinit" />
-      //   ) : (
-      //     <Navigate to={`/${user.lastGround}`} />
-      //   )
-      // ) : (
-      //   <Navigate to="/login" />
-      // ),
-      element: <Navigate to="/101" />,
+      element: user.isLoggedIn ? (
+        user.lastGround === null || user.lastGround === undefined ? (
+          <Navigate to="/login/groundinit" />
+        ) : (
+          <Navigate to={`/${user.lastGround}`} />
+        )
+      ) : (
+        <Navigate to="/login" />
+      ),
+      // element: <Navigate to="/101" />,
     },
     {
       path: '/:groundId',

@@ -6,11 +6,8 @@ import * as s from 'markup/styles/components/common/Topbar';
 const Topbar = () => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
-  const test = useSelector((state) => state.user.accessToken);
   const menuToggle = useSelector((state) => state.menu.menuToggle);
   const selectedGround = useSelector((state) => state.ground.groundName);
-
-  console.log(isLoggedIn, test);
 
   return (
     <s.TopbarWrapper $isLoggedIn={isLoggedIn}>

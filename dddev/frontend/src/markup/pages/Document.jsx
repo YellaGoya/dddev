@@ -25,6 +25,10 @@ const Document = () => {
       element: <Explore />,
     },
     {
+      path: '/docs',
+      element: <Write />,
+    },
+    {
       path: '/docs/:docId',
       element: <Write />,
     },

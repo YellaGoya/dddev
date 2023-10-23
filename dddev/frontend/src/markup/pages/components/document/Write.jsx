@@ -1,56 +1,54 @@
 import React, { useEffect, useRef } from 'react';
+import ReactQuill from 'react-quill';
 import * as Y from 'yjs';
-import { WebrtcProvider } from 'y-webrtc';
 import { QuillBinding } from 'y-quill';
-import Quill from 'quill';
+import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
 import 'quill/dist/quill.snow.css';
 
-const Editor = () => {
-  const editorRef = useRef(null);
+// Quill modules to attach to editor
+const modules = {
+  toolbar: [
+    [{ header: [1, 2, 3, 4, false] }],
+    [{ color: [] }, { background: [] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['blockquote', 'code-block'],
+    [{ script: 'sub' }, { script: 'super' }],
+    [{ align: [] }],
+  ],
+};
+
+const Write = () => {
+  const quillRef = useRef(null);
   const params = useParams();
 
   useEffect(() => {
-    let provider;
+    const roomName = `${params.docId}`;
+    const doc = new Y.Doc();
+    const type = doc.getText('quill');
 
-    if (editorRef.current) {
-      const ydoc = new Y.Doc();
-      const roomName = `${params.docId}`;
-      provider = new WebrtcProvider(roomName, ydoc);
+    // create websocket provider and connect it with the shared document.
+    const wsProvider = new WebsocketProvider('ws://www.dddev.co.kr:6001', roomName, doc);
 
-      provider.on('status', (event) => {
-        console.log(event.status);
-      });
+    wsProvider.awareness.setLocalStateField('user', {
+      name: 'User-' + Math.floor(Math.random() * 100),
+      color: 'blue',
+    });
 
-      const { awareness } = provider;
+    quillRef.current.getEditor().getContents();
 
-      awareness.on('change', () => {
-        console.log(awareness.getStates());
-      });
-
-      const quill = new Quill(editorRef.current, {
-        theme: 'snow',
-        modules: {
-          toolbar: [[{ header: [1, 2, false] }], ['bold', 'italic', 'underline'], ['image', 'code-block']],
-        },
-        placeholder: 'Write something...',
-        readOnly: false,
-      });
-
-      const type = ydoc.getText('quills');
-
-      const binding = new QuillBinding(type, quill);
-      console.log(binding);
-    }
+    // create quill binding and connect it with the shared type.
+    const binding = new QuillBinding(type, quillRef.current.getEditor(), wsProvider.awareness);
 
     return () => {
-      if (provider) {
-        provider.destroy();
-      }
+      // clean up on unmount.
+      binding.destroy();
+      wsProvider.disconnect();
     };
-  }, [params]);
+  }, []);
 
-  return <div ref={editorRef} />;
+  return <ReactQuill ref={quillRef} modules={modules} />;
 };
 
-export default Editor;
+export default Write;
