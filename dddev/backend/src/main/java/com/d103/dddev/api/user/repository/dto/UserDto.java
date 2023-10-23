@@ -48,6 +48,9 @@ public class UserDto {
 
 	private String nickname;
 
+	@Column(name = "status_msg")
+	private String statusMsg;
+
 	@CreationTimestamp
 	@JoinColumn(name = "create_time")
 	private Date createTime;
