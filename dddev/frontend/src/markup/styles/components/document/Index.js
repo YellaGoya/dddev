@@ -126,9 +126,11 @@ export const TreeName = styled.span`
     position: absolute;
     left: 0.3rem;
     top: 0px;
+    color: ${({ $toggle }) => ($toggle ? '#fff' : '#ffb938')};
     transform: ${({ $toggle }) => ($toggle ? 'rotate(-90deg)' : 'rotate(0deg)')};
-
-    transition: transform 0.4s ease;
+    transition:
+      transform 0.4s ease,
+      color 0.4s ease;
   }
 
   &:hover {

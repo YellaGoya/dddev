@@ -22,8 +22,10 @@ export const Global = createGlobalStyle`
     margin: 0;
   }
 
+
+  //스크롤바 오른쪽에서 3px 띄우기
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 9px;
   }
 
   ::-webkit-scrollbar-track {
@@ -31,11 +33,19 @@ export const Global = createGlobalStyle`
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #000;
+    background-color: #000;
+    background-clip: padding-box;
+    border-right: 5px solid transparent;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #fff;
+    background-color: #fff;
+    background-clip: padding-box;
+    border-right: 5px solid transparent;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
   }
 `;
 
@@ -57,8 +67,17 @@ export const Main = styled.main`
 
   flex-grow: 1;
   min-width: 280px;
+  @media (min-width: 600px) {
+    margin-left: 9px;
+    overflow-y: scroll;
+  }
 
-  overflow-y: auto;
+  @media (max-width: 599px) {
+    margin-left: 0;
+    overflow-y: auto;
+  }
+
+  overflow-x: hidden;
 
   background-color: pink;
 `;
