@@ -56,11 +56,9 @@ public class Oauth2Service {
 		String githubAccessToken = response.get("access_token");
 		String githubRefreshToken = response.get("refresh_token");
 
-		System.out.println(githubAccessToken);
-
 		// 사용자 정보 받아오기
 		Map<String, Object> userInfo = getUserInfo(githubAccessToken);
-		System.out.println(userInfo);
+
 		String name = (String)userInfo.get("login");
 		Integer githubId = (Integer)userInfo.get("id");
 

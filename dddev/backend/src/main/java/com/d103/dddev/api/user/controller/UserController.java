@@ -168,14 +168,14 @@ public class UserController {
 	@PutMapping("/personal-access-token")
 	@ApiOperation(value = "personal access token 수정", notes = "personal access token 수정하는 API")
 	ResponseEntity<String> modifyPersonalAccessToken(
-		@ApiParam(value = "personal access token") @RequestBody Map<String, String> personalAccessTokenMap,
+		@ApiParam(value = "personal-access-token") @RequestBody Map<String, String> personalAccessTokenMap,
 		@RequestHeader String Authorization) {
 		log.info("controller - modifyPersonalAccessToken :: personal access token 수정 진입");
 		try {
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
-			String newPersonalAccessToken = personalAccessTokenMap.get("personal_access_token");
+			String newPersonalAccessToken = personalAccessTokenMap.get("personal-access-token");
 			userService.savePersonalAccessToken(newPersonalAccessToken, userDto);
 			return new ResponseEntity<>("personal access token 수정 성공!", HttpStatus.OK);
 		} catch (Exception e) {
@@ -292,7 +292,8 @@ public class UserController {
 
 	@DeleteMapping
 	@ApiOperation(value = "사용자 탈퇴", notes = "사용자 탈퇴 API")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "파일 저장 에러"),
+		@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<String> deleteUser(@RequestParam String code, @RequestHeader String Authorization) {
@@ -315,13 +316,13 @@ public class UserController {
 			return new ResponseEntity<>("사용자 탈퇴 성공!", HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>("access token 오류", HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>("존재하지 않는 사용자", HttpStatus.FORBIDDEN);
 		} catch (IOException e) {
 			log.error(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>("파일 저장 에러", HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			return new ResponseEntity<>("사용자 탈퇴 실패..", HttpStatus.INTERNAL_SERVER_ERROR);
