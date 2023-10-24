@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -48,17 +50,15 @@ public class Oauth2Service {
 	private String AES_SECRET_KEY;
 
 	public Map<String, String> login(String code) throws Exception {
-		log.info("login :: github api login 진입");
+		log.info("service - login :: github api login 진입");
 		// github에서 access, refresh token 받아오기
 		Map<String, String> response = githubToken(code);
 		String githubAccessToken = response.get("access_token");
 		String githubRefreshToken = response.get("refresh_token");
 
-		System.out.println(githubAccessToken);
-
 		// 사용자 정보 받아오기
 		Map<String, Object> userInfo = getUserInfo(githubAccessToken);
-		//System.out.println(userInfo);
+
 		String name = (String)userInfo.get("login");
 		Integer githubId = (Integer)userInfo.get("id");
 
@@ -84,6 +84,7 @@ public class Oauth2Service {
 	}
 
 	public Map<String, String> githubToken(String code) throws Exception {
+		log.info("service - gethubToken :: github에서 token 받아오기 진입");
 		RestTemplate restTemplate = new RestTemplate();
 
 		// header 만들기
@@ -119,6 +120,7 @@ public class Oauth2Service {
 	}
 
 	public Map<String, Object> getUserInfo(String githubAccessToken) throws Exception {
+		log.info("servie - getUserInfo :: github api로 사용자 정보 받아오기");
 		RestTemplate restTemplate = new RestTemplate();
 
 		String userInfoUrl = API_URL + "/user";
@@ -142,22 +144,20 @@ public class Oauth2Service {
 		return response.getBody();
 	}
 
-	// TODO : 테스트해보기.. 확실하지않음.....
 	public Boolean unlink(String oauthAccessToken) throws Exception {
+		log.info("service - unlink :: github authorization 연결 끊기 진입");
 		RestTemplate restTemplate = new RestTemplate();
 
 		String deleteUrl = API_URL + "/applications/" + CLIENT_ID + "/grant";
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(CLIENT_ID, CLIENT_SECRET);
-		headers.set("Accept", "application/vnd.github+json");	// 옵션
+		headers.setContentType(MediaType.APPLICATION_JSON);
 
-		System.out.println(headers);
+		JSONObject requestBody = new JSONObject();
+		requestBody.put("access_token", oauthAccessToken);
 
-		MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-		requestBody.add("access_token", oauthAccessToken);
-
-		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestBody, headers);
+		HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
 
 		ResponseEntity<Object> response = restTemplate.exchange(
 			deleteUrl,
@@ -165,7 +165,6 @@ public class Oauth2Service {
 			entity,
 			Object.class
 		);
-		System.out.println(response);
 		return response.getStatusCode().is2xxSuccessful();
 	}
 

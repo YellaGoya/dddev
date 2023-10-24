@@ -32,13 +32,13 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Optional<UserDto> getUserInfo(Integer github_id) throws Exception {
-		log.info("getUserInfo :: 사용자 정보 조회");
+		log.info("service - getUserInfo :: 사용자 정보 조회");
 		return userRepository.findByGithubId(github_id);
 	}
 
 	@Override
 	public byte[] getProfile(UserDto userDto) throws Exception {
-		log.info("getProfile :: 사용자 프로필 조회 진입");
+		log.info("service - getProfile :: 사용자 프로필 조회 진입");
 		ProfileDto profileDto = userDto.getProfileDto();
 
 		return profileService.getProfileByPath(profileDto.getFilePath());
@@ -46,24 +46,27 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public String getPersonalAccessToken(UserDto userDto) throws Exception {
-		log.info("getPersonalAccessToken :: 사용자 personal access token 조회 진입");
+		log.info("service - getPersonalAccessToken :: 사용자 personal access token 조회 진입");
 		return decryptPersonalAccessToken(userDto.getPersonalAccessToken());
 	}
 
 	@Override
 	public Boolean checkDupNickname(String newNickname, Integer userId) throws Exception {
+		log.info("service - checkDupNickname :: 사용자 닉네임 중복 체크 진입");
 		UserDto userDto = userRepository.findByIdNotAndNickname(userId, newNickname).orElseGet(() -> null);
 		return userDto == null;
 	}
 
 	@Override
 	public UserDto modifyNickname(String nickname, UserDto userDto) throws Exception {
+		log.info("service - modifyNickname :: 사용자 닉네임 수정 진입");
 		userDto.setNickname(nickname);
 		return userRepository.saveAndFlush(userDto);
 	}
 
 	@Override
 	public UserDto modifyProfile(MultipartFile file, UserDto userDto) throws Exception {
+		log.info("service - modifyProfile :: 사용자 프로필 사진 수정 진입");
 		// 기존 프로필
 		ProfileDto prevProfile = userDto.getProfileDto();
 
@@ -82,9 +85,16 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public UserDto modifyStatusMsg(String statusMsg, UserDto userDto) throws Exception {
+		log.info("service - modifyStatusMsg :: 사용자 상태 메시지 수정 진입");
+		userDto.setStatusMsg(statusMsg);
+		return userRepository.saveAndFlush(userDto);
+	}
+
+	@Override
 	public UserDto savePersonalAccessToken(String newPersonalAccessToken, UserDto userDto) throws Exception {
+		log.info("service - savePersonalAccessToken :: 사용자 personal access token 저장 진입");
 		String encrypted = encryptPersonalAccessToken(newPersonalAccessToken);
-		System.out.println("savepersonalAccessToken - encrypted ::" + encrypted);
 		userDto.setPersonalAccessToken(encrypted);
 		userDto.setRole(Role.USER);
 		return userRepository.saveAndFlush(userDto);
@@ -92,6 +102,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto deleteProfile(UserDto userDto) throws Exception {
+		log.info("service - deleteProfile :: 사용자 프로필 사진 삭제 진입");
 		// 사용자 프로필 dto
 		ProfileDto profileDto = userDto.getProfileDto();
 
@@ -110,6 +121,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void deleteUser(UserDto userDto) throws Exception {
+		log.info("service - deleteUser :: 사용자 db/서버 삭제 진입");
 		// 프로필 사진 받아오기
 		ProfileDto profileDto = userDto.getProfileDto();
 
@@ -120,6 +132,12 @@ public class UserServiceImpl implements UserService {
 		if(profileDto != null && profileDto.getId() != DEFAULT_IMG_ID) {
 			profileService.deleteProfile(profileDto);
 		}
+	}
+
+	@Override
+	public UserDto deleteStatusMsg(UserDto userDto) {
+		userDto.setStatusMsg(null);
+		return userRepository.saveAndFlush(userDto);
 	}
 
 	@Override

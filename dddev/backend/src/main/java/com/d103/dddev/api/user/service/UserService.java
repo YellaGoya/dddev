@@ -14,9 +14,11 @@ public interface UserService {
 	Boolean checkDupNickname(String newNickname, Integer userId) throws Exception;	// 유저 닉네임 중복체크
 	UserDto modifyNickname(String nickname, UserDto userDto) throws Exception;	// 유저 닉네임 수정
 	UserDto modifyProfile(MultipartFile file, UserDto userDto) throws Exception;	// 유저 프로필 사진 수정
+	UserDto modifyStatusMsg(String statusMsg, UserDto userDto) throws Exception;
 	UserDto savePersonalAccessToken(String personalAccessToken, UserDto userDto) throws Exception;	// 유저 personal access token 수정
 	UserDto deleteProfile(UserDto userDto) throws Exception;		// 유저 프로필 사진 삭제
 	void deleteUser(UserDto userDto) throws Exception;	// 유저 탈퇴
+	UserDto deleteStatusMsg(UserDto userDto);
 	Map<String, String> githubToken(String code) throws Exception;
 	Boolean unlink(String oauthAccessToken) throws Exception;
 }
