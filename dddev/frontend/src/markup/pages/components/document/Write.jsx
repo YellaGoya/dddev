@@ -6,7 +6,6 @@ import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
 import 'quill/dist/quill.snow.css';
 
-// Quill modules to attach to editor
 const modules = {
   toolbar: [
     [{ header: [1, 2, 3, 4, false] }],
@@ -46,9 +45,20 @@ const Write = () => {
       binding.destroy();
       wsProvider.disconnect();
     };
-  }, []);
+  }, [params.docId]);
 
-  return <ReactQuill ref={quillRef} modules={modules} />;
+  return (
+    <>
+      <ReactQuill ref={quillRef} modules={modules} />
+      <div
+        onClick={() => {
+          console.log(quillRef.current.getEditor().root.innerHTML);
+        }}
+      >
+        button?
+      </div>
+    </>
+  );
 };
 
 export default Write;
