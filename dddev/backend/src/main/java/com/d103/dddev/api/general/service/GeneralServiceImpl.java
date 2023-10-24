@@ -6,6 +6,8 @@ import com.d103.dddev.common.TimeFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class GeneralServiceImpl implements GeneralService{
@@ -19,5 +21,9 @@ public class GeneralServiceImpl implements GeneralService{
     @Override
     public General getGeneral(String title){
         return generalRepository.findByTitle(title);
+    }
+    @Override
+    public List<General> getGeneralList(){
+        return generalRepository.findAll();
     }
 }
