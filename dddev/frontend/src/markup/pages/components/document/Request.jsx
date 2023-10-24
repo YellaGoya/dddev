@@ -1,7 +1,5 @@
-import React from 'react';
-
 const Request = () => {
-  return <div>Request</div>;
+  return <>Request</>;
 };
 
 export default Request;

@@ -12,12 +12,30 @@ export const Global = createGlobalStyle`
   body {
     margin: 0;
     overflow:hidden;
+  }
 
+  body, button, input{
     font-family : Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 ,ul, li {
     margin: 0;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #000;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #fff;
   }
 `;
 
@@ -28,7 +46,9 @@ export const ViewWrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: calc(100vh - 35px);
+  height: ${({ $isLoggedIn }) => ($isLoggedIn ? 'calc(100vh - 35px)' : '100vh')};
+
+  transition: height 0.3s ease;
 `;
 
 export const Main = styled.main`
@@ -38,5 +58,16 @@ export const Main = styled.main`
   flex-grow: 1;
   min-width: 280px;
 
+  overflow-y: auto;
+
   background-color: pink;
+`;
+
+export const ContentWrapper = styled.section`
+  position: relative;
+  max-width: 960px;
+
+  margin: 0 auto;
+
+  background-color: #777;
 `;
