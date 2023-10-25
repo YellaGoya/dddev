@@ -12,12 +12,9 @@ import * as s from 'markup/styles/components/document/Write';
 const modules = {
   toolbar: [
     [{ header: [1, 2, 3, 4, false] }],
-    [{ color: [] }, { background: [] }],
     ['bold', 'italic', 'underline', 'strike'],
     [{ list: 'ordered' }, { list: 'bullet' }],
     ['blockquote', 'code-block'],
-    [{ script: 'sub' }, { script: 'super' }],
-    [{ align: [] }],
   ],
   markdownShortcuts: {},
 };
@@ -41,7 +38,10 @@ const Write = () => {
       color: 'blue',
     });
 
-    const binding = new QuillBinding(type, quillRef.current.getEditor(), wsProvider.awareness);
+    const editor = quillRef.current.getEditor();
+    editor.format('font', 'Pretendard');
+
+    const binding = new QuillBinding(type, editor, wsProvider.awareness);
 
     return () => {
       binding.destroy();
