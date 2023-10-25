@@ -32,7 +32,7 @@ public class IssueDto {
 
     @Data
     @Builder
-    public class Response {
+    public static class Response {
         private String message;
         private Integer status;
         private boolean success;

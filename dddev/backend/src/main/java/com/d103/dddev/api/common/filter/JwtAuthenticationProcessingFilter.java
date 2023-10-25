@@ -50,6 +50,10 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
+		if(request.getRequestURI().startsWith("swagger-ui.html")){
+			filterChain.doFilter(request, response);
+			return;
+		}
 
 		if(request.getRequestURI().equals(NO_CHECK_URL)) {
 			filterChain.doFilter(request, response); // "/oauth/sign-in" 요청이 들어오면, 다음 필터 호출

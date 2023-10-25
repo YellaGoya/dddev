@@ -4,6 +4,7 @@ import lombok.Builder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Id;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -19,8 +20,8 @@ public class Issue {
     private String type;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Integer workTime;
     private Integer studyTime;
     private String author;

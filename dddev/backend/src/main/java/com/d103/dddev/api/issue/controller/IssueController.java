@@ -12,11 +12,10 @@ import org.springframework.web.bind.annotation.*;
 public class IssueController {
     private final IssueService issueService;
 
-    @PostMapping("/create/{$path}")
-    public ResponseEntity create(@PathVariable("path") String path,
-                                 @RequestBody IssueDto.Request request){
+    @PostMapping("/create")
+    public ResponseEntity create(@RequestBody IssueDto.Request request){
         IssueDto.Response response = issueService.create(request);
 
-        return ResponseEntity.status(200).body("hello");
+        return ResponseEntity.status(200).body(response);
     }
 }
