@@ -1,5 +1,6 @@
-package com.d103.dddev.api.user.repository.dto;
+package com.d103.dddev.api.file.repository.dto;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,7 +29,9 @@ public class ProfileDto {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	String url;
+	@Column(name = "file_path")
+	String filePath;
 
-	String extension;
+	@Column(name = "content_type")
+	String contentType;
 }

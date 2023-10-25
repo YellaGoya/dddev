@@ -12,7 +12,9 @@ export const Global = createGlobalStyle`
   body {
     margin: 0;
     overflow:hidden;
+  }
 
+  body, button, input{
     font-family : Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
   }
 
@@ -28,7 +30,9 @@ export const ViewWrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: calc(100vh - 35px);
+  height: ${({ $isLoggedIn }) => ($isLoggedIn ? 'calc(100vh - 35px)' : '100vh')};
+
+  transition: height 0.3s ease;
 `;
 
 export const Main = styled.main`
@@ -39,4 +43,13 @@ export const Main = styled.main`
   min-width: 280px;
 
   background-color: pink;
+`;
+
+export const ContentWrapper = styled.section`
+  position: relative;
+  max-width: 960px;
+
+  margin: 0 auto;
+
+  background-color: #777;
 `;
