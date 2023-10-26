@@ -1,11 +1,9 @@
-package com.d103.dddev.api.user.repository.dto;
+package com.d103.dddev.api.ground.repository.dto;
 
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,8 +13,8 @@ import javax.persistence.OneToOne;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 
-import com.d103.dddev.api.common.oauth2.Role;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
+import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,52 +23,38 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity(name = "user")
+@Entity(name = "ground")
 @Getter
 @Setter
-@DynamicInsert
-@Builder
 @ToString
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+@DynamicInsert
+public class GroundDto {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@OneToOne
+	@JoinColumn(name = "repository_id")
+	private RepositoryDto repositoryDto;
+
+	@OneToOne
 	@JoinColumn(name = "profile_id")
 	private ProfileDto profileDto;
 
-	@Column(name = "github_id")
-	private Integer githubId;
+	private String name;
 
-	private String nickname;
+	@Column(name = "focus_time")
+	private Integer focusTime;
 
-	@Column(name = "github_name")
-	private String githubName;
-
-	@Column(name = "status_msg")
-	private String statusMsg;
+	@Column(name = "active_time")
+	private Integer activeTime;
 
 	@CreationTimestamp
-	@JoinColumn(name = "create_time")
+	@Column(name = "create_time")
 	private Date createTime;
-
-	private Boolean valid;
-
-	@Column(name = "refresh_token")
-	private String refreshToken;
-
-	@Column(name = "personal_access_token")
-	private String personalAccessToken;
-
-	@Enumerated(EnumType.STRING)
-	private Role role;
-
-	public void updateRefreshToken(String updateRefreshToken){
-		this.refreshToken = updateRefreshToken;
-	}
 
 }

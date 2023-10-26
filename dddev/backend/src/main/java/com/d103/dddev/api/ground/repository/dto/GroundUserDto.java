@@ -1,12 +1,17 @@
-package com.d103.dddev.api.file.repository.dto;
+package com.d103.dddev.api.ground.repository.dto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+
+import com.d103.dddev.api.user.repository.dto.UserDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,23 +20,28 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity(name = "profile")
+@Entity(name = "ground_user")
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
-@DynamicInsert
 @Builder
-public class ProfileDto {
+@NoArgsConstructor
+@DynamicInsert
+@AllArgsConstructor
+public class GroundUserDto {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Column(name = "file_path")
-	private String filePath;
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private UserDto userDto;
 
-	@Column(name = "content_type")
-	private String contentType;
+	@ManyToOne
+	@JoinColumn(name = "ground_id")
+	private GroundDto groundDto;
+
+	@Column(name = "is_owner")
+	private Boolean isOwner;
 }

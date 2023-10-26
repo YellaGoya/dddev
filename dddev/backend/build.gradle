@@ -46,6 +46,9 @@ dependencies {
 	implementation group: 'org.json', name: 'json', version: '20090211'
 
 	implementation 'commons-io:commons-io:2.11.0'
+
+//	로그
+	implementation 'net.logstash.logback:logstash-logback-encoder:7.1.1'
 }
 
 //tasks.named('test') {
