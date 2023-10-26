@@ -26,6 +26,7 @@ async function requestPermission() {
   console.log('알림 권한이 허용됨');
 
   const token = await getToken(messaging, {
+    // 변경 예정
     vapidKey: 'BPx7bK6vhpUDuWrJbMr0ZDuGcKtB-1JvroQQFKJH2XE9TRRPOfx0i60AuKlei0r_rgqDReweOxVxu_MlGAJKSNg',
   });
 
