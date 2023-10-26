@@ -6,7 +6,7 @@ export const Global = createGlobalStyle`
   }
 
   html {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   body {
@@ -79,7 +79,7 @@ export const Main = styled.main`
 
   overflow-x: hidden;
 
-  background-color: pink;
+  background-color: #333333;
 `;
 
 export const ContentWrapper = styled.section`
