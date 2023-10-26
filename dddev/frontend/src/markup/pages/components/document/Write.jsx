@@ -3,11 +3,15 @@ import ReactQuill from 'react-quill';
 import Quill from 'quill';
 import * as Y from 'yjs';
 import { QuillBinding } from 'y-quill';
-import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
-import 'quill/dist/quill.snow.css';
 
+import MarkdownShortcuts from 'quill-markdown-shortcuts';
+import hljs from 'highlight.js';
+
+import AddIcon from '@mui/icons-material/Add';
+import 'quill/dist/quill.snow.css';
+import 'highlight.js/styles/github-dark.css';
 import * as s from 'markup/styles/components/document/Write';
 const Write = () => {
   const quillRef = useRef(null);
@@ -30,8 +34,18 @@ const Write = () => {
       ['blockquote', 'code-block'],
     ],
     markdownShortcuts: {},
+    syntax: {
+      highlight: (text) => hljs.highlightAuto(text).value,
+    },
   };
   Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
+
+  const insertBottom = () => {
+    const editor = quillRef.current.getEditor();
+    const length = editor.getLength();
+
+    editor.insertText(length, '\n', Quill.sources.USER);
+  };
 
   useEffect(() => {
     const roomName = `${params.docId}`;
@@ -44,7 +58,7 @@ const Write = () => {
     editor.format('font', 'Pretendard');
     const { container } = editor;
 
-    const updateCursor = (react = false) => {
+    const updateCursor = (react) => {
       const range = editor.getSelection();
       if (range) {
         const [blot] = editor.getLeaf(range.index);
@@ -55,9 +69,6 @@ const Write = () => {
         const blotEnd = blotStart + blot.length();
 
         if (checkRange(blotStart, blotEnd)) return;
-
-        console.log('pass');
-
         wsProvider.awareness.setLocalStateField('user', {
           name: `User-${Math.floor(Math.random() * 100)}`,
           color: getRandomPastelColor(),
@@ -78,7 +89,6 @@ const Write = () => {
 
     const checkRange = (start, end) => {
       const users = wsProvider.awareness.getStates();
-      console.log('hello');
 
       for (const [id, { user }] of users) {
         if (id !== wsProvider.awareness.clientID && user && user.range) {
@@ -92,16 +102,12 @@ const Write = () => {
       return false;
     };
 
-    editor.on('selection-change', updateCursor);
-    editor.on('text-change', (delta, oldDelta, source) => {
+    editor.on('selection-change', () => {
+      updateCursor();
+    });
+    editor.on('text-change', (delta, olddelta, source) => {
       if (source === 'user') {
         updateCursor();
-
-        // delta.ops.forEach((op) => {
-        //   if (op.insert && typeof op.insert === 'string' && op.insert === '\n') {
-        //     console.log('새로운 태그가 생성되었습니다:', op.insert);
-        //   }
-        // });
       }
     });
 
@@ -109,71 +115,53 @@ const Write = () => {
       editor.enable();
     };
 
-    const lastInputTimes = {};
-
     wsProvider.awareness.on('update', ({ added, updated, removed }) => {
       const users = wsProvider.awareness.getStates();
 
-      added.concat(updated).forEach((id) => {
-        const { user } = users.get(id);
-        if (user && user.cursor !== null) {
-          lastInputTimes[id] = Date.now();
-          let cursorElement = document.getElementById(`cursor-${id}`);
+      const intervalId = setInterval(() => {
+        const editorClassName = editor.container.firstChild.className;
 
-          // if (id === wsProvider.awareness.clientID) {
-          //   if (user.range) {
-          //     const ownUser = wsProvider.awareness.getLocalState().user;
-          //     if (ownUser && ownUser.range) {
-          //       checkRange();
-          //     }
-          //   }
+        if (editorClassName !== 'ql-editor ql-blank') {
+          added.concat(updated).forEach((id) => {
+            if (id === wsProvider.awareness.clientID) return;
 
-          //   return;
-          // }
+            const userState = users.get(id);
+            if (userState && userState.user && userState.user.cursor !== null) {
+              const { user } = userState;
+              if (!user.react) updateCursor(true);
 
-          if (cursorElement === null) {
-            cursorElement = document.createElement('div');
-            cursorElement.className = 'user-cursor';
-            cursorElement.id = `cursor-${id}`;
-            cursorElement.style.position = 'absolute';
-            cursorElement.style.color = user.color;
-            cursorElement.innerHTML = user.name;
+              let cursorElement = document.getElementById(`cursor-${id}`);
+              if (cursorElement === null) {
+                cursorElement = document.createElement('div');
+                cursorElement.className = 'user-cursor';
+                cursorElement.id = `cursor-${id}`;
+                cursorElement.style.position = 'absolute';
+                cursorElement.style.color = user.color;
+                cursorElement.innerHTML = user.name;
 
-            const cursorMark = document.createElement('div');
-            cursorMark.className = 'user-cursor-mark';
-            cursorElement.appendChild(cursorMark);
-            container.appendChild(cursorElement);
-          }
+                const cursorMark = document.createElement('div');
+                cursorMark.className = 'user-cursor-mark';
+                cursorElement.appendChild(cursorMark);
+                container.appendChild(cursorElement);
+              }
 
-          const cursorPosition = editor.getBounds(user.cursor);
-          cursorElement.style.top = cursorPosition.top + 'px';
-          if (user.react) return;
-          cursorElement.style.left = cursorPosition.left + 'px';
-          updateCursor(true);
+              const cursorPosition = editor.getBounds(user.cursor);
+              if (!user.react) cursorElement.style.left = cursorPosition.left + 'px';
+              cursorElement.style.top = cursorPosition.top + 'px';
+            }
+          });
+
+          removed.forEach((id) => {
+            const cursorElement = document.getElementById(`cursor-${id}`);
+            if (cursorElement !== null) {
+              cursorElement.remove();
+            }
+          });
+
+          clearInterval(intervalId);
         }
-      });
-
-      removed.forEach((id) => {
-        delete lastInputTimes[id];
-        const cursorElement = document.getElementById(`cursor-${id}`);
-        if (cursorElement !== null) {
-          cursorElement.remove();
-        }
-      });
+      }, 100);
     });
-
-    setInterval(() => {
-      const now = Date.now();
-
-      Object.keys(lastInputTimes).forEach((id) => {
-        if (now - lastInputTimes[id] > 7000) {
-          const cursorElement = document.getElementById(`cursor-${id}`);
-          if (cursorElement !== null) {
-            cursorElement.remove();
-          }
-        }
-      });
-    }, 1000);
 
     const binding = new QuillBinding(type, editor, wsProvider.awareness);
 
@@ -201,6 +189,10 @@ const Write = () => {
       <s.EditorWrapper>
         <ReactQuill ref={quillRef} modules={modules} placeholder="내용을 입력해주세요." />
       </s.EditorWrapper>
+
+      <s.InsertBottom onClick={insertBottom}>
+        <AddIcon />
+      </s.InsertBottom>
 
       <div
         onClick={() => {

@@ -11,7 +11,6 @@ export const EditorWrapper = styled.div`
 
   .quill {
     padding-top: 50px;
-    padding-bottom: 50px;
   }
 
   .ql-toolbar.ql-snow {
@@ -49,7 +48,7 @@ export const EditorWrapper = styled.div`
       white-space: nowrap;
       box-shadow: rgba(0, 0, 0, 0.2) 0 2px 8px;
 
-      /* transition: left 0.1s ease-in-out; */
+      transition: left 0.1s cubic-bezier(0.08, 0.84, 0.8, 0.75);
 
       & > .user-cursor-mark {
         position: absolute;
@@ -235,6 +234,14 @@ export const EditorWrapper = styled.div`
   }
 
   .ql-editor {
+    padding-bottom: 0;
+
+    ::selection {
+      background: #6194c8;
+      border-radius: 6px;
+      color: #fff;
+    }
+
     p {
       font-weight: 300;
     }
@@ -285,7 +292,70 @@ export const EditorWrapper = styled.div`
     }
 
     pre {
+      font-size: 0.9rem;
+      & > span {
+        font-size: 0.9rem;
+      }
       font-family: 'consolas', 'gulim';
+      width: auto;
+      margin: 0px 10px 15px 10px;
+
+      overflow-x: auto;
+
+      padding: 30px 20px 30px 20px;
+      border-radius: 4px;
+
+      box-shadow:
+        rgba(0, 0, 0, 0.24) 0px 1px 1px,
+        rgba(0, 0, 0, 0.24) 0px 2px 2px,
+        rgba(0, 0, 0, 0.24) 0px 4px 4px;
+
+      /* &::before {
+        width: 10px;
+      } */
+
+      &::-webkit-scrollbar {
+        height: 9px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background-clip: padding-box;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-top: 3px solid transparent;
+        border-bottom: 3px solid transparent;
+      }
+
+      &:hover {
+        border-radius: 0px 3px 3px 0px;
+      }
+    }
+
+    blockquote {
+      width: auto;
+      margin: 0px 10px 15px 10px;
+
+      padding: 10px 20px 10px 20px;
+      border: none;
+      border-radius: 4px 4px 24px 4px;
+
+      background-color: #ffffff22;
+
+      transition: background-color 0.2s ease;
+
+      box-shadow:
+        rgba(0, 0, 0, 0.24) 0px 1px 1px,
+        rgba(0, 0, 0, 0.24) 0px 2px 2px,
+        rgba(0, 0, 0, 0.24) 0px 4px 4px;
+
+      /* &::before {
+        width: 10px;
+      } */
+
+      &:hover {
+        background-color: #ffffff44;
+
+        border-radius: 0px 3px 24px 0px;
+      }
     }
 
     p > code,
@@ -309,7 +379,7 @@ export const EditorWrapper = styled.div`
       font-weight: inherit;
       font-size: inherit;
 
-      background-color: #333333;
+      background-color: #23241f;
       border-radius: 5px;
     }
 
@@ -343,5 +413,55 @@ export const EditorWrapper = styled.div`
         }
       }
     }
+
+    * {
+      position: relative;
+
+      /* &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -10px;
+        width: 6px;
+        height: 100%;
+        background-color: #fff;
+
+        transition: opacity 0.2s ease;
+
+        opacity: 0;
+      }
+
+      &:hover::before {
+        opacity: 1;
+      } */
+    }
+
+    /* code {
+      &:hover::before {
+        opacity: 0;
+      }
+    } */
   }
+`;
+
+export const InsertBottom = styled.button`
+  position: relative;
+  width: calc(100% - 30px);
+  max-width: 930px;
+
+  display: block;
+  margin: 0 auto;
+  padding: 4px 10px 4px 10px;
+
+  color: #fff;
+
+  border: none;
+  border-radius: 6px;
+  background-color: #282828;
+
+  box-shadow:
+    rgba(0, 0, 0, 0.24) 0px 1px 1px,
+    rgba(0, 0, 0, 0.24) 0px 2px 2px,
+    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+  cursor: pointer;
 `;

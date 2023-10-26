@@ -8,7 +8,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import * as s from 'markup/styles/components/document/Index';
 const Index = () => {
   const navigate = useNavigate();
-  const groundId = useSelector((state) => state.ground.groundId);
+  const groundId = useSelector((state) => state.user.lastGround);
 
   const RenderDocsTree = ({ doc }) => {
     const [toggle, setToggle] = useState(doc.depth === 2);

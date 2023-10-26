@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { setGround } from 'redux/actions/ground';
+import { updateTokens } from 'redux/actions/user';
 import { setMenu } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 
@@ -11,7 +11,7 @@ const Sidemenu = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const menuToggle = useSelector((state) => state.menu.menuToggle);
-  const groundId = useSelector((state) => state.ground.groundId);
+  const groundId = useSelector((state) => state.user.lastGround);
   const [groundListToggle, setGroundListToggle] = useState(false);
 
   const groundList = [
@@ -26,7 +26,7 @@ const Sidemenu = () => {
   };
 
   const groundItemhandler = (value) => {
-    dispatch(setGround(value));
+    dispatch(updateTokens(value));
     navigate(`/${value.groundId}`);
   };
 
@@ -59,7 +59,7 @@ const Sidemenu = () => {
             <s.GroundItem
               key={groundId}
               onClick={() => {
-                groundItemhandler({ groundId, groundName });
+                groundItemhandler({ groundId });
               }}
             >
               {groundName}
