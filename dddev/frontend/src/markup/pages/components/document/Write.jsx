@@ -17,7 +17,7 @@ const Write = () => {
   const quillRef = useRef(null);
   const params = useParams();
 
-  const [docType, setDocType] = React.useState(2);
+  // const [docType, setDocType] = React.useState(2);
 
   const getRandomPastelColor = () => {
     const r = Math.floor(Math.random() * 127 + 128);
@@ -37,7 +37,9 @@ const Write = () => {
     syntax: {
       highlight: (text) => hljs.highlightAuto(text).value,
     },
+    keyboard: true,
   };
+
   Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
 
   const insertBottom = () => {
@@ -52,9 +54,10 @@ const Write = () => {
     const doc = new Y.Doc();
     const type = doc.getText('quill');
 
-    const wsProvider = new WebsocketProvider('ws://34.22.71.151:6001', roomName, doc);
+    const wsProvider = new WebsocketProvider('ws://34.64.243.47:6001', roomName, doc);
 
     const editor = quillRef.current.getEditor();
+
     editor.format('font', 'Pretendard');
     const { container } = editor;
 
@@ -175,7 +178,7 @@ const Write = () => {
 
   return (
     <>
-      <h1>docType : {docType}</h1>
+      {/* <h1>docType : {docType}</h1>
       <button type="button" onClick={() => setDocType(0)}>
         이슈
       </button>
@@ -184,7 +187,7 @@ const Write = () => {
       </button>
       <button type="button" onClick={() => setDocType(2)}>
         일반
-      </button>
+      </button> */}
 
       <s.EditorWrapper>
         <ReactQuill ref={quillRef} modules={modules} placeholder="내용을 입력해주세요." />

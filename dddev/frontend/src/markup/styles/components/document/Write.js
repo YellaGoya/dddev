@@ -463,5 +463,12 @@ export const InsertBottom = styled.button`
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
     rgba(0, 0, 0, 0.24) 0px 4px 4px;
+
+  transition: background-color 0.15s ease;
+
   cursor: pointer;
+
+  &:hover {
+    background-color: #444444;
+  }
 `;
