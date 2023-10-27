@@ -54,10 +54,13 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
+		corsConfiguration.addAllowedOrigin("http://localhost:3000/**");
+		corsConfiguration.addAllowedOrigin("http://localhost:3000");
+		corsConfiguration.addAllowedOrigin("https://k9d103.p.ssafy.io:[*]/*");
 		corsConfiguration.addAllowedMethod("*");
 		corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
 		corsConfiguration.addAllowedHeader("*");
-		corsConfiguration.addAllowedOrigin("*");
+		// corsConfiguration.addAllowedOrigin("*");
 		corsConfiguration.setMaxAge(7200L);
 		corsConfiguration.addExposedHeader("Authorization");
 		corsConfiguration.addExposedHeader("Authorization-refresh");

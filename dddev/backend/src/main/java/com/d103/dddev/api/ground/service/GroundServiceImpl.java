@@ -1,6 +1,7 @@
 package com.d103.dddev.api.ground.service;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -28,11 +29,26 @@ public class GroundServiceImpl implements GroundService {
 	 * 2. groundUserDto owner 설정
 	 * */
 	@Override
-	public GroundDto createGround(GroundDto groundDto, UserDto userDto, RepositoryDto repositoryDto) throws Exception {
+	public GroundDto createGround(String groundName, UserDto userDto, RepositoryDto repositoryDto) throws Exception {
 		log.info("service - createGround :: 그라운드 생성 진입");
+		GroundDto groundDto = GroundDto.builder()
+			.name(groundName)
+			.build();
+
 		groundDto.setRepositoryDto(repositoryDto);
 		groundDto = groundRepository.saveAndFlush(groundDto);
 		groundUserService.updateGroundOwner(groundDto, userDto);
 		return groundDto;
+	}
+
+	@Override
+	public Optional<GroundDto> getGroundByRepoId(Integer repoId) throws Exception {
+		return groundRepository.findByRepositoryDto_Id(repoId);
+	}
+
+	@Override
+	public Optional<GroundDto> getGroundInfo(Integer groundId) throws Exception {
+		log.info("service - getGroundInfo :: 그라운드 조회 진입");
+		return groundRepository.findById(groundId);
 	}
 }

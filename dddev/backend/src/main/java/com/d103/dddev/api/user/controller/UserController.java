@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -121,11 +122,11 @@ public class UserController {
 		}
 	}
 
-	@GetMapping("/nickname/duplicate")
+	@GetMapping("/nickname/duplicate/{nickname}")
 	@ApiOperation(value = "닉네임 중복 조회", notes = "닉네임 중복 조회 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<Boolean> checkDupNickname(@ApiParam(value = "중복 체크할 닉네임") @RequestParam String nickname,
+	ResponseEntity<Boolean> checkDupNickname(@ApiParam(value = "중복 체크할 닉네임") @PathVariable String nickname,
 		@RequestHeader String Authorization) {
 		log.info("controller - checkDupNickname :: 사용자 닉네임 중복 조회 진입");
 		try {
