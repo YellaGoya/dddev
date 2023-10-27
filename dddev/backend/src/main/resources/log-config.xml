@@ -1,0 +1,12 @@
+<!-- logstash spec -->
+<appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+    <destination>k9d103a.p.ssafy.io:5000</destination>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    <layout class="net.logstash.logback.layout.LogstashLayout">
+        <timestampPattern>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampPattern>
+    </layout>
+</appender>
+
+<root level="debug">
+<appender-ref ref="LOGSTASH" />
+</root>

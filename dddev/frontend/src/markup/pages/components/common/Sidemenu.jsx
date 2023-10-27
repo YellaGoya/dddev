@@ -27,24 +27,23 @@ const Sidemenu = () => {
 
   const groundItemhandler = (value) => {
     dispatch(setGround(value));
-    navigate(`/${groundId}`);
+    navigate(`/${value.groundId}`);
   };
 
   const logoutHandler = () => {
     dispatch(logoutUser());
     dispatch(setMenu());
+    console.log('groundId');
     navigate(`/login`);
   };
 
   useEffect(() => {
-    if (menuToggle) setGroundListToggle(false);
+    if (!menuToggle) setGroundListToggle(false);
   }, [menuToggle]);
 
   return (
     <s.SidemenuWrapper $menuToggle={menuToggle}>
       <s.PositionWrapper>
-        <div onClick={groundButtonHandler}>open</div>
-
         <s.MenuNav>
           <s.MenuCategory to={`/${groundId}/project`}>프로젝트</s.MenuCategory>
           <s.MenuChild to={`/${groundId}/project/chart`}>차트</s.MenuChild>
@@ -66,6 +65,7 @@ const Sidemenu = () => {
               {groundName}
             </s.GroundItem>
           ))}
+          <div onClick={groundButtonHandler}>open</div>
         </s.GroundList>
         <button type="button" onClick={logoutHandler}>
           logout

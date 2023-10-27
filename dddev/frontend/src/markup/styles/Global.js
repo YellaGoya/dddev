@@ -21,6 +21,22 @@ export const Global = createGlobalStyle`
   h1, h2, h3, h4, h5, h6 ,ul, li {
     margin: 0;
   }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #000;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #fff;
+  }
 `;
 
 export const ViewWrapper = styled.div`
@@ -41,6 +57,8 @@ export const Main = styled.main`
 
   flex-grow: 1;
   min-width: 280px;
+
+  overflow-y: auto;
 
   background-color: pink;
 `;

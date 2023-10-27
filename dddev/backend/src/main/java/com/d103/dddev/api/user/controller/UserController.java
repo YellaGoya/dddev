@@ -155,7 +155,7 @@ public class UserController {
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
-			String newPersonalAccessToken = personalAccessTokenMap.get("personal_access_token");
+			String newPersonalAccessToken = personalAccessTokenMap.get("personalAccessToken");
 
 			userService.savePersonalAccessToken(newPersonalAccessToken, userDto);
 			return new ResponseEntity<>("personal access token 저장 성공!", HttpStatus.OK);

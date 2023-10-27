@@ -75,7 +75,7 @@ public class Oauth2Service {
 		Map<String, String> map = new HashMap<>();
 		map.put("Authorization", accessToken);
 		map.put("Authorization-refresh", refreshToken);
-		map.put("name", name);
+		map.put("nickname", name);
 		map.put("role", String.valueOf(userDto.getRole()));
 
 		log.info("login :: github api login 성공");
@@ -180,6 +180,7 @@ public class Oauth2Service {
 
 		UserDto user = UserDto.builder()
 			.nickname(name)
+			.githubName(name)
 			.githubId(githubId)
 			.valid(true)
 			.role(Role.GUEST)

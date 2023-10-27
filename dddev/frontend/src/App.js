@@ -1,4 +1,5 @@
 import { BrowserRouter, useRoutes, Navigate } from 'react-router-dom';
+// import { Provider } from 'react-redux';
 import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from 'redux/store';
@@ -11,11 +12,9 @@ import Project from 'markup/pages/Project';
 import Document from 'markup/pages/Document';
 
 import { Global } from 'markup/styles/Global';
-// import { useEffect } from 'react';
 
 const Routing = () => {
   const user = useSelector((state) => state.user);
-  console.log(user);
 
   return useRoutes([
     {
@@ -29,10 +28,12 @@ const Routing = () => {
       ) : (
         <Navigate to="/login" />
       ),
+      // element: <Navigate to="/101" />,
     },
     {
       path: '/:groundId',
-      element: user.isLoggedIn ? <Home /> : <Navigate to="/login" />,
+      element: <Home />,
+      // element: user.isLoggedIn ? <Home /> : <Navigate to="/login" />,
     },
     {
       path: '/login/*',
@@ -40,11 +41,13 @@ const Routing = () => {
     },
     {
       path: '/:groundId/project/*',
-      element: user.isLoggedIn ? <Project /> : <Navigate to="/login" />,
+      element: <Project />,
+      // element: user.isLoggedIn ? <Project /> : <Navigate to="/login" />,
     },
     {
       path: '/:groundId/document/*',
-      element: user.isLoggedIn ? <Document /> : <Navigate to="/login" />,
+      element: <Document />,
+      // element: user.isLoggedIn ? <Document /> : <Navigate to="/login" />,
     },
   ]);
 };

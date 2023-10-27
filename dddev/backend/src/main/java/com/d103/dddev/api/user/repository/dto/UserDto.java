@@ -48,6 +48,9 @@ public class UserDto {
 
 	private String nickname;
 
+	@Column(name = "github_name")
+	private String githubName;
+
 	@Column(name = "status_msg")
 	private String statusMsg;
 
