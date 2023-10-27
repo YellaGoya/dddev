@@ -86,7 +86,7 @@ public class GroundController {
 			// 1. 사용자가 해당 그라운드의 멤버인지 확인
 			System.out.println(groundUserService.checkIsGroundMember(groundId, userDto.getId()));
 			// 2. 그라운드 정보 조회
-
+			System.out.println("a");
 			return null;
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
