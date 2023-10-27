@@ -54,6 +54,6 @@ public class GroundUserServiceImpl implements GroundUserService {
 
 	@Override
 	public List<GroundUserDto> getGroundUser(Integer groundId) throws Exception {
-		return null;
+		return groundUserRepository.findByGroundDto_Id(groundId);
 	}
 }
