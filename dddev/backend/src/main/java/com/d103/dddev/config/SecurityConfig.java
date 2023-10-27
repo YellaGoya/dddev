@@ -1,5 +1,7 @@
 package com.d103.dddev.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -54,13 +56,15 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
-		corsConfiguration.addAllowedOrigin("http://localhost:3000/**");
+
+		corsConfiguration.setAllowCredentials(true); // 내 서버가 응답할 때 json을 JS에서 처리할 수 있게 설정
+		corsConfiguration.setExposedHeaders(List.of("*")); // 헤더 값 접근
+
 		corsConfiguration.addAllowedOrigin("http://localhost:3000");
-		corsConfiguration.addAllowedOrigin("https://k9d103.p.ssafy.io:[*]/*");
+		corsConfiguration.addAllowedOrigin("https://k9d103.p.ssafy.io");
 		corsConfiguration.addAllowedMethod("*");
 		corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
 		corsConfiguration.addAllowedHeader("*");
-		// corsConfiguration.addAllowedOrigin("*");
 		corsConfiguration.setMaxAge(7200L);
 		corsConfiguration.addExposedHeader("Authorization");
 		corsConfiguration.addExposedHeader("Authorization-refresh");
