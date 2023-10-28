@@ -1,5 +1,6 @@
 package com.d103.dddev.api.issue.model.dto;
 
+import com.d103.dddev.api.issue.model.document.Issue;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,22 +13,9 @@ public class IssueDto {
     @Builder
     public static class Request{
         private String sprintId;
+        private String groundId;
         private String parentId;
-        private ArrayList<String> childrenId = new ArrayList<>();
         private Integer step;
-        private String type;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
-        private LocalDateTime startDate;
-        private LocalDateTime endDate;
-        private Integer workTime;
-        private Integer studyTime;
-        private String author;
-        private String modifier;
-        private Integer status;
-        private String uri;
-        private String title;
-        private String content;
     }
 
     @Data
@@ -35,6 +23,7 @@ public class IssueDto {
     public static class Response {
         private String message;
         private Integer status;
+        private Issue issue;
         private boolean success;
     }
 }

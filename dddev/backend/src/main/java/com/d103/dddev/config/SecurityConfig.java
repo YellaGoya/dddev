@@ -46,9 +46,9 @@ public class SecurityConfig {
 			.antMatchers("/swagger-ui.html").permitAll()
 			.antMatchers("/oauth/**").permitAll()
 			.antMatchers("/", "/**", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
-			.anyRequest().authenticated();
-
-		http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
+//			.anyRequest().authenticated();
+			.anyRequest().permitAll();
+//		http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
 		return http.build();
 	}
 
