@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,14 +17,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.d103.dddev.api.alert.dto.AlertUserDto;
 import com.d103.dddev.api.alert.dto.CommitDataDto;
+import com.d103.dddev.api.alert.dto.CreateWebhookRequestDto;
 import com.d103.dddev.api.alert.dto.CreateWebhookResponseDto;
 import com.d103.dddev.api.alert.dto.ReceiveWebhookDto;
 import com.d103.dddev.api.alert.entity.AlertDto;
 import com.d103.dddev.api.alert.repository.AlertRepository;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
-import com.d103.dddev.api.repository.repository.RepositoryRepository;
+import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.ground.service.GroundService;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
+import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.service.UserServiceImpl;
 
@@ -32,27 +38,33 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AlertServiceImpl implements AlertService {
 
 	private final JwtService jwtService;
 	private final UserServiceImpl userService;
-	private final RepositoryRepository repositoryRepository;
+	private final RepositoryService repositoryService;
+	private final GroundService groundService;
 	private final AlertRepository alertRepository;
 
 	@Override
-	public void addCommitWebhook(String header, Integer repositoryId) throws Exception {
+	public void addCommitWebhook(String header, CreateWebhookRequestDto createWebhookRequestDto) throws Exception {
 
 		UserDto userDto = jwtService.getUser(header).orElseThrow(
 			() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
 		String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
 
-		RepositoryDto repositoryDto = repositoryRepository.findByRepoId(repositoryId).orElseThrow(
+
+		Integer repositoryId = createWebhookRequestDto.getRepositoryId();
+		List<String> keyword = createWebhookRequestDto.getKeyword();
+
+		RepositoryDto repositoryDto = repositoryService.getRepository(repositoryId).orElseThrow(
 			() -> new NoSuchElementException("getRepoInfo :: 존재하지 않는 레포지터리입니다.")
 		);
 
 		// 이미 alertdto가 있는 경우 - repo id, type 비교
-		List<AlertDto> alertDtoOptional = alertRepository.findByRepositoryIdAndType(repositoryId, "push");
+		List<AlertDto> alertDtoOptional = alertRepository.findAllByRepositoryIdAndType(repositoryId, "push");
 
 		if(!alertDtoOptional.isEmpty()) {
 
@@ -66,7 +78,7 @@ public class AlertServiceImpl implements AlertService {
 				.type(existAlertDto.getType())
 				.createdDate(LocalDateTime.now())
 				.userDto(userDto)
-				.keyword(null)
+				.keyword(keyword)
 				.repositoryId(existAlertDto.getRepositoryId())
 				.build();
 
@@ -118,7 +130,7 @@ public class AlertServiceImpl implements AlertService {
 			.webhookId(createWebhookResponseDto.getId())
 			.createdDate(createWebhookResponseDto.getCreatedAt())
 			.repositoryId(repositoryId)
-			.keyword(null)
+			.keyword(keyword)
 			.type(createWebhookResponseDto.getEvents().get(0))
 			.userDto(userDto)
 			.build();
@@ -132,8 +144,14 @@ public class AlertServiceImpl implements AlertService {
 
 		// 해당 레포의 그라운드를 찾고 그 멤버를 찾음
 
+		GroundDto groundDto = groundService.getGroundByRepoId(receiveWebhookDto.getRepository().getRepoId())
+			.orElseThrow(() -> new Exception("해당 웹훅의 수신 그라운드를 찾을 수 없습니다."));
 
-		// 멤버의 알림 수신 여부를 확인하고 수신하는 멤버들 돌면서 키워드, 파일명 검색
+		List<AlertUserDto> userDtoList = alertRepository.findByRepositoryIdAndType(receiveWebhookDto.getRepository().getId(), "push");
+
+		log.info("AlertUserDto List {}", userDtoList);
+
+		// 알림 수신하는 멤버들의 키워드 검색
 
 
 		// 변경한 파일 검색

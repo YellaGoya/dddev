@@ -1,8 +1,10 @@
 package com.d103.dddev.api.alert.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -37,7 +39,9 @@ public class AlertDto {
 
 	private Integer webhookId;
 
-	private String keyword;
+	@ElementCollection
+	private List<String> keyword;
+	// private String keyword;
 
 	private Integer repositoryId;
 
