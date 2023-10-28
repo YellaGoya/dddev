@@ -1,5 +1,6 @@
 package com.d103.dddev.api.ground.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -49,5 +50,10 @@ public class GroundUserServiceImpl implements GroundUserService {
 			groundId, userId);
 
 		return groundUserDtoOptional.isPresent();
+	}
+
+	@Override
+	public List<GroundUserDto> getGroundUser(Integer groundId) throws Exception {
+		return groundUserRepository.findByGroundDto_Id(groundId);
 	}
 }
