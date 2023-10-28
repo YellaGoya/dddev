@@ -1,13 +1,13 @@
 package com.d103.dddev.api.alert.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,9 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.d103.dddev.api.alert.dto.CommitDataDto;
 import com.d103.dddev.api.alert.dto.CreateWebhookResponseDto;
 import com.d103.dddev.api.alert.dto.ReceiveWebhookDto;
+import com.d103.dddev.api.alert.entity.AlertDto;
+import com.d103.dddev.api.alert.repository.AlertRepository;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
+import com.d103.dddev.api.repository.repository.RepositoryRepository;
+import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.service.UserServiceImpl;
 
@@ -31,24 +36,47 @@ public class AlertServiceImpl implements AlertService {
 
 	private final JwtService jwtService;
 	private final UserServiceImpl userService;
-
-	// @Value("${}")
-	// String serverKey;
+	private final RepositoryRepository repositoryRepository;
+	private final AlertRepository alertRepository;
 
 	@Override
-	public void addCommitWebhook(String header, String repoName) throws Exception {
+	public void addCommitWebhook(String header, Integer repositoryId) throws Exception {
 
-		// UserDto userDto = jwtService.getUser(header).orElseThrow(
-		// 	() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
-
-		// test
-		UserDto userDto = UserDto.builder()
-			.personalAccessToken(userService.encryptPersonalAccessToken("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"))
-			.nickname("gayun0303")
-			.build();
-
+		UserDto userDto = jwtService.getUser(header).orElseThrow(
+			() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
 		String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
+
+		RepositoryDto repositoryDto = repositoryRepository.findByRepoId(repositoryId).orElseThrow(
+			() -> new NoSuchElementException("getRepoInfo :: 존재하지 않는 레포지터리입니다.")
+		);
+
+		// 이미 alertdto가 있는 경우 - repo id, type 비교
+		List<AlertDto> alertDtoOptional = alertRepository.findByRepositoryIdAndType(repositoryId, "push");
+
+		if(!alertDtoOptional.isEmpty()) {
+
+			Optional<AlertDto> userAlertDto = alertRepository.findByUserDto_IdAndRepositoryIdAndType(userDto.getId(), repositoryId, "push");
+			if(userAlertDto.isPresent()) {
+				throw new Exception("이미 생성한 알림입니다.");
+			}
+			AlertDto existAlertDto = alertDtoOptional.get(0);
+			AlertDto alertDto = AlertDto.builder()
+				.webhookId(existAlertDto.getWebhookId())
+				.type(existAlertDto.getType())
+				.createdDate(LocalDateTime.now())
+				.userDto(userDto)
+				.keyword(null)
+				.repositoryId(existAlertDto.getRepositoryId())
+				.build();
+
+			alertRepository.save(alertDto);
+
+			log.info("해당 알림이 이미 존재합니다. 사용자만 등록합니다.");
+
+			return;
+		}
+
 
 		HashMap<String, Object> body = new HashMap<>();
 		HttpHeaders headers = new HttpHeaders();
@@ -62,7 +90,7 @@ public class AlertServiceImpl implements AlertService {
 		HashMap<String, Object> configHashMap = new HashMap<>();
 		configHashMap.put("url", "https://k9d103.p.ssafy.io/alert-service/receive-webhook");
 		configHashMap.put("content_type", "json");
-		// configHashMap.put("insecure_ssl", "0");
+		configHashMap.put("insecure_ssl", "0");
 		body.put("config", configHashMap);
 
 		HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
@@ -70,7 +98,7 @@ public class AlertServiceImpl implements AlertService {
 		RestTemplate restTemplate = new RestTemplate();
 
 		ResponseEntity<CreateWebhookResponseDto> response = restTemplate.exchange(
-			"https://api.github.com/repos/"+userDto.getNickname()+"/"+repoName+"/hooks",
+			"https://api.github.com/repos/"+userDto.getGithubName()+"/"+repositoryDto.getName()+"/hooks",
 			HttpMethod.POST,
 			entity,
 			CreateWebhookResponseDto.class
@@ -84,15 +112,18 @@ public class AlertServiceImpl implements AlertService {
 		// log.info("response {}", response);
 		// 알림 생성된 정보 저장 - id, push/PR
 
-		// ModelMapper mapper = new ModelMapper();
-		// mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-		//
-		// UserEntity userEntity = mapper.map(userDto, UserEntity.class);
+		CreateWebhookResponseDto createWebhookResponseDto = response.getBody();
 
+		AlertDto alertDto = AlertDto.builder()
+			.webhookId(createWebhookResponseDto.getId())
+			.createdDate(createWebhookResponseDto.getCreatedAt())
+			.repositoryId(repositoryId)
+			.keyword(null)
+			.type(createWebhookResponseDto.getEvents().get(0))
+			.userDto(userDto)
+			.build();
 
-
-
-		System.out.println("response "+ response);
+		alertRepository.save(alertDto);
 
 	}
 
@@ -102,8 +133,25 @@ public class AlertServiceImpl implements AlertService {
 		// 해당 레포의 그라운드를 찾고 그 멤버를 찾음
 
 
-		// 멤버의 알림 수신 여부를 확인하고 수신하는 멤버들 돌면서 (파일, 키워드) 검색,
+		// 멤버의 알림 수신 여부를 확인하고 수신하는 멤버들 돌면서 키워드, 파일명 검색
 
+
+		// 변경한 파일 검색
+		for(CommitDataDto commitDataDto : receiveWebhookDto.getCommits()) {
+
+			// 추가된 파일명
+			for(String filename: commitDataDto.getAdded()) {
+
+			}
+			// 삭제된 파일명
+			for(String filename: commitDataDto.getRemoved()) {
+
+			}
+			// 수정된 파일명
+			for(String filename: commitDataDto.getModified()) {
+
+			}
+		}
 
 		// 리스트에 해당되는 멤버들 기기 알림 토큰 추가하고
 
@@ -115,6 +163,8 @@ public class AlertServiceImpl implements AlertService {
 
 		// test
 		String serverKey = "AAAA-JR50zk:APA91bF4mudANm2i7fUAWnk9SGV2C4wvnqbal6AsiIwG9P8sxiQxNBU7eaEkPZ6RVQpJ8M5POblq43u94Wpja7qXL01GKE4yjAk9pE8a-yDYbdB98_LJ1lOBftUVoloFaCY6IAE7MuDs";
+
+
 
 		HashMap<String, Object> body = new HashMap<>();
 		HttpHeaders headers = new HttpHeaders();
@@ -140,7 +190,7 @@ public class AlertServiceImpl implements AlertService {
 			);
 		}
 
-		// 알림 내역을 db에 저장
+		// 전송한 알림 내역을 db에 저장
 
 	}
 }
