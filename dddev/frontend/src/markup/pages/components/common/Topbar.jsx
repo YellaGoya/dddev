@@ -5,19 +5,18 @@ import * as s from 'markup/styles/components/common/Topbar';
 
 const Topbar = () => {
   const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const menuToggle = useSelector((state) => state.menu.menuToggle);
-  const selectedGround = useSelector((state) => state.ground.ground);
-
-  const menuButtonhandler = () => {
-    dispatch(setMenu());
-  };
+  const selectedGround = useSelector((state) => state.ground.groundName);
 
   return (
-    <s.TopbarWrapper>
-      <s.SelectedGround onClick={() => menuButtonhandler()}>
-        {menuToggle ? '열기' : '닫기'}
-        {selectedGround.length === 0 ? '없음' : selectedGround}
-      </s.SelectedGround>
+    <s.TopbarWrapper $isLoggedIn={isLoggedIn}>
+      <s.PositionWrapper>
+        <s.SelectedGround onClick={() => dispatch(setMenu())}>
+          {menuToggle ? '닫기' : '열기'}
+          {!selectedGround || selectedGround.length === 0 ? '없음' : selectedGround}
+        </s.SelectedGround>
+      </s.PositionWrapper>
     </s.TopbarWrapper>
   );
 };

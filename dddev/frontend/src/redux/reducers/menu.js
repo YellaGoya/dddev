@@ -1,4 +1,4 @@
-import { SET_MENU } from '../actions/menu';
+import { SET_MENU } from 'redux/actions/menu';
 
 const initialState = {
   menuToggle: false,

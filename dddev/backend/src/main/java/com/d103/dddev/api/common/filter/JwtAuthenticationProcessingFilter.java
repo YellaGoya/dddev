@@ -123,7 +123,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		jwtService.extractAccessToken(request)
 			.filter(jwtService::isTokenValid)
 			.ifPresent(accessToken -> jwtService.extractGithubId(accessToken)
-				.ifPresent(githubId -> userRepository.findBygithubId(githubId)
+				.ifPresent(githubId -> userRepository.findByGithubId(githubId)
 					.ifPresent(this::saveAuthentication)));
 
 		filterChain.doFilter(request, response);
@@ -151,6 +151,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
 			.username(myUser.getNickname())
 			.password(password)
+			.roles(myUser.getRole().name())
 			.build();
 
 		Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
