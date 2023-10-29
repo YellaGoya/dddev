@@ -5,7 +5,6 @@ export const ContentGrid = styled.section`
 
   //수평 수직 중앙정렬
   top: 100px;
-  /* left: calc(50% - 1px); */
   left: 50%;
   transform: translateX(-50%);
 
@@ -13,46 +12,45 @@ export const ContentGrid = styled.section`
   justify-items: center;
   align-items: center;
 
-  @media (min-width: 1500px) {
+  border-radius: 0.75rem;
+  border: 1px solid #30363d;
+
+  overflow: hidden;
+
+  margin: 1px;
+
+  @media (min-width: 1560px) {
     grid-template-columns: repeat(3, 1fr);
     grid-auto-rows: 600px;
 
     & > :first-child {
-      border-radius: 12px 0 0 12px;
-
       & > div {
-        border-right: 1px solid #fff;
+        border-right: 1px solid #30363d;
       }
     }
     & > :last-child {
-      border-radius: 0 12px 12px 0;
-
       & > div {
-        border-left: 1px solid #fff;
+        border-left: 1px solid #30363d;
       }
     }
   }
 
-  @media (max-width: 1499px) {
+  @media (max-width: 1559px) {
     grid-template-columns: repeat(1, 1fr);
     justify-items: center;
     align-items: center;
-    width: calc(100% + 2px);
+    width: calc(100% - 4px);
     min-width: 361px;
     max-width: 900px;
 
     & > :first-child {
-      border-radius: 12px 12px 0 0;
-
       & > div {
-        border-bottom: 1px solid #fff;
+        border-bottom: 1px solid #30363d;
       }
     }
     & > :last-child {
-      border-radius: 0 0 12px 12px;
-
       & > div {
-        border-top: 1px solid #fff;
+        border-top: 1px solid #30363d;
       }
     }
   }
@@ -60,17 +58,17 @@ export const ContentGrid = styled.section`
 
 export const ContentCard = styled.article`
   position: relative;
-  @media (min-width: 1500px) {
+  @media (min-width: 1560px) {
     width: 420px;
     height: 600px;
   }
 
-  @media (max-width: 1499px) {
+  @media (max-width: 1559px) {
     width: 100%;
     min-width: 361px;
   }
 
-  background-color: #343434;
+  background-color: #0d1117;
 `;
 
 export const ContentLabel = styled.h1`
@@ -90,13 +88,13 @@ export const Content = styled.div`
   overflow-x: hidden;
   text-overflow: ellipsis;
 
-  @media (min-width: 1500px) {
+  @media (min-width: 1560px) {
     margin: 40px 0;
     padding: 20px 20px 0px 10px;
     height: calc(100% - 80px);
   }
 
-  @media (max-width: 1499px) {
+  @media (max-width: 1559px) {
     margin: 0 20px;
     padding: 60px 0 40px 0px;
 

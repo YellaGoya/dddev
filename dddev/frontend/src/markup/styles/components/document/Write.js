@@ -7,7 +7,7 @@ export const EditorWrapper = styled.div`
 
   margin: 0 auto;
 
-  background-color: #333;
+  background-color: #0d1117;
 
   .quill {
     padding-top: 50px;
@@ -457,7 +457,7 @@ export const InsertBottom = styled.button`
 
   border: none;
   border-radius: 6px;
-  background-color: #282828;
+  background-color: #21262c;
 
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
@@ -469,6 +469,6 @@ export const InsertBottom = styled.button`
   cursor: pointer;
 
   &:hover {
-    background-color: #444444;
+    background-color: #3d4752;
   }
 `;

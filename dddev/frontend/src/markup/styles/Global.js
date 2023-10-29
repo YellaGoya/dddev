@@ -12,7 +12,7 @@ export const Global = createGlobalStyle`
   body {
     margin: 0;
     overflow:hidden;
-    background-color: #333333;
+    background-color: #0d1117;
   }
 
   body, button, input{
@@ -80,7 +80,7 @@ export const Main = styled.main`
 
   overflow-x: hidden;
 
-  background-color: #333333;
+  background-color: #0d1117;
 `;
 
 export const ContentWrapper = styled.section`
@@ -89,5 +89,5 @@ export const ContentWrapper = styled.section`
 
   margin: 0 auto;
 
-  background-color: #777;
+  background-color: #0d1117;
 `;

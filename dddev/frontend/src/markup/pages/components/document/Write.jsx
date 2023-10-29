@@ -50,7 +50,8 @@ const Write = () => {
   };
 
   useEffect(() => {
-    const roomName = `${params.docId}`;
+    // 없으면 테스트용으로 test로 설정
+    const roomName = `${params.docId || 'test'}`;
     const doc = new Y.Doc();
     const type = doc.getText('quill');
 

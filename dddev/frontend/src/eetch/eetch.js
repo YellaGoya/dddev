@@ -10,44 +10,14 @@ import * as user from 'eetch/user';
 // import { refresh } from "apis/user";
 // import { updateRefresh } from "redux/slice/userSlice";
 
-const eetch = async (url, options) => {
-  const response = await fetch(url, options);
-
-  return response.json();
+const eetch = async (accessToken, refreshToken) => {
+  console.log('valid check');
+  console.log(accessToken);
+  console.log(refreshToken);
 };
 
 eetch.githubSync = (values) => user.githubSync(values);
-
-// eetch.valid = (values) => user.valid(values);
-// eetch.tokenValidation = async (call, values, dispatch) => {
-//     return call(values).catch(() => {
-//         if (values.user.refreshToken) {
-//             return refresh(values.user)
-//                 .then((res) => {
-//                     dispatch(
-//                         updateRefresh({
-//                             accessToken: res.accessToken
-//                         })
-//                     );
-
-//                     const newValues = {
-//                         ...values,
-//                         user: {
-//                             accessToken: res.accessToken,
-//                             refreshToken: values.user.refreshToken
-//                         }
-//                     };
-
-//                     return call(newValues);
-//                 })
-//                 .catch(() => {
-//                     throw new Error("토큰이 만료되었습니다. 다시 로그인해주세요.");
-//                 });
-//         }
-
-//         throw new Error("토큰이 없습니다. 다시 로그인해주세요.");
-//     });
-// };
+eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);
 
 // eetch.valid = (values) => user.valid(values);
 // eetch.refresh = (values) => user.refresh(values);

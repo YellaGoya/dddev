@@ -3,6 +3,7 @@ import { LOGIN_USER, LOGOUT_USER, UPDATE_TOKENS } from 'redux/actions/user';
 const initialState = {
   isLoggedIn: false,
   accessToken: null,
+  accessExp: null,
   refreshToken: null,
   lastGround: null,
 };
@@ -14,6 +15,7 @@ const userReducer = (state = initialState, action) => {
         ...state,
         isLoggedIn: true,
         accessToken: action.payload.accessToken,
+        accessExp: action.payload.accessExp,
         refreshToken: action.payload.refreshToken,
         lastGround: action.payload.lastGround,
       };
@@ -25,6 +27,7 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         accessToken: action.payload.accessToken || state.accessToken,
+        accessExp: action.payload.accessExp || state.accessExp,
         refreshToken: action.payload.refreshToken || state.refreshToken,
         lastGround: action.payload.lastGround || state.lastGround,
       };

@@ -25,7 +25,8 @@ export const PositionWrapper = styled.div`
   width: 100%;
   height: 35px;
 
-  background-color: beige;
+  background-color: #010409;
+  border-bottom: 1px solid #30363d;
 `;
 
 export const MenuButton = styled.button`
