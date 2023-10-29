@@ -1,21 +1,26 @@
 package com.d103.dddev.api.alert.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
-@Setter @Getter @ToString
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class CreateWebhookResponseDto {
-	Integer id; // 439840320
-	List<String> events; // ["push", "pull request"]
+public class WebhookDto {
+	String id;
+	String type;
+	String keyword;
+	UserDto userDto;
+	LocalDateTime updatedAt;
 	LocalDateTime createdAt;
 }

@@ -30,9 +30,10 @@ public class AlertController {
 	public ResponseEntity<?> addCommitWebhook(@RequestHeader("Authorization") String header,
 		@RequestBody Map<String, String> map) {
 		try {
-			alertService.addCommitWebhook(header, map.get("repoName"));
+			alertService.addCommitWebhook(header, Integer.parseInt(map.get("repositoryId")));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		}
 	}
@@ -45,6 +46,7 @@ public class AlertController {
 			alertService.receiveWebhook(headerMap, receiveWebhookDto);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		}
 	}
