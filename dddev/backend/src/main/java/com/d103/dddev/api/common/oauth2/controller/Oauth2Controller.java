@@ -41,7 +41,7 @@ public class Oauth2Controller {
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setHeader("Authorization", login.get("Authorization"));
 			response.setHeader("Authorization-refresh", login.get("Authorization-refresh"));
-			response.setHeader("name", login.get("name"));
+			response.setHeader("nickname", login.get("nickname"));
 			response.setHeader("role", login.get("role"));
 
 			return new ResponseEntity<>("로그인 성공!", HttpStatus.OK);

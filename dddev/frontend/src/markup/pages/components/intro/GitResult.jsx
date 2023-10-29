@@ -12,7 +12,7 @@ const GitResult = () => {
     const url = window.location.href;
     setCode(url.split('=')[1]);
 
-    dispatch(loginUser({ accessToken: 323, refreshToken: 42424 }));
+    dispatch(loginUser({ accessToken: 323, refreshToken: 42424, lastGround: 'test2' }));
 
     navigate('/');
   }, [dispatch, navigate]);

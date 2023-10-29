@@ -24,7 +24,10 @@ export const PositionWrapper = styled.div`
   background-color: aqua;
 `;
 
-export const MenuNav = styled.nav``;
+export const MenuNav = styled.nav`
+  position: relative;
+  margin-top: 50px;
+`;
 
 export const MenuCategory = styled(Link)`
   display: block;
@@ -36,13 +39,28 @@ export const MenuChild = styled(Link)`
 
 export const GroundList = styled.ul`
   position: absolute;
+  top: 30px;
+  left: 0;
 
-  display: ${({ $groundListToggle }) => ($groundListToggle ? 'block' : 'none')};
-  top: 43px;
-  left: 15px;
-  width: 245px;
+  width: 275px;
+  transform: translateY(${({ $groundListToggle }) => ($groundListToggle ? '-30px' : '-100%')});
 
   background-color: white;
+  padding-bottom: 30px;
+
+  transition: transform 0.5s ease;
+
+  & > div {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 275px;
+    height: 30px;
+
+    background-color: #aaa;
+
+    cursor: pointer;
+  }
 `;
 
 export const GroundItem = styled.li`

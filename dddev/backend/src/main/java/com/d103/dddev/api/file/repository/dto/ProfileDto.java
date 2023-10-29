@@ -30,8 +30,8 @@ public class ProfileDto {
 	private Integer id;
 
 	@Column(name = "file_path")
-	String filePath;
+	private String filePath;
 
 	@Column(name = "content_type")
-	String contentType;
+	private String contentType;
 }
