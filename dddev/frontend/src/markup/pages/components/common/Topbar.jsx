@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setMenu } from 'redux/actions/menu';
 
+import MessageBoxModal from 'markup/pages/components/common/MessageBoxModal';
 import userStockImage from 'assets/userStockImage.webp';
 
 import MenuIcon from '@mui/icons-material/Menu';
@@ -24,20 +25,7 @@ const Topbar = () => {
         </s.SelectedGround>
       </s.PositionWrapper>
       <s.ProfileImage src={userStockImage} onClick={() => setMessageToggle(!messageToggle)} />
-      <s.MessageBoxModal $toggle={messageToggle}>
-        <ul>
-          <li>sda</li>
-          <li>sda</li>
-          <li>sda</li>
-          <li>sda</li>
-          <li>sda</li>
-          <li>sda</li>
-          <li>sda</li>
-          <li>sda</li>
-          <li>sda</li>
-          <li>sda</li>
-        </ul>
-      </s.MessageBoxModal>
+      <MessageBoxModal toggle={messageToggle} />
     </s.TopbarWrapper>
   );
 };

@@ -30,7 +30,7 @@ export const githubSync = async ({ code }) => {
 };
 
 export const githubTokenRegist = async ({ Authorization, personalAccessToken }) => {
-  const url = `http://k9d103.p.ssafy.io/user/personal-access-token`;
+  const url = `https://k9d103.p.ssafy.io/user/personal-access-token`;
   const options = {
     method: 'POST',
     headers: {
@@ -44,4 +44,20 @@ export const githubTokenRegist = async ({ Authorization, personalAccessToken }) 
   if (!res.ok) throw new Error(`${res.status} 에러`);
 
   return res;
+};
+
+export const userInfo = async ({ Authorization }) => {
+  const url = `https://k9d103.p.ssafy.io/user/user-info`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization,
+    },
+  };
+
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(`${res.status} 에러`);
+
+  return res.json();
 };

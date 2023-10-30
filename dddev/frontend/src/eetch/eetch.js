@@ -18,6 +18,7 @@ const eetch = async (accessToken, refreshToken) => {
 
 eetch.githubSync = (values) => user.githubSync(values);
 eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);
+eetch.userInfo = (values) => user.userInfo(values);
 
 // eetch.valid = (values) => user.valid(values);
 // eetch.refresh = (values) => user.refresh(values);

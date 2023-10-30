@@ -3,7 +3,7 @@ import { BrowserRouter, useRoutes, Navigate } from 'react-router-dom';
 import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from 'redux/store';
-import './firebase/firebase-messaging-sw';
+// import './firebase/firebase-messaging-sw';
 
 import View from 'layouts/View';
 
