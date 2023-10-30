@@ -5,11 +5,10 @@ export const githubSync = async ({ code }) => {
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include',
   };
 
   const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`코드 ${res.status} 에러`);
+  if (!res.ok) throw new Error(`${res.status} 에러`);
 
   const accessToken = res.headers.get('Authorization');
   const message = await res.text();
@@ -20,21 +19,29 @@ export const githubSync = async ({ code }) => {
 
   const expirationDate = new Date(payload.exp * 1000);
 
-  return { accessToken, accessExp: expirationDate, refreshToken: res.headers.get('Authorization-Refresh'), message };
+  return {
+    accessToken,
+    accessExp: expirationDate,
+    refreshToken: res.headers.get('Authorization-Refresh'),
+    nickname: res.headers.get('nickname'),
+    role: res.headers.get('role'),
+    message,
+  };
 };
 
-export const githubTokenRegist = async ({ code }) => {
-  const url = `https://k9d103.p.ssafy.io/user/personal-access-token`;
+export const githubTokenRegist = async ({ Authorization, personalAccessToken }) => {
+  const url = `http://k9d103.p.ssafy.io/user/personal-access-token`;
   const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: code,
+      Authorization,
     },
-    credentials: 'include',
+    body: JSON.stringify({ personalAccessToken }),
   };
 
   const res = await fetch(url, options);
+  if (!res.ok) throw new Error(`${res.status} 에러`);
 
   return res;
 };
