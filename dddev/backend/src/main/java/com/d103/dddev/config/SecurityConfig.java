@@ -68,7 +68,7 @@ public class SecurityConfig {
 		corsConfiguration.setMaxAge(7200L);
 		corsConfiguration.addExposedHeader("Authorization");
 		corsConfiguration.addExposedHeader("Authorization-refresh");
-		corsConfiguration.addExposedHeader("name");
+		corsConfiguration.addExposedHeader("nickname");
 		corsConfiguration.addExposedHeader("role");
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);
