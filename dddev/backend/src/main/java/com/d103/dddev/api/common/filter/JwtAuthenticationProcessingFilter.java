@@ -52,6 +52,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		FilterChain filterChain) throws ServletException, IOException {
 
 		if(request.getRequestURI().equals(NO_CHECK_URL)) {
+			addAccessControlHeader(response);
 			filterChain.doFilter(request, response); // "/oauth/sign-in" 요청이 들어오면, 다음 필터 호출
 			return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
 		}
@@ -126,6 +127,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 				.ifPresent(githubId -> userRepository.findByGithubId(githubId)
 					.ifPresent(this::saveAuthentication)));
 
+		addAccessControlHeader(response);
 		filterChain.doFilter(request, response);
 	}
 
@@ -159,4 +161,15 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 
+	/**
+	 * cors 에러
+	 * */
+	public void addAccessControlHeader(HttpServletResponse response) {
+		String origin = "https://k9d103.p.ssafy.io, http://localhost:3000";
+		response.addHeader("Access-Control-Allow-Origin", origin+", " + origin);
+		response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		response.setHeader("Access-Control-Allow-Headers",
+			"content-type, x-gwt-module-base, x-gwt-permutation");
+	}
 }
