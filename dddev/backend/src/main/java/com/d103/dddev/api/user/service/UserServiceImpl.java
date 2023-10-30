@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
 	private final AesUtil aesUtil;
 
-	private final Integer DEFAULT_IMG_ID = 1;
+	private final Integer DEFAULT_USER_IMG_ID = 1;
 
 	@Override
 	public Optional<UserDto> getUserInfo(Integer github_id) throws Exception {
@@ -71,13 +71,13 @@ public class UserServiceImpl implements UserService {
 		ProfileDto prevProfile = userDto.getProfileDto();
 
 		// 새 프로필 사진 서버/db에 저장
-		ProfileDto newProfile = profileService.saveProfile(file);
+		ProfileDto newProfile = profileService.saveUserProfile(file);
 
 		// 새 프로필 사진 userDto에 저장
 		userDto.setProfileDto(newProfile);
 
 		// 기존 프로필 사진 서버/db에서 삭제
-		if(prevProfile != null && prevProfile.getId() != DEFAULT_IMG_ID) {
+		if(prevProfile != null && prevProfile.getId() != DEFAULT_USER_IMG_ID) {
 			profileService.deleteProfile(prevProfile);
 		}
 
@@ -107,12 +107,12 @@ public class UserServiceImpl implements UserService {
 		ProfileDto profileDto = userDto.getProfileDto();
 
 		// 기본 프로필 사진 받아오기
-		ProfileDto defaultProfile = profileService.getProfileDto(DEFAULT_IMG_ID);
+		ProfileDto defaultProfile = profileService.getProfileDto(DEFAULT_USER_IMG_ID);
 
 		userDto.setProfileDto(defaultProfile);
 
 		// 프로필 사진 서버/db에서 삭제
-		if(profileDto != null && profileDto.getId() != DEFAULT_IMG_ID) {
+		if(profileDto != null && profileDto.getId() != DEFAULT_USER_IMG_ID) {
 			profileService.deleteProfile(profileDto);
 		}
 
@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
 		userRepository.delete(userDto);
 
 		// 서버/db에서 프로필 사진 삭제
-		if(profileDto != null && profileDto.getId() != DEFAULT_IMG_ID) {
+		if(profileDto != null && profileDto.getId() != DEFAULT_USER_IMG_ID) {
 			profileService.deleteProfile(profileDto);
 		}
 	}

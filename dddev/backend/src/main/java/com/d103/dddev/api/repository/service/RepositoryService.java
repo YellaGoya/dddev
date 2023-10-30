@@ -14,4 +14,6 @@ public interface RepositoryService {
 	Optional<RepositoryDto> getAndUpdateRepository(Integer repoId, String repoName);
 
 	RepositoryDto saveRepository(RepositoryDto repositoryDto);
+
+	RepositoryDto updateIsGround(RepositoryDto repositoryDto, Boolean isGround) throws Exception;
 }

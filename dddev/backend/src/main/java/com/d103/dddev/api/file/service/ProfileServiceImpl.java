@@ -29,69 +29,39 @@ public class ProfileServiceImpl implements ProfileService {
 	@Value("${file.folder.profile}")
 	private String PROFILE_FOLDER;
 
+	@Value("${file.folder.profile.user}")
+	private String USER_FOLDER;
+
+	@Value("${file.folder.profile.ground}")
+	private String GROUND_FOLDER;
+
+	private final Integer DEFAULT_USER_IMG_ID = 1;
+	private final Integer DEFAULT_GROUND_IMG_ID = 2;
+
 	private final ProfileRepository profileRepository;
 
 	@Override
-	public ProfileDto saveDefaultProfileImg(MultipartFile defaultFile) throws Exception {
-		if (defaultFile.isEmpty())
-			return null;
-
-		// 파일 정보
-		String originalFilename = defaultFile.getOriginalFilename();
-		String uuid = createRandomFileName();
-		String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-		String savedName = uuid + extension;
-		String savedPath = FILE_PATH + PROFILE_FOLDER + savedName;
-
-		// 파일 객체 생성
-		File file = new File(savedPath);
-
-		// 서버에 저장
-		defaultFile.transferTo(file);
-
-		// content-type
-		String type = Files.probeContentType(file.toPath());
-
-		// dto build
-		ProfileDto profileDto = ProfileDto.builder()
-			.id(1)
-			.filePath(savedPath)
-			.contentType(type)
-			.build();
-
-		// db에 저장
-		return profileRepository.saveAndFlush(profileDto);
+	public ProfileDto saveDefaultUserProfileImg(MultipartFile defaultFile) throws Exception {
+		String path = FILE_PATH + PROFILE_FOLDER + USER_FOLDER;
+		return saveProfileImg(path, defaultFile, DEFAULT_USER_IMG_ID);
 	}
 
 	@Override
-	public ProfileDto saveProfile(MultipartFile newFile) throws Exception {
-		if (newFile.isEmpty())
-			return null;
+	public ProfileDto saveDefaultGroundProfileImg(MultipartFile defaultFile) throws Exception {
+		String path = FILE_PATH + PROFILE_FOLDER + GROUND_FOLDER;
+		return saveProfileImg(path, defaultFile, DEFAULT_GROUND_IMG_ID);
+	}
 
-		// 파일 정보
-		String originalFilename = newFile.getOriginalFilename();
-		String uuid = createRandomFileName();
-		String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-		String savedName = uuid + extension;
-		String savedPath = FILE_PATH + PROFILE_FOLDER + savedName;
+	@Override
+	public ProfileDto saveUserProfile(MultipartFile newFile) throws Exception {
+		String path = FILE_PATH + PROFILE_FOLDER + USER_FOLDER;
+		return saveProfileImg(path, newFile);
+	}
 
-		// 파일 객체 생성
-		File file = new File(savedPath);
-
-		// 서버에 저장
-		newFile.transferTo(file.toPath());
-
-		// content-type
-		String type = Files.probeContentType(file.toPath());
-
-		// dto build
-		ProfileDto profileDto = ProfileDto.builder()
-			.filePath(savedPath)
-			.contentType(type)
-			.build();
-
-		// db에 저장
-		return profileRepository.saveAndFlush(profileDto);
+	@Override
+	public ProfileDto saveGroundProfile(MultipartFile newFile) throws Exception {
+		String path = FILE_PATH + PROFILE_FOLDER + GROUND_FOLDER;
+		return saveProfileImg(path, newFile);
 	}
 
 	@Override
@@ -133,4 +103,66 @@ public class ProfileServiceImpl implements ProfileService {
 	public String createRandomFileName() throws Exception {
 		return UUID.randomUUID().toString();
 	}
+
+	public ProfileDto saveProfileImg(String path, MultipartFile newFile) throws Exception {
+		if (newFile.isEmpty())
+			return null;
+
+		// 파일 정보
+		String originalFilename = newFile.getOriginalFilename();
+		String uuid = createRandomFileName();
+		String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+		String savedName = uuid + extension;
+		String savedPath = path + savedName;
+
+		// 파일 객체 생성
+		File file = new File(savedPath);
+
+		// 서버에 저장
+		newFile.transferTo(file);
+
+		// content-type
+		String type = Files.probeContentType(file.toPath());
+
+		// dto build
+		ProfileDto profileDto = ProfileDto.builder()
+			.filePath(savedPath)
+			.contentType(type)
+			.build();
+
+		// db에 저장
+		return profileRepository.saveAndFlush(profileDto);
+	}
+
+	public ProfileDto saveProfileImg(String path, MultipartFile newFile, int id) throws Exception {
+		if (newFile.isEmpty())
+			return null;
+
+		// 파일 정보
+		String originalFilename = newFile.getOriginalFilename();
+		String uuid = createRandomFileName();
+		String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+		String savedName = uuid + extension;
+		String savedPath = path + savedName;
+
+		// 파일 객체 생성
+		File file = new File(savedPath);
+
+		// 서버에 저장
+		newFile.transferTo(file);
+
+		// content-type
+		String type = Files.probeContentType(file.toPath());
+
+		// dto build
+		ProfileDto profileDto = ProfileDto.builder()
+			.id(id)
+			.filePath(savedPath)
+			.contentType(type)
+			.build();
+
+		// db에 저장
+		return profileRepository.saveAndFlush(profileDto);
+	}
+
 }

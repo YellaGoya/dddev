@@ -1,12 +1,17 @@
 package com.d103.dddev.api.ground.service;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.d103.dddev.api.file.repository.dto.ProfileDto;
+import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
+import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +24,9 @@ public class GroundServiceImpl implements GroundService {
 
 	private final GroundRepository groundRepository;
 	private final GroundUserService groundUserService;
+	private final ProfileService profileService;
+	private final RepositoryService repositoryService;
+	private final Integer DEFAULT_GROUND_IMG_ID = 2;
 
 	/**
 	 * 그라운드 생성
@@ -48,5 +56,106 @@ public class GroundServiceImpl implements GroundService {
 	public Optional<GroundDto> getGroundInfo(Integer groundId) throws Exception {
 		log.info("service - getGroundInfo :: 그라운드 조회 진입");
 		return groundRepository.findById(groundId);
+	}
+
+	@Override
+	public GroundDto modifyGroundName(GroundDto groundDto, String newName) throws Exception {
+		log.info("service - modifyGroundName :: 그라운드 이름 수정 진입");
+		groundDto.setName(newName);
+		return groundRepository.saveAndFlush(groundDto);
+	}
+
+	@Override
+	public GroundDto modifyGroundProfile(GroundDto groundDto, MultipartFile file) throws Exception {
+		log.info("service - modifyGroundProfile :: 그라운드 프로필 사진 수정 진입");
+
+		// 기존 프로필
+		ProfileDto prevProfile = groundDto.getProfileDto();
+
+		// 새 프로필 사진 서버/db에 저장
+		ProfileDto newProfile = profileService.saveGroundProfile(file);
+
+		// 새 프로필 사진 userDto에 저장
+		groundDto.setProfileDto(newProfile);
+
+		// 기존 프로필 사진 서버/db에서 삭제
+		if(prevProfile != null && prevProfile.getId() != DEFAULT_GROUND_IMG_ID) {
+			profileService.deleteProfile(prevProfile);
+		}
+
+		return groundRepository.saveAndFlush(groundDto);
+	}
+
+	@Override
+	public GroundDto modifyFocusTime(GroundDto groundDto, Integer focusTime) throws Exception {
+		log.info("service - modifyFocusTime :: 그라운드 집중시간 수정 진입");
+
+		groundDto.setFocusTime(focusTime);
+		return groundRepository.saveAndFlush(groundDto);
+	}
+
+	@Override
+	public GroundDto modifyActiveTime(GroundDto groundDto, Integer activeTime) throws Exception {
+		log.info("service - modifyActiveTime :: 그라운드 연구시간 수정 진입");
+		groundDto.setActiveTime(activeTime);
+		return groundRepository.saveAndFlush(groundDto);
+	}
+
+	@Override
+	public GroundDto deleteGroundProfile(GroundDto groundDto) throws Exception {
+		log.info("service - deleteGroundProfile :: 그라운드 프로필 사진 삭제 진입");
+		// 그라운드 프로필 dto
+		ProfileDto profileDto = groundDto.getProfileDto();
+
+		// 기본 프로필 사진 받아오기
+		ProfileDto defaultProfile = profileService.getProfileDto(DEFAULT_GROUND_IMG_ID);
+
+		groundDto.setProfileDto(defaultProfile);
+
+		// 프로필 사진 서버/db에서 삭제
+		if(profileDto != null && profileDto.getId() != DEFAULT_GROUND_IMG_ID) {
+			profileService.deleteProfile(profileDto);
+		}
+
+		return groundRepository.saveAndFlush(groundDto);
+	}
+
+	// TODO :: ground에 속한 이슈, 문서, 리퀘스트 모두 삭제하기
+	@Override
+	public void deleteGround(GroundDto groundDto) throws Exception {
+		log.info("service - deleteGround :: 그라운드 삭제 진입");
+
+		// 프로필 사진 받아오기
+		ProfileDto profileDto = groundDto.getProfileDto();
+
+		// 레포지토리 받아오기
+		RepositoryDto repositoryDto = groundDto.getRepositoryDto();
+
+		// 이슈 리스트 받아오기
+
+		// 문서 리스트 받아오기
+
+		// 리퀘스트 리스트 받아오기
+
+		// 차트 데이터 받아오기
+
+		// 그라운드 삭제
+		groundRepository.delete(groundDto);
+
+		// 서버/db에서 프로필 사진 삭제
+		if(profileDto != null && profileDto.getId() != DEFAULT_GROUND_IMG_ID) {
+			profileService.deleteProfile(profileDto);
+		}
+
+		// 레포지토리 is_ground = false로 변경
+		repositoryService.updateIsGround(repositoryDto, false);
+
+		// 이슈 삭제
+
+		// 문서 삭제
+
+		// 리퀘스트 삭제
+
+		// 차트 데이터 삭제하기
 	}
 }
