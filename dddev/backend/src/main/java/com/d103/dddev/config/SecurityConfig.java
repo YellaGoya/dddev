@@ -70,6 +70,7 @@ public class SecurityConfig {
 		corsConfiguration.addExposedHeader("Authorization-refresh");
 		corsConfiguration.addExposedHeader("name");
 		corsConfiguration.addExposedHeader("role");
+		corsConfiguration.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);
 		return source;
