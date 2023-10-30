@@ -1,14 +1,11 @@
 package com.d103.dddev.api.ground.service;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.d103.dddev.api.ground.repository.GroundRepository;
-import com.d103.dddev.api.ground.repository.GroundUserRepository;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
-import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 
@@ -43,6 +40,7 @@ public class GroundServiceImpl implements GroundService {
 
 	@Override
 	public Optional<GroundDto> getGroundByRepoId(Integer repoId) throws Exception {
+		log.info("service - 레포지토리 아이디로 ground 조회 진입");
 		return groundRepository.findByRepositoryDto_Id(repoId);
 	}
 

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.apache.coyote.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
@@ -33,7 +33,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,12 +51,17 @@ public class UserController {
 	@ApiOperation(value = "사용자 정보", notes = "사용자 정보를 받아오는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<UserDto> getUserInfo(@RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<UserDto>> getUserInfo(@RequestHeader String Authorization) {
 		log.info("controller - getUserInfo :: 사용자 정보 받아오기 진입");
 		try {
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
-			return new ResponseEntity<>(userDto, HttpStatus.OK);
+			ResponseVO responseVO = ResponseVO.builder()
+				.code(HttpStatus.OK.value())
+				.message("사용자 정보 조회 성공")
+				.data(userDto)
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

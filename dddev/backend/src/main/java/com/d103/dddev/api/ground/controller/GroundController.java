@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
 import com.d103.dddev.api.ground.service.GroundService;
 import com.d103.dddev.api.ground.service.GroundUserService;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
@@ -69,7 +70,6 @@ public class GroundController {
 			repositoryDto = repositoryService.saveRepository(repositoryDto);
 
 			String groundName = nameMap.get("name");
-
 			// 2. 그라운드 생성하기
 			return new ResponseEntity<>(groundService.createGround(groundName, userDto, repositoryDto), HttpStatus.OK);
 
@@ -149,7 +149,7 @@ public class GroundController {
 		@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<List<UserDto>> getGroundUsers(@RequestHeader String Authorization, @PathVariable Integer groundId) {
+	ResponseEntity<List<GroundUserDto>> getGroundUsers(@RequestHeader String Authorization, @PathVariable Integer groundId) {
 		try {
 			log.info("controller - getGroundInfo :: 그라운드 정보 조회 진입");
 			UserDto userDto = jwtService.getUser(Authorization)
@@ -162,7 +162,7 @@ public class GroundController {
 			}
 
 			// 2. 그라운드의 유저 목록 불러오기
-			return null;
+			return new ResponseEntity<>(groundUserService.getGroundUser(groundId), HttpStatus.OK);
 
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
