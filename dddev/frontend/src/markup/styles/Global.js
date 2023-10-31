@@ -86,6 +86,7 @@ export const Main = styled.main`
 export const ContentWrapper = styled.section`
   position: relative;
   max-width: 960px;
+  min-height: calc(100vh - 35px);
 
   margin: 0 auto;
 

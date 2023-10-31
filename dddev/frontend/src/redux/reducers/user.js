@@ -1,4 +1,4 @@
-import { LOGIN_USER, LOGOUT_USER, UPDATE_TOKENS } from 'redux/actions/user';
+import { LOGIN_USER, LOGOUT_USER, UPDATE_USER } from 'redux/actions/user';
 
 const initialState = {
   isLoggedIn: false,
@@ -23,7 +23,7 @@ const userReducer = (state = initialState, action) => {
     case LOGOUT_USER:
       return initialState;
 
-    case UPDATE_TOKENS:
+    case UPDATE_USER:
       return {
         ...state,
         accessToken: action.payload.accessToken || state.accessToken,

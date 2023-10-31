@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { updateTokens } from 'redux/actions/user';
+import { updateUser } from 'redux/actions/user';
 import { setMenu } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 
@@ -26,7 +26,7 @@ const Sidemenu = () => {
   };
 
   const groundItemhandler = (value) => {
-    dispatch(updateTokens(value));
+    dispatch(updateUser(value));
     navigate(`/${value.groundId}`);
   };
 

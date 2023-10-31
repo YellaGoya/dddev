@@ -30,7 +30,7 @@ const GroundInit = () => {
 
   return (
     <s.GroundWrapper>
-      <s.Title>GroundInit</s.Title>
+      <s.Title>사용 가능한 그라운드가 없어요. (☍д⁰)</s.Title>
       <s.GroundDeck>
         <s.GroundCard>
           <Select label="리포지터리" list={repositories} select={setRepository} />
