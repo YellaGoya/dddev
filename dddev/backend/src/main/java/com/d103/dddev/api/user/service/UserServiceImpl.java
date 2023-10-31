@@ -1,5 +1,6 @@
 package com.d103.dddev.api.user.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,6 +12,8 @@ import com.d103.dddev.api.common.oauth2.service.Oauth2Service;
 import com.d103.dddev.api.common.oauth2.utils.AesUtil;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
+import com.d103.dddev.api.ground.repository.GroundUserRepository;
+import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
 import com.d103.dddev.api.user.repository.UserRepository;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 
@@ -23,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
+	private final GroundUserRepository groundUserRepository;
 	private final ProfileService profileService;
 	private final Oauth2Service oauth2Service;
 
@@ -42,6 +46,12 @@ public class UserServiceImpl implements UserService {
 		ProfileDto profileDto = userDto.getProfileDto();
 
 		return profileService.getProfileByPath(profileDto.getFilePath());
+	}
+
+	@Override
+	public List<GroundUserDto> getGroundList(UserDto userDto) throws Exception {
+		log.info("service - getGroundList :: 사용자가 가입된 그라운드 리스트 반환");
+		return groundUserRepository.findByUserDto_Id(userDto.getId());
 	}
 
 	@Override
@@ -88,6 +98,13 @@ public class UserServiceImpl implements UserService {
 	public UserDto modifyStatusMsg(String statusMsg, UserDto userDto) throws Exception {
 		log.info("service - modifyStatusMsg :: 사용자 상태 메시지 수정 진입");
 		userDto.setStatusMsg(statusMsg);
+		return userRepository.saveAndFlush(userDto);
+	}
+
+	@Override
+	public UserDto modifyLastVisitedGround(Integer lastGroundId, UserDto userDto) throws Exception {
+		log.info("service - modifylastVisitedGround :: 마지막으로 방문한 그라운드 수정 진입");
+		userDto.setLastGroundId(lastGroundId);
 		return userRepository.saveAndFlush(userDto);
 	}
 
