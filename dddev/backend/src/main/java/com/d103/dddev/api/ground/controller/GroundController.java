@@ -208,6 +208,51 @@ public class GroundController {
 		}
 	}
 
+	@GetMapping("/{groundId}/is-member")
+	@ApiOperation(value = "사용자가 그라운드 멤버인지 확인", notes = "사용자가 그라운드 멤버인지 확인하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseVO<Boolean>> checkIsGroundMember(@PathVariable Integer groundId, @RequestHeader String Authorization) {
+		log.info("controller - checkIsGroundMember :: 사용자가 그라운드 멤버인지 조회 진입");
+		try {
+			UserDto userDto = jwtService.getUser(Authorization)
+				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+
+			Boolean isMember = groundUserService.checkIsGroundMember(groundId, userDto.getId());
+
+			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
+				.code(HttpStatus.OK.value())
+				.message("그라운드 owner 확인 성공!")
+				.data(isMember)
+				.build();
+
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+
+		} catch (NoSuchFieldException e) {
+			log.error(e.getMessage());
+			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
+				.code(HttpStatus.UNAUTHORIZED.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
+			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
+				.code(HttpStatus.FORBIDDEN.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	@GetMapping("/{groundId}/users")
 	@ApiOperation(value = "그라운드 사용자 목록 조회", notes = "그라운드 사용자 목록을 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),

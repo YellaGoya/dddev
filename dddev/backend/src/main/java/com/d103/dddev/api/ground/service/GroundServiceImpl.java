@@ -13,6 +13,7 @@ import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class GroundServiceImpl implements GroundService {
 
 	private final GroundRepository groundRepository;
 	private final GroundUserService groundUserService;
+	private final UserService userService;
 	private final ProfileService profileService;
 	private final RepositoryService repositoryService;
 	private final Integer DEFAULT_GROUND_IMG_ID = 2;
@@ -42,7 +44,12 @@ public class GroundServiceImpl implements GroundService {
 
 		groundDto.setRepositoryDto(repositoryDto);
 		groundDto = groundRepository.saveAndFlush(groundDto);
+
+		// 그라운드 오너 update하기
 		groundUserService.updateGroundOwner(groundDto, userDto);
+
+		// 생성자의 최근 방문 ground를 생성한 그라운드로 하기
+		userService.modifyLastVisitedGround(groundDto.getId(), userDto);
 		return groundDto;
 	}
 
