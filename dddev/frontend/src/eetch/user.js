@@ -25,6 +25,7 @@ export const githubSync = async ({ code }) => {
     refreshToken: res.headers.get('Authorization-Refresh'),
     nickname: res.headers.get('nickname'),
     role: res.headers.get('role'),
+    lastGround: res.headers.get('lastGround'),
     message,
   };
 };

@@ -21,7 +21,7 @@ const MessageBoxModal = ({ toggle }) => {
         <li>sda</li>
         <li>sda</li>
       </ul>
-      <EditProfile toggle={editToggle} setToggle={setEditToggle} />
+      {editToggle && <EditProfile toggle={editToggle} setToggle={setEditToggle} />}
     </s.MessageBoxModal>
   );
 };

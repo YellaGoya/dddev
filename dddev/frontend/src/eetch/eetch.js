@@ -1,4 +1,5 @@
 import * as user from 'eetch/user';
+import * as repo from 'eetch/repo';
 // import * as notice from "apis/notice";
 // import * as question from "apis/question";
 // import * as statistics from "apis/statistics";
@@ -19,6 +20,8 @@ const eetch = async (accessToken, refreshToken) => {
 eetch.githubSync = (values) => user.githubSync(values);
 eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);
 eetch.userInfo = (values) => user.userInfo(values);
+
+eetch.repoList = (values) => repo.repoList(values);
 
 // eetch.valid = (values) => user.valid(values);
 // eetch.refresh = (values) => user.refresh(values);

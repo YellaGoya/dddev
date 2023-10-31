@@ -43,18 +43,17 @@ const GitResult = () => {
       .githubSync({ code })
       .then((res) => {
         setNickname(res.nickname);
-        setRole('GUEST');
-        // setRole(res.role);
+        setRole(res.role);
         dispatch(
           loginUser({
             accessToken: res.accessToken,
             accessExp: res.accessExp,
             refreshToken: res.refreshToken,
-            lastGround: 'test2',
+            lastGround: res.lastGround,
           }),
         );
 
-        if (res.role === 'USER2') navigate('/');
+        if (res.role === 'USER') navigate('/');
       })
       .catch((err) => {
         console.log(err);
