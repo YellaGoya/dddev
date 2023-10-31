@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+// @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class WebhookDto {
 	String id;
 	String type;

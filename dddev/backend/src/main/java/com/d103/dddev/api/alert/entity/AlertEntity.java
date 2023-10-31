@@ -15,8 +15,6 @@ import javax.persistence.ManyToOne;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.d103.dddev.api.user.repository.dto.UserDto;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +28,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter @ToString
-public class AlertDto {
+public class AlertEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -21,4 +21,6 @@ public interface UserService {
 	UserDto deleteStatusMsg(UserDto userDto);
 	Map<String, String> githubToken(String code) throws Exception;
 	Boolean unlink(String oauthAccessToken) throws Exception;
+
+	void saveDeviceToken(UserDto userDto, String deviceToken) throws Exception;	// 유저가 알림 허용한 기기 토큰 등록
 }

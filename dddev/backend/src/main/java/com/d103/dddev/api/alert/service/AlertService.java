@@ -10,4 +10,6 @@ public interface AlertService {
 	void addCommitWebhook(String header, CreateWebhookRequestDto createWebhookRequestDto) throws Exception;
 
 	void receiveWebhook(Map<String, Object> headerMap, ReceiveWebhookDto receiveWebhookDto) throws Exception;
+
+	void updateAlert(List<String> keywordList, Integer alertId) throws Exception;
 }

@@ -2,8 +2,11 @@ package com.d103.dddev.api.alert.dto;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Data;
 import lombok.Getter;
@@ -16,14 +19,16 @@ import lombok.ToString;
 @ToString
 public class CommitDataDto {
 	String id;
-	String treeId;
+	// String treeId;
 	String distinct;
 	/*
 	* commit message
 	* "Update README.md"
 	*/
 	String message;
-	LocalDateTime timestamp;
+
+	// @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'+'SS:SS")
+	OffsetDateTime timestamp;
 	/*
 	* github url : commit SHA url
 	* "https://github.com/gayun0303/webhook-test/commit/1be5342d1cc8d8e0f39edbaeb924d0b450abde83"

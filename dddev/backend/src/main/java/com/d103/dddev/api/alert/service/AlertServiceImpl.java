@@ -1,12 +1,15 @@
 package com.d103.dddev.api.alert.service;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -22,11 +25,11 @@ import com.d103.dddev.api.alert.dto.CommitDataDto;
 import com.d103.dddev.api.alert.dto.CreateWebhookRequestDto;
 import com.d103.dddev.api.alert.dto.CreateWebhookResponseDto;
 import com.d103.dddev.api.alert.dto.ReceiveWebhookDto;
-import com.d103.dddev.api.alert.entity.AlertDto;
+import com.d103.dddev.api.alert.entity.AlertDataEntity;
+import com.d103.dddev.api.alert.entity.AlertEntity;
+import com.d103.dddev.api.alert.repository.AlertDataRepo;
 import com.d103.dddev.api.alert.repository.AlertRepository;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
-import com.d103.dddev.api.ground.repository.dto.GroundDto;
-import com.d103.dddev.api.ground.service.GroundService;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
@@ -44,8 +47,8 @@ public class AlertServiceImpl implements AlertService {
 	private final JwtService jwtService;
 	private final UserServiceImpl userService;
 	private final RepositoryService repositoryService;
-	private final GroundService groundService;
 	private final AlertRepository alertRepository;
+	private final AlertDataRepo alertDataRepo;
 
 	@Override
 	public void addCommitWebhook(String header, CreateWebhookRequestDto createWebhookRequestDto) throws Exception {
@@ -64,25 +67,25 @@ public class AlertServiceImpl implements AlertService {
 		);
 
 		// 이미 alertdto가 있는 경우 - repo id, type 비교
-		List<AlertDto> alertDtoOptional = alertRepository.findAllByRepositoryIdAndType(repositoryId, "push");
+		List<AlertEntity> alertEntityOptional = alertRepository.findAllByRepositoryIdAndType(repositoryId, "push");
 
-		if(!alertDtoOptional.isEmpty()) {
+		if(!alertEntityOptional.isEmpty()) {
 
-			Optional<AlertDto> userAlertDto = alertRepository.findByUserDto_IdAndRepositoryIdAndType(userDto.getId(), repositoryId, "push");
+			Optional<AlertEntity> userAlertDto = alertRepository.findByUserDto_IdAndRepositoryIdAndType(userDto.getId(), repositoryId, "push");
 			if(userAlertDto.isPresent()) {
 				throw new Exception("이미 생성한 알림입니다.");
 			}
-			AlertDto existAlertDto = alertDtoOptional.get(0);
-			AlertDto alertDto = AlertDto.builder()
-				.webhookId(existAlertDto.getWebhookId())
-				.type(existAlertDto.getType())
+			AlertEntity existAlertEntity = alertEntityOptional.get(0);
+			AlertEntity alertEntity = AlertEntity.builder()
+				.webhookId(existAlertEntity.getWebhookId())
+				.type(existAlertEntity.getType())
 				.createdDate(LocalDateTime.now())
 				.userDto(userDto)
 				.keyword(keyword)
-				.repositoryId(existAlertDto.getRepositoryId())
+				.repositoryId(existAlertEntity.getRepositoryId())
 				.build();
 
-			alertRepository.save(alertDto);
+			alertRepository.save(alertEntity);
 
 			log.info("해당 알림이 이미 존재합니다. 사용자만 등록합니다.");
 
@@ -126,7 +129,7 @@ public class AlertServiceImpl implements AlertService {
 
 		CreateWebhookResponseDto createWebhookResponseDto = response.getBody();
 
-		AlertDto alertDto = AlertDto.builder()
+		AlertEntity alertEntity = AlertEntity.builder()
 			.webhookId(createWebhookResponseDto.getId())
 			.createdDate(createWebhookResponseDto.getCreatedAt())
 			.repositoryId(repositoryId)
@@ -135,80 +138,160 @@ public class AlertServiceImpl implements AlertService {
 			.userDto(userDto)
 			.build();
 
-		alertRepository.save(alertDto);
+		alertRepository.save(alertEntity);
 
 	}
 
 	@Override
 	public void receiveWebhook(Map<String, Object> headerMap, ReceiveWebhookDto receiveWebhookDto) throws Exception {
 
-		// 해당 레포의 그라운드를 찾고 그 멤버를 찾음
-
-		GroundDto groundDto = groundService.getGroundByRepoId(receiveWebhookDto.getRepository().getRepoId())
-			.orElseThrow(() -> new Exception("해당 웹훅의 수신 그라운드를 찾을 수 없습니다."));
-
-		List<AlertUserDto> userDtoList = alertRepository.findByRepositoryIdAndType(receiveWebhookDto.getRepository().getId(), "push");
+		// 해당 레포, 타입 알림을 수신하는 사용자, 키워드 조회
+		List<AlertUserDto> userDtoList = alertRepository.findByRepositoryIdAndType(
+			receiveWebhookDto.getRepository().getId(), "push");
 
 		log.info("AlertUserDto List {}", userDtoList);
 
-		// 알림 수신하는 멤버들의 키워드 검색
+		log.info("sender Dto {}", receiveWebhookDto.getSender().get("id"));
 
+		// 트리거 발생자
+		UserDto sender = userService.getUserInfo(Integer.valueOf(receiveWebhookDto.getSender().get("id"))).orElse(null);
 
-		// 변경한 파일 검색
-		for(CommitDataDto commitDataDto : receiveWebhookDto.getCommits()) {
+		log.error("sender dto :: {}", sender);
+		for (AlertUserDto alertUserDto : userDtoList) {
+			// 변경될 파일 알려주기 위한 리스트
+			List<String> changedFileList = new ArrayList<>();
 
-			// 추가된 파일명
-			for(String filename: commitDataDto.getAdded()) {
+			Set<String> keywordSet = new HashSet<>();
 
+			for (CommitDataDto commitDataDto : receiveWebhookDto.getCommits()) {
+
+				for (String keyword : alertUserDto.getKeyword()) {
+
+					// 변경한 파일 검색
+					for (String filename : commitDataDto.getAdded()) {
+						if (filename.contains(keyword)) {
+							changedFileList.add(filename);
+							keywordSet.add(keyword);
+						}
+					}
+					for (String filename : commitDataDto.getRemoved()) {
+						if (filename.contains(keyword)){
+							changedFileList.add(filename);
+							keywordSet.add(keyword);
+						}
+					}
+					for (String filename : commitDataDto.getModified()) {
+						if (filename.contains(keyword)){
+							changedFileList.add(filename);
+							keywordSet.add(keyword);
+						}
+					}
+					// commitDataDto.getAdded().stream()
+					// 	.filter(filename -> filename.contains(keyword))
+					// 	.forEach(filename -> changedFileList.add(filename));
+
+				} // 키워드
+			}    // 커밋 리스트
+
+			log.error("end commit files :: ");
+
+			if (!changedFileList.isEmpty()) {
+				log.info("changedFile :: ");
+				sendAlert(alertUserDto.getUserDto(), sender, keywordSet, changedFileList, 0);
+				continue;
 			}
-			// 삭제된 파일명
-			for(String filename: commitDataDto.getRemoved()) {
 
+			List<String> commitMessageList = new ArrayList<>();
+			for (CommitDataDto commitDataDto : receiveWebhookDto.getCommits()) {
+				for (String keyword : alertUserDto.getKeyword()) {
+					String commitMsg = commitDataDto.getMessage();
+
+					// 커밋 메시지 검색
+					if (commitMsg.contains(keyword)) {
+						commitMessageList.add(commitMsg);
+						keywordSet.add(keyword);
+					}
+				}    // 키워드
+			}	// 커밋 리스트
+
+			log.error("end commit msg :: ");
+
+			if (!commitMessageList.isEmpty()) {
+				log.info("commitMessage :: ");
+				sendAlert(alertUserDto.getUserDto(), sender, keywordSet, commitMessageList, 1);
+				continue;
 			}
-			// 수정된 파일명
-			for(String filename: commitDataDto.getModified()) {
 
-			}
-		}
+			// TODO: 커밋 파일별 상세 변경사항 검색
 
-		// 리스트에 해당되는 멤버들 기기 알림 토큰 추가하고
+		}    // 사용자+키워드
+	}
 
-		List<String> deviceTokenList = new ArrayList<>();
-		deviceTokenList.add("fGhyTsSkUvIKfHFsZyZKNh:APA91bFoJv0MB3z5ZKYo6baDzXbwYWevrUieBlyPe3OYzRCp1UNJ1rKH_CvjMnr6-Uc5i9sO9CJpvyrTzS-m4Jp_884nkhsMCfWTzXB-9ytTby0WqccmFKq4oxaJ8lYNl9QmGoYjh-Ij");
+	@Override
+	public void updateAlert(List<String> keywordList, Integer alertId) throws Exception {
+		AlertEntity alertEntity = alertRepository.findById(alertId).orElseThrow(() -> new Exception("알림이 존재하지 않습니다."));
+		alertEntity.setKeyword(keywordList);
+	}
 
+	public void sendAlert(UserDto userDto, UserDto sender, Set<String> titleSet, List<String> bodyList, Integer type) throws Exception {
+		// 기기 토큰 불러오기
+		// String token = userDto.getDeviceToken();
+		String token = "fGhyTsSkUvIKfHFsZyZKNh:APA91bE0UvmvKX9C_4QylHX_WTgDChjC1cVFJRMpIfzpPb5kuHg43SYiPLWdYF6hmcFsfhY6l_tGdW_yy3X5f-rsIf9daqRWEWs7Ikq0VgQl4l3VEB-LRFcTo1o3-Zz_FcMDj-kL7LT7";
 
 		// 백 -> fcm 요청
-
 		// test
 		String serverKey = "AAAA-JR50zk:APA91bF4mudANm2i7fUAWnk9SGV2C4wvnqbal6AsiIwG9P8sxiQxNBU7eaEkPZ6RVQpJ8M5POblq43u94Wpja7qXL01GKE4yjAk9pE8a-yDYbdB98_LJ1lOBftUVoloFaCY6IAE7MuDs";
-
-
 
 		HashMap<String, Object> body = new HashMap<>();
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "key="+serverKey);
 
 		HashMap<String, String> notificationContentMap = new HashMap<>();
-		notificationContentMap.put("title", "@@@@@@@.java");
-		notificationContentMap.put("body", "파일에 변경사항이 발생했어요!");
-		body.put("notification", notificationContentMap);
 
-		for (String token: deviceTokenList) {
-			body.put("to", token);
-
-			HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
-
-			RestTemplate restTemplate = new RestTemplate();
-
-			ResponseEntity<Object> response = restTemplate.exchange(
-				"https://fcm.googleapis.com/fcm/send",
-				HttpMethod.POST,
-				entity,
-				Object.class
-			);
+		String title = null;
+		if(type == 0) {
+			title = "파일이 변경되엇습니다.";
+		} else if (type == 1) {
+			title = "커밋 메시지가 발생했습니다.";
 		}
 
+		// notificationContentMap.put("title", String.join(",", titleSet));	// 해당 키워드 셋
+		notificationContentMap.put("title", title);
+		notificationContentMap.put("body", String.join(",", bodyList));
+
+		body.put("to", token);
+		body.put("notification", notificationContentMap);
+
+		HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
+
+		RestTemplate restTemplate = new RestTemplate();
+
+		ResponseEntity<Object> response = restTemplate.exchange(
+			"https://fcm.googleapis.com/fcm/send",
+			HttpMethod.POST,
+			entity,
+			Object.class
+		);
+		// }
+
+		log.info("fcm response :: {}", response);
+
 		// 전송한 알림 내역을 db에 저장
+		AlertDataEntity alertDataEntity = AlertDataEntity.builder()
+			.title(title)
+			.content(String.join(",", bodyList))
+			.alertType("push")
+			.receiverId(userDto.getId())
+			.sendingDate(LocalDateTime.now().toString())
+			.creatorId(sender.getId())
+			.build();
+
+		log.info("데이터 저장하기 전 로그");
+
+		alertDataRepo.addAlertData(alertDataEntity);
+
+		log.info("firestore에 데이터가 정상 저장되었습니다.");
 
 	}
+
 }

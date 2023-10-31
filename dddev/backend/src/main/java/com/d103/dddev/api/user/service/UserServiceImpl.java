@@ -1,9 +1,18 @@
 package com.d103.dddev.api.user.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.d103.dddev.api.common.oauth2.Role;
@@ -148,6 +157,76 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Boolean unlink(String oauthAccessToken) throws Exception {
 		return oauth2Service.unlink(oauthAccessToken);
+	}
+
+	@Override
+	public void saveDeviceToken(UserDto userDto, String deviceToken) throws Exception {
+
+		log.info("saveDeviceToken service :: ");
+		String serverKey = "AAAA-JR50zk:APA91bF4mudANm2i7fUAWnk9SGV2C4wvnqbal6AsiIwG9P8sxiQxNBU7eaEkPZ6RVQpJ8M5POblq43u94Wpja7qXL01GKE4yjAk9pE8a-yDYbdB98_LJ1lOBftUVoloFaCY6IAE7MuDs";
+
+		HashMap<String, Object> body = new HashMap<>();
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/json");
+		headers.add("Authorization", "key="+serverKey);
+		headers.add("project_id", "1067642901305");
+
+		if(userDto.getDeviceToken() == null) {
+			// 새 그룹 토큰 만들기
+
+			body.put("operation", "create");
+			body.put("notification_key_name", userDto.getId().toString());
+			List<String> list = new ArrayList<>();
+			list.add(deviceToken);
+			body.put("registration_ids", list);
+
+			log.info("new deviceToken arrayList :: {}", list);
+
+			HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
+
+			RestTemplate restTemplate = new RestTemplate();
+
+			ResponseEntity<Map<String, String>> response = restTemplate.exchange(
+				"https://fcm.googleapis.com/fcm/notification",
+				HttpMethod.POST,
+				entity,
+				new ParameterizedTypeReference <Map<String, String>>(){}
+			);
+
+			log.info("new deviceToken response :: {}", response);
+
+			userDto.setDeviceToken(response.getBody().get("notification_key"));
+
+			userRepository.save(userDto);
+
+		} else {
+			// 기존 그룹 토큰에 현재 받은 새 토큰 추가하기
+			body.put("operation", "add");
+			body.put("notification_key_name", userDto.getId().toString());
+			body.put("notification_key", userDto.getDeviceToken());
+
+			log.info("add device token :: notification_key :: {}", userDto.getDeviceToken());
+			List<String> list = new ArrayList<>();
+			list.add(deviceToken);
+			body.put("registration_ids", list);
+
+			HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
+
+			RestTemplate restTemplate = new RestTemplate();
+
+			ResponseEntity<Map<String, String>> response = restTemplate.exchange(
+				"https://fcm.googleapis.com/fcm/notification",
+				HttpMethod.POST,
+				entity,
+				new ParameterizedTypeReference <Map<String, String>>(){}
+			);
+
+			log.info("new deviceToken response :: {}", response);
+
+			userDto.setDeviceToken(response.getBody().get("notification_key"));
+
+			userRepository.save(userDto);
+		}
 	}
 
 	public String encryptPersonalAccessToken(String personalAccessToken) throws Exception {

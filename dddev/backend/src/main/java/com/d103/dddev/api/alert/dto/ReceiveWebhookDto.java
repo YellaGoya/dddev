@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
 @Data
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+// @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ReceiveWebhookDto {
 
 	String before;	// "8df4c8d2fcea338fbd44a79ba9e6954ec82306a9"
@@ -22,11 +22,13 @@ public class ReceiveWebhookDto {
 
 	String compare;	// "https://github.com/gayun0303/webhook-test/compare/8df4c8d2fcea...1be5342d1cc8"
 
-	MultiValueMap<String, Map<String, String>> pusher;
+	Map<String, String> pusher;
+
+	Map<String, String> sender;
 
 	List<CommitDataDto> commits;
 
-	CommitDataDto headCommit;
+	// CommitDataDto headCommit;
 
 
 }

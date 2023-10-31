@@ -69,6 +69,9 @@ public class UserDto {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
+	@Column(name = "device_token")
+	private String deviceToken;
+
 	public void updateRefreshToken(String updateRefreshToken){
 		this.refreshToken = updateRefreshToken;
 	}

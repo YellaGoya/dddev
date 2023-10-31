@@ -352,4 +352,19 @@ public class UserController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	@PostMapping("/device-token")
+	@ApiOperation(value = "사용자 기기 토큰 등록", notes = "사용자가 알림을 허용한 기기 토큰을 등록하는 API")
+	ResponseEntity<?> saveDeviceToken(@RequestHeader String Authorization, @RequestBody Map<String, String> map) {
+		try {
+			log.info("saveDeviceToken controller ::");
+			UserDto userDto = jwtService.getUser(Authorization)
+				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			userService.saveDeviceToken(userDto, map.get("deviceToken"));
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		}
+	}
 }

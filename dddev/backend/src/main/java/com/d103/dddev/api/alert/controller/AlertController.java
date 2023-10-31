@@ -6,8 +6,11 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,11 +49,23 @@ public class AlertController {
 	}
 
 	// 깃허브 이벤트 수신 - push event
-	@PostMapping("/receive-webhook")
+	@PostMapping(value = "/receive-webhook")
 	public ResponseEntity<?> receiveWebhook(@RequestHeader(required = false) Map<String, Object> headerMap,
-		@RequestBody(required = false) ReceiveWebhookDto receiveWebhookDto) {
+		@RequestBody ReceiveWebhookDto receiveWebhookDto) {
 		try {
+			log.info("alert controller");
 			alertService.receiveWebhook(headerMap, receiveWebhookDto);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		}
+	}
+
+	@PutMapping("/{alertId}")
+	public ResponseEntity<?> updateAlert(@RequestBody Map<String, List<String>> map, @PathVariable(name = "alertId") Integer alertId) {
+		try {
+			alertService.updateAlert(map.get("keyword"), alertId);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());

@@ -13,7 +13,7 @@ import lombok.ToString;
 
 @Setter @Getter @ToString
 @Data
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+// @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateWebhookResponseDto {
 	Integer id; // 439840320
 	List<String> events; // ["push", "pull request"]
