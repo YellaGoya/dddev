@@ -17,6 +17,7 @@ const GroundInit = () => {
     eetch
       .repoList({ Authorization: user.accessToken })
       .then((res) => {
+        console.log(res);
         setRepositories(res);
       })
       .catch((err) => {

@@ -7,10 +7,8 @@ import { store, persistor } from 'redux/store';
 
 import View from 'layouts/View';
 
-import Home from 'markup/pages/Home';
 import Login from 'markup/pages/Login';
-import Project from 'markup/pages/Project';
-import Document from 'markup/pages/Document';
+import GroundCheck from 'layouts/GroundCheck';
 
 import { Global } from 'markup/styles/Global';
 
@@ -32,23 +30,13 @@ const Routing = () => {
       // element: <Navigate to="/101" />,
     },
     {
-      path: '/:groundId',
-      element: <Home />,
+      path: '/:groundId/*',
+      element: <GroundCheck />,
       // element: user.isLoggedIn ? <Home /> : <Navigate to="/login" />,
     },
     {
       path: '/login/*',
       element: <Login />,
-    },
-    {
-      path: '/:groundId/project/*',
-      element: <Project />,
-      // element: user.isLoggedIn ? <Project /> : <Navigate to="/login" />,
-    },
-    {
-      path: '/:groundId/document/*',
-      element: <Document />,
-      // element: user.isLoggedIn ? <Document /> : <Navigate to="/login" />,
     },
   ]);
 };

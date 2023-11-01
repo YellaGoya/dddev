@@ -29,7 +29,7 @@ const Input = ({ label, data = '', array, fixed, click, enter, message }) => {
       {label && <s.Label>{label}</s.Label>}
       <s.Input value={value} placeholder={placeholder} onChange={onChangeHandelr} onKeyDown={keyDownHandler} />
       {click && (
-        <s.Button type="button" onClick={click(value)}>
+        <s.Button type="button" onClick={() => click(value)}>
           확인
         </s.Button>
       )}

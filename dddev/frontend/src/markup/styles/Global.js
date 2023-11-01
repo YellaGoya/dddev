@@ -3,6 +3,7 @@ import { createGlobalStyle, styled } from 'styled-components';
 export const Global = createGlobalStyle`
   * {
     box-sizing: border-box;
+    color: #fff;
   }
 
   html {
@@ -89,6 +90,5 @@ export const ContentWrapper = styled.section`
   min-height: calc(100vh - 35px);
 
   margin: 0 auto;
-
   background-color: #0d1117;
 `;

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { updateUser } from 'redux/actions/user';
 import { setMenu } from 'redux/actions/menu';
+import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 
 import * as s from 'markup/styles/components/common/Sidemenu';
@@ -12,14 +13,8 @@ const Sidemenu = () => {
   const navigate = useNavigate();
   const menuToggle = useSelector((state) => state.menu.menuToggle);
   const groundId = useSelector((state) => state.user.lastGround);
+  const groundsMap = useSelector((state) => state.user.groundsMap);
   const [groundListToggle, setGroundListToggle] = useState(false);
-
-  const groundList = [
-    { groundId: 'test1', groundName: 'this is test1' },
-    { groundId: 'test2', groundName: 'this is test2' },
-    { groundId: 'test3', groundName: 'this is test3' },
-    { groundId: 'test4', groundName: 'this is test4' },
-  ];
 
   const groundButtonHandler = () => {
     setGroundListToggle(!groundListToggle);
@@ -27,12 +22,13 @@ const Sidemenu = () => {
 
   const groundItemhandler = (value) => {
     dispatch(updateUser(value));
-    navigate(`/${value.groundId}`);
+    navigate(`/${value}`);
   };
 
   const logoutHandler = () => {
     dispatch(logoutUser());
     dispatch(setMenu());
+    dispatch(setMessage(false));
     console.log('groundId');
     navigate(`/login`);
   };
@@ -55,14 +51,14 @@ const Sidemenu = () => {
         </s.MenuNav>
 
         <s.GroundList $groundListToggle={groundListToggle}>
-          {groundList.map(({ groundId, groundName }) => (
+          {groundsMap.map(({ id, name }) => (
             <s.GroundItem
-              key={groundId}
+              key={id}
               onClick={() => {
-                groundItemhandler({ groundId });
+                groundItemhandler(id);
               }}
             >
-              {groundName}
+              {name}
             </s.GroundItem>
           ))}
           <div onClick={groundButtonHandler}>open</div>

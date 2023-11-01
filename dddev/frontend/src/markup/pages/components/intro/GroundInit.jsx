@@ -32,8 +32,9 @@ const GroundInit = () => {
     eetch
       .repoList({ Authorization: user.accessToken })
       .then((res) => {
-        setRepositories(res.data);
-        setRepository(res.data[0]);
+        const noGrounds = res.data.filter((repo) => !repo.isGround);
+        setRepositories(noGrounds);
+        setRepository(noGrounds[0]);
       })
       .catch((err) => {
         console.log(err);

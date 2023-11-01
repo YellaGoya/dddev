@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setMenu } from 'redux/actions/menu';
+import { setMessage } from 'redux/actions/menu';
 
 import MessageBoxModal from 'markup/pages/components/common/MessageBoxModal';
 import userStockImage from 'assets/userStockImage.webp';
@@ -12,9 +12,8 @@ const Topbar = () => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const menuToggle = useSelector((state) => state.menu.menuToggle);
+  const messageToggle = useSelector((state) => state.menu.messageToggle);
   const selectedGround = useSelector((state) => state.ground.groundName);
-
-  const [messageToggle, setMessageToggle] = useState(false);
 
   return (
     <s.TopbarWrapper $isLoggedIn={isLoggedIn}>
@@ -24,7 +23,7 @@ const Topbar = () => {
           {!selectedGround || selectedGround.length === 0 ? '없음' : selectedGround}
         </s.SelectedGround>
       </s.PositionWrapper>
-      <s.ProfileImage src={userStockImage} onClick={() => setMessageToggle(!messageToggle)} />
+      <s.ProfileImage src={userStockImage} onClick={() => dispatch(setMessage(!messageToggle))} />
       <MessageBoxModal toggle={messageToggle} />
     </s.TopbarWrapper>
   );

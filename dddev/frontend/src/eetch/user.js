@@ -25,7 +25,7 @@ export const githubSync = async ({ code }) => {
     refreshToken: res.headers.get('Authorization-Refresh'),
     nickname: res.headers.get('nickname'),
     role: res.headers.get('role'),
-    lastGround: res.headers.get('lastGround'),
+    lastGround: res.headers.get('Lastgroundid'),
     message,
   };
 };
@@ -47,8 +47,41 @@ export const githubTokenRegist = async ({ Authorization, personalAccessToken }) 
   return res;
 };
 
+export const githubTokenUpdate = async ({ Authorization, personalAccessToken }) => {
+  const url = `https://k9d103.p.ssafy.io/user/personal-access-token`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization,
+    },
+    body: JSON.stringify({ personalAccessToken }),
+  };
+
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(`${res.status} 에러`);
+
+  return res;
+};
+
 export const userInfo = async ({ Authorization }) => {
   const url = `https://k9d103.p.ssafy.io/user/user-info`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization,
+    },
+  };
+
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(`${res.status} 에러`);
+
+  return res.json();
+};
+
+export const userGrounds = async ({ Authorization }) => {
+  const url = `https://k9d103.p.ssafy.io/user/ground/list`;
   const options = {
     method: 'GET',
     headers: {

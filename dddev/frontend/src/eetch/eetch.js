@@ -20,7 +20,9 @@ const eetch = async (accessToken, refreshToken) => {
 
 eetch.githubSync = (values) => user.githubSync(values);
 eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);
+eetch.githubTokenUpdate = (values) => user.githubTokenUpdate(values);
 eetch.userInfo = (values) => user.userInfo(values);
+eetch.userGrounds = (values) => user.userGrounds(values);
 
 eetch.repoList = (values) => repo.repoList(values);
 

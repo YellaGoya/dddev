@@ -71,5 +71,6 @@ export const GroundList = styled.ul`
 `;
 
 export const GroundItem = styled.li`
+  color: #000;
   cursor: pointer;
 `;
