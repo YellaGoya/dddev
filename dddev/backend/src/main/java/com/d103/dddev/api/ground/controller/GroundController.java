@@ -6,7 +6,6 @@ import java.util.NoSuchElementException;
 
 import javax.persistence.EntityExistsException;
 
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -55,6 +54,7 @@ public class GroundController {
 	@ApiOperation(value = "그라운드 생성", notes = "{\"name\" : {name}}")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 409, message = "이미 존재하는 그라운드의 레포지토리"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> createGround(@RequestHeader String Authorization,
 		@ApiParam(value = "repoId") @PathVariable Integer repoId,
@@ -68,7 +68,7 @@ public class GroundController {
 			RepositoryDto repositoryDto = repositoryService.getRepository(repoId)
 				.orElseThrow(() -> new NoSuchElementException("getRepository :: 존재하지 않는 레포지토리입니다."));
 
-			if (groundService.getGroundByRepoId(repoId).isPresent()) {
+			if (groundService.getGroundByRepoId(repositoryDto.getId()).isPresent()) {
 				throw new EntityExistsException("controller - createGround :: 이미 그라운드가 생성된 레포지토리입니다.");
 			}
 
@@ -101,6 +101,13 @@ public class GroundController {
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+		} catch(EntityExistsException e) {
+			log.error(e.getMessage());
+			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
+				.code(HttpStatus.CONFLICT.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.CONFLICT);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
