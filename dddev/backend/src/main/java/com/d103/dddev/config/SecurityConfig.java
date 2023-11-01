@@ -60,14 +60,16 @@ public class SecurityConfig {
 		corsConfiguration.setAllowCredentials(true); // 내 서버가 응답할 때 json을 JS에서 처리할 수 있게 설정
 		corsConfiguration.setExposedHeaders(List.of("*")); // 헤더 값 접근
 
-		corsConfiguration.addAllowedOrigin("http://localhost:3000");
-		corsConfiguration.addAllowedOrigin("https://k9d103.p.ssafy.io");
+		corsConfiguration.addAllowedOriginPattern("http://localhost:3000");
+		corsConfiguration.addAllowedOriginPattern("https://k9d103.p.ssafy.io");
 		corsConfiguration.addAllowedMethod("*");
 		corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
 		corsConfiguration.addAllowedHeader("*");
 		corsConfiguration.setMaxAge(7200L);
 		corsConfiguration.addExposedHeader("Authorization");
 		corsConfiguration.addExposedHeader("Authorization-refresh");
+		corsConfiguration.addExposedHeader("nickname");
+		corsConfiguration.addExposedHeader("role");
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);
 		return source;

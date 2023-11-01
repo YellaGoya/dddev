@@ -43,6 +43,9 @@ public class UserDto {
 	@JoinColumn(name = "profile_id")
 	private ProfileDto profileDto;
 
+	@Column(name = "last_ground_id")
+	private Integer lastGroundId;
+
 	@Column(name = "github_id")
 	private Integer githubId;
 

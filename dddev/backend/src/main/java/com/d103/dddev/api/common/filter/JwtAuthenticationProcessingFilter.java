@@ -158,5 +158,4 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 			authoritiesMapper.mapAuthorities(userDetails.getAuthorities()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
-
 }

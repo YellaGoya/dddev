@@ -1,5 +1,6 @@
 package com.d103.dddev.api.ground.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.d103.dddev.api.ground.repository.GroundUserRepository;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
+import com.d103.dddev.api.ground.vo.GroundUserVO;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 
 import lombok.RequiredArgsConstructor;
@@ -53,7 +55,26 @@ public class GroundUserServiceImpl implements GroundUserService {
 	}
 
 	@Override
-	public List<GroundUserDto> getGroundUser(Integer groundId) throws Exception {
-		return groundUserRepository.findByGroundDto_Id(groundId);
+	public List<GroundUserVO> getGroundMembers(Integer groundId) throws Exception {
+		List<GroundUserDto> groundMemberList = groundUserRepository.findByGroundDto_Id(groundId);
+		List<GroundUserVO> groundUserVOList = new ArrayList<>();
+
+		for(GroundUserDto g : groundMemberList) {
+			if(!g.getUserDto().getValid())
+				continue;
+
+			GroundUserVO groundUserVO = GroundUserVO.builder()
+				.isOwner(g.getIsOwner())
+				.userId(g.getUserDto().getId())
+				.profileDto(g.getUserDto().getProfileDto())
+				.githubId(g.getUserDto().getGithubId())
+				.nickname(g.getUserDto().getNickname())
+				.statusMsg(g.getUserDto().getStatusMsg())
+				.build();
+
+			groundUserVOList.add(groundUserVO);
+		}
+
+		return groundUserVOList;
 	}
 }

@@ -77,6 +77,7 @@ public class Oauth2Service {
 		map.put("Authorization-refresh", refreshToken);
 		map.put("nickname", name);
 		map.put("role", String.valueOf(userDto.getRole()));
+		map.put("lastGroundId", String.valueOf(userDto.getLastGroundId()));
 
 		log.info("login :: github api login 성공");
 

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
@@ -38,21 +39,42 @@ public class RepositoryController {
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<List<RepositoryDto>> getRepositoryList(@RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<List<RepositoryDto>>> getRepositoryList(@RequestHeader String Authorization) {
 		try {
 			log.info("controller - getRepositoryList :: 사용자 레포지토리 목록 조회 진입");
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
-			return new ResponseEntity<>(repositoryService.getRepositoryListFromGithub(userDto), HttpStatus.OK);
+
+			List<RepositoryDto> repositoryDtoList = repositoryService.getRepositoryListFromGithub(userDto);
+
+			ResponseVO<List<RepositoryDto>> responseVO = ResponseVO.<List<RepositoryDto>>builder()
+				.code(HttpStatus.OK.value())
+				.message("사용자 레포지토리 목록 조회 성공!")
+				.data(repositoryDtoList)
+				.build();
+
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			ResponseVO<List<RepositoryDto>> responseVO = ResponseVO.<List<RepositoryDto>>builder()
+				.code(HttpStatus.UNAUTHORIZED.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			ResponseVO<List<RepositoryDto>> responseVO = ResponseVO.<List<RepositoryDto>>builder()
+				.code(HttpStatus.FORBIDDEN.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			ResponseVO<List<RepositoryDto>> responseVO = ResponseVO.<List<RepositoryDto>>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

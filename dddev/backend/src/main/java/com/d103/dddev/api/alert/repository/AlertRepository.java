@@ -15,4 +15,10 @@ public interface AlertRepository extends JpaRepository<AlertEntity, Integer> {
 	Optional<AlertEntity> findByUserDto_IdAndRepositoryIdAndType(Integer userId, Integer repositoryId, String type);
 
 	List<AlertUserDto> findByRepositoryIdAndType(Integer repositoryId, String type);
+
+	List<AlertEntity> findByUserDto_Id(Integer id);
+
+	List<AlertEntity> findByWebhookId(Integer webhookId);
+
+	Optional<AlertEntity> findByIdAndUserDto_Id(Integer alertId, Integer userId);
 }

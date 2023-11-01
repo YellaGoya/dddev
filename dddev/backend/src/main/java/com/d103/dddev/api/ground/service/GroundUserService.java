@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
+import com.d103.dddev.api.ground.vo.GroundUserVO;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 
 public interface GroundUserService {
@@ -13,5 +14,5 @@ public interface GroundUserService {
 
 	Boolean checkIsGroundMember(Integer groundId, Integer userId);
 
-	List<GroundUserDto> getGroundUser(Integer groundId) throws Exception;
+	List<GroundUserVO> getGroundMembers(Integer groundId) throws Exception;
 }

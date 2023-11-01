@@ -110,4 +110,10 @@ public class RepositoryServiceImpl implements RepositoryService {
 		return repositoryRepository.saveAndFlush(repositoryDto);
 	}
 
+	@Override
+	public RepositoryDto updateIsGround(RepositoryDto repositoryDto, Boolean isGround) throws Exception {
+		repositoryDto.setIsGround(isGround);
+		return repositoryRepository.saveAndFlush(repositoryDto);
+	}
+
 }

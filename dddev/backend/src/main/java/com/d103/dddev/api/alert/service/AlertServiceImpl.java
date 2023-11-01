@@ -1,7 +1,6 @@
 package com.d103.dddev.api.alert.service;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,8 +55,9 @@ public class AlertServiceImpl implements AlertService {
 		UserDto userDto = jwtService.getUser(header).orElseThrow(
 			() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
-		String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
+		// TODO: 알림을 생성하려는 사용자의 기기 토큰이 없을 경우 기기 토큰을 먼저 받아야 함
 
+		String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
 
 		Integer repositoryId = createWebhookRequestDto.getRepositoryId();
 		List<String> keyword = createWebhookRequestDto.getKeyword();
@@ -91,7 +91,6 @@ public class AlertServiceImpl implements AlertService {
 
 			return;
 		}
-
 
 		HashMap<String, Object> body = new HashMap<>();
 		HttpHeaders headers = new HttpHeaders();
@@ -229,8 +228,59 @@ public class AlertServiceImpl implements AlertService {
 
 	@Override
 	public void updateAlert(List<String> keywordList, Integer alertId) throws Exception {
+		// TODO: 알림 타입도 변경할 수 있게 변경
 		AlertEntity alertEntity = alertRepository.findById(alertId).orElseThrow(() -> new Exception("알림이 존재하지 않습니다."));
 		alertEntity.setKeyword(keywordList);
+	}
+
+	@Override
+	public List<AlertEntity> alertList(UserDto userDto) throws Exception {
+		return alertRepository.findByUserDto_Id(userDto.getId());
+	}
+
+	@Override
+	public void deleteAlert(UserDto userDto, Integer alertId) throws Exception {
+
+		// alertId로 웹훅 아이디 찾고, alert 테이블에 해당 웹훅 아이디로 만들어진 다른 알람이 없을 때
+		// 알림 소유자만 삭제할 수 있도록
+		AlertEntity alertEntity = alertRepository.findByIdAndUserDto_Id(alertId, userDto.getId()).orElseThrow(
+			() -> new Exception("deleteAlert :: 해당 알림 정보를 찾을 수 없습니다."));
+		List<AlertEntity> sameWebhookAlertList = alertRepository.findByWebhookId(alertEntity.getWebhookId());
+
+		if(sameWebhookAlertList.size() == 1) {
+			// 깃허브에서 훅 삭제
+
+			String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
+			RepositoryDto repositoryDto = repositoryService.getRepository(alertEntity.getRepositoryId()).orElseThrow(
+				() -> new Exception("deleteAlert :: 알림이 생성된 리포지터리 정보를 찾을 수 없습니다.")
+			);
+
+			HttpHeaders headers = new HttpHeaders();
+
+			headers.add("Accept", "application/vnd.github+json");
+			headers.add("Authorization", "Bearer "+token);
+			headers.add("X-GitHub-Api-Version", "2022-11-28");
+
+			HashMap<String, Object> body = new HashMap<>();
+
+			HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
+
+			RestTemplate restTemplate = new RestTemplate();
+
+			ResponseEntity<Object> response = restTemplate.exchange(
+				"https://api.github.com/repos/"+userDto.getGithubName()+"/"+repositoryDto.getName()+"/hooks/"+alertEntity.getWebhookId(),
+				HttpMethod.DELETE,
+				entity,
+				Object.class
+			);
+			// log.info("deleteAlert :: 웹훅 삭제 응답 {}", response);
+
+			if(response.getStatusCode().value() == 404) {
+				throw new Exception("deleteAlert :: 깃허브에서 해당 웹훅을 찾을 수 없습니다. 삭제 실패");
+			}
+		}
+		// db에서 알림 및 키워드 삭제
+		alertRepository.deleteById(alertId);
 	}
 
 	public void sendAlert(UserDto userDto, UserDto sender, Set<String> titleSet, List<String> bodyList, Integer type) throws Exception {
