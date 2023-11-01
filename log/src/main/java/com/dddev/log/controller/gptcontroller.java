@@ -5,10 +5,7 @@ import com.dddev.log.exception.ChatGptException;
 import com.dddev.log.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +17,14 @@ public class gptcontroller {
 
     @PostMapping("/log")
     public String logChat(@RequestBody ChatGptReq question) {
+        if(question.getQuestion().equals("")){
+            throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
+        }
+        return chatService.getChatResponse(question.getQuestion());
+    }
+
+    @GetMapping("/log")
+    public String test(@RequestBody ChatGptReq question) {
         if(question.getQuestion().equals("")){
             throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
         }
