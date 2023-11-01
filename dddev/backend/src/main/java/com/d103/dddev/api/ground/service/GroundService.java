@@ -14,10 +14,8 @@ public interface GroundService {
 	Optional<GroundDto> getGroundByRepoId(Integer repoId) throws Exception;
 	Optional<GroundDto> getGroundInfo(Integer groundId) throws Exception;
 
-	GroundDto modifyGroundName(GroundDto groundDto, String newName) throws Exception;
-	GroundDto modifyGroundProfile(GroundDto groundDto, MultipartFile file) throws Exception;
-	GroundDto modifyFocusTime(GroundDto groundDto, Integer focusTime) throws Exception;
-	GroundDto modifyActiveTime(GroundDto groundDto, Integer activeTime) throws Exception;
+	GroundDto updateGround(GroundDto groundDto, GroundDto newGroundDto) throws Exception;
+	GroundDto updateGroundProfile(GroundDto groundDto, MultipartFile file) throws Exception;
 
 	GroundDto deleteGroundProfile(GroundDto groundDto) throws Exception;
 	void deleteGround(GroundDto groundDto) throws Exception;

@@ -66,14 +66,18 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
-	public GroundDto modifyGroundName(GroundDto groundDto, String newName) throws Exception {
+	public GroundDto updateGround(GroundDto groundDto, GroundDto newGroundDto) throws Exception {
 		log.info("service - modifyGroundName :: 그라운드 이름 수정 진입");
-		groundDto.setName(newName);
+		// dto 업데이트하기
+		groundDto.setName(newGroundDto.getName());
+		groundDto.setFocusTime(newGroundDto.getFocusTime());
+		groundDto.setActiveTime(newGroundDto.getActiveTime());
+
 		return groundRepository.saveAndFlush(groundDto);
 	}
 
 	@Override
-	public GroundDto modifyGroundProfile(GroundDto groundDto, MultipartFile file) throws Exception {
+	public GroundDto updateGroundProfile(GroundDto groundDto, MultipartFile file) throws Exception {
 		log.info("service - modifyGroundProfile :: 그라운드 프로필 사진 수정 진입");
 
 		// 기존 프로필
@@ -90,21 +94,6 @@ public class GroundServiceImpl implements GroundService {
 			profileService.deleteProfile(prevProfile);
 		}
 
-		return groundRepository.saveAndFlush(groundDto);
-	}
-
-	@Override
-	public GroundDto modifyFocusTime(GroundDto groundDto, Integer focusTime) throws Exception {
-		log.info("service - modifyFocusTime :: 그라운드 집중시간 수정 진입");
-
-		groundDto.setFocusTime(focusTime);
-		return groundRepository.saveAndFlush(groundDto);
-	}
-
-	@Override
-	public GroundDto modifyActiveTime(GroundDto groundDto, Integer activeTime) throws Exception {
-		log.info("service - modifyActiveTime :: 그라운드 연구시간 수정 진입");
-		groundDto.setActiveTime(activeTime);
 		return groundRepository.saveAndFlush(groundDto);
 	}
 

@@ -314,17 +314,16 @@ public class GroundController {
 		}
 	}
 
-	@PutMapping("/{groundId}/name")
+	@PutMapping("/{groundId}")
 	@ApiOperation(value = "", notes = "")
-	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
-		@ApiResponse(code = 401, message = "access token 오류"),
+	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<GroundDto>> modifyGroundName(@RequestHeader String Authorization,
+	ResponseEntity<ResponseVO<GroundDto>> updateGroundName(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
-		@ApiParam(value = "name : \"name\"") @RequestBody Map<String, String> groundMap) {
+		@ApiParam(value = "name : \"name\"") @RequestBody GroundDto newGroundDto) {
 		try {
-			log.info("controller - modifyGroundName :: 그라운드 이름 수정 진입");
+			log.info("controller - updateGroundName :: 그라운드 이름 수정 진입");
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
@@ -335,7 +334,7 @@ public class GroundController {
 				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
 			}
 
-			groundDto = groundService.modifyGroundName(groundDto, groundMap.get("name"));
+			groundDto = groundService.updateGround(groundDto, newGroundDto);
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("그라운드 이름 수정 성공!")
@@ -385,113 +384,11 @@ public class GroundController {
 				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
 			}
 
-			groundDto = groundService.modifyGroundProfile(groundDto, file);
+			groundDto = groundService.updateGroundProfile(groundDto, file);
 
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("그라운드 이름 수정 성공!")
-				.data(groundDto)
-				.build();
-
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-
-		} catch (NoSuchFieldException e) {
-			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
-		} catch (Exception e) {
-			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@PutMapping("/{groundId}/focus-time/{focusTime}")
-	@ApiOperation(value = "그라운드 집중시간 수정", notes = "그라운드 집중시간 수정하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
-		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
-		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<GroundDto>> modifyFocusTime(@ApiParam(value = "groundId") @PathVariable Integer groundId,
-		@PathVariable Integer focusTime, @RequestHeader String Authorization) {
-		try {
-			log.info("controller - modifyFocusTime :: 그라운드 집중시간 수정 진입");
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
-
-			GroundDto groundDto = groundService.getGroundInfo(groundId)
-				.orElseThrow(() -> new NoSuchElementException("getGroundInfo :: 존재하지 않는 그라운드입니다."));
-
-			if (!groundUserService.checkIsGroundOwner(groundId, userDto.getId())) {
-				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
-			}
-
-			groundDto = groundService.modifyFocusTime(groundDto, focusTime);
-
-			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.OK.value())
-				.message("그라운드 집중시간 수정 성공!")
-				.data(groundDto)
-				.build();
-
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-
-		} catch (NoSuchFieldException e) {
-			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
-		} catch (Exception e) {
-			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@PutMapping("/{groundId}/active-time/{activeTime}")
-	@ApiOperation(value = "그라운드 연구시간 수정", notes = "그라운드 연구시간 수정하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
-		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
-		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<GroundDto>> modifyActiveTime(@ApiParam(value = "groundId") @PathVariable Integer groundId,
-		@PathVariable Integer activeTime, @RequestHeader String Authorization) {
-		try {
-			log.info("controller - modifyActiveTime :: 그라운드 연구시간 수정 진입");
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
-
-			GroundDto groundDto = groundService.getGroundInfo(groundId)
-				.orElseThrow(() -> new NoSuchElementException("getGroundInfo :: 존재하지 않는 그라운드입니다."));
-
-			if (!groundUserService.checkIsGroundOwner(groundId, userDto.getId())) {
-				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
-			}
-
-			groundDto = groundService.modifyActiveTime(groundDto, activeTime);
-
-			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.OK.value())
-				.message("그라운드 연구시간 수정 성공!")
 				.data(groundDto)
 				.build();
 
