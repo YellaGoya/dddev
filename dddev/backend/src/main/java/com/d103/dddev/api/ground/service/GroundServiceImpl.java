@@ -66,8 +66,8 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
-	public GroundDto updateGround(GroundDto groundDto, GroundDto newGroundDto) throws Exception {
-		log.info("service - modifyGroundName :: 그라운드 이름 수정 진입");
+	public GroundDto updateGroundInfo(GroundDto newGroundDto, GroundDto groundDto) throws Exception {
+		log.info("service - updateGroundInfo :: 그라운드 이름 수정 진입");
 		// dto 업데이트하기
 		groundDto.setName(newGroundDto.getName());
 		groundDto.setFocusTime(newGroundDto.getFocusTime());
@@ -77,7 +77,7 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
-	public GroundDto updateGroundProfile(GroundDto groundDto, MultipartFile file) throws Exception {
+	public GroundDto updateGroundProfile(MultipartFile file, GroundDto groundDto) throws Exception {
 		log.info("service - modifyGroundProfile :: 그라운드 프로필 사진 수정 진입");
 
 		// 기존 프로필

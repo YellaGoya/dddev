@@ -152,7 +152,7 @@ public class JwtService {
 				.getClaim(GITHUB_CLAIM)
 				.asInt());
 		} catch (Exception e) {
-			log.error("extractEmail :: 액세스 토큰이 유효하지 않습니다.");
+			log.error("extractGithubId :: 액세스 토큰이 유효하지 않습니다.");
 			e.printStackTrace();
 			return Optional.empty();
 		}

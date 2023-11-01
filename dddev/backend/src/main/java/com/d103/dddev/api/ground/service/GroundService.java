@@ -14,8 +14,8 @@ public interface GroundService {
 	Optional<GroundDto> getGroundByRepoId(Integer repoId) throws Exception;
 	Optional<GroundDto> getGroundInfo(Integer groundId) throws Exception;
 
-	GroundDto updateGround(GroundDto groundDto, GroundDto newGroundDto) throws Exception;
-	GroundDto updateGroundProfile(GroundDto groundDto, MultipartFile file) throws Exception;
+	GroundDto updateGroundInfo(GroundDto newGroundDto, GroundDto groundDto) throws Exception;
+	GroundDto updateGroundProfile(MultipartFile file, GroundDto groundDto) throws Exception;
 
 	GroundDto deleteGroundProfile(GroundDto groundDto) throws Exception;
 	void deleteGround(GroundDto groundDto) throws Exception;

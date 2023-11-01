@@ -319,11 +319,11 @@ public class GroundController {
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<GroundDto>> updateGroundName(@RequestHeader String Authorization,
+	ResponseEntity<ResponseVO<GroundDto>> updateGroundInfo(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
-		@ApiParam(value = "name : \"name\"") @RequestBody GroundDto newGroundDto) {
+		@ApiParam(value = "{name : ___, activeTime : ___, focusTime : ___}") @RequestBody GroundDto newGroundDto) {
 		try {
-			log.info("controller - updateGroundName :: 그라운드 이름 수정 진입");
+			log.info("controller - updateGroundInfo :: 그라운드 정보 수정 진입");
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
@@ -334,10 +334,10 @@ public class GroundController {
 				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
 			}
 
-			groundDto = groundService.updateGround(groundDto, newGroundDto);
+			groundDto = groundService.updateGroundInfo(newGroundDto, groundDto);
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.OK.value())
-				.message("그라운드 이름 수정 성공!")
+				.message("그라운드 정보 수정 성공!")
 				.data(groundDto)
 				.build();
 
@@ -384,7 +384,7 @@ public class GroundController {
 				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
 			}
 
-			groundDto = groundService.updateGroundProfile(groundDto, file);
+			groundDto = groundService.updateGroundProfile(file, groundDto);
 
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.OK.value())

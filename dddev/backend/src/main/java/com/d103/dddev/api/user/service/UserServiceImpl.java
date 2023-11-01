@@ -68,14 +68,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDto modifyNickname(String nickname, UserDto userDto) throws Exception {
-		log.info("service - modifyNickname :: 사용자 닉네임 수정 진입");
-		userDto.setNickname(nickname);
+	public UserDto updateUserInfo(UserDto newUserDto, UserDto userDto) throws Exception {
+		log.info("service - updateNickname :: 사용자 정보 수정 진입");
+		userDto.setNickname(newUserDto.getNickname());
+		userDto.setStatusMsg(newUserDto.getStatusMsg());
 		return userRepository.saveAndFlush(userDto);
 	}
 
 	@Override
-	public UserDto modifyProfile(MultipartFile file, UserDto userDto) throws Exception {
+	public UserDto updateProfile(MultipartFile file, UserDto userDto) throws Exception {
 		log.info("service - modifyProfile :: 사용자 프로필 사진 수정 진입");
 		// 기존 프로필
 		ProfileDto prevProfile = userDto.getProfileDto();
@@ -91,13 +92,6 @@ public class UserServiceImpl implements UserService {
 			profileService.deleteProfile(prevProfile);
 		}
 
-		return userRepository.saveAndFlush(userDto);
-	}
-
-	@Override
-	public UserDto modifyStatusMsg(String statusMsg, UserDto userDto) throws Exception {
-		log.info("service - modifyStatusMsg :: 사용자 상태 메시지 수정 진입");
-		userDto.setStatusMsg(statusMsg);
 		return userRepository.saveAndFlush(userDto);
 	}
 
