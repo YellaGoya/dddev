@@ -53,5 +53,5 @@ public class AlertEntity {
 
 	@CreationTimestamp
 	private LocalDateTime createdDate;
-	
+
 }

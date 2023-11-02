@@ -1,6 +1,7 @@
 package com.d103.dddev.api.common.filter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -15,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.common.oauth2.utils.PasswordUtil;
 import com.d103.dddev.api.user.repository.UserRepository;
@@ -40,7 +42,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
-	private static final String NO_CHECK_URL = "/oauth/sign-in"; // "/oauth/sign-in으로 들어오는 요청은 Filter 작동x
+	private static final String NO_CHECK_URL_SIGN_IN = "/oauth/sign-in"; // "/oauth/sign-in으로 들어오는 요청은 Filter 작동x
+	private static final String NO_CHECK_URL_MAIN = "/"; // "/으로 들어오는 요청은 Filter 작동x
+	// private static final String NO_CHECK_URL_SWAGGER = "/swagger";    // 스웨거 필터 작동 x
+
+	private static final String ACCESS_CLAIN = "access";
+	private static final String REFRESH_CLAIM = "refresh";
 
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
@@ -51,63 +58,63 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
-		if(request.getRequestURI().equals(NO_CHECK_URL)) {
+		String requestURI = request.getRequestURI();
+		if (requestURI.startsWith(NO_CHECK_URL_SIGN_IN) || requestURI.equals(NO_CHECK_URL_MAIN)
+			|| requestURI.startsWith("/swagger") || requestURI.startsWith("/v2/api-docs")) {
 			filterChain.doFilter(request, response); // "/oauth/sign-in" 요청이 들어오면, 다음 필터 호출
 			return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
 		}
 
-		// 사용자 요청 헤더에서 RefreshToken 추출
-		// -> RefreshToken이 없거나 유효하지 않다면(DB에 저장된 RefreshToken과 다르다면) null을 반환
-		// 사용자의 요청 헤더에 RefreshToken이 있는 경우는, AccessToken이 만료되어 요청한 경우밖에 없다.
-		// 따라서, 위의 경우를 제외하면 추출한 refreshToken은 모두 null
-		String refreshToken = jwtService.extractRefreshToken(request)
-			.filter(jwtService::isTokenValid)
-			.orElse(null);
+		// access token 확인하기
+		// 사용자 요청 헤더에서 access token 추출
+		String accessToken = jwtService.extractAccessToken(request).orElse(null);
 
-		// 리프레시 토큰이 요청 헤더에 존재했다면, 사용자가 AccessToken이 만료되어서
-		// RefreshToken까지 보낸 것이므로 리프레시 토큰이 DB의 리프레시 토큰과 일치하는지 판단 후,
-		// 일치한다면 AccessToken을 재발급해준다.
-		if(refreshToken != null) {
-			checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
-			return;
+		// access token이 있을 경우
+		if (accessToken != null) {
+			// accessToken 유효성 검증
+			if (!checkAccessTokenAndAuthentication(accessToken) || !jwtService.extractTokenType(accessToken)
+				.equals(ACCESS_CLAIN)) {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN, "유효하지 않은 accessToken입니다ㅜ");
+				return;
+			}
+		} else {    // access token이 없을 경우
+			// refresh token 있는지 확인하기
+			String refreshToken = jwtService.extractRefreshToken(request).orElse(null);
+
+			// refresh가 invalid이면 return
+			if (!jwtService.isTokenValid(refreshToken) || !jwtService.extractTokenType(refreshToken)
+				.equals(REFRESH_CLAIM)) {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN, "유효하지 않은 refreshToken입니다ㅜ");
+				return;
+			}
 		}
 
-		// RefreshToken이 없거나 유효하지 않다면, AccessToken을 검사하고 인증을 처리하는 로직 수행
-		// AccessToken이 없거나 유효하지 않다면, 인증 객체가 담기지 않은 상태로 다음 필터로 넘어가기 때문에 403 에러 발생
-		// AccessToken이 유효하다면, 인증 객체가 담긴 상태로 다음 필터로 넘어가기 때문에 인증 성공
-		if(refreshToken == null) {
-			checkAccessTokenAndAuthentication(request, response, filterChain);
-		}
+		filterChain.doFilter(request, response);
 
 	}
 
 	/**
 	 *  [리프레시 토큰으로 유저 정보 찾기 & 액세스 토큰/리프레시 토큰 재발급 메소드]
-	 *  파라미터로 들어온 헤더에서 추출한 리프레시 토큰으로 DB에서 유저를 찾고, 해당 유저가 있다면
+	 *  파라미터로 들어온 `1헤더에서 추출한 리프레시 토큰으로 DB에서 유저를 찾고, 해당 유저가 있다면
 	 *  JwtService.createAccessToken()으로 AccessToken 생성,
 	 *  reIssueRefreshToken()로 리프레시 토큰 재발급 & DB에 리프레시 토큰 업데이트 메소드 호출
 	 *  그 후 JwtService.sendAccessTokenAndRefreshToken()으로 응답 헤더에 보내기
 	 */
-	public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken ) {
-		userRepository.findByRefreshToken(refreshToken)
-			.ifPresent(user -> {
-				String reIssuedRefreshToken = reIssueRefreshToken(user);
-				jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getGithubId()),
-					reIssuedRefreshToken);
-			});
-	}
-
-	/**
-	 * [리프레시 토큰 재발급 & DB에 리프레시 토큰 업데이트 메소드]
-	 * jwtService.createRefreshToken()으로 리프레시 토큰 재발급 후
-	 * DB에 재발급한 리프레시 토큰 업데이트 후 Flush
-	 */
-	private String reIssueRefreshToken(UserDto user) {
-		String reIssuedRefreshToken = jwtService.createRefreshToken();
-		user.updateRefreshToken(reIssuedRefreshToken);
-		userRepository.saveAndFlush(user);
-		return reIssuedRefreshToken;
-	}
+	// public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken ) throws JWTVerificationException {
+	// 	try {
+	// 		jwtService.getUser(refreshToken)
+	// 			.ifPresent(user -> {
+	// 				String reIssuedRefreshToken = reIssueRefreshToken(user);
+	// 				String reIssuedAccessToken = jwtService.createAccessToken(user.getGithubId());
+	// 				jwtService.sendAccessAndRefreshToken(response, reIssuedAccessToken,
+	// 					reIssuedRefreshToken);
+	// 				saveAuthentication(user);
+	// 			});
+	// 	} catch (Exception e) {
+	// 		throw new JWTVerificationException("JwtAuthenticationProcessingFilter :: 존재하지 않는 사용자");
+	// 	}
+	//
+	// }
 
 	/**
 	 * [액세스 토큰 체크 & 인증 처리 메소드]
@@ -117,16 +124,16 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 * 인증 허가 처리된 객체를 SecurityContextHolder에 담기
 	 * 그 후 다음 인증 필터로 진행
 	 */
-	public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
-		FilterChain filterChain) throws ServletException, IOException {
+	public boolean checkAccessTokenAndAuthentication(String token) throws ServletException, IOException {
 		log.info("checkAccessTokenAndAuthentication() 호출");
-		jwtService.extractAccessToken(request)
+		return Optional.of(token)
 			.filter(jwtService::isTokenValid)
-			.ifPresent(accessToken -> jwtService.extractGithubId(accessToken)
-				.ifPresent(githubId -> userRepository.findByGithubId(githubId)
-					.ifPresent(this::saveAuthentication)));
-
-		filterChain.doFilter(request, response);
+			.flatMap(accessToken -> jwtService.extractGithubId(accessToken))
+			.flatMap(githubId -> userRepository.findByGithubId(githubId))
+			.map(userDto -> {
+				saveAuthentication(userDto);
+				return true;
+			}).orElse(false);
 	}
 
 	/**
@@ -159,3 +166,4 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 }
+
