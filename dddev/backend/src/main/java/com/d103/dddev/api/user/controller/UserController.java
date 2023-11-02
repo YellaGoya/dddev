@@ -50,10 +50,10 @@ public class UserController {
 	private final UserService userService;
 	private final JwtService jwtService;
 
-	@GetMapping("/user-info")
+	@GetMapping
 	@ApiOperation(value = "사용자 정보", notes = "사용자 정보를 받아오는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<UserDto>> getUserInfo(@RequestHeader String Authorization) {
 		log.info("controller - getUserInfo :: 사용자 정보 받아오기 진입");
 		try {
@@ -75,10 +75,10 @@ public class UserController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
@@ -92,9 +92,9 @@ public class UserController {
 	@GetMapping("/profile")
 	@ApiOperation(value = "사용자 프로필 사진", notes = "사용자 프로필 사진을 받아오는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자 혹은 프로필 사진"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 프로필 사진"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<byte[]>> getUserProfile(@RequestHeader String Authorization) {
+	ResponseEntity<byte[]> getUserProfile(@RequestHeader String Authorization) {
 		log.info("controller - getUserprofile :: 사용자 프로필 받아오기 진입");
 		try {
 			UserDto userDto = jwtService.getUser(Authorization)
@@ -106,43 +106,23 @@ public class UserController {
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("Content-type", profileDto.getContentType());
 
-			byte[] profile = userService.getProfile(userDto);
-
-			ResponseVO<byte[]> responseVO = ResponseVO.<byte[]>builder()
-				.code(HttpStatus.OK.value())
-				.message("프로필 조회 성공!")
-				.data(profile)
-				.build();
-
-			return new ResponseEntity<>(responseVO, headers, HttpStatus.OK);
+			return new ResponseEntity<>(userService.getProfile(userDto), headers, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
-			ResponseVO<byte[]> responseVO = ResponseVO.<byte[]>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
-			ResponseVO<byte[]> responseVO = ResponseVO.<byte[]>builder()
-				.code(HttpStatus.FORBIDDEN.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<byte[]> responseVO = ResponseVO.<byte[]>builder()
-				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@GetMapping("/ground/list")
 	@ApiOperation(value = "사용자가 가입한 그라운드 목록 조회", notes = "사용자가 가입한 그라운드 목록을 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<GroundVO>>> getGroundList(@RequestHeader String Authorization) {
 		log.info("controller - getGroundList :: 사용자가 가입한 그라운드 목록 조회 진입");
@@ -180,10 +160,10 @@ public class UserController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<List<GroundVO>> responseVO = ResponseVO.<List<GroundVO>>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<List<GroundVO>> responseVO = ResponseVO.<List<GroundVO>>builder()
@@ -198,7 +178,7 @@ public class UserController {
 	@GetMapping("/status-msg")
 	@ApiOperation(value = "상태 메시지 조회", notes = "사용자 상태 메시지를 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> getStatusMsg(@RequestHeader String Authorization) {
 		try {
@@ -225,7 +205,7 @@ public class UserController {
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
@@ -239,7 +219,7 @@ public class UserController {
 	@GetMapping("/nickname/duplicate/{nickname}")
 	@ApiOperation(value = "닉네임 중복 조회", notes = "닉네임 중복 조회 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<Boolean>> checkDupNickname(@ApiParam(value = "중복 체크할 닉네임") @PathVariable String nickname,
 		@RequestHeader String Authorization) {
 		log.info("controller - checkDupNickname :: 사용자 닉네임 중복 조회 진입");
@@ -264,10 +244,10 @@ public class UserController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
@@ -279,9 +259,9 @@ public class UserController {
 	}
 
 	@PostMapping("/personal-access-token")
-	@ApiOperation(value = "회원가입 후 personal access token 저장", notes = "회원가입 후 personal access token 저장하는 API")
+	@ApiOperation(value = "personal access token 저장/수정", notes = "personal access token 저장/수정하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> savePersonalAccessToken(
 		@ApiParam(value = "personal access token") @RequestBody Map<String, String> personalAccessTokenMap,
@@ -309,51 +289,10 @@ public class UserController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@PutMapping("/personal-access-token")
-	@ApiOperation(value = "personal access token 수정", notes = "personal access token 수정하는 API")
-	ResponseEntity<ResponseVO<String>> updatePersonalAccessToken(
-		@ApiParam(value = "personal-access-token") @RequestBody Map<String, String> personalAccessTokenMap,
-		@RequestHeader String Authorization) {
-		log.info("controller - modifyPersonalAccessToken :: personal access token 수정 진입");
-		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
-
-			String newPersonalAccessToken = personalAccessTokenMap.get("personal-access-token");
-			userService.savePersonalAccessToken(newPersonalAccessToken, userDto);
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.OK.value())
-				.message("personal access token 저장 성공!")
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.FORBIDDEN.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
@@ -367,7 +306,7 @@ public class UserController {
 	@PutMapping
 	@ApiOperation(value = "사용자 정보 수정", notes = "사용자 정보 수정 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<UserDto>> updateUserInfo(
 		@ApiParam(value = "{nickname : __, statusMsg : __}") @RequestBody UserDto newUserDto,
@@ -395,10 +334,10 @@ public class UserController {
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -412,7 +351,7 @@ public class UserController {
 	@ApiOperation(value = "사용자 프로필 사진 수정", notes = "사용자 프로필 사진 수정 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "파일 저장 에러"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<UserDto>> updateProfile(@RequestPart("file") MultipartFile file,
 		@RequestHeader String Authorization) {
 		log.info("controller - updateProfile :: 프로필 사진 수정 진입");
@@ -439,10 +378,10 @@ public class UserController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<UserDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (IOException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<UserDto>builder()
@@ -463,7 +402,7 @@ public class UserController {
 	@PutMapping("/last-ground/{lastGroundId}")
 	@ApiOperation(value = "사용자가 마지막으로 방문한 그라운드 수정", notes = "사용자가 마지막으로 방문한 그라운드를 수정하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> updateLastVisitedGround(@PathVariable Integer lastGroundId, @RequestHeader String Authorization) {
 		log.info("controller - lastVisitedGround() :: 마지막으로 방문한 그라운드 수정 진입");
@@ -489,10 +428,10 @@ public class UserController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
@@ -507,7 +446,7 @@ public class UserController {
 	@ApiOperation(value = "사용자 프로필 사진 삭제", notes = "사용자 프로필 사진 삭제 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "파일 저장 에러"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<UserDto>> deleteProfile(@RequestHeader String Authorization) {
 		log.info("controller - deleteProfile :: 프로필 사진 삭제 진입");
 		ResponseVO<UserDto> responseVO;
@@ -532,10 +471,10 @@ public class UserController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<UserDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (IOException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<UserDto>builder()
@@ -557,7 +496,7 @@ public class UserController {
 	@ApiOperation(value = "사용자 탈퇴", notes = "사용자 탈퇴 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "파일 저장 에러"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> deleteUser(@RequestParam String code, @RequestHeader String Authorization) {
 		log.info("controller - deleteUser :: 사용자 탈퇴 진입");
@@ -592,10 +531,10 @@ public class UserController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (IOException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
@@ -616,7 +555,7 @@ public class UserController {
 	@DeleteMapping("/status-msg")
 	@ApiOperation(value = "사용자 상태메시지 삭제", notes = "사용자 상태메시지 삭제하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<UserDto>> deleteStatusMsg(@RequestHeader String Authorization) {
 		log.info("controller - deleteStatusMsg :: 사용자 상태메시지 삭제 진입");
@@ -642,10 +581,10 @@ public class UserController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<UserDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<UserDto>builder()

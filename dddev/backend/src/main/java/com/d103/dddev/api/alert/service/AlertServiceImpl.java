@@ -33,6 +33,7 @@ import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.service.UserServiceImpl;
+import com.sun.jdi.InvalidTypeException;
 import com.sun.jdi.request.DuplicateRequestException;
 
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,9 @@ public class AlertServiceImpl implements AlertService {
 	private final AlertRepository alertRepository;
 	private final AlertDataRepo alertDataRepo;
 
+	private final static String PUSH_WEBHOOK_URL = "https://k9d103.p.ssafy.io/alert-service/push-webhook";
+	private final static String PULL_REQUEST_WEBHOOK_URL = "https://k9d103.p.ssafy.io/alert-service/pull-request-webhook";
+
 	@Override
 	public void createWebhook(String header, CreateWebhookRequestDto createWebhookRequestDto) throws Exception {
 
@@ -65,10 +69,12 @@ public class AlertServiceImpl implements AlertService {
 
 		Integer repositoryId = createWebhookRequestDto.getRepositoryId();
 		List<String> keyword = createWebhookRequestDto.getKeyword();
+		String type = createWebhookRequestDto.getType();
 
 		RepositoryDto repositoryDto = repositoryService.getRepository(repositoryId).orElseThrow(
 			() -> new NoSuchElementException("getRepoInfo :: 존재하지 않는 레포지터리입니다.")
 		);
+
 
 		// 이미 alertdto가 있는 경우 - repo id, type 비교
 		List<AlertEntity> alertEntityOptional = alertRepository.findAllByRepositoryIdAndType(repositoryId, "push");
@@ -96,6 +102,78 @@ public class AlertServiceImpl implements AlertService {
 			return;
 		}
 
+		String url = null;
+
+		if(type.equals("push")) {
+			url = PUSH_WEBHOOK_URL;
+
+		} else if(type.equals("pull_request")) {
+			url = PULL_REQUEST_WEBHOOK_URL;
+		} else {
+			throw new InvalidTypeException("createWebhook :: 존재하지 않는 알림 타입입니다.");
+		}
+
+		createPushWebhook(userDto, repositoryDto, keyword, type, url);
+		// else if(type.equals("pull_request")) {
+		// 	createPullRequestWebhook(userDto, repositoryDto, "pull-request");
+		// }
+
+		// HashMap<String, Object> body = new HashMap<>();
+		// HttpHeaders headers = new HttpHeaders();
+		// headers.add("Accept", "application/vnd.github+json");
+		// headers.add("Authorization", "Bearer "+token);
+		// headers.add("X-GitHub-Api-Version", "2022-11-28");
+		//
+		// body.put("name", "web");
+		// body.put("active", true);
+		// body.put("events", new String[]{"push"});
+		// HashMap<String, Object> configHashMap = new HashMap<>();
+		// configHashMap.put("url", "https://k9d103.p.ssafy.io/alert-service/receive-webhook");
+		// configHashMap.put("content_type", "json");
+		// configHashMap.put("insecure_ssl", "0");
+		// body.put("config", configHashMap);
+		//
+		// HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
+		//
+		// RestTemplate restTemplate = new RestTemplate();
+		//
+		// ResponseEntity<CreateWebhookResponseDto> response = restTemplate.exchange(
+		// 	"https://api.github.com/repos/"+userDto.getGithubName()+"/"+repositoryDto.getName()+"/hooks",
+		// 	HttpMethod.POST,
+		// 	entity,
+		// 	CreateWebhookResponseDto.class
+		// );
+		//
+		// // 201 Created 가 아닌 경우
+		// if(response.getStatusCode().value() != 201) {
+		// 	throw new Exception("알림을 생성하지 못했습니다.");
+		// }
+
+		// log.info("response {}", response);
+		// 알림 생성된 정보 저장 - id, push/PR
+
+		// CreateWebhookResponseDto createWebhookResponseDto = response.getBody();
+		//
+		// AlertEntity alertEntity = AlertEntity.builder()
+		// 	.webhookId(createWebhookResponseDto.getId())
+		// 	.createdDate(createWebhookResponseDto.getCreatedAt())
+		// 	.repositoryId(repositoryId)
+		// 	.keyword(keyword)
+		// 	.type(createWebhookResponseDto.getEvents().get(0))
+		// 	.userDto(userDto)
+		// 	.build();
+		//
+		// alertRepository.save(alertEntity);
+
+	}
+
+	private void createPushWebhook(UserDto userDto, RepositoryDto repositoryDto, List<String> keyword, String type, String url) throws Exception {
+
+		String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
+		Integer repositoryId = repositoryDto.getRepoId();
+		// List<String> keyword = createWebhookRequestDto.getKeyword();
+		// String type = createWebhookRequestDto.getType();
+
 		HashMap<String, Object> body = new HashMap<>();
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Accept", "application/vnd.github+json");
@@ -104,9 +182,9 @@ public class AlertServiceImpl implements AlertService {
 
 		body.put("name", "web");
 		body.put("active", true);
-		body.put("events", new String[]{"push"});
+		body.put("events", new String[]{type});
 		HashMap<String, Object> configHashMap = new HashMap<>();
-		configHashMap.put("url", "https://k9d103.p.ssafy.io/alert-service/receive-webhook");
+		configHashMap.put("url", url);
 		configHashMap.put("content_type", "json");
 		configHashMap.put("insecure_ssl", "0");
 		body.put("config", configHashMap);
@@ -144,6 +222,11 @@ public class AlertServiceImpl implements AlertService {
 		alertRepository.save(alertEntity);
 
 	}
+
+	// private void createPullRequestWebhook(UserDto userDto, CreateWebhookRequestDto createWebhookRequestDto) {
+	//
+	// }
+
 
 	@Override
 	public void receiveWebhook(Map<String, Object> headerMap, ReceiveWebhookDto receiveWebhookDto) throws Exception {
