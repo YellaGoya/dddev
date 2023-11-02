@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	private static final String NO_CHECK_URL_SIGN_IN = "/oauth/sign-in"; // "/oauth/sign-in으로 들어오는 요청은 Filter 작동x
 	private static final String NO_CHECK_URL_MAIN = "/"; // "/으로 들어오는 요청은 Filter 작동x
-	private static final String NO_CHECK_URL_SWAGGER = "/swagger-ui";    // 스웨거 필터 작동 x 
+	// private static final String NO_CHECK_URL_SWAGGER = "/swagger";    // 스웨거 필터 작동 x
 
 	private static final String ACCESS_CLAIN = "access";
 	private static final String REFRESH_CLAIM = "refresh";
@@ -60,7 +60,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
 		String requestURI = request.getRequestURI();
 		if (requestURI.startsWith(NO_CHECK_URL_SIGN_IN) || requestURI.equals(NO_CHECK_URL_MAIN)
-			|| requestURI.startsWith(NO_CHECK_URL_SWAGGER)) {
+			|| requestURI.startsWith("/swagger") || requestURI.startsWith("/v2/api-docs")) {
 			filterChain.doFilter(request, response); // "/oauth/sign-in" 요청이 들어오면, 다음 필터 호출
 			return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
 		}
