@@ -22,12 +22,4 @@ public class gptcontroller {
         }
         return chatService.getChatResponse(question.getQuestion());
     }
-
-    @GetMapping("/log")
-    public String test(@RequestBody ChatGptReq question) {
-        if(question.getQuestion().equals("")){
-            throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
-        }
-        return chatService.getChatResponse(question.getQuestion());
-    }
 }
