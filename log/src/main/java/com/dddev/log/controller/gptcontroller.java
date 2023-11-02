@@ -15,6 +15,7 @@ public class gptcontroller {
 
     private final ChatService chatService;
 
+    //테스트
     @PostMapping("/log")
     public String logChat(@RequestBody ChatGptReq question) {
         if(question.getQuestion().equals("")){
@@ -30,4 +31,5 @@ public class gptcontroller {
         }
         return chatService.getreqexpResponse(question.getQuestion());
     }
+
 }
