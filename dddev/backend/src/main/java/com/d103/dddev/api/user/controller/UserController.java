@@ -32,6 +32,7 @@ import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.service.UserService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -657,16 +658,32 @@ public class UserController {
 
 	@PostMapping("/device-token")
 	@ApiOperation(value = "사용자 기기 토큰 등록", notes = "사용자가 알림을 허용한 기기 토큰을 등록하는 API")
+	@ApiImplicitParam(name = "map", paramType = "body", example = "{\n"
+		+ "  \"deviceToken\": \"string\"\n"
+		+ "}")
+	@ApiResponses(value = {
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자")
+	})
 	ResponseEntity<?> saveDeviceToken(@RequestHeader String Authorization, @RequestBody Map<String, String> map) {
 		try {
-			log.info("saveDeviceToken controller ::");
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 			userService.saveDeviceToken(userDto, map.get("deviceToken"));
 			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.FORBIDDEN.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

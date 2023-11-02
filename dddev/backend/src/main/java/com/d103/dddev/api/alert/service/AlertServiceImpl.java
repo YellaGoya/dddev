@@ -33,6 +33,7 @@ import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.service.UserServiceImpl;
+import com.sun.jdi.request.DuplicateRequestException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,12 +51,15 @@ public class AlertServiceImpl implements AlertService {
 	private final AlertDataRepo alertDataRepo;
 
 	@Override
-	public void addCommitWebhook(String header, CreateWebhookRequestDto createWebhookRequestDto) throws Exception {
+	public void createWebhook(String header, CreateWebhookRequestDto createWebhookRequestDto) throws Exception {
 
 		UserDto userDto = jwtService.getUser(header).orElseThrow(
 			() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
 		// TODO: 알림을 생성하려는 사용자의 기기 토큰이 없을 경우 기기 토큰을 먼저 받아야 함
+		if(userDto.getDeviceToken() == null) {
+			throw new NoSuchElementException("createWebhook :: 사용자 알림 허용이 필요합니다.");
+		}
 
 		String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
 
@@ -73,7 +77,7 @@ public class AlertServiceImpl implements AlertService {
 
 			Optional<AlertEntity> userAlertDto = alertRepository.findByUserDto_IdAndRepositoryIdAndType(userDto.getId(), repositoryId, "push");
 			if(userAlertDto.isPresent()) {
-				throw new Exception("이미 생성한 알림입니다.");
+				throw new DuplicateRequestException("이미 생성한 알림입니다.");
 			}
 			AlertEntity existAlertEntity = alertEntityOptional.get(0);
 			AlertEntity alertEntity = AlertEntity.builder()
@@ -148,14 +152,13 @@ public class AlertServiceImpl implements AlertService {
 		List<AlertUserDto> userDtoList = alertRepository.findByRepositoryIdAndType(
 			receiveWebhookDto.getRepository().getId(), "push");
 
-		log.info("AlertUserDto List {}", userDtoList);
+		// log.info("AlertUserDto List {}", userDtoList);
 
-		log.info("sender Dto {}", receiveWebhookDto.getSender().get("id"));
+		// log.info("sender Dto {}", receiveWebhookDto.getSender().get("id"));
 
 		// 트리거 발생자
 		UserDto sender = userService.getUserInfo(Integer.valueOf(receiveWebhookDto.getSender().get("id"))).orElse(null);
 
-		log.error("sender dto :: {}", sender);
 		for (AlertUserDto alertUserDto : userDtoList) {
 			// 변경될 파일 알려주기 위한 리스트
 			List<String> changedFileList = new ArrayList<>();
@@ -192,8 +195,6 @@ public class AlertServiceImpl implements AlertService {
 				} // 키워드
 			}    // 커밋 리스트
 
-			log.error("end commit files :: ");
-
 			if (!changedFileList.isEmpty()) {
 				log.info("changedFile :: ");
 				sendAlert(alertUserDto.getUserDto(), sender, keywordSet, changedFileList, 0);
@@ -213,8 +214,6 @@ public class AlertServiceImpl implements AlertService {
 				}    // 키워드
 			}	// 커밋 리스트
 
-			log.error("end commit msg :: ");
-
 			if (!commitMessageList.isEmpty()) {
 				log.info("commitMessage :: ");
 				sendAlert(alertUserDto.getUserDto(), sender, keywordSet, commitMessageList, 1);
@@ -229,7 +228,7 @@ public class AlertServiceImpl implements AlertService {
 	@Override
 	public void updateAlert(List<String> keywordList, Integer alertId) throws Exception {
 		// TODO: 알림 타입도 변경할 수 있게 변경
-		AlertEntity alertEntity = alertRepository.findById(alertId).orElseThrow(() -> new Exception("알림이 존재하지 않습니다."));
+		AlertEntity alertEntity = alertRepository.findById(alertId).orElseThrow(() -> new NoSuchElementException("알림이 존재하지 않습니다."));
 		alertEntity.setKeyword(keywordList);
 	}
 
