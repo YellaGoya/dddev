@@ -12,5 +12,4 @@ import lombok.ToString;
 public class CreateWebhookRequestDto {
 	private Integer repositoryId;
 	private List<String> keyword;
-	private String type;
 }

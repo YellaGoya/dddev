@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.d103.dddev.api.user.repository.UserRepository;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 
@@ -47,7 +45,6 @@ public class JwtService {
 	private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
 	private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
 	private static final String GITHUB_CLAIM = "githubId";
-	private static final String TOKEN_CLAIM = "token";
 	private static final String BEARER = "Bearer ";
 
 	private final UserRepository userRepository;
@@ -57,14 +54,13 @@ public class JwtService {
 	 */
 	public String createAccessToken(Integer githubId) {
 		Date now = new Date();
-		return BEARER + JWT.create()    // JWT 토큰을 생성하는 빌더 반환
+		return JWT.create()    // JWT 토큰을 생성하는 빌더 반환
 			.withSubject(ACCESS_TOKEN_SUBJECT) // JWT의 subject 지정 -> accessToken
 			.withExpiresAt(new Date(now.getTime() + accessTokenExpirationPeriod)) // 토큰 만료 시간 설정
 			//클레임으로 uid, email 사용.
 			//추가적으로 식별자나, 이름 등의 정보를 더 추가하셔도 됩니다.
 			//추가하실 경우 .withClaim(클래임 이름, 클래임 값) 으로 설정해주시면 됩니다
 			.withClaim(GITHUB_CLAIM, githubId)    // 깃허브 아이디 클레임
-			.withClaim(TOKEN_CLAIM, "access")
 			.sign(Algorithm.HMAC512(secretKey)); // HMAC512 알고리즘 사용, application-jwt.yml에서 지정한 secret 키로 암호화
 	}
 
@@ -72,13 +68,11 @@ public class JwtService {
 	 * RefreshToken 생성
 	 * RefreshToken은 Claim에 email도 넣지 않으므로 withClaim() X
 	 */
-	public String createRefreshToken(Integer githubId) {
+	public String createRefreshToken() {
 		Date now = new Date();
-		return BEARER + JWT.create()
+		return JWT.create()
 			.withSubject(REFRESH_TOKEN_SUBJECT)
 			.withExpiresAt(new Date(now.getTime() + refreshTokenExpirationPeriod))
-			.withClaim(GITHUB_CLAIM, githubId)
-			.withClaim(TOKEN_CLAIM, "refresh")
 			.sign(Algorithm.HMAC512(secretKey));
 	}
 
@@ -97,6 +91,7 @@ public class JwtService {
 	 */
 	public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken) {
 		response.setStatus(HttpServletResponse.SC_OK);
+
 		setAccessTokenHeader(response, accessToken);
 		setRefreshTokenHeader(response, refreshToken);
 		log.info("sendAccessAndRefreshToken :: Access Token, Refresh Token 헤더 설정 완료");
@@ -108,7 +103,6 @@ public class JwtService {
 	 * 헤더를 가져온 후 "Bearer"를 삭제(""로 replace)
 	 */
 	public Optional<String> extractRefreshToken(HttpServletRequest request) {
-		log.info("extractRefreshToken");
 		return Optional.ofNullable(request.getHeader(refreshHeader))
 			.filter(refreshToken -> refreshToken.startsWith(BEARER))
 			.map(refreshToken -> refreshToken.replace(BEARER, ""));
@@ -121,6 +115,7 @@ public class JwtService {
 	 */
 	public Optional<String> extractAccessToken(HttpServletRequest request) {
 		log.info("extractAccessToken");
+		//System.out.println(request.getHeader(accessHeader));
 		return Optional.ofNullable(request.getHeader(accessHeader))
 			.filter(accessToken -> accessToken.startsWith(BEARER))
 			.map(accessToken -> accessToken.replace(BEARER, ""));
@@ -163,34 +158,9 @@ public class JwtService {
 		}
 	}
 
-	public String extractTokenType(String Authorization) throws JWTVerificationException {
-		try {
-			String accessToken = extractAccessHeaderToToken(Authorization).get();
-			return JWT.require(Algorithm.HMAC512(secretKey))
-				.build()
-				.verify(accessToken)
-				.getClaim(TOKEN_CLAIM)
-				.asString();
-		} catch (Exception e) {
-			throw new JWTVerificationException(e.getMessage());
-		}
-	}
-
 	public Optional<UserDto> getUser(String Authorization) throws Exception {
 		Integer githubId = extractGithubId(Authorization).orElseThrow(() -> new NoSuchFieldException("깃허브 아이디가 없습니다."));
 		return userRepository.findByGithubId(githubId);
-	}
-
-	public void reIssueAccessAndRefreshToken(HttpServletRequest request, HttpServletResponse response) throws
-		Exception {
-		String refreshToken = extractRefreshToken(request).orElse(null);
-		getUser(refreshToken)
-			.ifPresent(user -> {
-				String reIssuedRefreshToken = createRefreshToken(user.getGithubId());
-				String reIssuedAccessToken = createAccessToken(user.getGithubId());
-				sendAccessAndRefreshToken(response, reIssuedAccessToken, reIssuedRefreshToken);
-				System.out.println(reIssuedRefreshToken);
-			});
 	}
 
 	/**
@@ -207,7 +177,21 @@ public class JwtService {
 		response.setHeader(refreshHeader, refreshToken);
 	}
 
-	public boolean isTokenValid(String token) throws JWTVerificationException {
+	/**
+	 * RefreshToken DB 저장(업데이트)
+	 */
+	public void updateRefreshToken(Integer id, String refreshToken) {
+		userRepository.findById(id)
+			.ifPresentOrElse(
+				user -> {
+					user.updateRefreshToken(refreshToken);
+					userRepository.saveAndFlush(user);
+				},
+				() -> new Exception("updateRefreshToken :: 일치하는 회원이 없습니다.")
+			);
+	}
+
+	public boolean isTokenValid(String token) {
 		try {
 			JWT.require(Algorithm.HMAC512(secretKey)).build().verify(token);
 			return true;
@@ -215,10 +199,6 @@ public class JwtService {
 			log.error("유효하지 않은 토큰입니다. {}", e.getMessage());
 			return false;
 		}
-
-		// JWT.require(Algorithm.HMAC512(secretKey)).build().verify(token);
-		// return true;
-
 	}
 
 }

@@ -63,10 +63,13 @@ public class Oauth2Service {
 		Integer githubId = (Integer)userInfo.get("id");
 
 		// jwt로 자체 access, refresh token 만들기
-		String accessToken = jwtService.createAccessToken(githubId);
-		String refreshToken = jwtService.createRefreshToken(githubId);
+		String accessToken = BEARER + jwtService.createAccessToken(githubId);
+		String refreshToken = BEARER + jwtService.createRefreshToken();
 
 		UserDto userDto = getUser(githubId).orElseGet(() -> saveUser(userInfo));
+
+		// refresh token db 저장
+		updateRefreshToken(userDto, refreshToken);
 
 		// access, refresh token, 이름
 		Map<String, String> map = new HashMap<>();
@@ -185,6 +188,11 @@ public class Oauth2Service {
 			.build();
 
 		return userRepository.save(user);
+	}
+
+	public void updateRefreshToken(UserDto user, String refreshToken) {
+		user.updateRefreshToken(refreshToken);
+		userRepository.saveAndFlush(user);
 	}
 
 }
