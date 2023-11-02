@@ -128,7 +128,6 @@ public class logController {
                     e.getMessage(), null));
         }
     }
-    http://k9d103a.p.ssafy.io:9999/log/keyword/{keyword}
     //최근 로그 20줄 불러와서 분석하기
     @GetMapping("/analyze")
     public ResponseEntity<?> analyze(HttpServletRequest request) {
