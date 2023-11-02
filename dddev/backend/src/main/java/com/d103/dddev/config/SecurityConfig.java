@@ -46,6 +46,8 @@ public class SecurityConfig {
 			.and()
 			.authorizeRequests()
 			.antMatchers("/oauth/**").permitAll()
+			.antMatchers("/swagger-resources/**", "/v2/api-docs", "/swagger-resources",
+				"/swagger-ui.html", "/webjars/**", "/swagger/**", "/swagger-ui/**").permitAll()
 			.antMatchers("/", "/**", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
 			.anyRequest().authenticated();
 
