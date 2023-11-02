@@ -4,7 +4,9 @@ import com.dddev.log.dto.ElasticSearchLog;
 import com.dddev.log.exception.ElasticSearchException;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.NoSuchIndexException;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -28,6 +30,7 @@ import static org.elasticsearch.search.sort.SortOrder.DESC;
 public class ElasticSearchLogService {
 
     private final ElasticsearchOperations elasticsearchOperations;
+    private final ChatService chatService;
 
     //로그 등록
     public void save(String groupId, ElasticSearchLog elasticSearchLog){
@@ -42,7 +45,7 @@ public class ElasticSearchLogService {
     }
 
     //인덱스별 정해진 특정 개수 만큼 가져오기
-    public List<ElasticSearchLog> getLatestLogs(String groupId, int size) {
+    public List<ElasticSearchLog> getLatestLogs(String groupId, int size) throws NoSuchIndexException {
         SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
                 new NativeSearchQueryBuilder()
                         .withQuery(matchAllQuery())
@@ -54,48 +57,76 @@ public class ElasticSearchLogService {
     }
 
     //인덱스별 키워드 가져오기
-    public List<ElasticSearchLog> getKeywordtLogs(String groupId, String keyword) {
-        SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
-                new NativeSearchQueryBuilder()
-                        .withQuery(queryStringQuery("*" + keyword + "*").field("log"))
-                        .withSort(fieldSort("localDateTime").order(DESC))
-                        .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
-        if (searchHits.isEmpty()) throw new ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
-        return searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
+    public List<ElasticSearchLog> getKeywordtLogs(String groupId, String keyword) throws NoSuchIndexException {
+        try {
+            SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
+                    new NativeSearchQueryBuilder()
+                            .withQuery(queryStringQuery("*" + keyword + "*").field("log"))
+                            .withSort(fieldSort("localDateTime").order(DESC))
+                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
+            if (searchHits.isEmpty()) throw new ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
+            return searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
+        }catch (ElasticsearchStatusException e){
+            log.info(e.getMessage());
+            throw new ElasticSearchException.NoIndexException("해당 하는 그룹 id는 없습니다.");
+        }
     }
 
     //정규표현식으로 가져오기
-    public List<ElasticSearchLog> getRegexptLogs(String groupId, String regexp) {
-        log.info(regexp);
-        SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
-                new NativeSearchQueryBuilder()
-                        .withQuery(regexpQuery("log", regexp))
-                        .withSort(fieldSort("localDateTime").order(DESC))
-                        .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
-        if (searchHits.isEmpty()) throw new  ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
-        return searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
+    public List<ElasticSearchLog> getRegexptLogs(String groupId, String regexp) throws NoSuchIndexException {
+        String expression = chatService.getreqexpResponse(regexp).trim();
+        if (expression.startsWith("/") && expression.endsWith("/"))
+        {
+            expression = expression.substring(1, expression.length() - 1);
+        }
+        System.out.println(expression);
+        try {
+            SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
+                    new NativeSearchQueryBuilder()
+                            .withQuery(regexpQuery("log", expression))
+                            .withSort(fieldSort("localDateTime").order(DESC))
+                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
+            if (searchHits.isEmpty()) throw new ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
+            return searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
+        }catch (ElasticsearchStatusException e){
+            log.info(e.getMessage());
+            throw new ElasticSearchException.NoIndexException("해당 하는 그룹 id는 없습니다.");
+        }
     }
 
     //시간대별로 가져오기
-    public List<ElasticSearchLog> getTimetLogs(String groupId, LocalDateTime startDateTime, LocalDateTime endDateTime)  {
-        SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
-                new NativeSearchQueryBuilder()
-                        .withQuery(rangeQuery("localDateTime")
-                                .gte(startDateTime.format(DateTimeFormatter.ISO_DATE_TIME))
-                                .lte(endDateTime.format(DateTimeFormatter.ISO_DATE_TIME))
-                        )
-                        .withSort(fieldSort("localDateTime").order(DESC))
-                        .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
-        if (searchHits.isEmpty()) throw new  ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
-        return searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
+    public List<ElasticSearchLog> getTimetLogs(String groupId, LocalDateTime startDateTime, LocalDateTime endDateTime) throws NoSuchIndexException {
+        try {
+            SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
+                    new NativeSearchQueryBuilder()
+                            .withQuery(rangeQuery("localDateTime")
+                                    .gte(startDateTime.format(DateTimeFormatter.ISO_DATE_TIME))
+                                    .lte(endDateTime.format(DateTimeFormatter.ISO_DATE_TIME))
+                            )
+                            .withSort(fieldSort("localDateTime").order(DESC))
+                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
+            if (searchHits.isEmpty()) throw new  ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
+            return searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
+        }catch (ElasticsearchStatusException e){
+            log.info(e.getMessage());
+            throw new ElasticSearchException.NoIndexException("해당 하는 그룹 id는 없습니다.");
+        }
     }
 
-//    public List<ElasticSearchLog> getRecentLogs(int numLogs) {
-//        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder()
-//                .withPageable(PageRequest.of(0, numLogs))
-//                .withSort(SortBuilders.fieldSort("localDateTime").order(SortOrder.DESC));
-//
-//        return elasticsearchRestTemplate.queryForList(queryBuilder.build(), ElasticSearchLog.class);
-//    }
-
+    //최근 로그 불러서 분석
+    public String analyze(String groupId) throws NoSuchIndexException {
+        SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
+                new NativeSearchQueryBuilder()
+                        .withQuery(matchAllQuery())
+                        .withSort(fieldSort("localDateTime").order(DESC))
+                        .withPageable(PageRequest.of(0, 10))
+                        .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
+        if (searchHits.isEmpty()) throw new ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
+        StringBuilder temp = new StringBuilder();
+        searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList()).forEach(a -> {
+            temp.append(a.getLog()).append("\n");
+        });
+        System.out.println(temp.toString());
+        return chatService.getChatResponse(temp.toString());
+    }
 }

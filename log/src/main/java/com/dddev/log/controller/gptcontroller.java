@@ -22,4 +22,12 @@ public class gptcontroller {
         }
         return chatService.getChatResponse(question.getQuestion());
     }
+
+    @PostMapping("/req")
+    public String reqChat(@RequestBody ChatGptReq question) {
+        if(question.getQuestion().equals("")){
+            throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
+        }
+        return chatService.getreqexpResponse(question.getQuestion());
+    }
 }
