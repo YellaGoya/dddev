@@ -37,7 +37,7 @@ public class RepositoryController {
 	@GetMapping("/list")
 	@ApiOperation(value = "사용자 레포지토리 목록 조회", notes = "사용자 레포지토리 목록 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<RepositoryDto>>> getRepositoryList(@RequestHeader String Authorization) {
 		try {
@@ -64,10 +64,10 @@ public class RepositoryController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<List<RepositoryDto>> responseVO = ResponseVO.<List<RepositoryDto>>builder()
-				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.code(HttpStatus.FORBIDDEN.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<List<RepositoryDto>> responseVO = ResponseVO.<List<RepositoryDto>>builder()
