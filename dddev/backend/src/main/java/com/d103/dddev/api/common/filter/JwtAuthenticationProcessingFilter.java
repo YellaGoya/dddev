@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	private static final String NO_CHECK_URL_SIGN_IN = "/oauth/sign-in"; // "/oauth/sign-in으로 들어오는 요청은 Filter 작동x
 	private static final String NO_CHECK_URL_MAIN = "/"; // "/으로 들어오는 요청은 Filter 작동x
-	private static final String NO_CHECK_URL_SWAGGER = "/swagger-ui";    // 스웨거 필터 작동 x
+	private static final String NO_CHECK_URL_SWAGGER = "/swagger-ui";    // 스웨거 필터 작동 x 
 
 	private static final String ACCESS_CLAIN = "access";
 	private static final String REFRESH_CLAIM = "refresh";
