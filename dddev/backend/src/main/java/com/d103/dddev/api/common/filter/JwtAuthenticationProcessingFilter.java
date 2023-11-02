@@ -43,7 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	private static final String NO_CHECK_URL_SIGN_IN = "/oauth/sign-in"; // "/oauth/sign-in으로 들어오는 요청은 Filter 작동x
-	private static final String NO_CHECK_URL_MAIN = "/"; // "/oauth/sign-in으로 들어오는 요청은 Filter 작동x
+	private static final String NO_CHECK_URL_MAIN = "/"; // "/으로 들어오는 요청은 Filter 작동x
+	private static final String NO_CHECK_URL_SWAGGER = "/swagger-ui";    // 스웨거 필터 작동 x
 
 	private static final String ACCESS_CLAIN = "access";
 	private static final String REFRESH_CLAIM = "refresh";
@@ -58,7 +59,8 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		FilterChain filterChain) throws ServletException, IOException {
 
 		String requestURI = request.getRequestURI();
-		if(requestURI.startsWith(NO_CHECK_URL_SIGN_IN) || requestURI.equals(NO_CHECK_URL_MAIN)) {
+		if (requestURI.startsWith(NO_CHECK_URL_SIGN_IN) || requestURI.equals(NO_CHECK_URL_MAIN)
+			|| requestURI.startsWith(NO_CHECK_URL_SWAGGER)) {
 			filterChain.doFilter(request, response); // "/oauth/sign-in" 요청이 들어오면, 다음 필터 호출
 			return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
 		}
@@ -68,18 +70,20 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		String accessToken = jwtService.extractAccessToken(request).orElse(null);
 
 		// access token이 있을 경우
-		if(accessToken != null) {
+		if (accessToken != null) {
 			// accessToken 유효성 검증
-			if(!checkAccessTokenAndAuthentication(accessToken) || !jwtService.extractTokenType(accessToken).equals(ACCESS_CLAIN)) {
+			if (!checkAccessTokenAndAuthentication(accessToken) || !jwtService.extractTokenType(accessToken)
+				.equals(ACCESS_CLAIN)) {
 				response.sendError(HttpServletResponse.SC_FORBIDDEN, "유효하지 않은 accessToken입니다ㅜ");
 				return;
 			}
-		} else {	// access token이 없을 경우
+		} else {    // access token이 없을 경우
 			// refresh token 있는지 확인하기
 			String refreshToken = jwtService.extractRefreshToken(request).orElse(null);
 
 			// refresh가 invalid이면 return
-			if(!jwtService.isTokenValid(refreshToken) || !jwtService.extractTokenType(refreshToken).equals(REFRESH_CLAIM)) {
+			if (!jwtService.isTokenValid(refreshToken) || !jwtService.extractTokenType(refreshToken)
+				.equals(REFRESH_CLAIM)) {
 				response.sendError(HttpServletResponse.SC_FORBIDDEN, "유효하지 않은 refreshToken입니다ㅜ");
 				return;
 			}
