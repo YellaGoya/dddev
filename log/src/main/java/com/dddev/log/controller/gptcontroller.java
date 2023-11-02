@@ -15,7 +15,7 @@ public class gptcontroller {
 
     private final ChatService chatService;
 
-    //테스트
+  
     @PostMapping("/log")
     public String logChat(@RequestBody ChatGptReq question) {
         if(question.getQuestion().equals("")){
