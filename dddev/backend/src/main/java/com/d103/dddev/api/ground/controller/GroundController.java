@@ -53,7 +53,7 @@ public class GroundController {
 	@PostMapping("/{repoId}")
 	@ApiOperation(value = "그라운드 생성", notes = "{\"name\" : {name}}")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 409, message = "이미 존재하는 그라운드의 레포지토리"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> createGround(@RequestHeader String Authorization,
@@ -97,10 +97,10 @@ public class GroundController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch(EntityExistsException e) {
 			log.error(e.getMessage());
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
@@ -122,7 +122,7 @@ public class GroundController {
 	@ApiOperation(value = "그라운드 정보 조회", notes = "그라운드 정보를 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> getGroundInfo(@ApiParam(value = "groundId") @PathVariable Integer groundId,
 		@RequestHeader String Authorization) {
@@ -156,10 +156,10 @@ public class GroundController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
@@ -173,7 +173,7 @@ public class GroundController {
 	@GetMapping("/{groundId}/is-owner")
 	@ApiOperation(value = "그라운드 owner 확인", notes = "그라운드의 owner인지 확인하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<Boolean>> checkIsGroundOwner(@ApiParam(value = "groundId") @PathVariable Integer groundId,
 		@RequestHeader String Authorization) {
@@ -201,10 +201,10 @@ public class GroundController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
@@ -218,7 +218,7 @@ public class GroundController {
 	@GetMapping("/{groundId}/is-member")
 	@ApiOperation(value = "사용자가 그라운드 멤버인지 확인", notes = "사용자가 그라운드 멤버인지 확인하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<Boolean>> checkIsGroundMember(@PathVariable Integer groundId, @RequestHeader String Authorization) {
 		log.info("controller - checkIsGroundMember :: 사용자가 그라운드 멤버인지 조회 진입");
@@ -246,10 +246,10 @@ public class GroundController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
@@ -264,7 +264,7 @@ public class GroundController {
 	@ApiOperation(value = "그라운드 사용자 목록 조회", notes = "그라운드 사용자 목록을 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<GroundUserVO>>> getGroundUsers(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId) {
@@ -300,10 +300,10 @@ public class GroundController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
@@ -317,7 +317,7 @@ public class GroundController {
 	@PutMapping("/{groundId}")
 	@ApiOperation(value = "", notes = "")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> updateGroundInfo(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
@@ -351,10 +351,10 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -368,7 +368,7 @@ public class GroundController {
 	@ApiOperation(value = "", notes = "")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> modifyGroundProfile(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId, @RequestParam MultipartFile file) {
@@ -402,10 +402,10 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -419,7 +419,7 @@ public class GroundController {
 	@ApiOperation(value = "그라운드 프로필 사진 삭제", notes = "그라운드 프로필 사진 삭제하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> deleteGroundProfileImg(
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
@@ -454,10 +454,10 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -471,7 +471,7 @@ public class GroundController {
 	@ApiOperation(value = "그라운드 삭제", notes = "그라운드를 삭제하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> deleteGround(@ApiParam(value = "groundId") @PathVariable Integer groundId,
 		@RequestHeader String Authorization) {
@@ -504,10 +504,10 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.FORBIDDEN.value())
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())

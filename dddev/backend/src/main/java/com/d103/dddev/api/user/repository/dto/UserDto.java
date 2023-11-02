@@ -63,17 +63,10 @@ public class UserDto {
 
 	private Boolean valid;
 
-	@Column(name = "refresh_token")
-	private String refreshToken;
-
 	@Column(name = "personal_access_token")
 	private String personalAccessToken;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
-
-	public void updateRefreshToken(String updateRefreshToken){
-		this.refreshToken = updateRefreshToken;
-	}
 
 }

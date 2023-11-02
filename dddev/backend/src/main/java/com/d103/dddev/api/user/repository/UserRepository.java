@@ -8,7 +8,6 @@ import com.d103.dddev.api.user.repository.dto.UserDto;
 
 public interface UserRepository extends JpaRepository<UserDto, Integer> {
 	Optional<UserDto> findByGithubId(Integer githubId);
-	Optional<UserDto> findByRefreshToken(String refreshToken);
 	Optional<UserDto> findByIdNotAndNickname(Integer id, String nickname);	// id != not and nickname = nickname
 
 }
