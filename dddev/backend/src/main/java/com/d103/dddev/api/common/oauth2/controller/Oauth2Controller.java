@@ -8,13 +8,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.common.oauth2.service.Oauth2Service;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;

@@ -127,6 +127,7 @@ public class ProfileServiceImpl implements ProfileService {
 		// dto build
 		ProfileDto profileDto = ProfileDto.builder()
 			.filePath(savedPath)
+			.fileName(savedName)
 			.contentType(type)
 			.build();
 
@@ -158,6 +159,7 @@ public class ProfileServiceImpl implements ProfileService {
 		ProfileDto profileDto = ProfileDto.builder()
 			.id(id)
 			.filePath(savedPath)
+			.fileName(savedName)
 			.contentType(type)
 			.build();
 
