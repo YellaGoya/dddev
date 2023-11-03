@@ -16,6 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.List;
+
 @RestController
 @RequestMapping("/ground/{groundId}/general")
 @RequiredArgsConstructor
@@ -25,12 +28,11 @@ public class GeneralController {
 
     @PostMapping("/step1")
     @ApiOperation(value="step 1 일반 문서 생성")
-    public ResponseEntity<?> insertGeneral1(@PathVariable("groundId") int groundId,
-                                           @ApiParam(value="title 없으면 제목없음으로 생성") @RequestBody General1InsertDto general1InsertDto){
+    public ResponseEntity<?> insertGeneral1(@PathVariable("groundId") int groundId){
         ResponseVO<General1> responseVo;
 
         try{
-            General1 general = generalService.insertGeneral1(groundId, general1InsertDto);
+            General1 general = generalService.insertGeneral1(groundId);
             responseVo = ResponseVO.<General1>builder()
                     .code(HttpStatus.OK.value())
                     .message("일반 문서가 생성되었습니다.")
@@ -45,14 +47,14 @@ public class GeneralController {
             return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @PostMapping("/step2")
     @ApiOperation(value="step 2 일반 문서 생성")
-    public ResponseEntity<?> insertGeneral2(@PathVariable("groundId") int groundId,
-                                            @ApiParam(value="title 없으면 제목없음으로 생성") @RequestBody General2InsertDto general2InsertDto){
+    public ResponseEntity<?> insertGeneral2(@PathVariable("groundId") int groundId, @RequestBody String parentId){
         ResponseVO<General2> responseVo;
 
         try{
-            General2 general = generalService.insertGeneral2(groundId, general2InsertDto);
+            General2 general = generalService.insertGeneral2(groundId, parentId);
             responseVo = ResponseVO.<General2>builder()
                     .code(HttpStatus.OK.value())
                     .message("일반 문서가 생성되었습니다.")
@@ -67,6 +69,74 @@ public class GeneralController {
             return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @PostMapping("/step1/title")
+    @ApiOperation(value="step 1 제목으로 일반 문서 생성")
+    public ResponseEntity<?> insertGeneral1WithTitle(@PathVariable("groundId") int groundId,
+                                           @ApiParam(value="title 필수") @Valid @RequestBody General1InsertDto general1InsertDto){
+        ResponseVO<General1> responseVo;
+
+        try{
+            General1 general = generalService.insertGeneral1WithTitle(groundId, general1InsertDto);
+            responseVo = ResponseVO.<General1>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("일반 문서가 생성되었습니다.")
+                    .data(general)
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+        }catch(Exception e){
+            responseVo = ResponseVO.<General1>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PostMapping("/step2/title")
+    @ApiOperation(value="step 2 제목으로 일반 문서 생성")
+    public ResponseEntity<?> insertGeneral2WithTitle(@PathVariable("groundId") int groundId,
+                                            @ApiParam(value="title 필수") @Valid @RequestBody General2InsertDto general2InsertDto){
+        ResponseVO<General2> responseVo;
+
+        try{
+            General2 general = generalService.insertGeneral2WithTitle(groundId, general2InsertDto);
+            responseVo = ResponseVO.<General2>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("일반 문서가 생성되었습니다.")
+                    .data(general)
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+        }catch(Exception e){
+            responseVo = ResponseVO.<General2>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/step1/titles")
+    @ApiOperation(value="step 1 제목들로 일반 문서들 생성")
+    public ResponseEntity<?> insertGeneral1WithTitles(@PathVariable("groundId") int groundId,
+                                                     @RequestBody String[] titles){
+        ResponseVO<List<General1>> responseVo;
+
+        try{
+            List<General1> generalList = generalService.insertGeneral1WithTitles(groundId, titles);
+            responseVo = ResponseVO.<List<General1>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("일반 문서들이 생성되었습니다.")
+                    .data(generalList)
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+        }catch(Exception e){
+            responseVo = ResponseVO.<List<General1>>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/step1/{generalId}")
     @ApiOperation(value="step1 문서 Id로 불러오기")

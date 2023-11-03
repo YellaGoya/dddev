@@ -10,8 +10,11 @@ import com.d103.dddev.api.general.repository.dto.GeneralUpdateDto;
 import java.util.List;
 
 public interface GeneralService {
-    General1 insertGeneral1(int groundId, General1InsertDto general1InsertDto);
-    General2 insertGeneral2(int groundId, General2InsertDto general2InsertDto);
+    General1 insertGeneral1(int groundId);
+    General2 insertGeneral2(int groundId, String parentId);
+    General1 insertGeneral1WithTitle(int groundId, General1InsertDto general1InsertDto);
+    General2 insertGeneral2WithTitle(int groundId, General2InsertDto general2InsertDto);
+    List<General1> insertGeneral1WithTitles(int groundId, String[] titles);
     General1 getGeneral1(int groundId, String generalId);
     General2 getGeneral2(int groundId, String generalId);
     General1 updateGeneral1(int groundId, GeneralUpdateDto generalUpdateDto);

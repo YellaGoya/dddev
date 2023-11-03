@@ -24,22 +24,15 @@ public class GeneralServiceImpl implements GeneralService{
 
     private final General1Repository general1Repository;
     private final General2Repository general2Repository;
+
     @Override
-    public General1 insertGeneral1(int groundId, General1InsertDto general1InsertDto) {
+    public General1 insertGeneral1(int groundId) {
         General1 insertGeneral;
-        // 제목없이 값이 들어왔을 경우
-        if(general1InsertDto.getTitle() == null){
-            insertGeneral = General1.builder()
-                    .title("제목 없음")
-                    .groundId(groundId)
-                    .build();
-        }
-        else{
-            insertGeneral = General1.builder()
-                    .title(general1InsertDto.getTitle())
-                    .groundId(groundId)
-                    .build();
-        }
+
+        insertGeneral = General1.builder()
+                .groundId(groundId)
+                .build();
+
         try{
             general1Repository.save(insertGeneral);
         }catch(Exception e){
@@ -50,24 +43,15 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General2 insertGeneral2(int groundId, General2InsertDto general2InsertDto) {
-        General1 parent = general1Repository.findById(general2InsertDto.getParentId()).orElseThrow(()->new TransactionException("부모 문서를 불러오는데 실패했습니다."));
+    public General2 insertGeneral2(int groundId, String parentId) {
+        General1 parent = general1Repository.findById(parentId).orElseThrow(()->new TransactionException("부모 문서를 불러오는데 실패했습니다."));
         General2 insertGeneral;
-        // 제목없이 값이 들어왔을 경우
-        if(general2InsertDto.getTitle() == null){
-            insertGeneral = General2.builder()
-                    .title("제목 없음")
-                    .parentId(parent.getId())
-                    .groundId(groundId)
-                    .build();
-        }
-        else{
-            insertGeneral = General2.builder()
-                    .title(general2InsertDto.getTitle())
-                    .parentId(parent.getId())
-                    .groundId(groundId)
-                    .build();
-        }
+
+        insertGeneral = General2.builder()
+                .parentId(parent.getId())
+                .groundId(groundId)
+                .build();
+
         try{
             general2Repository.save(insertGeneral);
         }catch(Exception e){
@@ -87,6 +71,74 @@ public class GeneralServiceImpl implements GeneralService{
         }
 
         return insertGeneral;
+    }
+
+    @Override
+    public General1 insertGeneral1WithTitle(int groundId, General1InsertDto general1InsertDto) {
+        General1 insertGeneral;
+
+        insertGeneral = General1.builder()
+                .title(general1InsertDto.getTitle())
+                .groundId(groundId)
+                .build();
+
+        try{
+            general1Repository.save(insertGeneral);
+        }catch(Exception e){
+            throw new TransactionException("문서를 저장하는데 실패했습니다.");
+        }
+
+        return insertGeneral;
+    }
+
+    @Override
+    public General2 insertGeneral2WithTitle(int groundId, General2InsertDto general2InsertDto) {
+        General1 parent = general1Repository.findById(general2InsertDto.getParentId()).orElseThrow(()->new TransactionException("부모 문서를 불러오는데 실패했습니다."));
+        General2 insertGeneral;
+
+        insertGeneral = General2.builder()
+                .title(general2InsertDto.getTitle())
+                .parentId(parent.getId())
+                .groundId(groundId)
+                .build();
+
+        try{
+            general2Repository.save(insertGeneral);
+        }catch(Exception e){
+            throw new TransactionException("문서를 저장하는데 실패했습니다.");
+        }
+
+        List<General2> childrenList = parent.getChildren();
+        if(childrenList == null){
+            childrenList = new ArrayList<>();
+        }
+        childrenList.add(insertGeneral);
+        parent.setChildren(childrenList);
+        try{
+            general1Repository.save(parent);
+        }catch(Exception e){
+            throw new TransactionException("부모 문서를 저장에 실패했습니다.");
+        }
+
+        return insertGeneral;
+    }
+
+    @Override
+    public List<General1> insertGeneral1WithTitles(int groundId, String[] titles) {
+        List<General1> list = new ArrayList<>();
+        for(String title : titles){
+            General1 insertGeneral = General1.builder()
+                        .title(title)
+                        .groundId(groundId)
+                        .build();
+            list.add(insertGeneral);
+        }
+        try{
+            general1Repository.saveAll(list);
+        }catch(Exception e){
+            throw new TransactionException("문서 저장에 실패했습니다.");
+        }
+        return list;
     }
 
     @Override

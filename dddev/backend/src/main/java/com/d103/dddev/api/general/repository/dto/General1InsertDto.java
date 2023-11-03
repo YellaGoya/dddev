@@ -1,8 +1,9 @@
 package com.d103.dddev.api.general.repository.dto;
 
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -12,5 +13,6 @@ import lombok.*;
 @Builder
 public class General1InsertDto {
     @ApiModelProperty(example = "공지사항")
+    @NotNull
     private String title;
 }
