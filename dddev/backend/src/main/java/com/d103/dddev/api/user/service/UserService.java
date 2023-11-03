@@ -17,7 +17,7 @@ public interface UserService {
 	Boolean checkDupNickname(String newNickname, Integer userId) throws Exception;	// 유저 닉네임 중복체크
 	UserDto updateUserInfo(UserDto newUserDto, UserDto userDto) throws Exception;	// 유저 닉네임 수정
 	UserDto updateProfile(MultipartFile file, UserDto userDto) throws Exception;	// 유저 프로필 사진 수정
-	UserDto modifyLastVisitedGround(Integer lastGroundId, UserDto userDto) throws Exception;
+	UserDto updateLastVisitedGround(Integer lastGroundId, UserDto userDto) throws Exception;
 	UserDto savePersonalAccessToken(String personalAccessToken, UserDto userDto) throws Exception;	// 유저 personal access token 수정
 
 	UserDto deleteProfile(UserDto userDto) throws Exception;		// 유저 프로필 사진 삭제

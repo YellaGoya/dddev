@@ -410,7 +410,7 @@ public class UserController {
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
-			userDto = userService.modifyLastVisitedGround(lastGroundId, userDto);
+			userDto = userService.updateLastVisitedGround(lastGroundId, userDto);
 
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.OK.value())

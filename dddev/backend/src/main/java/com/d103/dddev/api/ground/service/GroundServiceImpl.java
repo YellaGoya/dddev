@@ -52,7 +52,7 @@ public class GroundServiceImpl implements GroundService {
 		groundUserService.updateGroundOwner(groundDto, userDto);
 
 		// 생성자의 최근 방문 ground를 생성한 그라운드로 하기
-		userService.modifyLastVisitedGround(groundDto.getId(), userDto);
+		userService.updateLastVisitedGround(groundDto.getId(), userDto);
 		return groundDto;
 	}
 

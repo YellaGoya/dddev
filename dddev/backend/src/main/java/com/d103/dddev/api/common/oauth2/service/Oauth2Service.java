@@ -33,12 +33,12 @@ public class Oauth2Service {
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
 
-	private String ACCESS_TOKEN_REQUEST_URL = "https://github.com/login/oauth/access_token";
+	private final String ACCESS_TOKEN_REQUEST_URL = "https://github.com/login/oauth/access_token";
 
-	private String API_URL = "https://api.github.com";
-	private String USER_INFO_REQUEST_TOKEN = "token ";
+	private final String API_URL = "https://api.github.com";
+	private final String USER_INFO_REQUEST_TOKEN = "token ";
 
-	private String BEARER = "Bearer ";
+	private final String BEARER = "Bearer ";
 
 	@Value("${spring.security.oauth2.client.registration.github.client-id}")
 	private String CLIENT_ID;
