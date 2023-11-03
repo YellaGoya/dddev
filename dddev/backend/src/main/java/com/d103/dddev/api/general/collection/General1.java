@@ -1,8 +1,6 @@
 package com.d103.dddev.api.general.collection;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -10,22 +8,21 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @ToString
-@Document(collection = "general")
-public class General {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(collection = "general1")
+public class General1 {
     @Id
     private String id;
-    @Field("parent_id")
-    private int parentId;
-    @Field("children_id")
-    private int[] childrenId;
+    private List<General2> children;
     @Field("ground_id")
     private int groundId;
-    private int type;
-    private int step;
     private String title;
     private String content;
     @Field("created_at")
