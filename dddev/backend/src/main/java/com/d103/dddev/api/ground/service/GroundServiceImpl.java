@@ -1,5 +1,6 @@
 package com.d103.dddev.api.ground.service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -10,6 +11,8 @@ import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
+import com.d103.dddev.api.ground.vo.GroundUserVO;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
@@ -90,7 +93,7 @@ public class GroundServiceImpl implements GroundService {
 		groundDto.setProfileDto(newProfile);
 
 		// 기존 프로필 사진 서버/db에서 삭제
-		if(prevProfile != null && prevProfile.getId() != DEFAULT_GROUND_IMG_ID) {
+		if (prevProfile != null && prevProfile.getId() != DEFAULT_GROUND_IMG_ID) {
 			profileService.deleteProfile(prevProfile);
 		}
 
@@ -109,11 +112,22 @@ public class GroundServiceImpl implements GroundService {
 		groundDto.setProfileDto(defaultProfile);
 
 		// 프로필 사진 서버/db에서 삭제
-		if(profileDto != null && profileDto.getId() != DEFAULT_GROUND_IMG_ID) {
+		if (profileDto != null && profileDto.getId() != DEFAULT_GROUND_IMG_ID) {
 			profileService.deleteProfile(profileDto);
 		}
 
 		return groundRepository.saveAndFlush(groundDto);
+	}
+
+	@Override
+	public void deleteMemberFromGround(GroundDto groundDto, UserDto userDto) throws Exception {
+		log.info("service - deleteMemberFromGround :: 그라운드 멤버 나가기 진입");
+
+		GroundUserDto groundUserDto = groundUserService.getGroundMember(groundDto.getId(), userDto.getId())
+			.orElseThrow(() -> new NoSuchElementException("그라운드에 해당 사용자가 존재하지 않습니다."));
+
+		groundUserService.deleteGroundUser(groundUserDto);
+
 	}
 
 	// TODO :: ground에 속한 이슈, 문서, 리퀘스트 모두 삭제하기
@@ -133,13 +147,23 @@ public class GroundServiceImpl implements GroundService {
 
 		// 리퀘스트 리스트 받아오기
 
+		// 스프린트 받아오기
+
 		// 차트 데이터 받아오기
+
+		// 그라운드 멤버 리스트 받아오기
+		List<GroundUserDto> groundMembers = groundUserService.getGroundMembers(groundDto.getId());
+
+		// 그라운드 멤버 리스트 db에서 삭제하기
+		for(GroundUserDto g : groundMembers) {
+			groundUserService.deleteGroundUser(g);
+		}
 
 		// 그라운드 삭제
 		groundRepository.delete(groundDto);
 
 		// 서버/db에서 프로필 사진 삭제
-		if(profileDto != null && profileDto.getId() != DEFAULT_GROUND_IMG_ID) {
+		if (profileDto != null && profileDto.getId() != DEFAULT_GROUND_IMG_ID) {
 			profileService.deleteProfile(profileDto);
 		}
 
@@ -152,6 +176,9 @@ public class GroundServiceImpl implements GroundService {
 
 		// 리퀘스트 삭제
 
+		// 스프린트 삭제
+
 		// 차트 데이터 삭제하기
+
 	}
 }

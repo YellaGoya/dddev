@@ -52,7 +52,8 @@ public class UserController {
 	@GetMapping
 	@ApiOperation(value = "사용자 정보", notes = "사용자 정보를 받아오는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<UserDto>> getUserInfo(@RequestHeader String Authorization) {
 		log.info("controller - getUserInfo :: 사용자 정보 받아오기 진입");
 		try {
