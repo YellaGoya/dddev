@@ -18,7 +18,7 @@ public class ChatService {
     public String getChatResponse(String question) {
         try{
             String responseMessage = chatgptService.sendMessage(question + "This is the log I'm curious about. Tell me about this log in detail and how to solve it as an example. " +
-                    "Answer me in Korean.");
+                    "Answer me in Korean. Please answer within 2500 tokens");
             return responseMessage;
         }catch (ChatGptException.GptExcetpion e){
             throw new ChatGptException.GptExcetpion("Gpt를 호출하는 중 오류가 발생했습니다.");
