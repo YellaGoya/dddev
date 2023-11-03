@@ -3,10 +3,12 @@ package com.dddev.log.controller;
 import com.dddev.log.dto.ChatGptReq;
 import com.dddev.log.exception.ChatGptException;
 import com.dddev.log.service.ChatService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+@Api(tags = {"CHAT GPT 관련 API"})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat")

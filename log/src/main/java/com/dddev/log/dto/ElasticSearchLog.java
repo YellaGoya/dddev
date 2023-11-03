@@ -10,9 +10,9 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.time.LocalDateTime;
 
 @Document(indexName = "group_id")
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class ElasticSearchLog {
 
