@@ -1,6 +1,7 @@
 package com.d103.dddev.api.common.filter;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
@@ -8,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -15,12 +17,16 @@ import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.common.oauth2.utils.PasswordUtil;
 import com.d103.dddev.api.user.repository.UserRepository;
 import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +59,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	private final UserRepository userRepository;
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+	private ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -67,6 +74,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
 		// access token 확인하기
 		// 사용자 요청 헤더에서 access token 추출
+		String Authorization = request.getHeader("Authorization");
 		String accessToken = jwtService.extractAccessToken(request).orElse(null);
 
 		// access token이 있을 경우
@@ -89,6 +97,32 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 			}
 		}
 
+		Optional<UserDto> userDtoOptional = null;
+		UserDto userDto = null;
+
+		try {
+			// access token으로 유저를 받아와서 유효한 사용자인지 검증
+			userDtoOptional = jwtService.getUser(Authorization);
+			if (userDtoOptional.isEmpty()) {
+				ResponseVO<Object> responseVO = ResponseVO.builder()
+					.code(HttpStatus.NOT_ACCEPTABLE.value())
+					.message("존재하지 않는 사용자입니다.")
+					.build();
+
+				response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+				String result = mapper.writeValueAsString(responseVO);
+				response.setCharacterEncoding("UTF-8");
+				response.setContentType("application/json;charset=utf-8");
+				response.getWriter().write(result);
+			}
+		} catch (Exception e) {
+			throw new JWTVerificationException("존재하지 않는 사용자입니다.");
+		}
+
+		userDto = userDtoOptional.get();
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("userDto", userDto);
+		request.setAttribute("modelAndView", modelAndView);
 		filterChain.doFilter(request, response);
 
 	}

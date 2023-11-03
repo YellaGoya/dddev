@@ -1,6 +1,7 @@
 package com.d103.dddev.api.sprint.controller;
 
 import com.d103.dddev.api.common.ResponseVO;
+import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.service.SprintService;
 import io.swagger.annotations.Api;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -23,7 +25,6 @@ public class SprintController {
     @ApiOperation(value = "스프린트 생성", notes = "스프린트 생성하는 API")
     public ResponseEntity<?> createSprint(@PathVariable("groundId") int groundId){
         ResponseVO<SprintEntity> responseVo;
-
         try{
             SprintEntity returnSprint = sprintService.createSprint(groundId);
             responseVo = ResponseVO.<SprintEntity>builder()

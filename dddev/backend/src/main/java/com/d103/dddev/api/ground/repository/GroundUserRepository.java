@@ -15,4 +15,6 @@ public interface GroundUserRepository extends JpaRepository<GroundUserDto, Integ
 	Optional<GroundUserDto> findByGroundDto_IdAndUserDto_IdAndIsOwnerIsTrue(Integer groundId, Integer userId);
 
 	Optional<GroundUserDto> findByGroundDto_IdAndUserDto_Id(Integer groundId, Integer userId);
+
+	List<GroundUserDto> findByGroundDto_IdAndUserDto_EmailNot(Integer groundId, String email);
 }

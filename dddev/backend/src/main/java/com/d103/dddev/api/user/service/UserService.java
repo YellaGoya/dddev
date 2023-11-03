@@ -15,6 +15,7 @@ public interface UserService {
 	List<GroundUserDto> getGroundList(UserDto userDto) throws Exception;
 	String getPersonalAccessToken(UserDto userDto) throws Exception;
 	Boolean checkDupNickname(String newNickname, Integer userId) throws Exception;	// 유저 닉네임 중복체크
+
 	UserDto updateUserInfo(UserDto newUserDto, UserDto userDto) throws Exception;	// 유저 닉네임 수정
 	UserDto updateProfile(MultipartFile file, UserDto userDto) throws Exception;	// 유저 프로필 사진 수정
 	UserDto updateLastVisitedGround(Integer lastGroundId, UserDto userDto) throws Exception;

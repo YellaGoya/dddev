@@ -11,6 +11,8 @@ import com.d103.dddev.api.user.repository.dto.UserDto;
 import jdk.jshell.spi.ExecutionControlProvider;
 
 public interface GroundUserService {
+	List<GroundUserVO> findUserByEmail(Integer groundId, String email) throws Exception;
+
 	GroundUserDto updateGroundOwner(GroundDto groundDto, UserDto userDto) throws Exception;
 
 	Boolean checkIsGroundOwner(Integer groundId, Integer userId) throws Exception;

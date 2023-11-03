@@ -23,6 +23,31 @@ public class GroundUserServiceImpl implements GroundUserService {
 	private final GroundUserRepository groundUserRepository;
 
 	/**
+	 * 그라운드 유저 초대를 위해 email로 검색하기
+	 * 이미 추가된 멤버는 제외시킴
+	 * */
+	@Override
+	public List<GroundUserVO> findUserByEmail(Integer groundId, String email) throws Exception {
+		List<GroundUserDto> userDtoList = groundUserRepository.findByGroundDto_IdAndUserDto_EmailNot(
+			groundId, email);
+
+		List<GroundUserVO> userVOList = new ArrayList<>();
+
+		for(GroundUserDto g : userDtoList) {
+			userVOList.add(GroundUserVO.builder()
+					.isOwner(g.getIsOwner())
+					.userId(g.getUserDto().getId())
+					.profileDto(g.getUserDto().getProfileDto())
+					.githubId(g.getUserDto().getGithubId())
+					.nickname(g.getUserDto().getNickname())
+					.statusMsg(g.getUserDto().getStatusMsg())
+					.build());
+		}
+
+		return userVOList;
+	}
+
+	/**
 	 * ground owner 설정
 	 * */
 	@Override
