@@ -7,7 +7,7 @@ export const GroundWrapper = styled.div`
   transform: translate(-50%, -50%);
   width: 375px;
 
-  color: #fff;
+  color: var(--font-rev);
 `;
 
 export const Title = styled.h1`
@@ -20,7 +20,7 @@ export const TextButton = styled.button`
 
   border: none;
   background-color: transparent;
-  color: #fff;
+  color: var(--font-rev);
   font-size: 1rem;
 
   cursor: pointer;
@@ -30,7 +30,7 @@ export const TextLink = styled.a`
   display: block;
 
   font-size: 1rem;
-  color: #fff;
+  color: var(--font-rev);
   text-decoration: none;
   text-align: center;
   cursor: pointer;

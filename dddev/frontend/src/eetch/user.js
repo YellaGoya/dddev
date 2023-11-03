@@ -47,25 +47,25 @@ export const githubTokenRegist = async ({ Authorization, personalAccessToken }) 
   return res;
 };
 
-export const githubTokenUpdate = async ({ Authorization, personalAccessToken }) => {
-  const url = `https://k9d103.p.ssafy.io/user/personal-access-token`;
+export const userEdit = async ({ Authorization, nickname, statusMsg }) => {
+  const url = `https://k9d103.p.ssafy.io/user`;
   const options = {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization,
     },
-    body: JSON.stringify({ personalAccessToken }),
+    body: JSON.stringify({ nickname, statusMsg }),
   };
 
   const res = await fetch(url, options);
   if (!res.ok) throw new Error(`${res.status} 에러`);
 
-  return res;
+  return res.json();
 };
 
 export const userInfo = async ({ Authorization }) => {
-  const url = `https://k9d103.p.ssafy.io/user/user-info`;
+  const url = `https://k9d103.p.ssafy.io/user`;
   const options = {
     method: 'GET',
     headers: {
@@ -94,4 +94,53 @@ export const userGrounds = async ({ Authorization }) => {
   if (!res.ok) throw new Error(`${res.status} 에러`);
 
   return res.json();
+};
+
+export const userProfileImage = async ({ Authorization }) => {
+  const url = `https://k9d103.p.ssafy.io/user/profile`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization,
+    },
+  };
+
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(`${res.status} 에러`);
+
+  return res;
+};
+
+export const userUploadImage = async ({ Authorization, formData }) => {
+  console.log(formData.get('file'));
+  const url = `https://k9d103.p.ssafy.io/user/profile`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      Authorization,
+    },
+    body: formData,
+  };
+
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(`${res.status} 에러`);
+
+  return res;
+};
+
+export const userDeleteImage = async ({ Authorization }) => {
+  const url = `https://k9d103.p.ssafy.io/user/profile`;
+  const options = {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization,
+    },
+  };
+
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(`${res.status} 에러`);
+
+  return res;
 };

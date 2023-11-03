@@ -50,7 +50,7 @@ export const EditModalWrapper = styled.div`
   }
 
   border-radius: 0.75rem;
-  border: 1px solid #30363d;
+  border: 1px solid var(--border-basic);
 
-  background-color: #010409;
+  background-color: var(--bg-dark);
 `;

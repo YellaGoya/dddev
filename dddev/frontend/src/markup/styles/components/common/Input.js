@@ -3,13 +3,14 @@ import styled from 'styled-components';
 export const InputWrapper = styled.div``;
 
 export const Label = styled.div`
-  color: #fff;
+  color: var(--font-rev);
 `;
 
 export const Input = styled.input`
   width: calc(100% - 50px);
 
   margin: 0 25px;
+  color: var(--font-basic);
 `;
 
 export const Button = styled.button``;

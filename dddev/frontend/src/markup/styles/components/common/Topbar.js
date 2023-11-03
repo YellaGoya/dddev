@@ -13,7 +13,7 @@ export const TopbarWrapper = styled.header`
   user-select: none;
   transition: height 0.3s ease;
 
-  border-bottom: 1px solid #30363d;
+  border-bottom: 1px solid var(--border-basic);
 `;
 
 export const PositionWrapper = styled.div`
@@ -26,7 +26,7 @@ export const PositionWrapper = styled.div`
   width: 100%;
   height: 35px;
 
-  background-color: #010409;
+  background-color: var(--bg-dark);
 `;
 
 export const MenuButton = styled.button`
@@ -36,7 +36,7 @@ export const MenuButton = styled.button`
 export const SelectedGround = styled.h1`
   display: inline-block;
 
-  color: #fff;
+  color: var(--font-rev);
   font-size: 1.3rem;
 
   display: flex;
@@ -52,15 +52,46 @@ export const SelectedGround = styled.h1`
 `;
 
 export const ProfileImage = styled.img`
-  position: absolute;
-  top: -8px;
-  right: 0;
   width: 100px;
   height: 50px;
 
   //비율 유지
   object-fit: cover;
 
+  transition: filter 0.3s ease;
   border-radius: 25px 0 0 25px;
   cursor: pointer;
+`;
+
+export const PorfileButtonWrapper = styled.div`
+  position: absolute;
+  top: -8px;
+  right: 0;
+  width: 100px;
+  height: 50px;
+
+  &:hover {
+    > img {
+      filter: brightness(0.5);
+    }
+
+    > svg {
+      opacity: 1;
+    }
+  }
+
+  & > svg {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+
+    top: 50%;
+    right: 50%;
+
+    transform: translate(50%, -50%) scaleX(-1);
+    transition: opacity 0.3s ease;
+    opacity: 0;
+
+    cursor: pointer;
+  }
 `;

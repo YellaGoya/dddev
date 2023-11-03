@@ -1,12 +1,13 @@
 import { useState } from 'react';
 
 import * as s from 'markup/styles/components/common/Input';
-const Input = ({ label, data = '', array, fixed, click, enter, message }) => {
+const Input = ({ label, data = '', holder, setData, array, fixed, click, enter, message }) => {
   const [value, setValue] = useState(data);
-  const [placeholder, setPlaceholder] = useState('');
+  const [placeholder, setPlaceholder] = useState(holder || '');
 
   const onChangeHandelr = (e) => {
     setValue(e.target.value);
+    if (setData) setData(e.target.value);
   };
 
   const keyDownHandler = (e) => {

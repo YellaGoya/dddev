@@ -13,7 +13,7 @@ export const ContentGrid = styled.section`
   align-items: center;
 
   border-radius: 0.75rem;
-  border: 1px solid #30363d;
+  border: 1px solid var(--border-basic);
 
   overflow: hidden;
 
@@ -25,12 +25,12 @@ export const ContentGrid = styled.section`
 
     & > :first-child {
       & > div {
-        border-right: 1px solid #30363d;
+        border-right: 1px solid var(--border-basic);
       }
     }
     & > :last-child {
       & > div {
-        border-left: 1px solid #30363d;
+        border-left: 1px solid var(--border-basic);
       }
     }
   }
@@ -45,12 +45,12 @@ export const ContentGrid = styled.section`
 
     & > :first-child {
       & > div {
-        border-bottom: 1px solid #30363d;
+        border-bottom: 1px solid var(--border-basic);
       }
     }
     & > :last-child {
       & > div {
-        border-top: 1px solid #30363d;
+        border-top: 1px solid var(--border-basic);
       }
     }
   }
@@ -68,7 +68,7 @@ export const ContentCard = styled.article`
     min-width: 361px;
   }
 
-  background-color: #0d1117;
+  background-color: var(--bg-basic);
 `;
 
 export const ContentLabel = styled.h1`
@@ -76,7 +76,7 @@ export const ContentLabel = styled.h1`
   top: 20px;
   left: 50%;
 
-  color: #fff;
+  color: var(--font-rev);
   font-size: 0.9rem;
   font-weight: 300;
   transform: translateX(-50%);
@@ -114,7 +114,7 @@ export const TreeName = styled.span`
   position: relative;
 
   padding: 3px 0px 3px 30px;
-  color: #fff;
+  color: var(--font-rev);
 
   display: flex;
   align-items: center;
@@ -124,7 +124,7 @@ export const TreeName = styled.span`
     position: absolute;
     left: 0.3rem;
     top: 0px;
-    color: ${({ $toggle }) => ($toggle ? '#fff' : '#ffb938')};
+    fill: ${({ $toggle }) => ($toggle ? 'var(--font-rev)' : 'var(--font-toggle)')};
     transform: ${({ $toggle }) => ($toggle ? 'rotate(-90deg)' : 'rotate(0deg)')};
     transition:
       transform 0.4s ease,
@@ -132,7 +132,7 @@ export const TreeName = styled.span`
   }
 
   &:hover {
-    background-color: #000;
+    background-color: var(--font-basic);
     border-radius: 4px;
   }
 

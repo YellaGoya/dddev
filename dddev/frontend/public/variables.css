@@ -1,0 +1,23 @@
+:root {
+  --font-basic: #000;
+  --font-rev: #fff;
+  --font-hover: #aaa;
+  --font-editor-placeholder: #888;
+  --font-toggle: #ffb938;
+  --bg-black: #000;
+  --bg-basic: #0d1117;
+  --bg-lite: #161b22;
+  --bg-dark: #010409;
+  --hr-basic: #858585;
+  --border-basic: #30363d;
+  --button-basic: #21262c;
+  --button-lite: #3d4752;
+  --border-cursor: #000;
+  --selection-bg: #6194c8;
+  --selection-font: #fff;
+  --button-activated : #000;
+  --code-highlight-bg: #3d4752;
+  --code-highlight-font: #fff;
+  --blockquote-bg: #161b22;
+  --blockquote-hover: #2e3948;
+}

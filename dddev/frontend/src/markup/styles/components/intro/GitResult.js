@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const Title = styled.h1`
-  color: #fff;
+  color: var(--font-rev);
   font-weight: 500;
   padding: 25px 0 0 25px;
 `;
@@ -28,7 +28,7 @@ export const ImgWrapper = styled.div`
 
 export const DemoImg = styled.img`
   border-radius: 0.75rem;
-  border: 1px solid #30363d;
+  border: 1px solid var(--border-basic);
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
@@ -39,7 +39,7 @@ export const Description = styled.div`
   flex: 1 1 320px;
   max-width: 600px;
 
-  color: #fff;
+  color: var(--font-rev);
 
   display: flex;
   flex-direction: column;
@@ -62,5 +62,5 @@ export const DivLine = styled.div`
 
   margin: 0 25px;
 
-  background-color: #30363d;
+  background-color: var(--border-basic);
 `;
