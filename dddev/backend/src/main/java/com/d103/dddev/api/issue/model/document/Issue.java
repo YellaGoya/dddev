@@ -1,5 +1,6 @@
 package com.d103.dddev.api.issue.model.document;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;
@@ -10,26 +11,26 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
 @Document(collection = "issues")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Issue {
     @Id
     private String id;
 
-    @Field("groud_id")
+    @Field("ground_id")
     private String groundId;
     @Field("sprint_id")
     private String sprintId;
     @Field("parent_id")
     private String parentId;
     @Field("children_id")
-    private ArrayList<String> childrenId;
+    private List<String> childrenId;
 
     @Field("step")
     private Integer step;
@@ -59,4 +60,5 @@ public class Issue {
     private Integer status;
     private String title;
     private String content;
+    private boolean unclassified;
 }

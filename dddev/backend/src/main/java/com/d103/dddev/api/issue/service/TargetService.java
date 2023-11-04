@@ -12,7 +12,7 @@ public interface TargetService {
 
     TargetDto.Detail.Response targetDetail(String groundId, String targetId);
 
-    TargetDto.Delete.Response targetDelete(String targetId);
+    TargetDto.Delete.Response targetDelete(String groundId, String targetId);
 
     TargetDto.Update.Response targetUpdate(TargetDto.Update.Request request, String targetId);
 }

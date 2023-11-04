@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/ground")
+@RequestMapping("/ground/{groundId}/target")
 @Api(tags = "목표 문서 API")
 @AllArgsConstructor
 @Slf4j
@@ -24,10 +24,10 @@ public class TargetController {
     private final TargetService targetService;
 
     @ApiOperation("목표 문서 생성")
-    @PostMapping("/{groundId}/target/create")
+    @PostMapping("/create")
     public ResponseEntity createTarget(@PathVariable String groundId) {
         try{
-            log.info("그라운드 생성");
+            log.info("목표 문서 생성");
             TargetDto.Create.Response response = targetService.createTarget(groundId);
             return Response.success(response);
         }catch(NoSuchElementException response){
@@ -38,7 +38,7 @@ public class TargetController {
     }
 
     @ApiOperation("목표 문서 목록 조회")
-    @GetMapping("/{groundId}/target/list")
+    @GetMapping("/list")
     public ResponseEntity targetList(@PathVariable String groundId){
         try{
             log.info("목표 문서 목록 조회");
@@ -52,7 +52,7 @@ public class TargetController {
     }
 
     @ApiOperation("목표 문서 상세 조회")
-    @GetMapping("/{groundId}/target/{targetId}")
+    @GetMapping("/{targetId}")
     public ResponseEntity targetDetail(@PathVariable String groundId, @PathVariable String targetId){
         try{
             log.info("목표 문서 상세 조회");
@@ -67,11 +67,11 @@ public class TargetController {
     }
 
     @ApiOperation("목표 삭제")
-    @DeleteMapping("/{groundId}/target/{targetId}")
+    @DeleteMapping("/{targetId}")
     public ResponseEntity targetDelete(@PathVariable String groundId, @PathVariable String targetId){
         try{
             log.info("목표 문서 삭제");
-            TargetDto.Delete.Response response = targetService.targetDelete(targetId);
+            TargetDto.Delete.Response response = targetService.targetDelete(groundId, targetId);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
@@ -81,8 +81,8 @@ public class TargetController {
     }
 
     @ApiOperation("목표 수정")
-    @PutMapping("/ground/{groundId}/target/{targetId}")
-    public ResponseEntity targetUpdate(@PathVariable String targetId, @RequestBody TargetDto.Update.Request request){
+    @PutMapping("/{targetId}")
+    public ResponseEntity targetUpdate(@PathVariable String groundId, @PathVariable String targetId, @RequestBody TargetDto.Update.Request request){
         try{
             log.info("목표 문서 수정");
             TargetDto.Update.Response response = targetService.targetUpdate(request, targetId);

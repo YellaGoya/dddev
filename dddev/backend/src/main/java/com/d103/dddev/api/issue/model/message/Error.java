@@ -39,4 +39,9 @@ public class Error {
     public static String EmptyResultDataAccessException(){
         return "데이터베이스에 값이 존재하지 않습니다.";
     }
+
+    public static String WrongStep(){return "단계가 다른 문서입니다.";}
+
+    public static String NoSubDocument(){return "존재하지 않는 하위 문서입니다.";}
+    public static String NoParentDocument(){return "존재하지 않는 상위 문서입니다.";}
 }
