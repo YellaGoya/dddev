@@ -5,7 +5,7 @@ import { setMessage } from 'redux/actions/menu';
 
 import eetch from 'eetch/eetch';
 
-import MessageBoxModal from 'markup/pages/components/common/MessageBoxModal';
+import Message from 'markup/pages/components/common/Message';
 import userStockImage from 'assets/userStockImage.webp';
 import MenuIcon from '@mui/icons-material/Menu';
 
@@ -46,13 +46,7 @@ const Topbar = () => {
         <s.ProfileImage src={userInfo.profileDto ? `https://k9d103.p.ssafy.io/img/user/${userInfo.profileDto.fileName}` : userStockImage} />
         <ReviewsRoundedIcon />
       </s.PorfileButtonWrapper>
-      <MessageBoxModal
-        messageToggle={messageToggle}
-        editToggle={editToggle}
-        setEditToggle={setEditToggle}
-        userInfo={userInfo}
-        setUserInfo={setUserInfo}
-      />
+      <Message messageToggle={messageToggle} editToggle={editToggle} setEditToggle={setEditToggle} userInfo={userInfo} setUserInfo={setUserInfo} />
     </s.TopbarWrapper>
   );
 };

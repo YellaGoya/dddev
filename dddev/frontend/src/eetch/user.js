@@ -19,6 +19,8 @@ export const githubSync = async ({ code }) => {
 
   const expirationDate = new Date(payload.exp * 1000);
 
+  console.log(expirationDate);
+
   return {
     accessToken,
     accessExp: expirationDate,

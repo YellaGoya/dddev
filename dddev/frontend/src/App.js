@@ -8,6 +8,7 @@ import { store, persistor } from 'redux/store';
 import View from 'layouts/View';
 
 import Login from 'markup/pages/Login';
+import Ground from 'markup/pages/Ground';
 import GroundCheck from 'layouts/GroundCheck';
 
 import { Global } from 'markup/styles/Global';
@@ -15,6 +16,7 @@ import { Global } from 'markup/styles/Global';
 const Routing = () => {
   const location = useLocation();
   const user = useSelector((state) => state.user);
+
   const routes = useRoutes([
     {
       path: '/login/*',
@@ -22,21 +24,23 @@ const Routing = () => {
     },
     {
       path: '/',
-      element: user.lastGround ? <Navigate to={`/${user.lastGround}`} /> : <Navigate to="/login/groundinit" />,
+      element: user.lastGround === null ? <Navigate to="/login/groundinit" /> : <Navigate to={`/${user.lastGround}`} />,
     },
     {
       path: '/:groundId/*',
       element: <GroundCheck />,
     },
+    { path: '/newground', element: <Ground /> },
   ]);
 
+  const nocheck = ['/login', '/login/github'];
   return user.isLoggedIn ? (
-    location.pathname.startsWith('/login') ? (
+    nocheck === '/login' ? (
       <Navigate to={`/${user.lastGround}`} />
     ) : (
       routes
     )
-  ) : location.pathname.startsWith('/login') ? (
+  ) : nocheck.includes(location.pathname) ? (
     routes
   ) : (
     <Navigate to="/login" />

@@ -32,7 +32,6 @@ const Sidemenu = () => {
     dispatch(logoutUser());
     dispatch(setMenu());
     dispatch(setMessage(false));
-    console.log('groundId');
     navigate(`/login`);
   };
 
@@ -64,6 +63,7 @@ const Sidemenu = () => {
               {name}
             </s.GroundItem>
           ))}
+          <s.GroundItem onClick={() => navigate('/newground')}>+ 새로운 그라운드</s.GroundItem>
           <div onClick={groundButtonHandler}>open</div>
         </s.GroundList>
         <s.BottomWrapper>

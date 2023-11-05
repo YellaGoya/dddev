@@ -57,15 +57,15 @@ const GitResult = () => {
                 groundsMap,
               }),
             );
+
+            setNickname(res.nickname);
+            setRole(res.role);
+
+            if (res.role === 'USER') navigate('/');
           })
           .catch((err) => {
             console.log(err);
           });
-
-        setNickname(res.nickname);
-        setRole(res.role);
-
-        if (res.role === 'USER') navigate('/');
       })
       .catch((err) => {
         console.log(err);
