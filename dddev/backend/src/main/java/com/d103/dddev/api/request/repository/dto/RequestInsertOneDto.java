@@ -9,8 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Request2InsertDto {
-    @ApiModelProperty(example = "오류")
+public class RequestInsertOneDto {
+    private int step;
     private String title;
     private String parentId;
 }

@@ -8,9 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-public class GeneralUpdateDto {
+public class GeneralDeleteDto {
     private String id;
-    private String title;
-    private String content;
 }

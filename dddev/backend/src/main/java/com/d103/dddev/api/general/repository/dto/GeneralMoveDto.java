@@ -8,9 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-public class GeneralUpdateDto {
+public class GeneralMoveDto {
     private String id;
-    private String title;
-    private String content;
+    private String parentId;
 }

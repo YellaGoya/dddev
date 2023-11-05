@@ -1,20 +1,18 @@
 package com.d103.dddev.api.general.service;
 
-import com.d103.dddev.api.general.collection.General1;
-import com.d103.dddev.api.general.collection.General2;
-import com.d103.dddev.api.general.repository.General1Repository;
-import com.d103.dddev.api.general.repository.General2Repository;
-import com.d103.dddev.api.general.repository.dto.General1InsertDto;
-import com.d103.dddev.api.general.repository.dto.General2InsertDto;
-import com.d103.dddev.api.general.repository.dto.General2MoveDto;
-import com.d103.dddev.api.general.repository.dto.GeneralUpdateDto;
+import com.d103.dddev.api.general.collection.General;
+import com.d103.dddev.api.general.repository.GeneralRepository;
+import com.d103.dddev.api.general.repository.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.management.InvalidAttributeValueException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 @Service
@@ -22,119 +20,80 @@ import java.util.NoSuchElementException;
 @Transactional
 public class GeneralServiceImpl implements GeneralService{
 
-    private final General1Repository general1Repository;
-    private final General2Repository general2Repository;
+    private final GeneralRepository generalRepository;
 
     @Override
-    public General1 insertGeneral1(int groundId) {
-        General1 insertGeneral;
+    public General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto) throws InvalidAttributeValueException{
+        int step = generalInsertOneDto.getStep(); // 문서의 step
+        General insertGeneral; // DB에 저장될 문서
+        General parent; // 저장될 문서의 부모
 
-        insertGeneral = General1.builder()
-                .groundId(groundId)
-                .build();
+        if(!stepIsRange(step)) throw new InvalidAttributeValueException("잘못된 step입니다.");
+        // step1의 문서는 부모가 필요가 없다.
+        if(step == 1){
+            // 저장할 문서 생성
+            insertGeneral = General.builder()
+                    .groundId(groundId)
+                    .step(step)
+                    .title(generalInsertOneDto.getTitle())
+                    .build();
+            try{
+                generalRepository.save(insertGeneral);
+            }catch(Exception e){
+                throw new TransactionException("문서 저장에 실패했습니다.");
+            }
+        }
+        // step1이 아닌 문서들
+        else{
+//            // 미분류 문서를 만들것인가?
+//            if(generalInsertOneDto.getParentId() == null){
+//
+//            }
 
-        try{
-            general1Repository.save(insertGeneral);
-        }catch(Exception e){
-            throw new TransactionException("문서를 저장하는데 실패했습니다.");
+            // 저장할 문서 생성
+            insertGeneral = General.builder()
+                    .groundId(groundId)
+                    .step(step)
+                    .title(generalInsertOneDto.getTitle())
+                    .parentId(generalInsertOneDto.getParentId())
+                    .build();
+            try{
+                generalRepository.save(insertGeneral);
+            }catch(Exception e){
+                throw new TransactionException("문서 저장에 실패했습니다.");
+            }
+
+            parent = generalRepository.findById(generalInsertOneDto.getParentId()).orElseThrow(()->new NoSuchElementException("부모 문서를 찾을 수 없습니다."));
+            List<General> children = parent.getChildren();
+            if(children == null){
+                children = new ArrayList<>();
+            }
+            children.add(insertGeneral);
+            parent.setChildren(children);
+            // 부모 문서의 자식을 업데이트한다.
+            try{
+                generalRepository.save(parent);
+            }catch(Exception e){
+                throw new TransactionException("부모 문서를 저장하는데 실패했습니다.");
+            }
         }
 
         return insertGeneral;
     }
 
     @Override
-    public General2 insertGeneral2(int groundId, String parentId) {
-        General1 parent = general1Repository.findById(parentId).orElseThrow(()->new TransactionException("부모 문서를 불러오는데 실패했습니다."));
-        General2 insertGeneral;
-
-        insertGeneral = General2.builder()
-                .parentId(parent.getId())
-                .groundId(groundId)
-                .build();
-
-        try{
-            general2Repository.save(insertGeneral);
-        }catch(Exception e){
-            throw new TransactionException("문서를 저장하는데 실패했습니다.");
-        }
-
-        List<General2> childrenList = parent.getChildren();
-        if(childrenList == null){
-            childrenList = new ArrayList<>();
-        }
-        childrenList.add(insertGeneral);
-        parent.setChildren(childrenList);
-        try{
-            general1Repository.save(parent);
-        }catch(Exception e){
-            throw new TransactionException("부모 문서를 저장에 실패했습니다.");
-        }
-
-        return insertGeneral;
-    }
-
-    @Override
-    public General1 insertGeneral1WithTitle(int groundId, General1InsertDto general1InsertDto) {
-        General1 insertGeneral;
-
-        insertGeneral = General1.builder()
-                .title(general1InsertDto.getTitle())
-                .groundId(groundId)
-                .build();
-
-        try{
-            general1Repository.save(insertGeneral);
-        }catch(Exception e){
-            throw new TransactionException("문서를 저장하는데 실패했습니다.");
-        }
-
-        return insertGeneral;
-    }
-
-    @Override
-    public General2 insertGeneral2WithTitle(int groundId, General2InsertDto general2InsertDto) {
-        General1 parent = general1Repository.findById(general2InsertDto.getParentId()).orElseThrow(()->new TransactionException("부모 문서를 불러오는데 실패했습니다."));
-        General2 insertGeneral;
-
-        insertGeneral = General2.builder()
-                .title(general2InsertDto.getTitle())
-                .parentId(parent.getId())
-                .groundId(groundId)
-                .build();
-
-        try{
-            general2Repository.save(insertGeneral);
-        }catch(Exception e){
-            throw new TransactionException("문서를 저장하는데 실패했습니다.");
-        }
-
-        List<General2> childrenList = parent.getChildren();
-        if(childrenList == null){
-            childrenList = new ArrayList<>();
-        }
-        childrenList.add(insertGeneral);
-        parent.setChildren(childrenList);
-        try{
-            general1Repository.save(parent);
-        }catch(Exception e){
-            throw new TransactionException("부모 문서를 저장에 실패했습니다.");
-        }
-
-        return insertGeneral;
-    }
-
-    @Override
-    public List<General1> insertGeneral1WithTitles(int groundId, String[] titles) {
-        List<General1> list = new ArrayList<>();
-        for(String title : titles){
-            General1 insertGeneral = General1.builder()
-                        .title(title)
+    public List<General> insertGeneralsWithTitles(int groundId, GeneralInsertManyDto generalInsertManyDto) {
+        List<General> list = new ArrayList<>();
+        for(String title : generalInsertManyDto.getTitles()){
+            General insertGeneral = General.builder()
                         .groundId(groundId)
+                        .step(1)
+                        .title(title)
                         .build();
             list.add(insertGeneral);
         }
         try{
-            general1Repository.saveAll(list);
+            generalRepository.saveAll(list);
         }catch(Exception e){
             throw new TransactionException("문서 저장에 실패했습니다.");
         }
@@ -142,56 +101,73 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General1 getGeneral1(int groundId, String generalId){
-        return general1Repository.findById(generalId).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
+    public General getGeneral(int groundId, String generalId) {
+        return generalRepository.findById(generalId).orElseThrow(()-> new TransactionException("문서를 불러오는데 실패했습니다."));
     }
 
     @Override
-    public General2 getGeneral2(int groundId, String generalId){
-        return general2Repository.findById(generalId).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
+    public List<General> getStep1Generals(int groundId){
+        return generalRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
     }
 
     @Override
-    public General1 updateGeneral1(int groundId, GeneralUpdateDto generalUpdateDto) {
-        General1 loadGeneral = general1Repository.findById(generalUpdateDto.getId()).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
+    public List<General> getStep2Generals(int groundId){
+        return generalRepository.findByGroundIdAndStep(groundId, 2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    }
+
+    @Override
+    public General updateGeneral(int groundId, GeneralUpdateDto generalUpdateDto) {
+        General loadGeneral = generalRepository.findById(generalUpdateDto.getId()).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
+        int step = loadGeneral.getStep();
         loadGeneral.setTitle(generalUpdateDto.getTitle());
-        loadGeneral.setContent(generalUpdateDto.getTitle());
+        loadGeneral.setContent(generalUpdateDto.getContent());
+        loadGeneral.setUpdatedAt(LocalDateTime.now());
         try{
-            general1Repository.save(loadGeneral);
+            generalRepository.save(loadGeneral);
         }catch(Exception e){
             throw new TransactionException("문서 업데이트를 실패했습니다.");
         }
+        // step1 문서가 아니라면 부모를 찾아서 업데이트해줘야한다.
+        if(step != 1){
+            String parentId = loadGeneral.getParentId();
+            General parent = generalRepository.findById(parentId).orElseThrow(()->new TransactionException("부모 문서를 불러오는데 실패했습니다."));
+            List<General> children = parent.getChildren();
+            ListIterator<General> iterator = children.listIterator();
+            while (iterator.hasNext()) {
+                General child = iterator.next();
+                if (child.getId().equals(loadGeneral.getId())) {
+                    iterator.set(loadGeneral);
+                }
+            }
+            parent.setChildren(children);
+            try{
+                generalRepository.save(parent);
+            }catch(Exception e){
+                throw new TransactionException("부모 문서를 저장하는데 실패했습니다.");
+            }
+        }
+
         return loadGeneral;
     }
 
     @Override
-    public General2 updateGeneral2(int groundId, GeneralUpdateDto generalUpdateDto) {
-        General2 loadGeneral = general2Repository.findById(generalUpdateDto.getId()).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
-        loadGeneral.setTitle(generalUpdateDto.getTitle());
-        loadGeneral.setContent(generalUpdateDto.getTitle());
-        try{
-            general2Repository.save(loadGeneral);
-        }catch(Exception e){
-            throw new TransactionException("문서 업데이트를 실패했습니다.");
+    public General moveGeneral(int groundId, GeneralMoveDto GeneralMoveDto) throws InvalidAttributeValueException{
+        General loadGeneral = generalRepository.findById(GeneralMoveDto.getId()).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
+        if(loadGeneral.getStep() == 1){
+            throw new InvalidAttributeValueException("움직일 수 없는 문서입니다.");
         }
-        return loadGeneral;
-    }
-
-    @Override
-    public General2 moveGeneral2(int groundId, General2MoveDto general2MoveDto) {
-        General2 loadGeneral = general2Repository.findById(general2MoveDto.getId()).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
         String originParentId = loadGeneral.getParentId();
-        General1 originParent = general1Repository.findById(originParentId).orElseThrow(()->new NoSuchElementException("잘못된 부모 아이디입니다."));
-        String newParentId = general2MoveDto.getParentId();
-        General1 newParent = general1Repository.findById(newParentId).orElseThrow(()->new NoSuchElementException("잘못된 부모 아이디입니다."));
+        General originParent = generalRepository.findById(originParentId).orElseThrow(()->new NoSuchElementException("잘못된 부모 아이디입니다."));
+        String newParentId = GeneralMoveDto.getParentId();
+        General newParent = generalRepository.findById(newParentId).orElseThrow(()->new NoSuchElementException("잘못된 부모 아이디입니다."));
 
         // 원래 부모문서에서 자기 지우기
-        List<General2> originChildren = originParent.getChildren();
+        List<General> originChildren = originParent.getChildren();
         originChildren.removeIf(child -> (child.getId().equals(loadGeneral.getId())));
         originParent.setChildren(originChildren);
 
         // 새로운 부모문서에 자기 추가하기
-        List<General2> newChildren = newParent.getChildren();
+        List<General> newChildren = newParent.getChildren();
         newChildren.add(loadGeneral);
         newParent.setChildren(newChildren);
 
@@ -199,47 +175,58 @@ public class GeneralServiceImpl implements GeneralService{
         loadGeneral.setParentId(newParentId);
 
         try{
-            general1Repository.save(originParent);
-            general1Repository.save(newParent);
-            general2Repository.save(loadGeneral);
+            generalRepository.save(originParent);
+            generalRepository.save(newParent);
+            generalRepository.save(loadGeneral);
         }catch(Exception e){
             throw new TransactionException("문서를 저장하는데 실패했습니다.");
         }
         return loadGeneral;
     }
 
-    @Override
-    public void deleteGeneral1(int groundId, String generalId) {
-        // 자식들의 부모를 삭제한다.
-        List<General2> general2List = general2Repository.findByParentId(generalId).orElseThrow(()-> new NoSuchElementException("잘못된 문서아이디입니다."));
-        for(General2 general2 : general2List){
-            general2.setParentId(null);
-        }
 
+    @Override
+    public void deleteGeneral(int groundId, GeneralDeleteDto generalDeleteDto) {
+        String generalId = generalDeleteDto.getId();
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
+        int step = loadGeneral.getStep();
+        // step1인 문서가 삭제되었을 때
+        if(step == 1){
+            List<General> children = generalRepository.findByParentId(generalId).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+            ListIterator<General> iterator = children.listIterator();
+            while(iterator.hasNext()){
+                General child = iterator.next();
+                child.setParentId(null);
+            }
+            try{
+                generalRepository.saveAll(children);
+            }catch(Exception e){
+                throw new TransactionException("문서들을 저장하는데 실패했습니다.");
+            }
+        }
+        else{
+            // 부모를 업데이트한다.
+            String parentId = loadGeneral.getParentId();
+            General parent = generalRepository.findById(parentId).orElseThrow(()-> new TransactionException("문서를 불러오는데 실패했습니다."));
+            List<General> children = parent.getChildren();
+            children.removeIf((child) -> (child.getId().equals(generalId)));
+            parent.setChildren(children);
+            try{
+                generalRepository.save(parent);
+            }catch(Exception e){
+                throw new TransactionException("부모를 저장하는데 실패했습니다.");
+            }
+        }
+        // 문서 삭제
         try{
-            // 부모를 삭제한다.
-            general1Repository.deleteById(generalId);
-            general2Repository.saveAll(general2List);
+            generalRepository.deleteById(generalId);
         }catch(Exception e){
-            throw new TransactionException("문서 삭제, 저장에 실패했습니다.");
+            throw new TransactionException("문서를 삭제하는데 실패했습니다.");
         }
     }
 
-    @Override
-    public void deleteGeneral2(int groundId, String generalId) {
-        General2 loadGeneral = general2Repository.findById(generalId).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
-        String parentId = loadGeneral.getParentId();
-        // parent 불러와서 children 삭제하기
-        General1 parent = general1Repository.findById(parentId).orElseThrow(()->new NoSuchElementException("잘못된 부모 아이디입니다."));
-        List<General2> children = parent.getChildren();
-        children.removeIf((child) -> (child.getParentId().equals(parentId)));
-        parent.setChildren(children);
-        try{
-            general1Repository.save(parent);
-            general2Repository.delete(loadGeneral);
-        }catch(Exception e){
-            throw new TransactionException("문서 삭제, 저장에 실패했습니다.");
-        }
+    public boolean stepIsRange(int step){
+        return step>=1 && step<=2;
     }
 
 }

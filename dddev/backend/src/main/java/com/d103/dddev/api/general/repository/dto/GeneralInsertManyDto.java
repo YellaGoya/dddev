@@ -8,9 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-public class GeneralUpdateDto {
-    private String id;
-    private String title;
-    private String content;
+// step1 문서의 다중 생성을 지원하는 Dto
+public class GeneralInsertManyDto {
+    private String[] titles;
 }

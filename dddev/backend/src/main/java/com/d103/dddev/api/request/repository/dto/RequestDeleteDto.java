@@ -1,4 +1,4 @@
-package com.d103.dddev.api.general.repository.dto;
+package com.d103.dddev.api.request.repository.dto;
 
 import lombok.*;
 
@@ -8,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class General2MoveDto {
+public class RequestDeleteDto {
     private String id;
-    private String parentId;
 }

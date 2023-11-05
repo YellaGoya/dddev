@@ -1,6 +1,5 @@
 package com.d103.dddev.api.request.repository.dto;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 @Getter
@@ -9,7 +8,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Request1InsertDto {
-    @ApiModelProperty(example = "오류")
+public class RequestUpdateDto {
+    private String id;
     private String title;
+    private String content;
+    private int sendUserId;
+    private int receiveUserId;
 }
