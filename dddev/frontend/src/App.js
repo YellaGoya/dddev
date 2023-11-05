@@ -1,9 +1,10 @@
+import { useEffect } from 'react';
 import { BrowserRouter, useRoutes, Navigate } from 'react-router-dom';
 // import { Provider } from 'react-redux';
 import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from 'redux/store';
-// import './firebase/firebase-messaging-sw';
+import requestPermission from './firebase/firebase-messaging';
 
 import View from 'layouts/View';
 
@@ -15,6 +16,24 @@ import Document from 'markup/pages/Document';
 import { Global } from 'markup/styles/Global';
 
 const Routing = () => {
+  useEffect(() => {
+    navigator.serviceWorker.register('/firebase-messaging-sw.js').then((registration) => {
+      console.log('Service Worker registered with scope:', registration.scope);
+
+      // Wait for the service worker to become ready
+      return navigator.serviceWorker.ready;
+    });
+
+    requestPermission();
+  }, []);
+
+  // navigator.serviceWorker.register('/firebase-messaging-sw.js').then((registration) => {
+  //   console.log('Service Worker registered with scope:', registration.scope);
+
+  //   // Wait for the service worker to become ready
+  //   return navigator.serviceWorker.ready;
+  // });
+
   const user = useSelector((state) => state.user);
 
   return useRoutes([
