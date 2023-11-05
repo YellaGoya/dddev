@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, useRoutes, Navigate } from 'react-router-dom';
+import { BrowserRouter, useRoutes, useLocation, Navigate } from 'react-router-dom';
 // import { Provider } from 'react-redux';
 import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -8,10 +8,8 @@ import requestPermission from './firebase/firebase-messaging';
 
 import View from 'layouts/View';
 
-import Home from 'markup/pages/Home';
 import Login from 'markup/pages/Login';
-import Project from 'markup/pages/Project';
-import Document from 'markup/pages/Document';
+import GroundCheck from 'layouts/GroundCheck';
 
 import { Global } from 'markup/styles/Global';
 
@@ -34,42 +32,34 @@ const Routing = () => {
   //   return navigator.serviceWorker.ready;
   // });
 
+  const location = useLocation();
   const user = useSelector((state) => state.user);
-
-  return useRoutes([
-    {
-      path: '/',
-      element: user.isLoggedIn ? (
-        user.lastGround === null || user.lastGround === undefined ? (
-          <Navigate to="/login/groundinit" />
-        ) : (
-          <Navigate to={`/${user.lastGround}`} />
-        )
-      ) : (
-        <Navigate to="/login" />
-      ),
-      // element: <Navigate to="/101" />,
-    },
-    {
-      path: '/:groundId',
-      element: <Home />,
-      // element: user.isLoggedIn ? <Home /> : <Navigate to="/login" />,
-    },
+  const routes = useRoutes([
     {
       path: '/login/*',
       element: <Login />,
     },
     {
-      path: '/:groundId/project/*',
-      element: <Project />,
-      // element: user.isLoggedIn ? <Project /> : <Navigate to="/login" />,
+      path: '/',
+      element: user.lastGround ? <Navigate to={`/${user.lastGround}`} /> : <Navigate to="/login/groundinit" />,
     },
     {
-      path: '/:groundId/document/*',
-      element: <Document />,
-      // element: user.isLoggedIn ? <Document /> : <Navigate to="/login" />,
+      path: '/:groundId/*',
+      element: <GroundCheck />,
     },
   ]);
+
+  return user.isLoggedIn ? (
+    location.pathname.startsWith('/login') ? (
+      <Navigate to={`/${user.lastGround}`} />
+    ) : (
+      routes
+    )
+  ) : location.pathname.startsWith('/login') ? (
+    routes
+  ) : (
+    <Navigate to="/login" />
+  );
 };
 
 const App = () => {

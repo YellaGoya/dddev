@@ -42,16 +42,28 @@ const GitResult = () => {
     eetch
       .githubSync({ code })
       .then((res) => {
+        eetch
+          .userGrounds({ Authorization: res.accessToken })
+          .then((grounds) => {
+            const groundsList = grounds.data.map((ground) => ground.groundDto.id);
+            const groundsMap = grounds.data.map((ground) => ground.groundDto);
+            dispatch(
+              loginUser({
+                accessToken: res.accessToken,
+                accessExp: res.accessExp,
+                refreshToken: res.refreshToken,
+                lastGround: res.lastGround,
+                groundsList,
+                groundsMap,
+              }),
+            );
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+
         setNickname(res.nickname);
         setRole(res.role);
-        dispatch(
-          loginUser({
-            accessToken: res.accessToken,
-            accessExp: res.accessExp,
-            refreshToken: res.refreshToken,
-            lastGround: res.lastGround,
-          }),
-        );
 
         if (res.role === 'USER') navigate('/');
       })

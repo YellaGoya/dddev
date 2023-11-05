@@ -1,13 +1,9 @@
-import { useState } from 'react';
-
 import EditProfile from 'markup/pages/components/user/EditProfile';
 
 import * as s from 'markup/styles/components/common/MessageBoxModal';
-const MessageBoxModal = ({ toggle }) => {
-  const [editToggle, setEditToggle] = useState(false);
-
+const MessageBoxModal = ({ messageToggle, editToggle, setEditToggle, userInfo, setUserInfo }) => {
   return (
-    <s.MessageBoxModal $toggle={toggle}>
+    <s.MessageBoxModal $toggle={messageToggle}>
       <p onClick={() => setEditToggle(!editToggle)}>openEdit</p>
       <ul>
         <li>sda</li>
@@ -21,7 +17,7 @@ const MessageBoxModal = ({ toggle }) => {
         <li>sda</li>
         <li>sda</li>
       </ul>
-      {editToggle && <EditProfile toggle={editToggle} setToggle={setEditToggle} />}
+      {editToggle && <EditProfile toggle={editToggle} setToggle={setEditToggle} userInfo={userInfo} setUserInfo={setUserInfo} />}
     </s.MessageBoxModal>
   );
 };

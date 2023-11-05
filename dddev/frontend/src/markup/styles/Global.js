@@ -3,6 +3,12 @@ import { createGlobalStyle, styled } from 'styled-components';
 export const Global = createGlobalStyle`
   * {
     box-sizing: border-box;
+    color: var(--font-rev);
+
+    ::selection {
+      background: var(--selection-bg);
+      color: var(--selection-font);
+    }
   }
 
   html {
@@ -11,8 +17,7 @@ export const Global = createGlobalStyle`
 
   body {
     margin: 0;
-    overflow:hidden;
-    background-color: #0d1117;
+    background-color: var(--bg-basic);
   }
 
   body, button, input{
@@ -34,7 +39,7 @@ export const Global = createGlobalStyle`
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #000;
+    background-color: var(--font-basic);
     background-clip: padding-box;
     border-right: 5px solid transparent;
     border-top: 20px solid transparent;
@@ -42,7 +47,7 @@ export const Global = createGlobalStyle`
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #fff;
+    background-color: var(--font-rev);
     background-clip: padding-box;
     border-right: 5px solid transparent;
     border-top: 20px solid transparent;
@@ -55,6 +60,7 @@ export const ViewWrapper = styled.div`
   z-index: 0;
 
   display: flex;
+  overflow: hidden;
   flex-direction: row;
   width: 100%;
   height: ${({ $isLoggedIn }) => ($isLoggedIn ? 'calc(100vh - 35px)' : '100vh')};
@@ -80,7 +86,7 @@ export const Main = styled.main`
 
   overflow-x: hidden;
 
-  background-color: #0d1117;
+  background-color: var(--bg-basic);
 `;
 
 export const ContentWrapper = styled.section`
@@ -89,6 +95,5 @@ export const ContentWrapper = styled.section`
   min-height: calc(100vh - 35px);
 
   margin: 0 auto;
-
-  background-color: #0d1117;
+  background-color: var(--bg-basic);
 `;

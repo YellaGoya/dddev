@@ -6,6 +6,8 @@ const initialState = {
   accessExp: null,
   refreshToken: null,
   lastGround: null,
+  groundsList: [],
+  groundsMap: [],
 };
 
 const userReducer = (state = initialState, action) => {
@@ -18,6 +20,8 @@ const userReducer = (state = initialState, action) => {
         accessExp: action.payload.accessExp,
         refreshToken: action.payload.refreshToken,
         lastGround: action.payload.lastGround,
+        groundsList: action.payload.groundsList,
+        groundsMap: action.payload.groundsMap,
       };
 
     case LOGOUT_USER:
@@ -30,6 +34,8 @@ const userReducer = (state = initialState, action) => {
         accessExp: action.payload.accessExp || state.accessExp,
         refreshToken: action.payload.refreshToken || state.refreshToken,
         lastGround: action.payload.lastGround || state.lastGround,
+        groundsList: action.payload.groundsList || state.groundsList,
+        groundsMap: action.payload.groundsMap || state.groundsMap,
       };
 
     default:

@@ -7,7 +7,7 @@ export const EditorWrapper = styled.div`
 
   margin: 0 auto;
 
-  background-color: #0d1117;
+  background-color: var(--bg-basic);
 
   .quill {
     padding-top: 50px;
@@ -20,17 +20,17 @@ export const EditorWrapper = styled.div`
 
   .ql-toolbar .ql-stroke {
     fill: none;
-    stroke: #fff;
+    stroke: var(--font-rev);
   }
 
   .ql-toolbar,
   .ql-fill {
-    fill: #fff;
+    fill: var(--font-rev);
     stroke: none;
   }
 
   .ql-toolbar .ql-picker {
-    color: #fff;
+    color: var(--font-rev);
   }
 
   .ql-toolbar,
@@ -41,8 +41,8 @@ export const EditorWrapper = styled.div`
       padding: 5px 10px;
       transform: translate(-49%, -30px);
 
-      color: #fff;
-      background-color: #000;
+      color: var(--font-rev);
+      background-color: var(--font-basic);
       border-radius: 6px;
 
       white-space: nowrap;
@@ -58,7 +58,7 @@ export const EditorWrapper = styled.div`
         width: 0px;
         transform: translateX(-50%);
 
-        border-top: 7px solid #000;
+        border-top: 7px solid var(--border-cursor);
         border-right: 7px solid transparent;
         border-bottom: 7px solid transparent;
         border-left: 7px solid transparent;
@@ -70,7 +70,7 @@ export const EditorWrapper = styled.div`
 
   .ql-editor,
   .ql-header {
-    color: #fff;
+    color: var(--font-rev);
     font-family:
       Pretendard,
       -apple-system,
@@ -89,7 +89,7 @@ export const EditorWrapper = styled.div`
   }
 
   .ql-picker-options {
-    background-color: #111;
+    background-color: var(--bg-black);
     border-radius: 6px;
     transform: translateY(10px);
   }
@@ -136,12 +136,12 @@ export const EditorWrapper = styled.div`
     }
 
     :hover {
-      color: #fff;
+      color: var(--font-rev);
     }
   }
 
   .ql-snow.ql-toolbar button.ql-active {
-    background: #222;
+    background: var(--button-activated);
     border-radius: 6px;
   }
 
@@ -151,7 +151,7 @@ export const EditorWrapper = styled.div`
   .ql-snow .ql-toolbar .ql-picker-label:hover,
   .ql-snow.ql-toolbar .ql-picker-item:hover,
   .ql-snow .ql-toolbar .ql-picker-item:hover {
-    color: #aaa;
+    color: var(--font-hover);
   }
 
   .ql-snow.ql-toolbar .ql-picker-label.ql-active,
@@ -164,7 +164,7 @@ export const EditorWrapper = styled.div`
   .ql-snow .ql-toolbar .ql-picker-item.ql-selected,
   .ql-snow.ql-toolbar .ql-picker-label:before,
   .ql-snow .ql-toolbar .ql-picker-label:before {
-    color: #fff;
+    color: var(--font-rev);
   }
 
   .ql-snow.ql-toolbar button:hover .ql-fill,
@@ -195,7 +195,7 @@ export const EditorWrapper = styled.div`
   .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill,
   .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill,
   .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill {
-    fill: #fff;
+    fill: var(--font-rev);
   }
 
   .ql-snow.ql-toolbar button:hover .ql-stroke,
@@ -204,7 +204,7 @@ export const EditorWrapper = styled.div`
   .ql-snow .ql-toolbar button:focus .ql-stroke,
   .ql-snow.ql-toolbar button.ql-active .ql-stroke,
   .ql-snow .ql-toolbar button.ql-active .ql-stroke {
-    stroke: #fff;
+    stroke: var(--font-rev);
   }
 
   .ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label {
@@ -218,10 +218,10 @@ export const EditorWrapper = styled.div`
     border: 1px solid transparent;
   }
 
-  .ql-snow.ql-toolbar button:hover,
+  /* .ql-snow.ql-toolbar button:hover,
   .ql-snow .ql-toolbar button:hover {
-    color: #222;
-  }
+    color: #fff;
+  } */
 
   .ql-editor.ql-blank::before {
     left: 15px;
@@ -229,18 +229,12 @@ export const EditorWrapper = styled.div`
     pointer-events: none;
     position: absolute;
 
-    color: #888;
+    color: var(--font-editor-placeholder);
     font-size: 1rem;
   }
 
   .ql-editor {
     padding-bottom: 0;
-
-    ::selection {
-      background: #6194c8;
-      border-radius: 6px;
-      color: #fff;
-    }
 
     p {
       font-weight: 300;
@@ -276,19 +270,8 @@ export const EditorWrapper = styled.div`
       font-size: 1rem;
     }
 
-    a {
-      color: #d5383f;
-      text-underline-offset: 3px;
-    }
-
-    sup > a {
-      color: #d5383f;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
     hr {
-      border: 1px solid #858585;
+      border: 1px solid var(--hr-basic);
     }
 
     pre {
@@ -338,7 +321,7 @@ export const EditorWrapper = styled.div`
       border: none;
       border-radius: 4px 4px 24px 4px;
 
-      background-color: #ffffff22;
+      background-color: var(--blockquote-bg);
 
       transition: background-color 0.2s ease;
 
@@ -352,7 +335,7 @@ export const EditorWrapper = styled.div`
       } */
 
       &:hover {
-        background-color: #ffffff44;
+        background-color: var(--blockquote-hover);
 
         border-radius: 0px 3px 24px 0px;
       }
@@ -374,12 +357,12 @@ export const EditorWrapper = styled.div`
       padding: 3px 6px;
       margin: 0 2px;
 
-      color: #fff;
+      color: var(--code-highlight-font);
       font-family: inherit;
       font-weight: inherit;
       font-size: inherit;
 
-      background-color: #23241f;
+      background-color: var(--code-highlight-bg);
       border-radius: 5px;
     }
 
@@ -388,29 +371,6 @@ export const EditorWrapper = styled.div`
 
       > * {
         margin: 10px 0;
-      }
-    }
-
-    table {
-      width: auto;
-      max-width: 900px;
-      margin-left: 10px;
-      border-collapse: collapse;
-
-      & > thead > tr > th {
-        padding: 12px 12px;
-        border-bottom: 2px solid #cccccc;
-      }
-
-      & > tbody {
-        & > tr > td {
-          padding: 6px 12px;
-          border-bottom: 1px solid #858585;
-        }
-
-        & > :last-child > td {
-          border-bottom: none;
-        }
       }
     }
 
@@ -424,7 +384,7 @@ export const EditorWrapper = styled.div`
         left: -10px;
         width: 6px;
         height: 100%;
-        background-color: #fff;
+        background-color: var(--font-rev);
 
         transition: opacity 0.2s ease;
 
@@ -453,11 +413,11 @@ export const InsertBottom = styled.button`
   margin: 0 auto;
   padding: 4px 10px 4px 10px;
 
-  color: #fff;
+  color: var(--font-rev);
 
   border: none;
   border-radius: 6px;
-  background-color: #21262c;
+  background-color: var(--button-basic);
 
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
@@ -469,6 +429,6 @@ export const InsertBottom = styled.button`
   cursor: pointer;
 
   &:hover {
-    background-color: #3d4752;
+    background-color: var(--button-lite);
   }
 `;

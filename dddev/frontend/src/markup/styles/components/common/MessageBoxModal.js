@@ -7,18 +7,18 @@ export const MessageBoxModal = styled.div`
   width: calc(100vw - 20px);
   min-width: 355px;
   max-width: 550px;
-  border: 1px solid #30363d;
+  border: 1px solid var(--border-basic);
 
   height: fit-content;
   max-height: calc(100vh - 55px);
 
-  background-color: #010409;
+  background-color: var(--bg-dark);
   border-radius: 0.75rem;
   z-index: 3;
 
   visibility: ${({ $toggle }) => ($toggle ? 'visible' : 'hidden')};
   opacity: ${({ $toggle }) => ($toggle ? '1' : '0')};
-  color: #ffffff;
+  color: var(--font-rev);
   transition:
     visibility 0.5s ease,
     right 0.5s ease,

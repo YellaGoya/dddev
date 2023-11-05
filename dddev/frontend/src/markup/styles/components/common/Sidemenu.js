@@ -21,14 +21,13 @@ export const PositionWrapper = styled.div`
   width: 275px;
   height: 100%;
 
-  background-color: #161b22;
-  border-radius: 0.75rem;
+  background-color: var(--bg-lite);
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
     rgba(0, 0, 0, 0.24) 0px 4px 4px;
 
-  border: 1px solid #30363d;
+  border: 1px solid var(--border-basic);
 `;
 
 export const MenuNav = styled.nav`
@@ -71,5 +70,13 @@ export const GroundList = styled.ul`
 `;
 
 export const GroundItem = styled.li`
+  color: var(--font-basic);
   cursor: pointer;
+`;
+
+export const BottomWrapper = styled.div``;
+
+export const MenuButton = styled.button`
+  display: block;
+  color: var(--font-basic);
 `;
