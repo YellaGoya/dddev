@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import eetch from 'eetch/eetch';
+import { setMenu } from 'redux/actions/menu';
+import { setMessage } from 'redux/actions/menu';
 import { loginUser } from 'redux/actions/user';
+import { logoutUser } from 'redux/actions/user';
 import Input from 'markup/pages/components/common/Input';
 
 import demo1 from 'assets/demos/demo1.webp';
@@ -25,7 +28,7 @@ const GitResult = () => {
 
   const submitPat = () => {
     eetch
-      .githubTokenRegist({ Authorization: user.accessToken, personalAccessToken: pat })
+      .githubTokenRegist({ accessToken: user.accessToken, refreshToken: user.refreshToken, personalAccessToken: pat })
       .then(() => {
         setPatMessage(null);
         navigate('/');
@@ -43,7 +46,7 @@ const GitResult = () => {
       .githubSync({ code })
       .then((res) => {
         eetch
-          .userGrounds({ Authorization: res.accessToken })
+          .userGrounds({ accessToken: res.accessToken })
           .then((grounds) => {
             const groundsList = grounds.data.map((ground) => ground.groundDto.id);
             const groundsMap = grounds.data.map((ground) => ground.groundDto);
@@ -64,7 +67,12 @@ const GitResult = () => {
             if (res.role === 'USER') navigate('/');
           })
           .catch((err) => {
-            console.log(err);
+            if (err.message === 'RefreshTokenExpired') {
+              dispatch(logoutUser());
+              dispatch(setMenu(false));
+              dispatch(setMessage(false));
+              navigate(`/login`);
+            }
           });
       })
       .catch((err) => {

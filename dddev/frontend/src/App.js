@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { BrowserRouter, useRoutes, useLocation, Navigate } from 'react-router-dom';
 // import { Provider } from 'react-redux';
 import { Provider, useSelector } from 'react-redux';
@@ -13,7 +14,7 @@ import GroundCheck from 'layouts/GroundCheck';
 
 import { Global } from 'markup/styles/Global';
 
-const Routing = () => {
+const Routing = memo(() => {
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
@@ -24,7 +25,7 @@ const Routing = () => {
     },
     {
       path: '/',
-      element: user.lastGround === null ? <Navigate to="/login/groundinit" /> : <Navigate to={`/${user.lastGround}`} />,
+      element: user.lastGround === null || user.lastGround === 'null' ? <Navigate to="/login/groundinit" /> : <Navigate to={`/${user.lastGround}`} />,
     },
     {
       path: '/:groundId/*',
@@ -35,7 +36,7 @@ const Routing = () => {
 
   const nocheck = ['/login', '/login/github'];
   return user.isLoggedIn ? (
-    nocheck === '/login' ? (
+    location.pathname === '/login' ? (
       <Navigate to={`/${user.lastGround}`} />
     ) : (
       routes
@@ -45,7 +46,7 @@ const Routing = () => {
   ) : (
     <Navigate to="/login" />
   );
-};
+});
 
 const App = () => {
   return (

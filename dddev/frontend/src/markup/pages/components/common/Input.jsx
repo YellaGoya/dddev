@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import * as s from 'markup/styles/components/common/Input';
 const Input = ({ label, data = '', holder, setData, array, fixed, click, enter, message }) => {
-  const [value, setValue] = useState(data);
+  const [value, setValue] = useState(data === null ? '' : data);
   const [placeholder, setPlaceholder] = useState(holder || '');
 
   const onChangeHandelr = (e) => {
@@ -24,6 +24,10 @@ const Input = ({ label, data = '', holder, setData, array, fixed, click, enter, 
     console.log(array.length, array);
     return array.filter((item) => item !== i);
   };
+
+  useEffect(() => {
+    if (data) setValue(data);
+  }, [data]);
 
   return (
     <s.InputWrapper>

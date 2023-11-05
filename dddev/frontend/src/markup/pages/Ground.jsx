@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import eetch from 'eetch/eetch';
+import { setMenu } from 'redux/actions/menu';
+import { setMessage } from 'redux/actions/menu';
+import { logoutUser } from 'redux/actions/user';
 import { updateUser } from 'redux/actions/user';
 
 import Select from 'markup/pages/components/common/Select';
@@ -18,28 +21,38 @@ const GroundInit = () => {
 
   const createGround = () => {
     eetch
-      .groundCreate({ Authorization: user.accessToken, name: repository.name, repoId: repository.repoId })
+      .groundCreate({ accessToken: user.accessToken, refreshToken: user.refreshToken, name: repository.name, repoId: repository.repoId })
       .then((res) => {
         dispatch(updateUser({ lastGround: res.data.id }));
         navigate(`/${res.data.id}/home`);
       })
       .catch((err) => {
-        console.log(err);
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
       });
   };
 
   useEffect(() => {
     eetch
-      .repoList({ Authorization: user.accessToken })
+      .repoList({ accessToken: user.accessToken, refreshToken: user.refreshToken })
       .then((res) => {
         const noGrounds = res.data.filter((repo) => !repo.isGround);
         setRepositories(noGrounds);
         setRepository(noGrounds[0]);
       })
       .catch((err) => {
-        console.log(err);
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
       });
-  }, [user.accessToken]);
+  }, [user.accessToken, user.refreshToken]);
 
   return (
     <s.GroundWrapper>

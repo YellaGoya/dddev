@@ -1,7 +1,12 @@
 import { useState, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import eetch from 'eetch/eetch';
 import Input from 'markup/pages/components/common/Input';
+
+import { setMenu } from 'redux/actions/menu';
+import { setMessage } from 'redux/actions/menu';
+import { logoutUser } from 'redux/actions/user';
 
 import userStockImage from 'assets/userStockImage.webp';
 import DisabledByDefaultRoundedIcon from '@mui/icons-material/DisabledByDefaultRounded';
@@ -9,10 +14,12 @@ import PhotoFilterIcon from '@mui/icons-material/PhotoFilter';
 
 import * as s from 'markup/styles/components/user/EditProfile';
 const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  const [pat, setPat] = useState((userInfo.personalAccessToken && userInfo.personalAccessToken.substr(0, 3).concat(' ···')) || '');
-  const [nickname, setNickname] = useState(userInfo.nickname || '');
-  const [statusMsg, setStatusMsg] = useState(userInfo.statusMsg || '');
+  const [pat, setPat] = useState(userInfo.personalAccessToken && userInfo.personalAccessToken.substr(0, 3).concat(' ···'));
+  const [nickname, setNickname] = useState(userInfo.nickname);
+  const [statusMsg, setStatusMsg] = useState(userInfo.statusMsg);
   const [patMessage, setPatMessage] = useState(null);
   const hiddenFileInput = useRef(null);
 
@@ -25,25 +32,35 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
     formData.append('file', event.target.files[0]);
 
     eetch
-      .userUploadImage({ Authorization: user.accessToken, formData })
+      .userUploadImage({ accessToken: user.accessToken, refreshToken: user.refreshToken, formData })
       .then(() => {
         eetch
-          .userInfo({ Authorization: user.accessToken })
+          .userInfo({ accessToken: user.accessToken, refreshToken: user.refreshToken })
           .then((res) => {
             setUserInfo(res.data);
           })
           .catch((err) => {
-            console.log(err);
+            if (err.message === 'RefreshTokenExpired') {
+              dispatch(logoutUser());
+              dispatch(setMenu(false));
+              dispatch(setMessage(false));
+              navigate(`/login`);
+            }
           });
       })
       .catch((err) => {
-        console.log(err);
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
       });
   };
 
   const submitPat = () => {
     eetch
-      .githubTokenRegist({ Authorization: user.accessToken, personalAccessToken: pat })
+      .githubTokenRegist({ accessToken: user.accessToken, refreshToken: user.refreshToken, personalAccessToken: pat })
       .then(() => {
         setPatMessage('통과');
       })
@@ -53,13 +70,13 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
   };
 
   const submitChange = () => {
-    eetch.userEdit({ Authorization: user.accessToken, nickname, statusMsg }).catch((err) => {
+    eetch.userEdit({ accessToken: user.accessToken, refreshToken: user.refreshToken, nickname, statusMsg }).catch((err) => {
       console.log(err);
     });
   };
 
   const deleteImage = () => {
-    eetch.userDeleteImage({ Authorization: user.accessToken }).catch((err) => {
+    eetch.userDeleteImage({ accessToken: user.accessToken, refreshToken: user.refreshToken }).catch((err) => {
       console.log(err);
     });
   };
