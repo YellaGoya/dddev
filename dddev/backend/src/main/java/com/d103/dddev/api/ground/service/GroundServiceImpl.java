@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.d103.dddev.api.issue.util.UndefinedUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +32,7 @@ public class GroundServiceImpl implements GroundService {
 	private final UserService userService;
 	private final ProfileService profileService;
 	private final RepositoryService repositoryService;
+	private final UndefinedUtil undefinedUtil;
 	private final Integer DEFAULT_GROUND_IMG_ID = 2;
 
 	/**
@@ -53,6 +55,15 @@ public class GroundServiceImpl implements GroundService {
 
 		// 생성자의 최근 방문 ground를 생성한 그라운드로 하기
 		userService.updateLastVisitedGround(groundDto.getId(), userDto);
+
+		/*
+		 *
+		 * 그라운드 생성 시 미분류 문서 생성(목표, 체크 포인트)
+		 *
+		 * */
+
+		undefinedUtil.createUndefined(groundDto);
+
 		return groundDto;
 	}
 
