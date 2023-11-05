@@ -9,6 +9,7 @@ import com.d103.dddev.api.user.repository.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.management.InvalidAttributeValueException;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RequestServiceImpl implements RequestService{
 
     private final RequestRepository requestRepository;
