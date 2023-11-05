@@ -2,7 +2,6 @@ package com.d103.dddev.api.issue.service;
 
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.model.dto.CheckDto;
-import com.d103.dddev.api.issue.model.dto.TargetDto;
 import com.d103.dddev.api.issue.model.message.CheckMessage;
 import com.d103.dddev.api.issue.model.message.Error;
 import com.d103.dddev.api.issue.repository.IssueRepository;
@@ -10,6 +9,7 @@ import com.d103.dddev.api.issue.util.IssueUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -27,11 +27,12 @@ public class CheckServiceImpl implements CheckService{
 
     @Override
     @Transactional
-    public CheckDto.Create.Response createCheck(String groundId, CheckDto.Create.Request request) {
+    public CheckDto.Create.Response createCheck(String groundId, CheckDto.Create.Request request, UserDetails userDetails) {
         Issue check = Issue.builder()
                 .groundId(groundId)
                 .parentId(issueUtil.unclassified(request.getParentId(),groundId, "target"))
                 .childrenId(new ArrayList<>())
+                .author(userDetails.getUsername())
                 .step(2)
                 .type("check")
                 .title("")
@@ -152,13 +153,14 @@ public class CheckServiceImpl implements CheckService{
     }
 
     @Override
-    public CheckDto.Update.Response checkUpdate(CheckDto.Update.Request request, String checkId) {
+    public CheckDto.Update.Response checkUpdate(CheckDto.Update.Request request, String checkId, UserDetails userDetails) {
         Issue check = issueRepository.findById(checkId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 저장 체크포인트 문서 조회
 
         // 필요시 현재 상태와 다른지 검증 코드 구현
         check.setTitle(request.getTitle());
         check.setContent(request.getContent());
+        check.setModifier(userDetails.getUsername());
 
         issueRepository.save(check);
 
@@ -171,7 +173,7 @@ public class CheckServiceImpl implements CheckService{
 
     @Override
     @Transactional
-    public CheckDto.Connect.Response connectTarget(CheckDto.Connect.Request request) {
+    public CheckDto.Connect.Response connectTarget(CheckDto.Connect.Request request, UserDetails userDetails) {
         Issue newTarget = issueRepository.findById(request.getTargetId())
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 목표 문서 조회
 
@@ -212,6 +214,10 @@ public class CheckServiceImpl implements CheckService{
         oldTarget.setChildrenId(oldChildren); // 이전 연결 문서 정보 최신화
         newTarget.setChildrenId(newChildren); // 새로운 연결 문서 정보 최신화
         check.setParentId(newTarget.getId()); // 상위 문서 ID 변경
+
+        oldTarget.setModifier(userDetails.getUsername());
+        newTarget.setModifier(userDetails.getUsername());
+        check.setModifier(userDetails.getUsername());
 
         issueRepository.save(oldTarget);
         issueRepository.save(newTarget);

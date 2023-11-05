@@ -10,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -25,10 +27,10 @@ public class TargetController {
 
     @ApiOperation("목표 문서 생성")
     @PostMapping("/create")
-    public ResponseEntity createTarget(@PathVariable String groundId) {
+    public ResponseEntity createTarget(@PathVariable String groundId, @AuthenticationPrincipal UserDetails userDetails) {
         try{
             log.info("목표 문서 생성");
-            TargetDto.Create.Response response = targetService.createTarget(groundId);
+            TargetDto.Create.Response response = targetService.createTarget(groundId, userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
@@ -82,10 +84,11 @@ public class TargetController {
 
     @ApiOperation("목표 수정")
     @PutMapping("/{targetId}")
-    public ResponseEntity targetUpdate(@PathVariable String groundId, @PathVariable String targetId, @RequestBody TargetDto.Update.Request request){
+    public ResponseEntity targetUpdate(@PathVariable String groundId, @PathVariable String targetId,
+                                       @RequestBody TargetDto.Update.Request request, @AuthenticationPrincipal UserDetails userDetails){
         try{
             log.info("목표 문서 수정");
-            TargetDto.Update.Response response = targetService.targetUpdate(request, targetId);
+            TargetDto.Update.Response response = targetService.targetUpdate(request, targetId, userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));

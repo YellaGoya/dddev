@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -27,10 +29,12 @@ public class CheckController {
 
     @ApiOperation(value="체크포인트 문서 생성", notes = "체크포인트 문서 생성 API", response = CheckDto.Create.Response.class)
     @PostMapping("/create")
-    public ResponseEntity createCheck(@PathVariable String groundId, @RequestBody @ApiParam(value = "체크포인트 생성 요청") CheckDto.Create.Request request) {
+    public ResponseEntity createCheck(@PathVariable String groundId,
+                                      @RequestBody @ApiParam(value = "체크포인트 생성 요청") CheckDto.Create.Request request,
+                                      @AuthenticationPrincipal UserDetails userDetails) {
         try{
             log.info("체크포인트 문서 생성");
-            CheckDto.Create.Response response = checkService.createCheck(groundId, request);
+            CheckDto.Create.Response response = checkService.createCheck(groundId, request, userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(), HttpStatus.BAD_REQUEST));
@@ -84,10 +88,13 @@ public class CheckController {
 
     @ApiOperation("체크포인트 문서 수정")
     @PutMapping("/{checkId}")
-    public ResponseEntity checkUpdate(@PathVariable String groundId, @PathVariable String checkId, @RequestBody CheckDto.Update.Request request){
+    public ResponseEntity checkUpdate(@PathVariable String groundId,
+                                      @PathVariable String checkId,
+                                      @RequestBody CheckDto.Update.Request request,
+                                      @AuthenticationPrincipal UserDetails userDetails){
         try{
             log.info("체크포인트 문서 수정");
-            CheckDto.Update.Response response = checkService.checkUpdate(request, checkId);
+            CheckDto.Update.Response response = checkService.checkUpdate(request, checkId, userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
@@ -98,10 +105,12 @@ public class CheckController {
 
     @ApiOperation("목표 문서와 연결")
     @PutMapping("/connect")
-    public ResponseEntity connectTarget(@PathVariable String groundId, @RequestBody CheckDto.Connect.Request request){
+    public ResponseEntity connectTarget(@PathVariable String groundId,
+                                        @RequestBody CheckDto.Connect.Request request,
+                                        @AuthenticationPrincipal UserDetails userDetails){
         try{
             log.info("목표 문서와 연결");
-            CheckDto.Connect.Response response = checkService.connectTarget(request);
+            CheckDto.Connect.Response response = checkService.connectTarget(request, userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));

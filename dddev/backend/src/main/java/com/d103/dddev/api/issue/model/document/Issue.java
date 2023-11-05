@@ -26,7 +26,7 @@ public class Issue {
     @Field("ground_id")
     private String groundId;
     @Field("sprint_id")
-    private String sprintId;
+    private Integer sprintId;
     @Field("parent_id")
     private String parentId;
     @Field("children_id")

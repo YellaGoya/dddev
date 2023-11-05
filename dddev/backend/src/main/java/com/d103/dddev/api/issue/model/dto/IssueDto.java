@@ -19,7 +19,7 @@ public class IssueDto {
             @ApiModelProperty(value="상위문서 ID")
             private String parentId;
             @ApiModelProperty(value="스프린트 ID")
-            private String sprintId;
+            private Integer sprintId;
         }
 
         @Data
@@ -136,7 +136,7 @@ public class IssueDto {
         @ApiModel(value="이슈 문서 스프린트 연결", description = "이슈 문서 스프린트 연결 API")
         public static class Request{
             @ApiModelProperty(value = "스프린트 ID" , example = "1")
-            private String sprintId;
+            private Integer sprintId;
         }
 
         @Data

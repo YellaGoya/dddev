@@ -8,6 +8,7 @@ import com.d103.dddev.api.issue.repository.IssueRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -23,10 +24,12 @@ public class TargetServiceImpl implements TargetService {
     private final IssueRepository issueRepository;
 
     @Override
-    public TargetDto.Create.Response createTarget(String groundId) {
+    public TargetDto.Create.Response createTarget(String groundId, UserDetails userDetails) {
+
         Issue target = Issue.builder()
                 .groundId(groundId)
                 .childrenId(new ArrayList<>())
+                .author(userDetails.getUsername())
                 .step(1) // 최상단 문서의 단계는 1
                 .type("target")
                 .title("")
@@ -118,12 +121,14 @@ public class TargetServiceImpl implements TargetService {
     }
 
     @Override
-    public TargetDto.Update.Response targetUpdate(TargetDto.Update.Request request, String targetId) {
+    public TargetDto.Update.Response targetUpdate(TargetDto.Update.Request request, String targetId, UserDetails userDetails) {
         Issue target = issueRepository.findById(targetId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
         target.setTitle(request.getTitle());
         target.setContent(request.getContent());
+        target.setModifier(userDetails.getUsername());
+
 //        target.setUnclassified(true);
 
         issueRepository.save(target);

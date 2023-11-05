@@ -1,5 +1,7 @@
 package com.d103.dddev.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -45,6 +47,8 @@ public class SecurityConfig {
 			.authorizeRequests()
 			.antMatchers("/swagger-ui.html").permitAll()
 			.antMatchers("/oauth/**").permitAll()
+			.antMatchers("/swagger-resources/**", "/v2/api-docs", "/swagger-resources",
+				"/swagger-ui.html", "/webjars/**", "/swagger/**", "/swagger-ui/**").permitAll()
 			.antMatchers("/", "/**", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
 //			.anyRequest().authenticated();
 			.anyRequest().permitAll();
@@ -55,13 +59,20 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
+
+		corsConfiguration.setAllowCredentials(true); // 내 서버가 응답할 때 json을 JS에서 처리할 수 있게 설정
+		corsConfiguration.setExposedHeaders(List.of("*")); // 헤더 값 접근
+
+		corsConfiguration.addAllowedOriginPattern("http://localhost:3000");
+		corsConfiguration.addAllowedOriginPattern("https://k9d103.p.ssafy.io");
 		corsConfiguration.addAllowedMethod("*");
 		corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
 		corsConfiguration.addAllowedHeader("*");
-		corsConfiguration.addAllowedOrigin("*");
 		corsConfiguration.setMaxAge(7200L);
 		corsConfiguration.addExposedHeader("Authorization");
 		corsConfiguration.addExposedHeader("Authorization-refresh");
+		corsConfiguration.addExposedHeader("nickname");
+		corsConfiguration.addExposedHeader("role");
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);
 		return source;

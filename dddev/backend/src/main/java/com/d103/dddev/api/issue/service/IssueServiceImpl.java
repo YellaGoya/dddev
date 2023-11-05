@@ -2,14 +2,16 @@ package com.d103.dddev.api.issue.service;
 
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.model.dto.IssueDto;
-import com.d103.dddev.api.issue.model.dto.TargetDto;
 import com.d103.dddev.api.issue.model.message.Error;
 import com.d103.dddev.api.issue.model.message.IssueMessage;
 import com.d103.dddev.api.issue.repository.IssueRepository;
 import com.d103.dddev.api.issue.util.IssueUtil;
+import com.d103.dddev.api.sprint.repository.SprintRepository;
+import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class IssueServiceImpl implements IssueService{
 
     private final IssueRepository issueRepository;
     private final IssueUtil issueUtil;
+    private final SprintRepository sprintRepository;
 
     /*
      * groundId는 필수 값
@@ -45,13 +48,22 @@ public class IssueServiceImpl implements IssueService{
      *  */
 
     @Override
-    public IssueDto.Create.Response issueCreate(String groundId, IssueDto.Create.Request request) {
+    public IssueDto.Create.Response issueCreate(String groundId, IssueDto.Create.Request request, UserDetails userDetails) {
+        Integer sprintId = request.getSprintId();
+        if(sprintId != null && sprintId != 0){
+            SprintEntity sprint = sprintRepository.findById(sprintId)
+                    .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+            sprintId = sprint.getId();
+        }else{
+            sprintId = 0;
+        }
 
         Issue issue = Issue.builder()
                 .groundId(groundId)
                 .parentId(issueUtil.unclassified(request.getParentId(),groundId,"check"))
-                .sprintId(request.getSprintId() != null && !request.getSprintId().isEmpty() ? request.getSprintId() : "")
+                .sprintId(sprintId)
                 .step(3) // 고정값
+                .author(userDetails.getUsername())
                 .workTime(0) // 기본값
                 .studyTime(0) // 기본값
                 .type("issue")
@@ -140,12 +152,13 @@ public class IssueServiceImpl implements IssueService{
     }
 
     @Override
-    public IssueDto.Content.Response issueContent(IssueDto.Content.Request request, String issueId) {
+    public IssueDto.Content.Response issueContent(IssueDto.Content.Request request, String issueId, UserDetails userDetails) {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
         issue.setTitle(request.getTitle());
         issue.setContent(request.getContent());
+        issue.setModifier(userDetails.getUsername());
 
         issueRepository.save(issue);
 
@@ -157,11 +170,12 @@ public class IssueServiceImpl implements IssueService{
     }
 
     @Override
-    public IssueDto.Status.Response issueStatus(IssueDto.Status.Request request, String issueId) {
+    public IssueDto.Status.Response issueStatus(IssueDto.Status.Request request, String issueId, UserDetails userDetails) {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
         issue.setStatus(request.getStatus());
+        issue.setModifier(userDetails.getUsername());
 
         issueRepository.save(issue);
 
@@ -173,7 +187,7 @@ public class IssueServiceImpl implements IssueService{
     }
 
     @Override
-    public IssueDto.Connect.Response issueConnect(IssueDto.Connect.Request request, String issueId) {
+    public IssueDto.Connect.Response issueConnect(IssueDto.Connect.Request request, String issueId, UserDetails userDetails) {
         Issue issue = issueRepository.findById(issueId)
                         .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 이슈 조회
 
@@ -194,6 +208,11 @@ public class IssueServiceImpl implements IssueService{
         oldCheck.setChildrenId(oldChildren);
         newCheck.setChildrenId(newChildren);
 
+        // 수정자 수정
+        oldCheck.setModifier(userDetails.getUsername());
+        newCheck.setModifier(userDetails.getUsername());
+        issue.setModifier(userDetails.getUsername());
+
         // 저장
         issueRepository.save(oldCheck);
         issueRepository.save(newCheck);
@@ -207,12 +226,13 @@ public class IssueServiceImpl implements IssueService{
     }
 
     @Override
-    public IssueDto.Time.Response issueTime(IssueDto.Time.Request request, String issueId) {
+    public IssueDto.Time.Response issueTime(IssueDto.Time.Request request, String issueId, UserDetails userDetails) {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
         issue.setWorkTime(request.getWorkTime());
         issue.setStudyTime(request.getStudyTime());
+        issue.setModifier(userDetails.getUsername());
 
         issueRepository.save(issue);
 
@@ -224,11 +244,12 @@ public class IssueServiceImpl implements IssueService{
     }
 
     @Override
-    public IssueDto.Sprint.Response issueSprint(IssueDto.Sprint.Request request, String issueId) {
+    public IssueDto.Sprint.Response issueSprint(IssueDto.Sprint.Request request, String issueId, UserDetails userDetails) {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
         issue.setSprintId(request.getSprintId());
+        issue.setModifier(userDetails.getUsername());
 
         issueRepository.save(issue);
 

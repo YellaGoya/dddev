@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -26,10 +28,12 @@ public class IssueController {
     private final IssueService issueService;
     @ApiOperation(value="이슈 문서 생성", notes = "이슈 문서 생성 API", response = IssueDto.Create.Response.class)
     @PostMapping("/create")
-    public ResponseEntity createIssue(@PathVariable String groundId, @RequestBody @ApiParam(value = "이슈 생성 요청") IssueDto.Create.Request request) {
+    public ResponseEntity createIssue(@PathVariable String groundId,
+                                      @RequestBody @ApiParam(value = "이슈 생성 요청") IssueDto.Create.Request request,
+                                      @AuthenticationPrincipal UserDetails userDetails) {
         try{
             log.info("이슈 문서 생성");
-            IssueDto.Create.Response response = issueService.issueCreate(groundId, request);
+            IssueDto.Create.Response response = issueService.issueCreate(groundId, request, userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(), HttpStatus.BAD_REQUEST));
@@ -83,10 +87,13 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 수정")
     @PutMapping("/{issueId}/content")
-    public ResponseEntity issueContent(@PathVariable String groundId, @PathVariable String issueId, @RequestBody IssueDto.Content.Request request){
+    public ResponseEntity issueContent(@PathVariable String groundId,
+                                       @PathVariable String issueId,
+                                       @RequestBody IssueDto.Content.Request request,
+                                       @AuthenticationPrincipal UserDetails userDetails){
         try{
             log.info("이슈 문서 수정");
-            IssueDto.Content.Response response = issueService.issueContent(request, issueId);
+            IssueDto.Content.Response response = issueService.issueContent(request, issueId,userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
@@ -97,10 +104,13 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 진행 상태 변경")
     @PutMapping("/{issueId}/status")
-    public ResponseEntity issueStatus(@PathVariable String groundId, @PathVariable String issueId, @RequestBody IssueDto.Status.Request request){
+    public ResponseEntity issueStatus(@PathVariable String groundId,
+                                      @PathVariable String issueId,
+                                      @RequestBody IssueDto.Status.Request request,
+                                      @AuthenticationPrincipal UserDetails userDetails){
         try{
             log.info("이슈 문서 진행 상태 변경");
-            IssueDto.Status.Response response = issueService.issueStatus(request, issueId);
+            IssueDto.Status.Response response = issueService.issueStatus(request, issueId,userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
@@ -111,10 +121,13 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 상위 문서 연결")
     @PutMapping("/{issueId}/connect")
-    public ResponseEntity issueConnect(@PathVariable String groundId, @PathVariable String issueId, @RequestBody IssueDto.Connect.Request request){
+    public ResponseEntity issueConnect(@PathVariable String groundId,
+                                       @PathVariable String issueId,
+                                       @RequestBody IssueDto.Connect.Request request,
+                                       @AuthenticationPrincipal UserDetails userDetails){
         try{
             log.info("이슈 문서 상위 문서 연결");
-            IssueDto.Connect.Response response = issueService.issueConnect(request, issueId);
+            IssueDto.Connect.Response response = issueService.issueConnect(request, issueId,userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
@@ -125,10 +138,13 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 시간 변경")
     @PutMapping("/{issueId}/time")
-    public ResponseEntity issueTime(@PathVariable String groundId, @PathVariable String issueId, @RequestBody IssueDto.Time.Request request){
+    public ResponseEntity issueTime(@PathVariable String groundId,
+                                    @PathVariable String issueId,
+                                    @RequestBody IssueDto.Time.Request request,
+                                    @AuthenticationPrincipal UserDetails userDetails){
         try{
             log.info("이슈 문서 시간 변경");
-            IssueDto.Time.Response response = issueService.issueTime(request, issueId);
+            IssueDto.Time.Response response = issueService.issueTime(request, issueId,userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
@@ -139,10 +155,13 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 스프린트 연결")
     @PutMapping("/{issueId}/sprint")
-    public ResponseEntity issueSprint(@PathVariable String groundId, @PathVariable String issueId, @RequestBody IssueDto.Sprint.Request request){
+    public ResponseEntity issueSprint(@PathVariable String groundId,
+                                      @PathVariable String issueId,
+                                      @RequestBody IssueDto.Sprint.Request request,
+                                      @AuthenticationPrincipal UserDetails userDetails){
         try{
             log.info("이슈 문서 스프린트 연결");
-            IssueDto.Sprint.Response response = issueService.issueSprint(request, issueId);
+            IssueDto.Sprint.Response response = issueService.issueSprint(request, issueId,userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));

@@ -1,13 +1,18 @@
-import { SET_GROUND } from '../actions/ground';
+import { SET_GROUND } from 'redux/actions/ground';
 
 const initialState = {
-  ground: '',
+  groundId: 'web-rtc-test',
+  groundName: 'test',
 };
 
 const groundReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_GROUND:
-      return { ...state, ground: action.payload };
+      return {
+        ...state,
+        groundId: action.payload.groundId,
+        groundName: action.payload.groundName,
+      };
     default:
       return state;
   }
