@@ -22,6 +22,8 @@ import com.d103.dddev.api.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.transaction.Transactional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -41,6 +43,7 @@ public class GroundServiceImpl implements GroundService {
 	 * 2. groundUserDto owner 설정
 	 * */
 	@Override
+	@Transactional
 	public GroundDto createGround(String groundName, UserDto userDto, RepositoryDto repositoryDto) throws Exception {
 		log.info("service - createGround :: 그라운드 생성 진입");
 		GroundDto groundDto = GroundDto.builder()
