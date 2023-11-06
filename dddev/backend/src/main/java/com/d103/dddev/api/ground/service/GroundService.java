@@ -18,5 +18,6 @@ public interface GroundService {
 	GroundDto updateGroundProfile(MultipartFile file, GroundDto groundDto) throws Exception;
 
 	GroundDto deleteGroundProfile(GroundDto groundDto) throws Exception;
+	void deleteMemberFromGround(GroundDto groundDto, UserDto userDto) throws Exception;
 	void deleteGround(GroundDto groundDto) throws Exception;
 }

@@ -26,7 +26,7 @@ public class GroundUserServiceImpl implements GroundUserService {
 	 * ground owner 설정
 	 * */
 	@Override
-	public GroundUserDto updateGroundOwner(GroundDto groundDto, UserDto userDto) {
+	public GroundUserDto updateGroundOwner(GroundDto groundDto, UserDto userDto) throws Exception {
 		log.info("service - updateGroundUser :: 그라운드 owner 업데이트 진입");
 		GroundUserDto groundUserDto = GroundUserDto.builder()
 			.groundDto(groundDto)
@@ -38,7 +38,7 @@ public class GroundUserServiceImpl implements GroundUserService {
 	}
 
 	@Override
-	public Boolean checkIsGroundOwner(Integer groundId, Integer userId) {
+	public Boolean checkIsGroundOwner(Integer groundId, Integer userId) throws Exception {
 		log.info("service - checkIsGroundOwner :: 그라운드 오너 확인");
 		Optional<GroundUserDto> groundUserDtoOptional = groundUserRepository.findByGroundDto_IdAndUserDto_IdAndIsOwnerIsTrue(
 			groundId, userId);
@@ -46,7 +46,7 @@ public class GroundUserServiceImpl implements GroundUserService {
 	}
 
 	@Override
-	public Boolean checkIsGroundMember(Integer groundId, Integer userId) {
+	public Boolean checkIsGroundMember(Integer groundId, Integer userId) throws Exception {
 		log.info("service - checkIsGroundMember :: 그라운드 멤버 확인 진입");
 		Optional<GroundUserDto> groundUserDtoOptional = groundUserRepository.findByGroundDto_IdAndUserDto_Id(
 			groundId, userId);
@@ -55,7 +55,12 @@ public class GroundUserServiceImpl implements GroundUserService {
 	}
 
 	@Override
-	public List<GroundUserVO> getGroundMembers(Integer groundId) throws Exception {
+	public List<GroundUserDto> getGroundMembers(Integer groundId) throws Exception {
+		return groundUserRepository.findByGroundDto_Id(groundId);
+	}
+
+	@Override
+	public List<GroundUserVO> getGroundMembersAsVO(Integer groundId) throws Exception {
 		List<GroundUserDto> groundMemberList = groundUserRepository.findByGroundDto_Id(groundId);
 		List<GroundUserVO> groundUserVOList = new ArrayList<>();
 
@@ -76,5 +81,15 @@ public class GroundUserServiceImpl implements GroundUserService {
 		}
 
 		return groundUserVOList;
+	}
+
+	@Override
+	public Optional<GroundUserDto> getGroundMember(Integer groundId, Integer userId) throws Exception {
+		return groundUserRepository.findByGroundDto_IdAndUserDto_Id(groundId, userId);
+	}
+
+	@Override
+	public void deleteGroundUser(GroundUserDto groundUserDto) throws Exception {
+		groundUserRepository.delete(groundUserDto);
 	}
 }

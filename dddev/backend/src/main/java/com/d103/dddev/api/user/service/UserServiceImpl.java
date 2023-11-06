@@ -40,7 +40,9 @@ public class UserServiceImpl implements UserService {
 
 	private final AesUtil aesUtil;
 
-	private final Integer DEFAULT_USER_IMG_ID = 1;
+	// private final Integer DEFAULT_USER_IMG_ID = 1;
+	private final String API_URL = "https://api.github.com";
+	private final String USER_INFO_REQUEST_TOKEN = "token ";
 
 	private final String SERVERKEY = "AAAA-JR50zk:APA91bF4mudANm2i7fUAWnk9SGV2C4wvnqbal6AsiIwG9P8sxiQxNBU7eaEkPZ6RVQpJ8M5POblq43u94Wpja7qXL01GKE4yjAk9pE8a-yDYbdB98_LJ1lOBftUVoloFaCY6IAE7MuDs";
 
@@ -98,7 +100,7 @@ public class UserServiceImpl implements UserService {
 		userDto.setProfileDto(newProfile);
 
 		// 기존 프로필 사진 서버/db에서 삭제
-		if(prevProfile != null && prevProfile.getId() != DEFAULT_USER_IMG_ID) {
+		if(prevProfile != null) {
 			profileService.deleteProfile(prevProfile);
 		}
 
@@ -106,7 +108,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDto modifyLastVisitedGround(Integer lastGroundId, UserDto userDto) throws Exception {
+	public UserDto updateLastVisitedGround(Integer lastGroundId, UserDto userDto) throws Exception {
 		log.info("service - modifylastVisitedGround :: 마지막으로 방문한 그라운드 수정 진입");
 		userDto.setLastGroundId(lastGroundId);
 		return userRepository.saveAndFlush(userDto);
@@ -116,8 +118,32 @@ public class UserServiceImpl implements UserService {
 	public UserDto savePersonalAccessToken(String newPersonalAccessToken, UserDto userDto) throws Exception {
 		log.info("service - savePersonalAccessToken :: 사용자 personal access token 저장 진입");
 		String encrypted = encryptPersonalAccessToken(newPersonalAccessToken);
-		userDto.setPersonalAccessToken(encrypted);
-		userDto.setRole(Role.USER);
+
+		// 사용자 이메일이 저장되어 있지 않으면 pat로 email 조회해서 저장한다.
+		if(userDto.getEmail() == null) {
+			RestTemplate restTemplate = new RestTemplate();
+
+			String emailUrl = API_URL + "/user/emails";
+
+			// header
+			HttpHeaders headers = new HttpHeaders();
+			headers.add("Authorization", USER_INFO_REQUEST_TOKEN + newPersonalAccessToken);
+
+			HttpEntity<String> entity = new HttpEntity<>(headers);
+
+			ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+				emailUrl,
+				HttpMethod.GET,
+				entity,
+				new ParameterizedTypeReference<List<Map<String, Object>>>() {
+				}
+			);
+
+			String email = (String)response.getBody().get(0).get("email");
+			userDto.setEmail(email);
+		}
+
+		userDto.updatePersonalAccessToken(encrypted);
 		return userRepository.saveAndFlush(userDto);
 	}
 
@@ -128,12 +154,13 @@ public class UserServiceImpl implements UserService {
 		ProfileDto profileDto = userDto.getProfileDto();
 
 		// 기본 프로필 사진 받아오기
-		ProfileDto defaultProfile = profileService.getProfileDto(DEFAULT_USER_IMG_ID);
+		// ProfileDto defaultProfile = profileService.getProfileDto(DEFAULT_USER_IMG_ID);
 
-		userDto.setProfileDto(defaultProfile);
+		// userDto.setProfileDto(defaultProfile);
+		userDto.setProfileDto(null);
 
 		// 프로필 사진 서버/db에서 삭제
-		if(profileDto != null && profileDto.getId() != DEFAULT_USER_IMG_ID) {
+		if(profileDto != null) {
 			profileService.deleteProfile(profileDto);
 		}
 
@@ -150,7 +177,7 @@ public class UserServiceImpl implements UserService {
 		userRepository.delete(userDto);
 
 		// 서버/db에서 프로필 사진 삭제
-		if(profileDto != null && profileDto.getId() != DEFAULT_USER_IMG_ID) {
+		if(profileDto != null) {
 			profileService.deleteProfile(profileDto);
 		}
 	}

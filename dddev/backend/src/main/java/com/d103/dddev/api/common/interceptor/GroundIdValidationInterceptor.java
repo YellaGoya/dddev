@@ -34,6 +34,7 @@ public class GroundIdValidationInterceptor implements HandlerInterceptor {
         int groundId = Integer.parseInt(parts[2].trim());
 
         Optional<GroundDto> groundDtoOptional = groundRepository.findById(groundId);
+
         if(groundDtoOptional.isEmpty()){
             ResponseVO<Object> responseVO = ResponseVO.builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -46,6 +47,7 @@ public class GroundIdValidationInterceptor implements HandlerInterceptor {
             response.getWriter().write(result);
             return false;
         }
+
         GroundDto ground = groundDtoOptional.get();
 
         ModelAndView modelAndView = new ModelAndView();

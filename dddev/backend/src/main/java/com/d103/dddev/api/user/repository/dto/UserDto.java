@@ -51,6 +51,8 @@ public class UserDto {
 
 	private String nickname;
 
+	private String email;
+
 	@Column(name = "github_name")
 	private String githubName;
 
@@ -71,4 +73,10 @@ public class UserDto {
 
 	@Column(name = "device_token")
 	private String deviceToken;
+	
+	public void updatePersonalAccessToken(String personalAccessToken) {
+		this.personalAccessToken = personalAccessToken;
+		this.role = Role.USER;
+	}
+
 }

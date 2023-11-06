@@ -280,7 +280,7 @@ public class GroundController {
 			}
 
 			// 2. 그라운드의 유저 목록 불러오기
-			List<GroundUserVO> groundMembers = groundUserService.getGroundMembers(groundId);
+			List<GroundUserVO> groundMembers = groundUserService.getGroundMembersAsVO(groundId);
 
 			ResponseVO<List<GroundUserVO>> responseVO = ResponseVO.<List<GroundUserVO>>builder()
 				.code(HttpStatus.OK.value())
@@ -317,7 +317,7 @@ public class GroundController {
 	@PutMapping("/{groundId}")
 	@ApiOperation(value = "", notes = "")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> updateGroundInfo(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
@@ -368,7 +368,7 @@ public class GroundController {
 	@ApiOperation(value = "", notes = "")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> modifyGroundProfile(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId, @RequestParam MultipartFile file) {
@@ -417,9 +417,8 @@ public class GroundController {
 
 	@DeleteMapping("/{groundId}/profile-img")
 	@ApiOperation(value = "그라운드 프로필 사진 삭제", notes = "그라운드 프로필 사진 삭제하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
-		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> deleteGroundProfileImg(
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
@@ -467,11 +466,61 @@ public class GroundController {
 		}
 	}
 
-	@DeleteMapping("/{groundId}")
-	@ApiOperation(value = "그라운드 삭제", notes = "그라운드를 삭제하는 API")
+	@DeleteMapping("/{groundId}/user")
+	@ApiOperation(value = "그라운드에서 사용자 나가기", notes = "그라운드 멤버인 사용자 나가기 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
 		@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseVO<String>> deleteMemberFromGround(@ApiParam(value = "groundId") @PathVariable Integer groundId, @RequestHeader String Authorization) {
+		log.info("controller - deleteMemberFromGround :: 멤버 나가기 진입");
+		ResponseVO<String> responseVO;
+		try {
+			UserDto userDto = jwtService.getUser(Authorization)
+				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+
+			GroundDto groundDto = groundService.getGroundInfo(groundId)
+				.orElseThrow(() -> new NoSuchElementException("getGroundInfo :: 존재하지 않는 그라운드입니다."));
+
+			// 1. 사용자가 해당 그라운드의 멤버인지 확인
+			if (!groundUserService.checkIsGroundMember(groundId, userDto.getId())) {
+				log.error("그라운드의 멤버가 아닙니다.");
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+
+			groundService.deleteMemberFromGround(groundDto, userDto);
+
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.OK.value())
+				.message("그라운드 나가기 성공!")
+				.build();
+
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (NoSuchFieldException e) {
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.UNAUTHORIZED.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
+		} catch (NoSuchElementException e) {
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+		} catch (Exception e) {
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@DeleteMapping("/{groundId}")
+	@ApiOperation(value = "그라운드 삭제", notes = "그라운드를 삭제하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> deleteGround(@ApiParam(value = "groundId") @PathVariable Integer groundId,
 		@RequestHeader String Authorization) {

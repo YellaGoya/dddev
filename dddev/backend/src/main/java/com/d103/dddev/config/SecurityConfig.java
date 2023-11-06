@@ -45,13 +45,14 @@ public class SecurityConfig {
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 			.authorizeRequests()
+			.antMatchers("/swagger-ui.html").permitAll()
 			.antMatchers("/oauth/**").permitAll()
 			.antMatchers("/swagger-resources/**", "/v2/api-docs", "/swagger-resources",
 				"/swagger-ui.html", "/webjars/**", "/swagger/**", "/swagger-ui/**").permitAll()
 			.antMatchers("/", "/**", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
-			.anyRequest().authenticated();
-
-		http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
+//			.anyRequest().authenticated();
+			.anyRequest().permitAll();
+//		http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
 		return http.build();
 	}
 
