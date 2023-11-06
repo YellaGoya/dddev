@@ -1,13 +1,15 @@
 package com.d103.dddev.api.request.service;
 
-import com.d103.dddev.api.general.collection.General;
+import com.d103.dddev.api.general.repository.dto.responseDto.GeneralResponseDto;
 import com.d103.dddev.api.request.collection.Request;
 import com.d103.dddev.api.request.repository.RequestRepository;
-import com.d103.dddev.api.request.repository.dto.*;
+import com.d103.dddev.api.request.repository.dto.requestDto.*;
+import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
 import com.d103.dddev.api.user.repository.UserRepository;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +29,7 @@ public class RequestServiceImpl implements RequestService{
     private final UserRepository userRepository;
 
     @Override
-    public Request insertRequest(int groundId, RequestInsertOneDto requestInsertOneDto) throws InvalidAttributeValueException{
+    public Request insertRequest(int groundId, RequestInsertOneDto requestInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException{
         int step = requestInsertOneDto.getStep(); // 문서의 step
         Request insertRequest; // DB에 저장될 문서
         Request parent; // 저장될 문서의 부모
@@ -40,6 +42,8 @@ public class RequestServiceImpl implements RequestService{
                     .groundId(groundId)
                     .step(step)
                     .title(requestInsertOneDto.getTitle())
+                    .author(userDetails.getUsername())
+                    .modifier(userDetails.getUsername())
                     .build();
             try{
                 requestRepository.save(insertRequest);
@@ -60,6 +64,8 @@ public class RequestServiceImpl implements RequestService{
                     .step(step)
                     .title(requestInsertOneDto.getTitle())
                     .parentId(requestInsertOneDto.getParentId())
+                    .author(userDetails.getUsername())
+                    .modifier(userDetails.getUsername())
                     .build();
             try{
                 requestRepository.save(insertRequest);
@@ -110,8 +116,45 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public List<Request> getStep1Requests(int groundId) {
-        return requestRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    public List<RequestResponseDto> getStep1Requests(int groundId) {
+        List<Request> requestList = requestRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<RequestResponseDto> requestResponseDtoList = new ArrayList<>();
+        for (Request request : requestList) {
+            List<Request> children = request.getChildren();
+            List<RequestResponseDto> requestResponseDtoChildren = new ArrayList<>();
+            if(children != null){
+                for (Request child : children) {
+                    RequestResponseDto requestResponseDto = new RequestResponseDto();
+                    requestResponseDto.setId(child.getId());
+                    requestResponseDto.setStep(child.getStep());
+                    if(child.getTitle() == null)
+                        requestResponseDto.setTitle("");
+                    else{
+                        requestResponseDto.setTitle(child.getTitle());
+                    }
+                    if(child.getChildren() == null){
+                        requestResponseDto.setChildren(new ArrayList<>());
+                    }
+                    requestResponseDtoChildren.add(requestResponseDto);
+                }
+            }
+            RequestResponseDto requestResponseDto = new RequestResponseDto();
+            requestResponseDto.setId(request.getId());
+            requestResponseDto.setStep(request.getStep());
+            if(request.getTitle() == null)
+                requestResponseDto.setTitle("");
+            else{
+                requestResponseDto.setTitle(request.getTitle());
+            }
+            if(request.getChildren() == null){
+                requestResponseDto.setChildren(new ArrayList<>());
+            }
+            else{
+                requestResponseDto.setChildren(requestResponseDtoChildren);
+            }
+            requestResponseDtoList.add(requestResponseDto);
+        }
+        return requestResponseDtoList;
     }
 
     @Override
@@ -120,7 +163,7 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Request updateRequest(int groundId, RequestUpdateDto requestUpdateDto) throws Exception{
+    public Request updateRequest(int groundId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception{
         int sendUserId = requestUpdateDto.getSendUserId();
         int receiveUserId = requestUpdateDto.getReceiveUserId();
         UserDto sendUser = userRepository.findById(sendUserId).orElseThrow(()->new TransactionException("유저를 불러오는데 실패했습니다."));
@@ -138,6 +181,7 @@ public class RequestServiceImpl implements RequestService{
         loadRequest.setUpdatedAt(LocalDateTime.now());
         loadRequest.setSendUser(sendUser);
         loadRequest.setReceiveUser(receiveUser);
+        loadRequest.setModifier(userDetails.getUsername());
         try{
             requestRepository.save(loadRequest);
         }catch(Exception e){

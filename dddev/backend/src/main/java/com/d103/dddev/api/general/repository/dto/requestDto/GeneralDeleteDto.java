@@ -1,4 +1,4 @@
-package com.d103.dddev.api.general.repository.dto;
+package com.d103.dddev.api.general.repository.dto.requestDto;
 
 import lombok.*;
 
