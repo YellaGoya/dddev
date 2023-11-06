@@ -1,6 +1,7 @@
 package com.d103.dddev.api.ground.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
@@ -11,7 +12,9 @@ import com.d103.dddev.api.user.repository.dto.UserDto;
 import jdk.jshell.spi.ExecutionControlProvider;
 
 public interface GroundUserService {
-	List<GroundUserVO> findUserByEmail(Integer groundId, String email) throws Exception;
+	List<Map<String, String>> findUserByEmail(Integer groundId, String email) throws Exception;
+
+	List<GroundUserVO> inviteMemberToGround(GroundDto groundDto, UserDto newMember) throws Exception;
 
 	GroundUserDto updateGroundOwner(GroundDto groundDto, UserDto userDto) throws Exception;
 

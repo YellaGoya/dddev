@@ -2,6 +2,7 @@ package com.d103.dddev.api.ground.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -27,24 +28,39 @@ public class GroundUserServiceImpl implements GroundUserService {
 	 * 이미 추가된 멤버는 제외시킴
 	 * */
 	@Override
-	public List<GroundUserVO> findUserByEmail(Integer groundId, String email) throws Exception {
-		List<GroundUserDto> userDtoList = groundUserRepository.findByGroundDto_IdAndUserDto_EmailNot(
+	public List<Map<String, String>> findUserByEmail(Integer groundId, String email) throws Exception {
+		log.info("service - findUserByEmail :: email로 사용자 찾기 진입");
+		return groundUserRepository.findUserByGroundIdNotAndEmail(
 			groundId, email);
+	}
 
-		List<GroundUserVO> userVOList = new ArrayList<>();
+	@Override
+	public List<GroundUserVO> inviteMemberToGround(GroundDto groundDto, UserDto newMember) throws Exception {
+		log.info("service - inviteMemberToGround :: 그라운드에 사용자 초대하기 진입");
+		GroundUserDto newGroundUserDto = GroundUserDto.builder()
+			.userDto(newMember)
+			.groundDto(groundDto)
+			.isOwner(false)
+			.build();
 
-		for(GroundUserDto g : userDtoList) {
-			userVOList.add(GroundUserVO.builder()
-					.isOwner(g.getIsOwner())
-					.userId(g.getUserDto().getId())
-					.profileDto(g.getUserDto().getProfileDto())
-					.githubId(g.getUserDto().getGithubId())
-					.nickname(g.getUserDto().getNickname())
-					.statusMsg(g.getUserDto().getStatusMsg())
-					.build());
+		groundUserRepository.saveAndFlush(newGroundUserDto);
+
+		List<GroundUserDto> groundUserDtoList = groundUserRepository.findByGroundDto_Id(groundDto.getId());
+		List<GroundUserVO> groundUserVOList = new ArrayList<>();
+
+		for(GroundUserDto g : groundUserDtoList) {
+			GroundUserVO userVO = GroundUserVO.builder()
+				.isOwner(g.getIsOwner())
+				.userId(g.getUserDto().getId())
+				.profileDto(g.getUserDto().getProfileDto())
+				.githubId(g.getUserDto().getGithubId())
+				.nickname(g.getUserDto().getNickname())
+				.statusMsg(g.getUserDto().getStatusMsg())
+				.build();
+
+			groundUserVOList.add(userVO);
 		}
-
-		return userVOList;
+		return groundUserVOList;
 	}
 
 	/**

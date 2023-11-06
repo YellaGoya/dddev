@@ -3,6 +3,7 @@ package com.d103.dddev.api.ground.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.d103.dddev.api.common.ResponseVO;
-import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.ground.service.GroundService;
 import com.d103.dddev.api.ground.service.GroundUserService;
@@ -31,6 +31,7 @@ import com.d103.dddev.api.ground.vo.GroundUserVO;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.service.UserService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -52,7 +53,7 @@ public class GroundController {
 	private final GroundService groundService;
 	private final GroundUserService groundUserService;
 	private final RepositoryService repositoryService;
-	private final JwtService jwtService;
+	private final UserService userService;
 
 	@PostMapping("/repo/{repoId}")
 	@ApiOperation(value = "그라운드 생성", notes = "{\"name\" : {name}}")
@@ -105,7 +106,7 @@ public class GroundController {
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
-		} catch(EntityExistsException e) {
+		} catch (EntityExistsException e) {
 			log.error(e.getMessage());
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.CONFLICT.value())
@@ -129,31 +130,36 @@ public class GroundController {
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<?>> inviteMemberToGround(@RequestHeader String Authorization,
+	ResponseEntity<ResponseVO<List<GroundUserVO>>> inviteMemberToGround(@RequestHeader String Authorization,
 		@PathVariable Integer groundId, @PathVariable Integer githubId,
 		HttpServletRequest request) {
 		log.info("controller - inviteMemberToGround :: 그라운드에 멤버 추가하기 진입");
-		ResponseVO<?> responseVO;
+		ResponseVO<List<GroundUserVO>> responseVO;
 		try {
 
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
 			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			GroundDto groundDto = (GroundDto)mav.getModel().get("groundDto");
 
 			if (!groundUserService.checkIsGroundOwner(groundId, userDto.getId())) {
 				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
 			}
 
 			// 추가할 멤버 userDto
-
+			UserDto newMember = userService.getUserInfo(githubId)
+				.orElseThrow(() -> new NoSuchElementException("추가할 사용자가 존재하지 않습니다."));
 
 			// 그라운드에 멤버 추가하기
+			responseVO = ResponseVO.<List<GroundUserVO>>builder()
+				.code(HttpStatus.OK.value())
+				.message("그라운드 멤버 추가 성공!")
+				.data(groundUserService.inviteMemberToGround(groundDto, newMember))
+				.build();
 
-
-			return null;
-
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<GroundDto>builder()
+			responseVO = ResponseVO.<List<GroundUserVO>>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
@@ -216,11 +222,11 @@ public class GroundController {
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<List<GroundUserVO>>> getUserByEmail(@RequestHeader String Authorization,
+	ResponseEntity<ResponseVO<List<Map<String, String>>>> getUserByEmail(@RequestHeader String Authorization,
 		@PathVariable Integer groundId,
 		@PathVariable String email, HttpServletRequest request) {
 		log.info("controller - getUserByEmail :: 이메일로 멤버 찾기 진입(이미 그라운드에 추가된 사람은 제외됨)");
-		ResponseVO<List<GroundUserVO>> responseVO;
+		ResponseVO<List<Map<String, String>>> responseVO;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
 			UserDto userDto = (UserDto)mav.getModel().get("userDto");
@@ -229,9 +235,10 @@ public class GroundController {
 				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
 			}
 
-			List<GroundUserVO> userList = groundUserService.findUserByEmail(groundId, email);
+			List<Map<String, String>> userList = groundUserService.findUserByEmail(groundId, email);
+			System.out.println(email);
 
-			responseVO = ResponseVO.<List<GroundUserVO>>builder()
+			responseVO = ResponseVO.<List<Map<String, String>>>builder()
 				.code(HttpStatus.OK.value())
 				.message("멤버 찾기 성공~!~!~!")
 				.data(userList)
@@ -240,19 +247,21 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<List<GroundUserVO>>builder()
+			responseVO = ResponseVO.<List<Map<String, String>>>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
-			responseVO = ResponseVO.<List<GroundUserVO>>builder()
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<List<Map<String, String>>>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
-			responseVO = ResponseVO.<List<GroundUserVO>>builder()
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<List<Map<String, String>>>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
@@ -420,6 +429,8 @@ public class GroundController {
 			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 			GroundDto groundDto = (GroundDto)mav.getModel().get("groundDto");
 
+			System.out.println(newGroundDto);
+
 			if (!groundUserService.checkIsGroundOwner(groundId, userDto.getId())) {
 				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
 			}
@@ -550,6 +561,59 @@ public class GroundController {
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@DeleteMapping("/{groundId}/owner/user/{githubId}")
+	@ApiOperation(value = "그라운드에서 사용자 나가기", notes = "그라운드 멤버인 사용자 나가기 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 401, message = "access token 오류"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseVO<String>> deleteMemberFromGroundByOwner(@RequestHeader String Authorization,
+		@ApiParam(value = "groundId") @PathVariable Integer groundId,
+		@ApiParam(value = "강퇴시킬 사람의 githubId") @PathVariable Integer githubId, HttpServletRequest request) {
+		log.info("controller - deleteMemberFromGroundByOwner :: 멤버 강퇴 진입");
+		ResponseVO<String> responseVO;
+		try {
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			GroundDto groundDto = (GroundDto)mav.getModel().get("groundDto");
+
+			if (!groundUserService.checkIsGroundOwner(groundId, userDto.getId())) {
+				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
+			}
+
+			UserDto memberToDelete = userService.getUserInfo(githubId)
+				.orElseThrow(() -> new NoSuchElementException("강퇴시킬 멤버가 존재하지 않습니다."));
+
+			groundService.deleteMemberFromGround(groundDto, memberToDelete);
+
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.OK.value())
+				.message("멤버 강퇴 성공!")
+				.build();
+
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+
+		} catch (NoSuchFieldException e) {
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.UNAUTHORIZED.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
+		} catch (NoSuchElementException e) {
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+		} catch (Exception e) {
+			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
