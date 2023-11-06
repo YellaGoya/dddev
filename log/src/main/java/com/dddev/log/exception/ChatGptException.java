@@ -18,6 +18,4 @@ public class ChatGptException extends RuntimeException {
             super(message);
         }
     }
-
-
 }

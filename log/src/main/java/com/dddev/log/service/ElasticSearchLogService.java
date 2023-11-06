@@ -74,7 +74,7 @@ public class ElasticSearchLogService {
 
     //정규표현식으로 가져오기
     public List<ElasticSearchLog> getRegexptLogs(String groupId, String regexp) throws NoSuchIndexException {
-        String expression = chatService.getreqexpResponse(regexp).trim();
+        String expression = chatService.chatGptExp(regexp).trim();
         if (expression.startsWith("/") && expression.endsWith("/"))
         {
             expression = expression.substring(1, expression.length() - 1);
@@ -126,7 +126,6 @@ public class ElasticSearchLogService {
         searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList()).forEach(a -> {
             temp.append(a.getLog()).append("\n");
         });
-        System.out.println(temp.toString());
-        return chatService.getChatResponse(temp.toString());
+        return chatService.chatGptLog(temp.toString());
     }
 }

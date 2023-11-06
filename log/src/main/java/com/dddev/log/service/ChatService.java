@@ -1,37 +1,49 @@
 package com.dddev.log.service;
 
-import com.dddev.log.exception.ChatGptException;
-import io.github.flashvayne.chatgpt.dto.chat.MultiChatMessage;
-import io.github.flashvayne.chatgpt.service.ChatgptService;
+import com.dddev.log.dto.req.ChatReq;
+import com.dddev.log.dto.res.ChatRes;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final ChatgptService chatgptService;
+    @Qualifier("openaiRestTemplate")
+    private final RestTemplate restTemplate;
+    private final Environment env;
 
-    public String getChatResponse(String question) {
-        try{
-            String responseMessage = chatgptService.sendMessage(question + "This is the log I'm curious about. Tell me about this log in detail and how to solve it as an example. " +
-                    "Answer me in Korean. Please answer within 2500 tokens");
-            return responseMessage;
-        }catch (ChatGptException.GptExcetpion e){
-            throw new ChatGptException.GptExcetpion("Gpt를 호출하는 중 오류가 발생했습니다.");
+    public String chatGptLog(String prompt){
+
+        ChatReq request = new ChatReq(env.getProperty("openai.model"), prompt, "You're a log analysis expert. " +
+                "I know all the logs of any program. " +
+                "Kind and easy for developers trying to catch this error, let me know the solution. Tell me in Korean.");
+
+        // call the API
+        ChatRes response = restTemplate.postForObject(env.getProperty("openai.api.url"), request, ChatRes.class);
+
+        if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
+            return "No response";
         }
+        // return the first response
+        return response.getChoices().get(0).getMessage().getContent();
     }
 
-    public String getreqexpResponse(String question) {
-        try{
-            String responseMessage = chatgptService.sendMessage(" \"" + question + "\" " + "This is a regular expression. Turn this into a regular " +
-                    "expression for ElasticSearch. However, don't use any other rhetoric when answering, just tell me the correct answer. ");
-            return responseMessage;
-        }catch (ChatGptException.GptExcetpion e){
-            throw new ChatGptException.GptExcetpion("Gpt를 호출하는 중 오류가 발생했습니다.");
+    public String chatGptExp(String prompt){
+        // create a request
+        ChatReq request = new ChatReq(env.getProperty("openai.model"), prompt,"You are a regular expression expert in elasticsearch. " +
+                "Please change the regular expression to the elasticserach regular expression. " +
+                "However, the answer does not include any other rhetoric, just tell me the answer.");
+        // call the API
+        ChatRes response = restTemplate.postForObject(env.getProperty("openai.api.url"), request, ChatRes.class);
+
+        if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
+            return "No response";
         }
+        // return the first response
+        return response.getChoices().get(0).getMessage().getContent();
     }
 }

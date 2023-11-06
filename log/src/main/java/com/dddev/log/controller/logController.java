@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.NoSuchIndexException;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -52,7 +51,8 @@ public class logController {
                     e.getMessage(), null));
         }
     }
-    
+
+
     //인덱스별 정해진 특정 개수 만큼 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 size로 가져오는 API")
     @ApiResponses(
@@ -103,6 +103,7 @@ public class logController {
         }
     }
 
+
     //인덱스별 정규표현식으로 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 정규표현식으로 가져오는 API")
     @ApiResponses(
@@ -127,7 +128,6 @@ public class logController {
                     e.getMessage(), null));
         }
     }
-
     //인덱스별 시작 시간 끝 시간으로 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 시작 시간과 끝 시간으로 가져오는 API")
     @ApiResponses(
@@ -155,6 +155,7 @@ public class logController {
                     e.getMessage(), null));
         }
     }
+
     //최근 로그 20줄 불러와서 분석하기
     @ApiOperation(value = "최근 저장된 로그 20줄을 불러와서 chat gpt가 자동으로 분석하는 API")
     @ApiResponses(
