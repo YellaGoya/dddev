@@ -154,15 +154,14 @@ public class UserServiceImpl implements UserService {
 		ProfileDto profileDto = userDto.getProfileDto();
 
 		userDto.setProfileDto(null);
+		userDto = userRepository.saveAndFlush(userDto);
 
 		// 프로필 사진 서버/db에서 삭제
 		if(profileDto != null) {
 			profileService.deleteProfile(profileDto);
 		}
 
-
-
-		return userRepository.saveAndFlush(userDto);
+		return userDto;
 	}
 
 	@Override
