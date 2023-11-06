@@ -1,5 +1,6 @@
-package com.d103.dddev.api.general.collection;
+package com.d103.dddev.api.request.collection;
 
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -15,15 +16,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "general")
-public class General {
+@Document(collection = "request1")
+public class Request {
     @Id
     private String id;
     @Field("ground_id")
     private int groundId;
     @Field("parent_id")
     private String parentId;
-    private List<General> children;
+    private List<Request> children;
     private String title;
     private String content;
     private int step;
@@ -33,4 +34,6 @@ public class General {
     @Field("updated_at")
     @CreatedDate
     private LocalDateTime updatedAt;
+    private UserDto sendUser;
+    private UserDto receiveUser;
 }

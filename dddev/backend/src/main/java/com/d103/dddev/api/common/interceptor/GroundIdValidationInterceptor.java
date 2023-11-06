@@ -88,6 +88,7 @@ public class GroundIdValidationInterceptor implements HandlerInterceptor {
 		ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
 		UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
+
 		// 해당 그라운드의 멤버인지 검증
 		Optional<GroundUserDto> groundUserDtoOptional = groundUserRepository.findByGroundDto_IdAndUserDto_Id(
 			groundId, userDto.getId());
