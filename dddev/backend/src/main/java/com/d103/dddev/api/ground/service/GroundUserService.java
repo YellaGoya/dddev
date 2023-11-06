@@ -6,10 +6,8 @@ import java.util.Optional;
 
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
-import com.d103.dddev.api.ground.vo.GroundUserVO;
+import com.d103.dddev.api.ground.repository.vo.GroundUserVO;
 import com.d103.dddev.api.user.repository.dto.UserDto;
-
-import jdk.jshell.spi.ExecutionControlProvider;
 
 public interface GroundUserService {
 	List<Map<String, String>> findUserByEmail(Integer groundId, String email) throws Exception;
