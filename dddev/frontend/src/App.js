@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { memo } from 'react';
 import { BrowserRouter, useRoutes, useLocation, Navigate } from 'react-router-dom';
 // import { Provider } from 'react-redux';
@@ -15,6 +16,16 @@ import GroundCheck from 'layouts/GroundCheck';
 import { Global } from 'markup/styles/Global';
 
 const Routing = memo(() => {
+  useEffect(() => {
+    // navigator.serviceWorker.register('/firebase-messaging-sw.js').then((registration) => {
+    //   console.log('Service Worker registered with scope:', registration.scope);
+
+    //   // Wait for the service worker to become ready
+    //   return navigator.serviceWorker.ready;
+    // });
+
+    requestPermission();
+  }, []);
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
