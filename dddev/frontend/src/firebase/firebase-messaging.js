@@ -25,16 +25,16 @@ const messaging = getMessaging(app);
 //   };
 
 async function requestPermission() {
-  console.log('권한 요청 중...');
+  // console.log('권한 요청 중...');
 
   const permission = await Notification.requestPermission();
   if (permission === 'denied') {
-    console.log('알림 권한 허용 안됨');
+    // console.log('알림 권한 허용 안됨');
     localStorage.setItem('fcmPermissionRequested', false);
     return;
   }
 
-  console.log('알림 권한이 허용됨');
+  // console.log('알림 권한이 허용됨');
 
   const token = await getToken(messaging, {
     // 변경 예정
@@ -47,21 +47,23 @@ async function requestPermission() {
     if (err.toString() === error) {
       return getToken(messaging, {
         vapidKey: 'BPx7bK6vhpUDuWrJbMr0ZDuGcKtB-1JvroQQFKJH2XE9TRRPOfx0i60AuKlei0r_rgqDReweOxVxu_MlGAJKSNg',
-      }).catch((err) => console.log('another err :: ', err));
+      }).catch((err) => 
+      // console.log('another err :: ', err)
+      );
     }
 
-    console.log(err);
+    // console.log(err);
   });
 
   if (token === null) {
-    console.log('get token retry');
+    // console.log('get token retry');
     await getToken(messaging, {
       // 변경 예정
       vapidKey: 'BPx7bK6vhpUDuWrJbMr0ZDuGcKtB-1JvroQQFKJH2XE9TRRPOfx0i60AuKlei0r_rgqDReweOxVxu_MlGAJKSNg',
     });
   }
 
-  console.log('token: ' + token);
+  // console.log('token: ' + token);
 
   // if (token && localStorage.getItem('fcmPermissionRequested') === null) {
   //   console.log('token: ', token);
@@ -70,7 +72,7 @@ async function requestPermission() {
   // } else console.log('Can not get Token');
 
   onMessage(messaging, (payload) => {
-    console.log('메시지가 도착했습니다.', payload);
+    // console.log('메시지가 도착했습니다.', payload);
     // ...
   });
 }
