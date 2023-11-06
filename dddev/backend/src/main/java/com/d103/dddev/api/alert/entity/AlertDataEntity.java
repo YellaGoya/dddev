@@ -46,4 +46,7 @@ public class AlertDataEntity {
 	@Column(name = "alert_type")
 	private String alertType;
 
+	@Column(name = "is_success")
+	private Boolean isSuccess;
+
 }

@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.d103.dddev.api.alert.dto.CreateWebhookRequestDto;
 import com.d103.dddev.api.alert.dto.ReceiveWebhookDto;
+import com.d103.dddev.api.alert.dto.UpdateAlertDto;
+import com.d103.dddev.api.alert.dto.receive.PullRequestWebhookDto;
 import com.d103.dddev.api.alert.entity.AlertEntity;
 import com.d103.dddev.api.alert.service.AlertServiceImpl;
 import com.d103.dddev.api.common.ResponseVO;
@@ -26,16 +28,9 @@ import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.sun.jdi.request.DuplicateRequestException;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Example;
-import io.swagger.annotations.ExampleProperty;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,7 +53,7 @@ public class AlertController {
 	public ResponseEntity<ResponseVO<String>> createWebhook(@RequestHeader("Authorization") String header,
 		@RequestBody CreateWebhookRequestDto createWebhookRequestDto) {
 		try {
-			alertService.createWebhook(header, createWebhookRequestDto);
+			alertService.createAlert(header, createWebhookRequestDto);
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("알림 생성 성공")
@@ -79,6 +74,7 @@ public class AlertController {
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.CONFLICT);
 		} catch (Exception e) {
+			log.error(e.toString());
 			log.error(e.getMessage());
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -88,7 +84,7 @@ public class AlertController {
 		}
 	}
 
-	// 깃허브 이벤트 수신 - push event
+
 	@PostMapping(value = "/receive-webhook")
 	@ApiOperation(value = "hide endpoint", hidden = true)
 	public ResponseEntity<?> receiveWebhook(@RequestHeader(required = false) Map<String, Object> headerMap,
@@ -107,22 +103,62 @@ public class AlertController {
 		}
 	}
 
+	// 깃허브 이벤트 수신 - push event
+	@PostMapping(value = "/push-webhook")
+	@ApiOperation(value = "hide endpoint", hidden = true)
+	public ResponseEntity<?> receivePushWebhook(@RequestHeader(required = false) Map<String, Object> headerMap,
+		@RequestBody ReceiveWebhookDto receiveWebhookDto) {
+		try {
+			log.info("alert controller");
+			alertService.receiveWebhook(headerMap, receiveWebhookDto);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// 깃허브 이벤트 수신 - pull request event
+	@PostMapping(value = "/pull-request-webhook")
+	@ApiOperation(value = "hide endpoint", hidden = true)
+	public ResponseEntity<?> receivePullRequestWebhook(@RequestHeader(required = false) Map<String, Object> headerMap,
+		@RequestBody PullRequestWebhookDto pullRequestWebhookDto) {
+		try {
+			log.info("pull-request-webhook controller");
+			alertService.receivePullRequestWebhook(headerMap, pullRequestWebhookDto);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+
 	@PutMapping("/commit/{alertId}")
 	@ApiOperation(value = "알림 수정", notes = "커밋(푸시) 알림의 키워드를 수정하는 API")
-	@ApiImplicitParam(name = "map", paramType = "body", example = "{\n"
-		+ "  \"keyword\": [\n"
-		+ "    \"string\"\n"
-		+ "  ]\n"
-		+ "}")
+	// @ApiImplicitParam(name = "map", paramType = "body", example = "{\n"
+	// 	+ "  \"keyword\": [\n"
+	// 	+ "    \"string\"\n"
+	// 	+ "  ]\n"
+	// 	+ "}")
 	@ApiResponses(value = {
 		@ApiResponse(code = 406, message = "알림 id 오류")
 	})
-	public ResponseEntity<ResponseVO<String>> updateAlert(@RequestBody Map<String, List<String>> map, @PathVariable(name = "alertId") Integer alertId) {
+	public ResponseEntity<ResponseVO<String>> updateAlert(@RequestBody UpdateAlertDto updateAlertDto, @PathVariable(name = "alertId") Integer alertId) {
 		try {
-			alertService.updateAlert(map.get("keyword"), alertId);
+			alertService.updateAlert(updateAlertDto, alertId);
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.OK.value())
-				.message("알림 키워드 수정 성공")
+				.message("알림 수정 성공")
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
@@ -153,7 +189,7 @@ public class AlertController {
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 			ResponseVO<List<AlertEntity>> responseVO = ResponseVO.<List<AlertEntity>>builder()
 				.code(HttpStatus.OK.value())
-				.message("알림 생성 성공")
+				.message("알림 조회 성공")
 				.data(alertService.alertList(userDto))
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
@@ -186,7 +222,7 @@ public class AlertController {
 			alertService.deleteAlert(userDto, alertId);
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.OK.value())
-				.message("알림 생성 성공")
+				.message("알림 삭제 성공")
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchElementException e) {

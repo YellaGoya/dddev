@@ -8,9 +8,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Data
-@Getter @Setter @ToString
-public class CreateWebhookRequestDto {
-	private Integer repositoryId;
+@Getter
+@Setter
+@ToString
+public class UpdateAlertDto {
 	private List<String> keyword;
 	private String type;
 }

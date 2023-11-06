@@ -19,7 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AlertDataRepo {
 	public static final String COLLECTION_NAME = "AlertData";
-	// private static Firestore FIRE_STORE = FirestoreClient.getFirestore();
+	// private Firestore FIRE_STORE = FirestoreClient.getFirestore();
+	private Firestore FIRE_STORE = null;
 
 	// public List<AlertDataEntity> getAllAlertData() throws Exception {
 	// 	List<AlertDataEntity> list = new ArrayList<>();
@@ -31,8 +32,12 @@ public class AlertDataRepo {
 		// return list;
 	// }
 
+	public void getFirestore() {
+		FIRE_STORE = FirestoreClient.getFirestore();
+	}
+
 	public void addAlertData(AlertDataEntity alertDataEntity) throws Exception{
-		Firestore FIRE_STORE = FirestoreClient.getFirestore();
+		// Firestore FIRE_STORE = FirestoreClient.getFirestore();
 		DocumentReference document = FIRE_STORE.collection(COLLECTION_NAME).document();
 		document.set(alertDataEntity);
 		log.info("새로운 문서 - 알림 데이터 - 가 추가되었습니다. document id: {}", document.getId()	);

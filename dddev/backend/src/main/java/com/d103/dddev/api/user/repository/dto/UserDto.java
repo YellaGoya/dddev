@@ -63,9 +63,6 @@ public class UserDto {
 
 	private Boolean valid;
 
-	@Column(name = "refresh_token")
-	private String refreshToken;
-
 	@Column(name = "personal_access_token")
 	private String personalAccessToken;
 
@@ -74,9 +71,4 @@ public class UserDto {
 
 	@Column(name = "device_token")
 	private String deviceToken;
-
-	public void updateRefreshToken(String updateRefreshToken){
-		this.refreshToken = updateRefreshToken;
-	}
-
 }

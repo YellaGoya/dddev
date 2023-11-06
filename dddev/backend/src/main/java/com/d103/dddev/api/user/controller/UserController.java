@@ -669,7 +669,11 @@ public class UserController {
 			UserDto userDto = jwtService.getUser(Authorization)
 				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 			userService.saveDeviceToken(userDto, map.get("deviceToken"));
-			return new ResponseEntity<>(HttpStatus.OK);
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.OK.value())
+				.message("기기 토큰 등록에 성공했습니다.")
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
