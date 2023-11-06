@@ -200,3 +200,4 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 }
+

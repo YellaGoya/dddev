@@ -3,6 +3,8 @@ package com.d103.dddev.api.repository.controller;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
@@ -41,11 +44,11 @@ public class RepositoryController {
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 혹은 pat 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<List<RepositoryDto>>> getRepositoryList(@RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<List<RepositoryDto>>> getRepositoryList(HttpServletRequest request) {
 		try {
 			log.info("controller - getRepositoryList :: 사용자 레포지토리 목록 조회 진입");
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
 			List<RepositoryDto> repositoryDtoList = repositoryService.getRepositoryListFromGithub(userDto);
 
@@ -73,10 +76,10 @@ public class RepositoryController {
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<List<RepositoryDto>> responseVO = ResponseVO.<List<RepositoryDto>>builder()
-				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.code(HttpStatus.FORBIDDEN.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			e.printStackTrace();

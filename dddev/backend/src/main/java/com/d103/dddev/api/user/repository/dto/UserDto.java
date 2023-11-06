@@ -71,6 +71,9 @@ public class UserDto {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
+	@Column(name = "device_token")
+	private String deviceToken;
+	
 	public void updatePersonalAccessToken(String personalAccessToken) {
 		this.personalAccessToken = personalAccessToken;
 		this.role = Role.USER;

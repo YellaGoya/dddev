@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
@@ -32,6 +35,7 @@ import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.service.UserService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -47,41 +51,34 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
 	private final UserService userService;
-	private final JwtService jwtService;
 
 	@GetMapping
 	@ApiOperation(value = "사용자 정보", notes = "사용자 정보를 받아오는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<UserDto>> getUserInfo(@RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<UserDto>> getUserInfo(@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - getUserInfo :: 사용자 정보 받아오기 진입");
+		ResponseVO<UserDto> responseVO;
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
-			ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
+			ModelAndView max = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)max.getModel().get("userDto");
+			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("사용자 정보 조회 성공")
 				.data(userDto)
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
-			ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
+			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
+			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
@@ -92,13 +89,13 @@ public class UserController {
 	@GetMapping("/profile")
 	@ApiOperation(value = "사용자 프로필 사진", notes = "사용자 프로필 사진을 받아오는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 프로필 사진"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자 혹은 프로필 사진"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<byte[]> getUserProfile(@RequestHeader String Authorization) {
+	ResponseEntity<byte[]> getUserProfile(@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - getUserprofile :: 사용자 프로필 받아오기 진입");
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
 			ProfileDto profileDto = userDto.getProfileDto();
 
@@ -106,7 +103,9 @@ public class UserController {
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("Content-type", profileDto.getContentType());
 
-			return new ResponseEntity<>(userService.getProfile(userDto), headers, HttpStatus.OK);
+			byte[] profile = userService.getProfile(userDto);
+
+			return new ResponseEntity<>(profile, headers, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -115,6 +114,10 @@ public class UserController {
 			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
+			ResponseVO<byte[]> responseVO = ResponseVO.<byte[]>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -122,18 +125,20 @@ public class UserController {
 	@GetMapping("/ground/list")
 	@ApiOperation(value = "사용자가 가입한 그라운드 목록 조회", notes = "사용자가 가입한 그라운드 목록을 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<List<GroundVO>>> getGroundList(@RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<List<GroundVO>>> getGroundList(@RequestHeader String Authorization,
+		HttpServletRequest request) {
 		log.info("controller - getGroundList :: 사용자가 가입한 그라운드 목록 조회 진입");
+		ResponseVO<List<GroundVO>> responseVO;
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
 			List<GroundUserDto> groundUserDtoList = userService.getGroundList(userDto);
 			List<GroundVO> groundVOList = new ArrayList<>();
 
-			for(GroundUserDto g : groundUserDtoList) {
+			for (GroundUserDto g : groundUserDtoList) {
 				GroundVO groundVO = GroundVO.builder()
 					.isOwner(g.getIsOwner())
 					.groundDto(g.getGroundDto())
@@ -142,7 +147,7 @@ public class UserController {
 				groundVOList.add(groundVO);
 			}
 
-			ResponseVO<List<GroundVO>> responseVO = ResponseVO.<List<GroundVO>>builder()
+			responseVO = ResponseVO.<List<GroundVO>>builder()
 				.code(HttpStatus.OK.value())
 				.message("그라운드 목록 조회 성공!")
 				.data(groundVOList)
@@ -152,21 +157,21 @@ public class UserController {
 
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
-			ResponseVO<List<GroundVO>> responseVO = ResponseVO.<List<GroundVO>>builder()
+			responseVO = ResponseVO.<List<GroundVO>>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
-			ResponseVO<List<GroundVO>> responseVO = ResponseVO.<List<GroundVO>>builder()
+			responseVO = ResponseVO.<List<GroundVO>>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<List<GroundVO>> responseVO = ResponseVO.<List<GroundVO>>builder()
+			responseVO = ResponseVO.<List<GroundVO>>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
@@ -174,42 +179,36 @@ public class UserController {
 		}
 	}
 
-
 	@GetMapping("/status-msg")
 	@ApiOperation(value = "상태 메시지 조회", notes = "사용자 상태 메시지를 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<String>> getStatusMsg(@RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<String>> getStatusMsg(@RequestHeader String Authorization, HttpServletRequest request) {
+		log.info("controller - getStatusMsg :: 상태 메시지 조회 진입");
+		ResponseVO<String> responseVO;
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("상태 메시지 조회 성공!")
 				.data(userDto.getStatusMsg())
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -219,15 +218,16 @@ public class UserController {
 	@GetMapping("/nickname/duplicate/{nickname}")
 	@ApiOperation(value = "닉네임 중복 조회", notes = "닉네임 중복 조회 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<Boolean>> checkDupNickname(@ApiParam(value = "중복 체크할 닉네임") @PathVariable String nickname,
-		@RequestHeader String Authorization) {
+		@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - checkDupNickname :: 사용자 닉네임 중복 조회 진입");
+		ResponseVO<Boolean> responseVO;
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
-			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
+			responseVO = ResponseVO.<Boolean>builder()
 				.code(HttpStatus.OK.value())
 				.message("닉네임 중복 조회 성공!")
 				.data(userService.checkDupNickname(nickname, userDto.getId()))
@@ -236,21 +236,21 @@ public class UserController {
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
-			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
+			responseVO = ResponseVO.<Boolean>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
-			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
+			responseVO = ResponseVO.<Boolean>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<Boolean> responseVO = ResponseVO.<Boolean>builder()
+			responseVO = ResponseVO.<Boolean>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
@@ -259,43 +259,86 @@ public class UserController {
 	}
 
 	@PostMapping("/personal-access-token")
-	@ApiOperation(value = "personal access token 저장/수정", notes = "personal access token 저장/수정하는 API")
+	@ApiOperation(value = "회원가입 후 personal access token 저장", notes = "회원가입 후 personal access token 저장하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> savePersonalAccessToken(
 		@ApiParam(value = "personal access token") @RequestBody Map<String, String> personalAccessTokenMap,
-		@RequestHeader String Authorization) {
+		@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - savePersonalAccessToken :: personal access token 저장 진입");
+		ResponseVO<String> responseVO;
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
 			String newPersonalAccessToken = personalAccessTokenMap.get("personalAccessToken");
 
 			userService.savePersonalAccessToken(newPersonalAccessToken, userDto);
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("personal access token 저장 성공!")
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PutMapping("/personal-access-token")
+	@ApiOperation(value = "personal access token 수정", notes = "personal access token 수정하는 API")
+	ResponseEntity<ResponseVO<String>> updatePersonalAccessToken(
+		@ApiParam(value = "personal-access-token") @RequestBody Map<String, String> personalAccessTokenMap,
+		@RequestHeader String Authorization, HttpServletRequest request) {
+		log.info("controller - modifyPersonalAccessToken :: personal access token 수정 진입");
+		ResponseVO<String> responseVO;
+		try {
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+
+			String newPersonalAccessToken = personalAccessTokenMap.get("personal-access-token");
+			userService.savePersonalAccessToken(newPersonalAccessToken, userDto);
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.OK.value())
+				.message("personal access token 저장 성공!")
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (NoSuchFieldException e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.UNAUTHORIZED.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
+		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
@@ -306,19 +349,20 @@ public class UserController {
 	@PutMapping
 	@ApiOperation(value = "사용자 정보 수정", notes = "사용자 정보 수정 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<UserDto>> updateUserInfo(
 		@ApiParam(value = "{nickname : __, statusMsg : __}") @RequestBody UserDto newUserDto,
-		@RequestHeader String Authorization) {
+		@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - updateUserInfo :: 그라운드 정보 수정 진입");
+		ResponseVO<UserDto> responseVO;
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
 			userDto = userService.updateUserInfo(newUserDto, userDto);
 
-			ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
+			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("사용자 정보 수정 성공!")
 				.data(userDto)
@@ -327,19 +371,21 @@ public class UserController {
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
 			log.error(e.getMessage());
-			ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
+			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
-			log.error(e.getMessage());ResponseVO<UserDto> responseVO = ResponseVO.<UserDto>builder()
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
@@ -351,14 +397,14 @@ public class UserController {
 	@ApiOperation(value = "사용자 프로필 사진 수정", notes = "사용자 프로필 사진 수정 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "파일 저장 에러"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<UserDto>> updateProfile(@RequestPart("file") MultipartFile file,
-		@RequestHeader String Authorization) {
+		@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - updateProfile :: 프로필 사진 수정 진입");
 		ResponseVO<UserDto> responseVO;
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
 			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.OK.value())
@@ -402,15 +448,16 @@ public class UserController {
 	@PutMapping("/last-ground/{lastGroundId}")
 	@ApiOperation(value = "사용자가 마지막으로 방문한 그라운드 수정", notes = "사용자가 마지막으로 방문한 그라운드를 수정하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<String>> updateLastVisitedGround(@PathVariable Integer lastGroundId, @RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<String>> updateLastVisitedGround(@PathVariable Integer lastGroundId,
+		@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - lastVisitedGround() :: 마지막으로 방문한 그라운드 수정 진입");
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
-			userDto = userService.updateLastVisitedGround(lastGroundId, userDto);
+			userService.updateLastVisitedGround(lastGroundId, userDto);
 
 			ResponseVO<String> responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.OK.value())
@@ -447,12 +494,12 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "파일 저장 에러"),
 		@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"), @ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<UserDto>> deleteProfile(@RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<UserDto>> deleteProfile(@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - deleteProfile :: 프로필 사진 삭제 진입");
 		ResponseVO<UserDto> responseVO;
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
 			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.OK.value())
@@ -496,15 +543,16 @@ public class UserController {
 	@ApiOperation(value = "사용자 탈퇴", notes = "사용자 탈퇴 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "파일 저장 에러"),
 		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<String>> deleteUser(@RequestParam String code, @RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<String>> deleteUser(@RequestParam String code, @RequestHeader String Authorization,
+		HttpServletRequest request) {
 		log.info("controller - deleteUser :: 사용자 탈퇴 진입");
 		ResponseVO<String> responseVO;
 		try {
 			// 사용자 정보 받아오기
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
 			// github token 받아오기
 			Map<String, String> tokens = userService.githubToken(code);
@@ -555,14 +603,15 @@ public class UserController {
 	@DeleteMapping("/status-msg")
 	@ApiOperation(value = "사용자 상태메시지 삭제", notes = "사용자 상태메시지 삭제하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<UserDto>> deleteStatusMsg(@RequestHeader String Authorization) {
+	ResponseEntity<ResponseVO<UserDto>> deleteStatusMsg(@RequestHeader String Authorization,
+		HttpServletRequest request) {
 		log.info("controller - deleteStatusMsg :: 사용자 상태메시지 삭제 진입");
 		ResponseVO<UserDto> responseVO;
 		try {
-			UserDto userDto = jwtService.getUser(Authorization)
-				.orElseThrow(() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
 			responseVO = ResponseVO.<UserDto>builder()
 				.code(HttpStatus.OK.value())
@@ -571,13 +620,6 @@ public class UserController {
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<UserDto>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<UserDto>builder()
@@ -588,6 +630,42 @@ public class UserController {
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<UserDto>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PostMapping("/device-token")
+	@ApiOperation(value = "사용자 기기 토큰 등록", notes = "사용자가 알림을 허용한 기기 토큰을 등록하는 API")
+	@ApiImplicitParam(name = "map", paramType = "body", example = "{\n"
+		+ "  \"deviceToken\": \"string\"\n"
+		+ "}")
+	@ApiResponses(value = {
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자")
+	})
+	ResponseEntity<?> saveDeviceToken(@RequestHeader String Authorization, @RequestBody Map<String, String> map,
+		HttpServletRequest request) {
+		try {
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			userService.saveDeviceToken(userDto, map.get("deviceToken"));
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.OK.value())
+				.message("기기 토큰 등록에 성공했습니다.")
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
