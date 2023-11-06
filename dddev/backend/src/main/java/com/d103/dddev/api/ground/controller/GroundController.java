@@ -165,12 +165,14 @@ public class GroundController {
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<List<GroundUserVO>>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<List<GroundUserVO>>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
@@ -236,7 +238,6 @@ public class GroundController {
 			}
 
 			List<Map<String, String>> userList = groundUserService.findUserByEmail(groundId, email);
-			System.out.println(email);
 
 			responseVO = ResponseVO.<List<Map<String, String>>>builder()
 				.code(HttpStatus.OK.value())
@@ -429,8 +430,6 @@ public class GroundController {
 			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 			GroundDto groundDto = (GroundDto)mav.getModel().get("groundDto");
 
-			System.out.println(newGroundDto);
-
 			if (!groundUserService.checkIsGroundOwner(groundId, userDto.getId())) {
 				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
 			}
@@ -445,18 +444,21 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
 		} catch (NoSuchFieldException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
@@ -497,18 +499,21 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
 		} catch (NoSuchFieldException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
@@ -547,12 +552,14 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
 		} catch (NoSuchFieldException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
@@ -601,18 +608,21 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
 		} catch (NoSuchFieldException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
@@ -645,18 +655,21 @@ public class GroundController {
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (NoSuchFieldException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
@@ -694,18 +707,21 @@ public class GroundController {
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
 		} catch (NoSuchFieldException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
