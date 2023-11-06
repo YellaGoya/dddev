@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { memo } from 'react';
 import { BrowserRouter, useRoutes, useLocation, Navigate } from 'react-router-dom';
 // import { Provider } from 'react-redux';
 import { Provider, useSelector } from 'react-redux';
@@ -9,11 +10,12 @@ import requestPermission from './firebase/firebase-messaging';
 import View from 'layouts/View';
 
 import Login from 'markup/pages/Login';
+import Ground from 'markup/pages/Ground';
 import GroundCheck from 'layouts/GroundCheck';
 
 import { Global } from 'markup/styles/Global';
 
-const Routing = () => {
+const Routing = memo(() => {
   useEffect(() => {
     // navigator.serviceWorker.register('/firebase-messaging-sw.js').then((registration) => {
     //   console.log('Service Worker registered with scope:', registration.scope);
@@ -24,9 +26,9 @@ const Routing = () => {
 
     requestPermission();
   }, []);
-
   const location = useLocation();
   const user = useSelector((state) => state.user);
+
   const routes = useRoutes([
     {
       path: '/login/*',
@@ -34,26 +36,28 @@ const Routing = () => {
     },
     {
       path: '/',
-      element: user.lastGround ? <Navigate to={`/${user.lastGround}`} /> : <Navigate to="/login/groundinit" />,
+      element: user.lastGround === null || user.lastGround === 'null' ? <Navigate to="/login/groundinit" /> : <Navigate to={`/${user.lastGround}`} />,
     },
     {
       path: '/:groundId/*',
       element: <GroundCheck />,
     },
+    { path: '/newground', element: <Ground /> },
   ]);
 
+  const nocheck = ['/login', '/login/github'];
   return user.isLoggedIn ? (
-    location.pathname.startsWith('/login') ? (
+    location.pathname === '/login' ? (
       <Navigate to={`/${user.lastGround}`} />
     ) : (
       routes
     )
-  ) : location.pathname.startsWith('/login') ? (
+  ) : nocheck.includes(location.pathname) ? (
     routes
   ) : (
     <Navigate to="/login" />
   );
-};
+});
 
 const App = () => {
   return (

@@ -1,3 +1,5 @@
+import eetch from 'eetch/eetch';
+
 export const githubSync = async ({ code }) => {
   const url = `https://k9d103.p.ssafy.io/oauth/sign-in?code=${code}`;
   const options = {
@@ -7,8 +9,7 @@ export const githubSync = async ({ code }) => {
     },
   };
 
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} 에러`);
+  const res = await eetch(url, options);
 
   const accessToken = res.headers.get('Authorization');
   const message = await res.text();
@@ -30,117 +31,133 @@ export const githubSync = async ({ code }) => {
   };
 };
 
-export const githubTokenRegist = async ({ Authorization, personalAccessToken }) => {
+export const githubTokenRegist = async ({ accessToken, refreshToken, personalAccessToken }) => {
   const url = `https://k9d103.p.ssafy.io/user/personal-access-token`;
   const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization,
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
     },
     body: JSON.stringify({ personalAccessToken }),
   };
 
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} 에러`);
+  const res = await eetch(url, options);
 
   return res;
 };
 
-export const userEdit = async ({ Authorization, nickname, statusMsg }) => {
+export const userEdit = async ({ accessToken, refreshToken, nickname, statusMsg }) => {
   const url = `https://k9d103.p.ssafy.io/user`;
   const options = {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization,
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
     },
     body: JSON.stringify({ nickname, statusMsg }),
   };
 
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} 에러`);
+  const res = await eetch(url, options);
 
   return res.json();
 };
 
-export const userInfo = async ({ Authorization }) => {
+export const userInfo = async ({ accessToken, refreshToken }) => {
   const url = `https://k9d103.p.ssafy.io/user`;
   const options = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      Authorization,
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} 에러`);
+  const res = await eetch(url, options);
 
   return res.json();
 };
 
-export const userGrounds = async ({ Authorization }) => {
+export const userGrounds = async ({ accessToken, refreshToken }) => {
   const url = `https://k9d103.p.ssafy.io/user/ground/list`;
   const options = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      Authorization,
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} 에러`);
+  const res = await eetch(url, options);
 
   return res.json();
 };
 
-export const userProfileImage = async ({ Authorization }) => {
+export const changeLastGround = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io/user/last-ground/${groundId}`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
+    },
+  };
+
+  const res = await eetch(url, options);
+
+  return res.json();
+};
+
+export const userProfileImage = async ({ accessToken, refreshToken }) => {
   const url = `https://k9d103.p.ssafy.io/user/profile`;
   const options = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      Authorization,
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} 에러`);
+  const res = await eetch(url, options);
 
   return res;
 };
 
-export const userUploadImage = async ({ Authorization, formData }) => {
+export const userUploadImage = async ({ accessToken, refreshToken, formData }) => {
   console.log(formData.get('file'));
   const url = `https://k9d103.p.ssafy.io/user/profile`;
   const options = {
     method: 'PUT',
     headers: {
-      Authorization,
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
     },
     body: formData,
   };
 
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} 에러`);
+  const res = await eetch(url, options);
 
   return res;
 };
 
-export const userDeleteImage = async ({ Authorization }) => {
+export const userDeleteImage = async ({ accessToken, refreshToken }) => {
   const url = `https://k9d103.p.ssafy.io/user/profile`;
   const options = {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
-      Authorization,
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} 에러`);
+  const res = await eetch(url, options);
 
   return res;
 };

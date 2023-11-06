@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const MessageBoxModal = styled.div`
+export const Message = styled.div`
   position: fixed;
   top: 45px;
   right: ${({ $toggle }) => ($toggle ? '10px' : 'min(-355px,max(-550px, calc(-100vw - 20px)))')};

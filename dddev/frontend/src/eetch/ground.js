@@ -1,16 +1,34 @@
-export const groundCreate = async ({ Authorization, name, repoId }) => {
+import eetch from 'eetch/eetch';
+
+export const groundCreate = async ({ accessToken, refreshToken, name, repoId }) => {
   const url = `https://k9d103.p.ssafy.io/ground/${repoId}`;
   const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization,
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
     },
     body: JSON.stringify({ name }),
   };
 
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} 에러`);
+  const res = await eetch(url, options);
+
+  return res.json();
+};
+
+export const groundInfo = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io/ground/${groundId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
+    },
+  };
+
+  const res = await eetch(url, options);
 
   return res.json();
 };

@@ -1,9 +1,9 @@
 import EditProfile from 'markup/pages/components/user/EditProfile';
 
-import * as s from 'markup/styles/components/common/MessageBoxModal';
-const MessageBoxModal = ({ messageToggle, editToggle, setEditToggle, userInfo, setUserInfo }) => {
+import * as s from 'markup/styles/components/common/Message';
+const Message = ({ messageToggle, editToggle, setEditToggle, userInfo, setUserInfo }) => {
   return (
-    <s.MessageBoxModal $toggle={messageToggle}>
+    <s.Message $toggle={messageToggle}>
       <p onClick={() => setEditToggle(!editToggle)}>openEdit</p>
       <ul>
         <li>sda</li>
@@ -18,8 +18,8 @@ const MessageBoxModal = ({ messageToggle, editToggle, setEditToggle, userInfo, s
         <li>sda</li>
       </ul>
       {editToggle && <EditProfile toggle={editToggle} setToggle={setEditToggle} userInfo={userInfo} setUserInfo={setUserInfo} />}
-    </s.MessageBoxModal>
+    </s.Message>
   );
 };
 
-export default MessageBoxModal;
+export default Message;

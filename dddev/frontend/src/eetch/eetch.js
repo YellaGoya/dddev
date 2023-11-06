@@ -12,10 +12,29 @@ import * as ground from 'eetch/ground';
 // import { refresh } from "apis/user";
 // import { updateRefresh } from "redux/slice/userSlice";
 
-const eetch = async (accessToken, refreshToken) => {
-  console.log('valid check');
-  console.log(accessToken);
-  console.log(refreshToken);
+const eetch = async (url, options) => {
+  const res = await fetch(url, options);
+  if (res.status === 403) {
+    const newAccessToken = await fetch(`https://k9d103.p.ssafy.io/oauth/re-issue`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization-refresh': options.headers['Authorization-refresh'],
+      },
+    });
+
+    if (!newAccessToken.ok) throw new Error(`RefreshTokenExpired`);
+
+    options.accessToken = newAccessToken;
+    const retry = await fetch(url, options);
+    if (!retry.ok) throw new Error(`${retry.status} 에러`);
+
+    return retry;
+  }
+
+  if (!res.ok && res.status !== 403) throw new Error(`${res.status} 에러`);
+
+  return res;
 };
 
 eetch.githubSync = (values) => user.githubSync(values);
@@ -24,6 +43,7 @@ eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);
 eetch.userEdit = (values) => user.userEdit(values);
 eetch.userInfo = (values) => user.userInfo(values);
 eetch.userGrounds = (values) => user.userGrounds(values);
+eetch.changeLastGround = (values) => user.changeLastGround(values);
 eetch.userProfileImage = (values) => user.userProfileImage(values);
 eetch.userUploadImage = (values) => user.userUploadImage(values);
 eetch.userDeleteImage = (values) => user.userDeleteImage(values);
@@ -31,6 +51,7 @@ eetch.userDeleteImage = (values) => user.userDeleteImage(values);
 eetch.repoList = (values) => repo.repoList(values);
 
 eetch.groundCreate = (values) => ground.groundCreate(values);
+eetch.groundInfo = (values) => ground.groundInfo(values);
 
 // eetch.valid = (values) => user.valid(values);
 // eetch.refresh = (values) => user.refresh(values);

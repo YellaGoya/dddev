@@ -52,13 +52,13 @@ const GroundInit = () => {
           navigate(`/login`);
         }
       });
-  }, [user.accessToken]);
+  }, [user.accessToken, user.refreshToken]);
 
   return (
     <s.GroundWrapper>
       {repositories.length > 0 ? (
         <>
-          <s.Title>사용 가능한 그라운드가 없어요. (☍д⁰)</s.Title>
+          <s.Title>새로운 그라운드 생성</s.Title>
           <Select label="리포지터리" list={repositories} select={setRepository} />
           <s.TextButton onClick={createGround}>
             시작하기
@@ -68,8 +68,8 @@ const GroundInit = () => {
       ) : (
         <>
           <s.Title>
-            아직 깃헙 리포지터리가 <br />
-            없으신가요?
+            등록 가능한 <br />
+            리포지터리가 없어요.
           </s.Title>
           <s.TextLink href="https://github.com/">
             만들러 가기
