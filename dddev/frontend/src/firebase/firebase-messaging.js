@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getMessaging, getToken } from 'firebase/messaging';
+// import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyD1HPZuKiyZOvTJMyqUhf1dv6wkJaRRaKM',
@@ -47,9 +48,7 @@ async function requestPermission() {
     if (err.toString() === error) {
       return getToken(messaging, {
         vapidKey: 'BPx7bK6vhpUDuWrJbMr0ZDuGcKtB-1JvroQQFKJH2XE9TRRPOfx0i60AuKlei0r_rgqDReweOxVxu_MlGAJKSNg',
-      }).catch((err) => 
-      // console.log('another err :: ', err)
-      );
+      });
     }
 
     // console.log(err);
@@ -71,10 +70,10 @@ async function requestPermission() {
   //   localStorage.setItem('fcmPermissionRequested', true);
   // } else console.log('Can not get Token');
 
-  onMessage(messaging, (payload) => {
-    // console.log('메시지가 도착했습니다.', payload);
-    // ...
-  });
+  // onMessage(messaging, (payload) => {
+  //   console.log('메시지가 도착했습니다.', payload);
+  //   ...
+  // });
 }
 
 export default requestPermission;

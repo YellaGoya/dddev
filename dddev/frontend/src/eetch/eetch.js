@@ -42,6 +42,7 @@ eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);
 eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);
 eetch.userEdit = (values) => user.userEdit(values);
 eetch.userInfo = (values) => user.userInfo(values);
+eetch.userNickname = (values) => user.userNickname(values);
 eetch.userGrounds = (values) => user.userGrounds(values);
 eetch.changeLastGround = (values) => user.changeLastGround(values);
 eetch.userProfileImage = (values) => user.userProfileImage(values);
@@ -55,6 +56,7 @@ eetch.getGround = (values) => ground.getGround(values);
 eetch.editGround = (values) => ground.editGround(values);
 eetch.createDocument = (values) => ground.createDocument(values);
 eetch.listDocument = (values) => ground.listDocument(values);
+eetch.treeDocument = (values) => ground.treeDocument(values);
 eetch.detailDocument = (values) => ground.detailDocument(values);
 
 // eetch.valid = (values) => user.valid(values);

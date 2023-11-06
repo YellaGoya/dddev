@@ -78,6 +78,21 @@ export const userInfo = async ({ accessToken, refreshToken }) => {
   return res.json();
 };
 
+export const userNickname = async ({ accessToken, refreshToken, nickname }) => {
+  const url = `https://k9d103.p.ssafy.io/user/nickname/duplicate/${nickname}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
 export const userGrounds = async ({ accessToken, refreshToken }) => {
   const url = `https://k9d103.p.ssafy.io/user/ground/list`;
   const options = {
@@ -124,7 +139,6 @@ export const userProfileImage = async ({ accessToken, refreshToken }) => {
 };
 
 export const userUploadImage = async ({ accessToken, refreshToken, formData }) => {
-  console.log(formData.get('file'));
   const url = `https://k9d103.p.ssafy.io/user/profile`;
   const options = {
     method: 'PUT',

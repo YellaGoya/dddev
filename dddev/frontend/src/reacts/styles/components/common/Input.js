@@ -1,23 +1,71 @@
 import styled from 'styled-components';
 
-export const InputWrapper = styled.div``;
+export const InputWrapper = styled.div`
+  position: relative;
+  margin-bottom: 1.5rem;
+`;
 
 export const Label = styled.div`
-  color: var(--font-rev);
+  position: absolute;
+  left: 40px;
+  top: -9px;
+  padding: 0 5px;
+  color: var(--font-border);
+  background-color: var(--bg-dark);
+
+  font-weight: 300;
+  font-size: 0.9rem;
 `;
 
 export const Input = styled.input`
   width: calc(100% - 50px);
-  height: 45px;
+  height: 60px;
+
+  border-radius: 0.75rem;
+  border: 1px solid ${($isActive) => ($isActive ? 'var(--font-border)' : 'var(--border-basic)')};
+  background-color: transparent;
 
   margin: 0 25px;
-  color: var(--font-basic);
+  color: var(--font-rev);
+  padding: ${($isClick) => ($isClick ? '0 57px 0 20px' : '0 20px 0 20px')};
+
+  &:focus {
+    outline: none;
+  }
 `;
 
-export const Button = styled.button``;
+export const DivLine = styled.div`
+  position: absolute;
+  top: 3px;
+  right: 41px;
+  width: 1px;
+  height: 23px;
+
+  background-color: var(--border-basic);
+`;
+export const Button = styled.button`
+  position: absolute;
+  right: 28px;
+  top: 50%;
+  transform: translateY(calc(-50% + 1px));
+  background-color: transparent;
+  border: none;
+  display: block;
+  width: fit-content;
+
+  cursor: pointer;
+
+  & > svg {
+    fill: var(--font-border);
+  }
+`;
 
 export const Message = styled.p`
-  color: #ff5555;
+  position: absolute;
+  right: 35px;
+  bottom: -32px;
+  font-size: 0.8rem;
+  color: ${($fail) => ($fail ? '#ff5555' : 'var(--font-border)')};
 `;
 
 export const ArrayList = styled.ul`
