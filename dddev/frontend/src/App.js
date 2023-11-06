@@ -8,11 +8,11 @@ import { store, persistor } from 'redux/store';
 
 import View from 'layouts/View';
 
-import Login from 'markup/pages/Login';
-import Ground from 'markup/pages/Ground';
+import Login from 'reacts/pages/Login';
+import Ground from 'reacts/pages/Ground';
 import GroundCheck from 'layouts/GroundCheck';
 
-import { Global } from 'markup/styles/Global';
+import { Global } from 'reacts/styles/Global';
 
 const Routing = memo(() => {
   const location = useLocation();

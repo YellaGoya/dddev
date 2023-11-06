@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import eetch from 'eetch/eetch';
-import Input from 'markup/pages/components/common/Input';
+import Input from 'reacts/pages/components/common/Input';
 
 import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
@@ -12,7 +12,7 @@ import userStockImage from 'assets/userStockImage.webp';
 import DisabledByDefaultRoundedIcon from '@mui/icons-material/DisabledByDefaultRounded';
 import PhotoFilterIcon from '@mui/icons-material/PhotoFilter';
 
-import * as s from 'markup/styles/components/user/EditProfile';
+import * as s from 'reacts/styles/components/user/EditProfile';
 const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();

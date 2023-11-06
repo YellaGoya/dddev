@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import ReactQuill from 'react-quill';
 import Quill from 'quill';
 import * as Y from 'yjs';
@@ -12,7 +12,7 @@ import hljs from 'highlight.js';
 import AddIcon from '@mui/icons-material/Add';
 import 'quill/dist/quill.snow.css';
 import 'highlight.js/styles/github-dark.css';
-import * as s from 'markup/styles/components/document/Write';
+import * as s from 'reacts/styles/components/document/Write';
 const Write = () => {
   const quillRef = useRef(null);
   const params = useParams();
@@ -26,19 +26,21 @@ const Write = () => {
     return `rgb(${r}, ${g}, ${b})`;
   };
 
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      ['blockquote', 'code-block'],
-    ],
-    markdownShortcuts: {},
-    syntax: {
-      highlight: (text) => hljs.highlightAuto(text).value,
-    },
-    keyboard: true,
-  };
+  const modules = useMemo(() => {
+    return {
+      toolbar: [
+        [{ header: [1, 2, 3, 4, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['blockquote', 'code-block'],
+      ],
+      markdownShortcuts: {},
+      syntax: {
+        highlight: (text) => hljs.highlightAuto(text).value,
+      },
+      keyboard: true,
+    };
+  }, []);
 
   Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
 

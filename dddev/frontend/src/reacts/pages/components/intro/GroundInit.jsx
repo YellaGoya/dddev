@@ -7,11 +7,11 @@ import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 import { updateUser } from 'redux/actions/user';
 
-import Select from 'markup/pages/components/common/Select';
+import Select from 'reacts/pages/components/common/Select';
 
 import AddHomeIcon from '@mui/icons-material/AddHome';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import * as s from 'markup/styles/components/intro/GroundInit';
+import * as s from 'reacts/styles/components/intro/GroundInit';
 const GroundInit = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const GroundInit = () => {
 
   const createGround = () => {
     eetch
-      .groundCreate({ accessToken: user.accessToken, refreshToken: user.refreshToken, name: repository.name, repoId: repository.repoId })
+      .createGround({ accessToken: user.accessToken, refreshToken: user.refreshToken, name: repository.name, repoId: repository.repoId })
       .then((res) => {
         dispatch(updateUser({ lastGround: res.data.id }));
         navigate(`/${res.data.id}/home`);
@@ -52,13 +52,13 @@ const GroundInit = () => {
           navigate(`/login`);
         }
       });
-  }, [user.accessToken, user.refreshToken]);
+  }, [user.accessToken]);
 
   return (
     <s.GroundWrapper>
       {repositories.length > 0 ? (
         <>
-          <s.Title>새로운 그라운드 생성</s.Title>
+          <s.Title>사용 가능한 그라운드가 없어요. (☍д⁰)</s.Title>
           <Select label="리포지터리" list={repositories} select={setRepository} />
           <s.TextButton onClick={createGround}>
             시작하기
@@ -68,8 +68,8 @@ const GroundInit = () => {
       ) : (
         <>
           <s.Title>
-            등록 가능한 <br />
-            리포지터리가 없어요.
+            아직 깃헙 리포지터리가 <br />
+            없으신가요?
           </s.Title>
           <s.TextLink href="https://github.com/">
             만들러 가기

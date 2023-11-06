@@ -110,6 +110,29 @@ export const TreeParent = styled.ul`
   list-style: none;
 `;
 
+export const TreeChild = styled.li`
+  margin: 2px 0;
+
+  & > .add-button {
+    opacity: 0.65;
+    transition: opacity 0.3s ease;
+    margin-top: 10px;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    & > svg {
+      width: 21px;
+      height: 21px;
+
+      margin: 3px;
+
+      fill: var(--font-rev);
+    }
+  }
+`;
+
 export const TreeName = styled.span`
   position: relative;
 
@@ -145,8 +168,4 @@ export const TreeName = styled.span`
       text-underline-offset: 3px;
     }
   }
-`;
-
-export const TreeChild = styled.li`
-  margin: 2px 0;
 `;

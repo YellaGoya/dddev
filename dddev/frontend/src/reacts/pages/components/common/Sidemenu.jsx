@@ -8,9 +8,9 @@ import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 
-import EditSettings from 'markup/pages/components/user/EditSettings';
+import EditSettings from 'reacts/pages/components/user/EditSettings';
 
-import * as s from 'markup/styles/components/common/Sidemenu';
+import * as s from 'reacts/styles/components/common/Sidemenu';
 const Sidemenu = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ const Sidemenu = () => {
   useEffect(() => {
     if (user.isLoggedIn)
       eetch
-        .groundInfo({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: user.lastGround })
+        .getGround({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: user.lastGround })
         .then((res) => {
           setGroundInfo({ name: res.data.name, focusTime: res.data.focusTime, activeTime: res.data.activeTime });
         })

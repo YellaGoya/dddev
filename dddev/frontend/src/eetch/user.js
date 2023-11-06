@@ -38,12 +38,11 @@ export const githubTokenRegist = async ({ accessToken, refreshToken, personalAcc
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
     body: JSON.stringify({ personalAccessToken }),
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
 
   return res;
 };
@@ -55,12 +54,11 @@ export const userEdit = async ({ accessToken, refreshToken, nickname, statusMsg 
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
     body: JSON.stringify({ nickname, statusMsg }),
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
 
   return res.json();
 };
@@ -72,11 +70,10 @@ export const userInfo = async ({ accessToken, refreshToken }) => {
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
 
   return res.json();
 };
@@ -88,11 +85,10 @@ export const userGrounds = async ({ accessToken, refreshToken }) => {
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
 
   return res.json();
 };
@@ -104,11 +100,10 @@ export const changeLastGround = async ({ accessToken, refreshToken, groundId }) 
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
 
   return res.json();
 };
@@ -120,11 +115,10 @@ export const userProfileImage = async ({ accessToken, refreshToken }) => {
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
 
   return res;
 };
@@ -136,12 +130,11 @@ export const userUploadImage = async ({ accessToken, refreshToken, formData }) =
     method: 'PUT',
     headers: {
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
     body: formData,
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
 
   return res;
 };
@@ -153,11 +146,10 @@ export const userDeleteImage = async ({ accessToken, refreshToken }) => {
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
 
   return res;
 };

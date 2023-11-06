@@ -1,10 +1,10 @@
 import { useRoutes } from 'react-router-dom';
 
-import Index from 'markup/pages/components/document/Index';
-import Issue from 'markup/pages/components/document/Issue';
-import Request from 'markup/pages/components/document/Request';
-import Explore from 'markup/pages/components/document/Explore';
-import Write from 'markup/pages/components/document/Write';
+import Index from 'reacts/pages/components/document/Index';
+import Issue from 'reacts/pages/components/document/Issue';
+import Request from 'reacts/pages/components/document/Request';
+import Explore from 'reacts/pages/components/document/Explore';
+import Write from 'reacts/pages/components/document/Write';
 
 const Document = () => {
   const routes = useRoutes([

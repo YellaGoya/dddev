@@ -1,4 +1,4 @@
-import * as s from 'markup/styles/Home';
+import * as s from 'reacts/styles/Home';
 const Home = () => {
   return <s.Main>Home</s.Main>;
 };

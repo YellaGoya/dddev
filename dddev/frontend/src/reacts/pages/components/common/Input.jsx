@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import * as s from 'markup/styles/components/common/Input';
+import * as s from 'reacts/styles/components/common/Input';
 const Input = ({ label, data = '', holder, setData, array, fixed, click, enter, message }) => {
   const [value, setValue] = useState(data === null ? '' : data);
   const [placeholder, setPlaceholder] = useState(holder || '');

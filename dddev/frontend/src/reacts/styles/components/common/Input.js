@@ -8,6 +8,7 @@ export const Label = styled.div`
 
 export const Input = styled.input`
   width: calc(100% - 50px);
+  height: 45px;
 
   margin: 0 25px;
   color: var(--font-basic);

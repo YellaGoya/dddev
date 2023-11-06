@@ -1,34 +1,95 @@
 import eetch from 'eetch/eetch';
 
-export const groundCreate = async ({ accessToken, refreshToken, name, repoId }) => {
+export const createGround = async ({ accessToken, refreshToken, name, repoId }) => {
   const url = `https://k9d103.p.ssafy.io/ground/${repoId}`;
   const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
     body: JSON.stringify({ name }),
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
 
   return res.json();
 };
 
-export const groundInfo = async ({ accessToken, refreshToken, groundId }) => {
+export const getGround = async ({ accessToken, refreshToken, groundId }) => {
   const url = `https://k9d103.p.ssafy.io/ground/${groundId}`;
   const options = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const editGround = async ({ accessToken, refreshToken, groundId, name, focusTime, activeTime }) => {
+  console.log(name, focusTime, activeTime);
+  const url = `https://k9d103.p.ssafy.io/ground/${groundId}`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ name, focusTime, activeTime }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const createDocument = async ({ accessToken, refreshToken, groundId, type, parentId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/create`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ parentId, sprintId }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const listDocument = async ({ accessToken, refreshToken, groundId, type, parentId }) => {
+  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/${type === 'target' ? '' : parentId + '/'}list`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const detailDocument = async ({ accessToken, refreshToken, groundId, type, id }) => {
+  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/${id}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
 
   return res.json();
 };

@@ -1,11 +1,11 @@
 import { useRoutes, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-import GitLogin from 'markup/pages/components/intro/GitLogin';
-import GitResult from 'markup/pages/components/intro/GitResult';
-import GroundInit from 'markup/pages/components/intro/GroundInit';
+import GitLogin from 'reacts/pages/components/intro/GitLogin';
+import GitResult from 'reacts/pages/components/intro/GitResult';
+import GroundInit from 'reacts/pages/components/intro/GroundInit';
 
-import { ContentWrapper } from 'markup/styles/Global';
+import { ContentWrapper } from 'reacts/styles/Global';
 const Login = () => {
   const user = useSelector((state) => state.user);
 

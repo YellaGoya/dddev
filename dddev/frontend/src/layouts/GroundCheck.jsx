@@ -10,10 +10,10 @@ import { updateUser } from 'redux/actions/user';
 import { setGround } from 'redux/actions/ground';
 import eetch from 'eetch/eetch';
 
-import Home from 'markup/pages/Home';
-import Project from 'markup/pages/Project';
-import Document from 'markup/pages/Document';
-import NotFound from 'markup/pages/NotFound';
+import Home from 'reacts/pages/Home';
+import Project from 'reacts/pages/Project';
+import Document from 'reacts/pages/Document';
+import NotFound from 'reacts/pages/NotFound';
 
 const GroundCheck = () => {
   const dispatch = useDispatch();
