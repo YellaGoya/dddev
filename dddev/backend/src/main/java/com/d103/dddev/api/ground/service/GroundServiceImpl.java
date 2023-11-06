@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import com.d103.dddev.api.issue.util.UndefinedUtil;
+import javax.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +14,7 @@ import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
-import com.d103.dddev.api.ground.vo.GroundUserVO;
+import com.d103.dddev.api.issue.util.UndefinedUtil;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
@@ -21,8 +22,6 @@ import com.d103.dddev.api.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import javax.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +34,8 @@ public class GroundServiceImpl implements GroundService {
 	private final ProfileService profileService;
 	private final RepositoryService repositoryService;
 	private final UndefinedUtil undefinedUtil;
-	private final Integer DEFAULT_GROUND_IMG_ID = 2;
+	private final Integer DEFAULT_GROUND_FOCUS_TIME = 5;
+	private final Integer DEFAULT_GROUND_ACTIVE_TIME = 3;
 
 	/**
 	 * 그라운드 생성
@@ -48,6 +48,8 @@ public class GroundServiceImpl implements GroundService {
 		log.info("service - createGround :: 그라운드 생성 진입");
 		GroundDto groundDto = GroundDto.builder()
 			.name(groundName)
+			.focusTime(DEFAULT_GROUND_FOCUS_TIME)
+			.activeTime(DEFAULT_GROUND_ACTIVE_TIME)
 			.build();
 
 		groundDto.setRepositoryDto(repositoryDto);
@@ -107,7 +109,7 @@ public class GroundServiceImpl implements GroundService {
 		groundDto.setProfileDto(newProfile);
 
 		// 기존 프로필 사진 서버/db에서 삭제
-		if (prevProfile != null && prevProfile.getId() != DEFAULT_GROUND_IMG_ID) {
+		if (prevProfile != null) {
 			profileService.deleteProfile(prevProfile);
 		}
 
@@ -120,13 +122,10 @@ public class GroundServiceImpl implements GroundService {
 		// 그라운드 프로필 dto
 		ProfileDto profileDto = groundDto.getProfileDto();
 
-		// 기본 프로필 사진 받아오기
-		ProfileDto defaultProfile = profileService.getProfileDto(DEFAULT_GROUND_IMG_ID);
-
-		groundDto.setProfileDto(defaultProfile);
+		groundDto.setProfileDto(null);
 
 		// 프로필 사진 서버/db에서 삭제
-		if (profileDto != null && profileDto.getId() != DEFAULT_GROUND_IMG_ID) {
+		if (profileDto != null) {
 			profileService.deleteProfile(profileDto);
 		}
 
@@ -177,7 +176,7 @@ public class GroundServiceImpl implements GroundService {
 		groundRepository.delete(groundDto);
 
 		// 서버/db에서 프로필 사진 삭제
-		if (profileDto != null && profileDto.getId() != DEFAULT_GROUND_IMG_ID) {
+		if (profileDto != null) {
 			profileService.deleteProfile(profileDto);
 		}
 

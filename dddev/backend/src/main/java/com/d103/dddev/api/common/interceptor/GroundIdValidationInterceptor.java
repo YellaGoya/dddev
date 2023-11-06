@@ -67,23 +67,6 @@ public class GroundIdValidationInterceptor implements HandlerInterceptor {
 			return false;
 		}
 
-		// TODO :: 필터로 옮기기
-		// access token으로 유저를 받아와서 유효한 사용자인지 검증
-		// String Authorization = request.getHeader("Authorization");
-		// Optional<UserDto> userDtoOptional = jwtService.getUser(Authorization);
-		// if (userDtoOptional.isEmpty()) {
-		// 	responseVO = ResponseVO.builder()
-		// 		.code(HttpStatus.NOT_ACCEPTABLE.value())
-		// 		.message("존재하지 않는 사용자입니다.")
-		// 		.build();
-		//
-		// 	response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-		// 	String result = mapper.writeValueAsString(responseVO);
-		// 	response.setCharacterEncoding("UTF-8");
-		// 	response.setContentType("application/json;charset=utf-8");
-		// 	response.getWriter().write(result);
-		// 	return false;
-		// }
 
 		ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
 		UserDto userDto = (UserDto)mav.getModel().get("userDto");
@@ -107,9 +90,9 @@ public class GroundIdValidationInterceptor implements HandlerInterceptor {
 
 		GroundDto ground = groundDtoOptional.get();
 
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.addObject("groundDto", ground);
-		request.setAttribute("modelAndView", modelAndView);
+		// ModelAndView modelAndView = new ModelAndView();
+		mav.addObject("groundDto", ground);
+		request.setAttribute("modelAndView", mav);
 		return true; // 처리 방법에 따라 true 또는 false를 반환합니다.
 	}
 }

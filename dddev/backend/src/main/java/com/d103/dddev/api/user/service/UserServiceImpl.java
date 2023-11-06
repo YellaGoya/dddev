@@ -153,10 +153,6 @@ public class UserServiceImpl implements UserService {
 		// 사용자 프로필 dto
 		ProfileDto profileDto = userDto.getProfileDto();
 
-		// 기본 프로필 사진 받아오기
-		// ProfileDto defaultProfile = profileService.getProfileDto(DEFAULT_USER_IMG_ID);
-
-		// userDto.setProfileDto(defaultProfile);
 		userDto.setProfileDto(null);
 
 		// 프로필 사진 서버/db에서 삭제

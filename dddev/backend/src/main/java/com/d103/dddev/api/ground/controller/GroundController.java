@@ -506,7 +506,7 @@ public class GroundController {
 		}
 	}
 
-	@DeleteMapping("/{groundId}/profile-img")
+	@DeleteMapping("/{groundId}/profile")
 	@ApiOperation(value = "그라운드 프로필 사진 삭제", notes = "그라운드 프로필 사진 삭제하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드 오너가 아님"),
@@ -514,7 +514,7 @@ public class GroundController {
 	ResponseEntity<ResponseVO<GroundDto>> deleteGroundProfileImg(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
 		HttpServletRequest request) {
-		log.info("controller - modifyActiveTime :: 그라운드 연구시간 수정 진입");
+		log.info("controller - deleteGroundProfileImg :: 그라운드 프로필 사진 삭제 진입");
 		ResponseVO<GroundDto> responseVO;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
@@ -548,6 +548,7 @@ public class GroundController {
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())

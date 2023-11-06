@@ -24,6 +24,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
         // GroundIdValidationInterceptor 인스턴스를 생성하여 Interceptor로 등록합니다.
 
         registry.addInterceptor(new GroundIdValidationInterceptor(groundRepository, groundUserRepository, jwtService))
-                .addPathPatterns("/ground/{groundId}"); // Interceptor를 적용할 경로 패턴을 지정합니다.
+                .addPathPatterns("/ground/{groundId}/**"); // Interceptor를 적용할 경로 패턴을 지정합니다.
     }
 }
