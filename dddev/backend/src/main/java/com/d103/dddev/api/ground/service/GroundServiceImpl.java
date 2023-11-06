@@ -122,12 +122,12 @@ public class GroundServiceImpl implements GroundService {
 		// 그라운드 프로필 dto
 		ProfileDto profileDto = groundDto.getProfileDto();
 
+		groundDto.setProfileDto(null);
+
 		// 프로필 사진 서버/db에서 삭제
 		if (profileDto != null) {
 			profileService.deleteProfile(profileDto);
 		}
-
-		groundDto.setProfileDto(null);
 
 		return groundRepository.saveAndFlush(groundDto);
 	}
