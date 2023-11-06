@@ -27,10 +27,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.d103.dddev.api.common.ResponseVO;
-import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
-import com.d103.dddev.api.ground.vo.GroundVO;
+import com.d103.dddev.api.ground.repository.vo.GroundVO;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.service.UserService;
 

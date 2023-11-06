@@ -3,13 +3,17 @@ package com.d103.dddev.api.repository.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.d103.dddev.api.repository.collection.RepositoryFiles;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
+import com.d103.dddev.api.repository.repository.vo.RepositoryVO;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 
 public interface RepositoryService {
-	List<RepositoryDto> getRepositoryListFromGithub(UserDto userDto) throws Exception;
+	List<RepositoryVO> getRepositoryListFromGithub(UserDto userDto) throws Exception;
 
 	Optional<RepositoryDto> getRepository(Integer repoId);
+
+	RepositoryFiles getRepositoryFiles(UserDto userDto, RepositoryDto repositoryDto) throws Exception;
 
 	Optional<RepositoryDto> getAndUpdateRepository(Integer repoId, String repoName);
 

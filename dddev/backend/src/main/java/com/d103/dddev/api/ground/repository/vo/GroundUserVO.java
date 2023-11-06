@@ -1,4 +1,4 @@
-package com.d103.dddev.api.ground.vo;
+package com.d103.dddev.api.ground.repository.vo;
 
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 

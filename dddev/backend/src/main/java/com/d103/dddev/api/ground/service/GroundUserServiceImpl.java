@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.d103.dddev.api.ground.repository.GroundUserRepository;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
-import com.d103.dddev.api.ground.vo.GroundUserVO;
+import com.d103.dddev.api.ground.repository.vo.GroundUserVO;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 
 import lombok.RequiredArgsConstructor;

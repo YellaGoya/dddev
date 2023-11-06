@@ -3,7 +3,6 @@ package com.d103.dddev.api.ground.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +26,7 @@ import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.ground.service.GroundService;
 import com.d103.dddev.api.ground.service.GroundUserService;
-import com.d103.dddev.api.ground.vo.GroundUserVO;
+import com.d103.dddev.api.ground.repository.vo.GroundUserVO;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
