@@ -30,7 +30,8 @@ public class IssueController {
     @PostMapping("/create")
     public ResponseEntity createIssue(@PathVariable String groundId,
                                       @RequestBody @ApiParam(value = "이슈 생성 요청") IssueDto.Create.Request request,
-                                      @AuthenticationPrincipal UserDetails userDetails) {
+                                      @AuthenticationPrincipal UserDetails userDetails,
+                                      @RequestHeader String Authorization) {
         try{
             log.info("이슈 문서 생성");
             IssueDto.Create.Response response = issueService.issueCreate(groundId, request, userDetails);
@@ -44,7 +45,9 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 목록 조회")
     @GetMapping("{checkId}/list")
-    public ResponseEntity issueList(@PathVariable String groundId, @PathVariable String checkId){
+    public ResponseEntity issueList(@PathVariable String groundId,
+                                    @PathVariable String checkId,
+                                    @RequestHeader String Authorization){
         try{
             log.info("이슈 문서 목록 조회");
             IssueDto.List.Response response = issueService.issueList(groundId, checkId);
@@ -58,7 +61,9 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 상세 조회")
     @GetMapping("/{issueId}")
-    public ResponseEntity issueDetail(@PathVariable String groundId, @PathVariable String issueId){
+    public ResponseEntity issueDetail(@PathVariable String groundId,
+                                      @PathVariable String issueId,
+                                      @RequestHeader String Authorization){
         try{
             log.info("이슈 문서 상세 조회");
             IssueDto.Detail.Response response = issueService.issueDetail(groundId, issueId);
@@ -73,7 +78,9 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 삭제")
     @DeleteMapping("/{issueId}")
-    public ResponseEntity issueDelete(@PathVariable String groundId, @PathVariable String issueId){
+    public ResponseEntity issueDelete(@PathVariable String groundId,
+                                      @PathVariable String issueId,
+                                      @RequestHeader String Authorization){
         try{
             log.info("이슈 문서 삭제");
             IssueDto.Delete.Response response = issueService.issueDelete(issueId);
@@ -90,7 +97,8 @@ public class IssueController {
     public ResponseEntity issueContent(@PathVariable String groundId,
                                        @PathVariable String issueId,
                                        @RequestBody IssueDto.Content.Request request,
-                                       @AuthenticationPrincipal UserDetails userDetails){
+                                       @AuthenticationPrincipal UserDetails userDetails,
+                                       @RequestHeader String Authorization){
         try{
             log.info("이슈 문서 수정");
             IssueDto.Content.Response response = issueService.issueContent(request, issueId,userDetails);
@@ -107,7 +115,8 @@ public class IssueController {
     public ResponseEntity issueStatus(@PathVariable String groundId,
                                       @PathVariable String issueId,
                                       @RequestBody IssueDto.Status.Request request,
-                                      @AuthenticationPrincipal UserDetails userDetails){
+                                      @AuthenticationPrincipal UserDetails userDetails,
+                                      @RequestHeader String Authorization){
         try{
             log.info("이슈 문서 진행 상태 변경");
             IssueDto.Status.Response response = issueService.issueStatus(request, issueId,userDetails);
@@ -124,7 +133,8 @@ public class IssueController {
     public ResponseEntity issueConnect(@PathVariable String groundId,
                                        @PathVariable String issueId,
                                        @RequestBody IssueDto.Connect.Request request,
-                                       @AuthenticationPrincipal UserDetails userDetails){
+                                       @AuthenticationPrincipal UserDetails userDetails,
+                                       @RequestHeader String Authorization){
         try{
             log.info("이슈 문서 상위 문서 연결");
             IssueDto.Connect.Response response = issueService.issueConnect(request, issueId,userDetails);
@@ -141,7 +151,8 @@ public class IssueController {
     public ResponseEntity issueTime(@PathVariable String groundId,
                                     @PathVariable String issueId,
                                     @RequestBody IssueDto.Time.Request request,
-                                    @AuthenticationPrincipal UserDetails userDetails){
+                                    @AuthenticationPrincipal UserDetails userDetails,
+                                    @RequestHeader String Authorization){
         try{
             log.info("이슈 문서 시간 변경");
             IssueDto.Time.Response response = issueService.issueTime(request, issueId,userDetails);
@@ -158,7 +169,8 @@ public class IssueController {
     public ResponseEntity issueSprint(@PathVariable String groundId,
                                       @PathVariable String issueId,
                                       @RequestBody IssueDto.Sprint.Request request,
-                                      @AuthenticationPrincipal UserDetails userDetails){
+                                      @AuthenticationPrincipal UserDetails userDetails,
+                                      @RequestHeader String Authorization){
         try{
             log.info("이슈 문서 스프린트 연결");
             IssueDto.Sprint.Response response = issueService.issueSprint(request, issueId,userDetails);
