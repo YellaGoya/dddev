@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import eetch from 'eetch/eetch';
 
 import { updateUser } from 'redux/actions/user';
 import { setMenu } from 'redux/actions/menu';
@@ -13,9 +14,11 @@ import * as s from 'markup/styles/components/common/Sidemenu';
 const Sidemenu = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
   const menuToggle = useSelector((state) => state.menu.menuToggle);
   const groundId = useSelector((state) => state.user.lastGround);
   const groundsMap = useSelector((state) => state.user.groundsMap);
+  const [groundInfo, setGroundInfo] = useState({});
   const [groundListToggle, setGroundListToggle] = useState(false);
   const [settingToggle, setSettingToggle] = useState(false);
 
@@ -30,15 +33,31 @@ const Sidemenu = () => {
 
   const logoutHandler = () => {
     dispatch(logoutUser());
-    dispatch(setMenu());
+    dispatch(setMenu(false));
     dispatch(setMessage(false));
-    console.log('groundId');
     navigate(`/login`);
   };
 
   useEffect(() => {
     if (!menuToggle) setGroundListToggle(false);
   }, [menuToggle]);
+
+  useEffect(() => {
+    if (user.isLoggedIn)
+      eetch
+        .groundInfo({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: user.lastGround })
+        .then((res) => {
+          setGroundInfo({ name: res.data.name, focusTime: res.data.focusTime, activeTime: res.data.activeTime });
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+  }, [dispatch, navigate, user]);
 
   return (
     <s.SidemenuWrapper $menuToggle={menuToggle}>
@@ -54,16 +73,18 @@ const Sidemenu = () => {
         </s.MenuNav>
 
         <s.GroundList $groundListToggle={groundListToggle}>
-          {groundsMap.map(({ id, name }) => (
-            <s.GroundItem
-              key={id}
-              onClick={() => {
-                groundItemhandler(id);
-              }}
-            >
-              {name}
-            </s.GroundItem>
-          ))}
+          {groundsMap &&
+            groundsMap.map(({ id, name }) => (
+              <s.GroundItem
+                key={id}
+                onClick={() => {
+                  groundItemhandler(id);
+                }}
+              >
+                {name}
+              </s.GroundItem>
+            ))}
+          <s.GroundItem onClick={() => navigate('/newground')}>+ 새로운 그라운드</s.GroundItem>
           <div onClick={groundButtonHandler}>open</div>
         </s.GroundList>
         <s.BottomWrapper>
@@ -74,7 +95,7 @@ const Sidemenu = () => {
             로그아웃
           </s.MenuButton>
         </s.BottomWrapper>
-        <EditSettings toggle={settingToggle} setToggle={setSettingToggle} />
+        <EditSettings toggle={settingToggle} setToggle={setSettingToggle} groundInfo={groundInfo} />
       </s.PositionWrapper>
     </s.SidemenuWrapper>
   );

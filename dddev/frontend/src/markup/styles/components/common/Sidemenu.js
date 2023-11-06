@@ -67,6 +67,11 @@ export const GroundList = styled.ul`
 
     cursor: pointer;
   }
+
+  & > li:nth-last-child(2) {
+    margin: 6px 0;
+    list-style-type: none;
+  }
 `;
 
 export const GroundItem = styled.li`
