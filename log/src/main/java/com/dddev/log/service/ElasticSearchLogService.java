@@ -119,7 +119,7 @@ public class ElasticSearchLogService {
                 new NativeSearchQueryBuilder()
                         .withQuery(matchAllQuery())
                         .withSort(fieldSort("localDateTime").order(DESC))
-                        .withPageable(PageRequest.of(0, 10))
+                        .withPageable(PageRequest.of(0, 20))
                         .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
         if (searchHits.isEmpty()) throw new ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
         StringBuilder temp = new StringBuilder();
