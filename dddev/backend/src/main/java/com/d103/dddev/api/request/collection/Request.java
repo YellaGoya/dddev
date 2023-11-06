@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "request1")
+@Document(collection = "request")
 public class Request {
     @Id
     private String id;
@@ -36,4 +36,6 @@ public class Request {
     private LocalDateTime updatedAt;
     private UserDto sendUser;
     private UserDto receiveUser;
+    private String author;
+    private String modifier;
 }

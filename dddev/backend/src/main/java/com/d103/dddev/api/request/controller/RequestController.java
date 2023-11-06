@@ -1,17 +1,24 @@
 package com.d103.dddev.api.request.controller;
 
 import com.d103.dddev.api.common.ResponseVO;
+import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.request.collection.Request;
-import com.d103.dddev.api.request.repository.dto.*;
+import com.d103.dddev.api.request.repository.dto.requestDto.*;
+import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
 import com.d103.dddev.api.request.service.RequestServiceImpl;
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -26,11 +33,12 @@ public class RequestController {
     public ResponseEntity<?> insertRequest(@PathVariable("groundId") int groundId,
                                            @ApiParam(value = "step -> required\n"+
                                                    "step값이 1일때는 parentId 필요없음\n" +
-                                                   "title -> not required")@RequestBody RequestInsertOneDto requestInsertOneDto){
+                                                   "title -> not required")@RequestBody RequestInsertOneDto requestInsertOneDto,
+                                           @AuthenticationPrincipal UserDetails userDetails){
         ResponseVO<Request> responseVo;
 
         try{
-            Request request = requestService.insertRequest(groundId, requestInsertOneDto);
+            Request request = requestService.insertRequest(groundId, requestInsertOneDto, userDetails);
             responseVo = ResponseVO.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("요청 문서가 생성되었습니다.")
@@ -93,18 +101,18 @@ public class RequestController {
     @GetMapping("/step1")
     @ApiOperation(value="step1 문서들 불러오기")
     public ResponseEntity<?> getStep1Requests(@PathVariable("groundId") int groundId){
-        ResponseVO<List<Request>> responseVo;
+        ResponseVO<List<RequestResponseDto>> responseVo;
 
         try{
-            List<Request> Requests = requestService.getStep1Requests(groundId);
-            responseVo = ResponseVO.<List<Request>>builder()
+            List<RequestResponseDto> requests = requestService.getStep1Requests(groundId);
+            responseVo = ResponseVO.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("step1 문서들을 불러왔습니다.")
-                    .data(Requests)
+                    .data(requests)
                     .build();
             return new ResponseEntity<>(responseVo, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<List<Request>>builder()
+            responseVo = ResponseVO.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -135,11 +143,11 @@ public class RequestController {
 
     @PutMapping
     @ApiOperation(value="문서 수정하기")
-    public ResponseEntity<?> updateRequest(@PathVariable("groundId") int groundId, @RequestBody RequestUpdateDto requestUpdateDto) {
+    public ResponseEntity<?> updateRequest(@PathVariable("groundId") int groundId, @RequestBody RequestUpdateDto requestUpdateDto, @AuthenticationPrincipal UserDetails userDetails) {
         ResponseVO<Request> responseVo;
 
         try{
-            Request Request = requestService.updateRequest(groundId, requestUpdateDto);
+            Request Request = requestService.updateRequest(groundId, requestUpdateDto, userDetails);
             responseVo = ResponseVO.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 수정했습니다.")
