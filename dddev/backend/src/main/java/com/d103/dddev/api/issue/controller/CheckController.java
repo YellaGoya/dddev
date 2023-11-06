@@ -1,7 +1,6 @@
 package com.d103.dddev.api.issue.controller;
 
 import com.d103.dddev.api.issue.model.dto.CheckDto;
-import com.d103.dddev.api.issue.model.dto.TargetDto;
 import com.d103.dddev.api.issue.model.message.Error;
 import com.d103.dddev.api.issue.model.message.Response;
 import com.d103.dddev.api.issue.service.CheckService;
@@ -31,7 +30,8 @@ public class CheckController {
     @PostMapping("/create")
     public ResponseEntity createCheck(@PathVariable String groundId,
                                       @RequestBody @ApiParam(value = "체크포인트 생성 요청") CheckDto.Create.Request request,
-                                      @AuthenticationPrincipal UserDetails userDetails) {
+                                      @AuthenticationPrincipal UserDetails userDetails,
+                                      @RequestHeader String Authorization) {
         try{
             log.info("체크포인트 문서 생성");
             CheckDto.Create.Response response = checkService.createCheck(groundId, request, userDetails);
@@ -45,7 +45,9 @@ public class CheckController {
 
     @ApiOperation("체크포인트 문서 목록 조회")
     @GetMapping("{targetId}/list")
-    public ResponseEntity checkList(@PathVariable String groundId, @PathVariable String targetId){
+    public ResponseEntity checkList(@PathVariable String groundId,
+                                    @PathVariable String targetId,
+                                    @RequestHeader String Authorization){
         try{
             log.info("체크포인트 문서 목록 조회");
             CheckDto.List.Response response = checkService.checkList(groundId, targetId);
@@ -59,7 +61,9 @@ public class CheckController {
 
     @ApiOperation("체크포인트 문서 상세 조회")
     @GetMapping("/{checkId}")
-    public ResponseEntity checkDetail(@PathVariable String groundId, @PathVariable String checkId){
+    public ResponseEntity checkDetail(@PathVariable String groundId,
+                                      @PathVariable String checkId,
+                                      @RequestHeader String Authorization){
         try{
             log.info("체크포인트 문서 상세 조회");
             CheckDto.Detail.Response response = checkService.checkDetail(groundId, checkId);
@@ -74,7 +78,9 @@ public class CheckController {
 
     @ApiOperation("체크포인트 문서 삭제")
     @DeleteMapping("/{checkId}")
-    public ResponseEntity checkDelete(@PathVariable String groundId, @PathVariable String checkId){
+    public ResponseEntity checkDelete(@PathVariable String groundId,
+                                      @PathVariable String checkId,
+                                      @RequestHeader String Authorization){
         try{
             log.info("체크포인트 문서 삭제");
             CheckDto.Delete.Response response = checkService.checkDelete(groundId, checkId);
@@ -91,7 +97,8 @@ public class CheckController {
     public ResponseEntity checkUpdate(@PathVariable String groundId,
                                       @PathVariable String checkId,
                                       @RequestBody CheckDto.Update.Request request,
-                                      @AuthenticationPrincipal UserDetails userDetails){
+                                      @AuthenticationPrincipal UserDetails userDetails,
+                                      @RequestHeader String Authorization){
         try{
             log.info("체크포인트 문서 수정");
             CheckDto.Update.Response response = checkService.checkUpdate(request, checkId, userDetails);
@@ -107,7 +114,8 @@ public class CheckController {
     @PutMapping("/connect")
     public ResponseEntity connectTarget(@PathVariable String groundId,
                                         @RequestBody CheckDto.Connect.Request request,
-                                        @AuthenticationPrincipal UserDetails userDetails){
+                                        @AuthenticationPrincipal UserDetails userDetails,
+                                        @RequestHeader String Authorization){
         try{
             log.info("목표 문서와 연결");
             CheckDto.Connect.Response response = checkService.connectTarget(request, userDetails);

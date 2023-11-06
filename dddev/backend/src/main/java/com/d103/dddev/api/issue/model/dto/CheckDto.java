@@ -59,8 +59,11 @@ public class CheckDto {
     public static class Update{
         @Data
         @Builder
+        @ApiModel(value="체크 문서 수정", description = "체크 문서의 제목 및 내용 수정")
         public static class Request{
+            @ApiModelProperty(value="제목", example = "제목")
             private String title;
+            @ApiModelProperty(value="내용", example = "내용")
             private String content;
         }
 
@@ -76,8 +79,11 @@ public class CheckDto {
     public static class Connect{
 
         @Data
+        @ApiModel(value="체크 문서 수정", description = "체크 문서의 제목 및 내용 수정")
         public static class Request{
+            @ApiModelProperty(value="체크 문서 ID", example = "")
             private String checkId;
+            @ApiModelProperty(value="목표 문서 ID", example = "")
             private String targetId;
         }
 

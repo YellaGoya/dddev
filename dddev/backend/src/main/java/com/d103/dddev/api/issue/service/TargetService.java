@@ -16,4 +16,6 @@ public interface TargetService {
     TargetDto.Delete.Response targetDelete(String groundId, String targetId);
 
     TargetDto.Update.Response targetUpdate(TargetDto.Update.Request request, String targetId, UserDetails userDetails);
+
+    TargetDto.Tree.Response Tree(String groundId);
 }

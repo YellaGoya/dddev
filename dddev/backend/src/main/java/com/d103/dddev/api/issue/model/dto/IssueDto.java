@@ -63,6 +63,7 @@ public class IssueDto {
     public static class Content{
         @Data
         @Builder
+        @ApiModel(value="체크 문서 수정", description = "체크 문서의 제목 및 내용 수정")
         public static class Request{
             private String title;
             private String content;

@@ -140,4 +140,59 @@ public class TargetServiceImpl implements TargetService {
                 .build();
     }
 
+    @Override
+    public TargetDto.Tree.Response Tree(String groundId) {
+        // 목표의 내용을 조회
+        List<Issue> targetList = issueRepository.findAllByGroundIdAndType(groundId, "target");
+
+        List<TargetDto.Tree.Docs> docs = new ArrayList<>();
+
+        for(Issue target : targetList){
+            // 목표 문서 하나에 대한 트리
+            List<TargetDto.Tree.Docs> checkTree = new ArrayList<>();
+
+            // check의 하위 문서 조회
+            for(String childCheck : target.getChildrenId()){
+                Issue checkObject = issueRepository.findById(childCheck)
+                        .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+                List<TargetDto.Tree.Docs> issueTree = new ArrayList<>();
+
+                for(String childIssue : checkObject.getChildrenId()){
+                    Issue issueObject = issueRepository.findById(childIssue)
+                            .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+                    issueTree.add(TargetDto.Tree.Docs.builder()
+                                    .id(issueObject.getId())
+                                    .title(issueObject.getTitle())
+                                    .step(issueObject.getStep())
+                                    .build());
+                }
+
+                TargetDto.Tree.Docs check = TargetDto.Tree.Docs.builder()
+                        .id(checkObject.getId())
+                        .title(checkObject.getTitle())
+                        .step(checkObject.getStep())
+                        .children(issueTree)
+                        .build();
+
+                checkTree.add(check);
+            }
+
+
+            docs.add(TargetDto.Tree.Docs.builder()
+                    .id(target.getId())
+                    .title(target.getTitle())
+                    .step(target.getStep())
+                    .children(checkTree)
+                    .build());
+        }
+
+        return TargetDto.Tree.Response.builder()
+                .message("그라운드 전체 문서 트리")
+                .status(HttpStatus.OK.value())
+                .tree(docs)
+                .build();
+    }
+
 }
