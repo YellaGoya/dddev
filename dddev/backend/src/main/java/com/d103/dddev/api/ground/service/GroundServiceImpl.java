@@ -107,13 +107,14 @@ public class GroundServiceImpl implements GroundService {
 
 		// 새 프로필 사진 userDto에 저장
 		groundDto.setProfileDto(newProfile);
+		groundDto = groundRepository.saveAndFlush(groundDto);
 
 		// 기존 프로필 사진 서버/db에서 삭제
 		if (prevProfile != null) {
 			profileService.deleteProfile(prevProfile);
 		}
 
-		return groundRepository.saveAndFlush(groundDto);
+		return groundDto;
 	}
 
 	@Override
