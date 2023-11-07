@@ -120,38 +120,7 @@ public class RequestServiceImpl implements RequestService{
         List<Request> requestList = requestRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
         List<RequestResponseDto> requestResponseDtoList = new ArrayList<>();
         for (Request request : requestList) {
-            List<Request> children = request.getChildren();
-            List<RequestResponseDto> requestResponseDtoChildren = new ArrayList<>();
-            if(children != null){
-                for (Request child : children) {
-                    RequestResponseDto requestResponseDto = new RequestResponseDto();
-                    requestResponseDto.setId(child.getId());
-                    requestResponseDto.setStep(child.getStep());
-                    if(child.getTitle() == null)
-                        requestResponseDto.setTitle("");
-                    else{
-                        requestResponseDto.setTitle(child.getTitle());
-                    }
-                    if(child.getChildren() == null){
-                        requestResponseDto.setChildren(new ArrayList<>());
-                    }
-                    requestResponseDtoChildren.add(requestResponseDto);
-                }
-            }
-            RequestResponseDto requestResponseDto = new RequestResponseDto();
-            requestResponseDto.setId(request.getId());
-            requestResponseDto.setStep(request.getStep());
-            if(request.getTitle() == null)
-                requestResponseDto.setTitle("");
-            else{
-                requestResponseDto.setTitle(request.getTitle());
-            }
-            if(request.getChildren() == null){
-                requestResponseDto.setChildren(new ArrayList<>());
-            }
-            else{
-                requestResponseDto.setChildren(requestResponseDtoChildren);
-            }
+            RequestResponseDto requestResponseDto = convertToDto(request);
             requestResponseDtoList.add(requestResponseDto);
         }
         return requestResponseDtoList;
@@ -285,5 +254,24 @@ public class RequestServiceImpl implements RequestService{
     }
     public boolean stepIsRange(int step){
         return step>=1 && step<=2;
+    }
+    public RequestResponseDto convertToDto(Request request){
+        RequestResponseDto requestResponseDto = new RequestResponseDto();
+        requestResponseDto.setId(request.getId());
+        requestResponseDto.setStep(request.getStep());
+        if(request.getTitle() == null){
+            requestResponseDto.setTitle("");
+        }
+        else{
+            requestResponseDto.setTitle(request.getTitle());
+        }
+        List<RequestResponseDto> children = new ArrayList<>();
+        if(request.getChildren() != null){
+            for(Request child : request.getChildren()){
+                children.add(convertToDto(child));
+            }
+        }
+        requestResponseDto.setChildren(children);
+        return requestResponseDto;
     }
 }
