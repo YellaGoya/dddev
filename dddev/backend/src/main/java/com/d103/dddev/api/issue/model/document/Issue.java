@@ -57,7 +57,7 @@ public class Issue {
     @LastModifiedBy
     private String modifier; // modifier name
 
-    private Integer status;
+    private Integer status; // 0 : 백로그 , 1 : 진행 예정, 2 : 진행중, 3 : 완료
     private String title;
     private String content;
     private boolean unclassified;

@@ -412,6 +412,55 @@ public class GroundController {
 		}
 	}
 
+	@GetMapping("/{groundId}/chart/{sprintId}/focus-time")
+	@ApiOperation(value = "그라운드 차트 - 집중시간 조회", notes = "그라운드 차트 - 집중시간 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseVO<?>> getFocusTime(@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
+		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
+		HttpServletRequest request) {
+
+		log.info("controller - getFocusTime :: 차트 집중시간 조회 진입");
+		ResponseVO<?> responseVO;
+		try {
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+
+			if(!groundUserService.checkIsGroundMember(groundId, userDto.getId())) {
+				throw new NoSuchFieldException("해당 그라운드의 멤버가 아닙니다.");
+			}
+
+			Map<String, Integer> groundFocusTime = groundService.getGroundFocusTime(groundId, sprintId, 3);
+			System.out.println(groundFocusTime.get("focusTime"));
+			System.out.println(groundFocusTime.get("focusTimeLeft"));
+			return null;
+
+		} catch (NoSuchFieldException e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<GroundDto>builder()
+				.code(HttpStatus.UNAUTHORIZED.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
+		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<GroundDto>builder()
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<GroundDto>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+
 	@PutMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 정보 수정", notes = "그라운드 정보를 수정하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
