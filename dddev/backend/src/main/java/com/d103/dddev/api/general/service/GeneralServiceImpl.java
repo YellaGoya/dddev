@@ -200,9 +200,10 @@ public class GeneralServiceImpl implements GeneralService{
 
 
     @Override
-    public void deleteGeneral(int groundId, String generalId) {
+    public void deleteGeneral(int groundId, String generalId) throws InvalidAttributeValueException{
         General unclassifiedGeneral = generalRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()->new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("해당 문서를 가지고 오는데 실패했습니다."));
+        if(unclassifiedGeneral.getId().equals(loadGeneral.getId())) throw new InvalidAttributeValueException("미분류 문서를 삭제할 수 없습니다.");
         int step = loadGeneral.getStep();
         // step1인 문서가 삭제되었을 때
         if(step == 1){
