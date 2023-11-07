@@ -3,7 +3,6 @@ import styled from 'styled-components';
 export const ContentGrid = styled.section`
   position: absolute;
 
-  //수평 수직 중앙정렬
   top: 100px;
   left: 50%;
   transform: translateX(-50%);
@@ -110,6 +109,29 @@ export const TreeParent = styled.ul`
   list-style: none;
 `;
 
+export const TreeChild = styled.li`
+  margin: 2px 0;
+
+  & > .add-button {
+    opacity: 0.65;
+    transition: opacity 0.2s ease;
+    margin-top: 10px;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    & > svg {
+      width: 21px;
+      height: 21px;
+
+      margin: 3px;
+
+      fill: var(--font-rev);
+    }
+  }
+`;
+
 export const TreeName = styled.span`
   position: relative;
 
@@ -131,22 +153,45 @@ export const TreeName = styled.span`
       color 0.4s ease;
   }
 
+  .addChild {
+    position: absolute;
+    width: 21px;
+    height: 21px;
+
+    right: -0.9rem;
+
+    fill: var(--font-editor-placeholder);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      fill: var(--font-rev);
+    }
+  }
+
   &:hover {
     background-color: var(--font-basic);
     border-radius: 4px;
+
+    .addChild {
+      opacity: 1;
+    }
   }
 
   & > p {
+    position: relative;
     font-weight: 300;
+    padding-right: 10px;
     margin: 0;
+
+    color: ${({ $isEmpty }) => ($isEmpty ? 'var(--font-editor-placeholder)' : 'var(--font-rev)')};
+    transition: color 0.2s ease;
 
     &:hover {
       text-decoration: underline;
       text-underline-offset: 3px;
+
+      color: var(--font-rev);
     }
   }
-`;
-
-export const TreeChild = styled.li`
-  margin: 2px 0;
 `;

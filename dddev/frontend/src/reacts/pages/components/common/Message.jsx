@@ -1,6 +1,6 @@
-import EditProfile from 'markup/pages/components/user/EditProfile';
+import EditProfile from 'reacts/pages/components/user/EditProfile';
 
-import * as s from 'markup/styles/components/common/Message';
+import * as s from 'reacts/styles/components/common/Message';
 const Message = ({ messageToggle, editToggle, setEditToggle, userInfo, setUserInfo }) => {
   return (
     <s.Message $toggle={messageToggle}>

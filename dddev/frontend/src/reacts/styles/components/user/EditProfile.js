@@ -56,6 +56,7 @@ export const EditModalWrapper = styled.div`
 
 export const EditImageWrapper = styled.div`
   position: relative;
+  margin: 20px 0;
 
   svg {
     width: 100%;

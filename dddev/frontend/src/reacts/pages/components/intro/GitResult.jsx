@@ -7,7 +7,7 @@ import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { loginUser } from 'redux/actions/user';
 import { logoutUser } from 'redux/actions/user';
-import Input from 'markup/pages/components/common/Input';
+import Input from 'reacts/pages/components/common/Input';
 
 import demo1 from 'assets/demos/demo1.webp';
 import demo2 from 'assets/demos/demo2.webp';
@@ -15,7 +15,7 @@ import demo3 from 'assets/demos/demo3.webp';
 import demo4 from 'assets/demos/demo4.webp';
 import demo5 from 'assets/demos/demo5.webp';
 
-import * as s from 'markup/styles/components/intro/GitResult';
+import * as s from 'reacts/styles/components/intro/GitResult';
 const GitResult = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);

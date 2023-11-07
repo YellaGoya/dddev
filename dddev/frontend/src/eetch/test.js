@@ -57,3 +57,22 @@ export const createAlert = async ({ accessToken, refreshToken, alert }) => {
 
   return res;
 };
+
+export const updateAlert = async ({ accessToken, refreshToken, alertId }) => {
+  const url = base + `/alert-service/${alertId}`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
+    },
+    body: JSON.stringify({}),
+  };
+
+  const res = await eetch(url, options);
+  console.log('alertList res :: ', res);
+  if (!res.ok) throw new Error('gayeonNotGood');
+
+  return res;
+};

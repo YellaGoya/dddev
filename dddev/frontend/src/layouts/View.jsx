@@ -1,8 +1,8 @@
 import { useSelector, useDispatch } from 'react-redux';
 
-import { ViewWrapper, Main } from 'markup/styles/Global';
-import Topbar from 'markup/pages/components/common/Topbar';
-import Sidemenu from 'markup/pages/components/common/Sidemenu';
+import { ViewWrapper, Main } from 'reacts/styles/Global';
+import Topbar from 'reacts/pages/components/common/Topbar';
+import Sidemenu from 'reacts/pages/components/common/Sidemenu';
 
 import { setMessage } from 'redux/actions/menu';
 

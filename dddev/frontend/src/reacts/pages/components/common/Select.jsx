@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-import * as s from 'markup/styles/components/common/Select';
+import * as s from 'reacts/styles/components/common/Select';
 const Select = ({ label, list, data, select }) => {
   const [toggle, setToggle] = useState(false);
   const [value, setValue] = useState('');

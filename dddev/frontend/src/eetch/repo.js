@@ -7,11 +7,10 @@ export const repoList = async ({ accessToken, refreshToken }) => {
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
-      'Authorization-refresh': refreshToken,
     },
   };
 
-  const res = await eetch(url, options);
+  const res = await eetch(url, options, refreshToken);
   if (!res.ok) throw new Error(`${res.status} 에러`);
 
   return res.json();

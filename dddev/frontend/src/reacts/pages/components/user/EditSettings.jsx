@@ -1,17 +1,36 @@
 import { useState, useEffect } from 'react';
-import Input from 'markup/pages/components/common/Input';
+import { useSelector } from 'react-redux';
+import eetch from 'eetch/eetch';
 
-import * as s from 'markup/styles/components/user/EditSettings';
+import Input from 'reacts/pages/components/common/Input';
+
+import * as s from 'reacts/styles/components/user/EditSettings';
 const EditSettings = ({ toggle, setToggle, groundInfo }) => {
+  const user = useSelector((state) => state.user);
   const [groundName, setGroundName] = useState(groundInfo.name);
-  const [focustTime, setFocustTime] = useState(groundInfo.focusTime);
+  const [focusTime, setFocusTime] = useState(groundInfo.focusTime);
   const [activeTime, setActiveTime] = useState(groundInfo.activeTime);
 
   useEffect(() => {
     setGroundName(groundInfo.name);
-    setFocustTime(groundInfo.focusTime);
+    setFocusTime(groundInfo.focusTime);
     setActiveTime(groundInfo.activeTime);
   }, [groundInfo]);
+
+  const submitHandler = () => {
+    eetch
+      .editGround({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: user.lastGround,
+        name: groundName,
+        focusTime,
+        activeTime,
+      })
+      .then((res) => {
+        console.log(res);
+      });
+  };
 
   return (
     <>
@@ -19,10 +38,11 @@ const EditSettings = ({ toggle, setToggle, groundInfo }) => {
       <s.EditWrapper $toggle={toggle}>
         <s.EditModalWrapper>
           <Input label="그라운드 명" data={groundName} setData={setGroundName} />
-          <Input label="집중시간" data={focustTime} setData={setFocustTime} />
+          <Input label="집중시간" data={focusTime} setData={setFocusTime} />
           <Input label="활동시간" data={activeTime} setData={setActiveTime} />
           <p onClick={() => setToggle(false)}>close</p>
         </s.EditModalWrapper>
+        <p onClick={submitHandler}>hello</p>
       </s.EditWrapper>
     </>
   );

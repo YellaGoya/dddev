@@ -13,14 +13,14 @@ import * as test from 'eetch/test';
 // import { refresh } from "apis/user";
 // import { updateRefresh } from "redux/slice/userSlice";
 
-const eetch = async (url, options) => {
+const eetch = async (url, options, refreshToken) => {
   const res = await fetch(url, options);
   if (res.status === 403) {
     const newAccessToken = await fetch(`https://k9d103.p.ssafy.io/oauth/re-issue`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization-refresh': options.headers['Authorization-refresh'],
+        'Authorization-refresh': refreshToken,
       },
     });
 
@@ -46,6 +46,7 @@ eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);
 eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);
 eetch.userEdit = (values) => user.userEdit(values);
 eetch.userInfo = (values) => user.userInfo(values);
+eetch.userNickname = (values) => user.userNickname(values);
 eetch.userGrounds = (values) => user.userGrounds(values);
 eetch.changeLastGround = (values) => user.changeLastGround(values);
 eetch.userProfileImage = (values) => user.userProfileImage(values);
@@ -54,8 +55,13 @@ eetch.userDeleteImage = (values) => user.userDeleteImage(values);
 
 eetch.repoList = (values) => repo.repoList(values);
 
-eetch.groundCreate = (values) => ground.groundCreate(values);
-eetch.groundInfo = (values) => ground.groundInfo(values);
+eetch.createGround = (values) => ground.createGround(values);
+eetch.getGround = (values) => ground.getGround(values);
+eetch.editGround = (values) => ground.editGround(values);
+eetch.createDocument = (values) => ground.createDocument(values);
+eetch.listDocument = (values) => ground.listDocument(values);
+eetch.treeDocument = (values) => ground.treeDocument(values);
+eetch.detailDocument = (values) => ground.detailDocument(values);
 
 // eetch.valid = (values) => user.valid(values);
 // eetch.refresh = (values) => user.refresh(values);
