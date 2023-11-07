@@ -27,7 +27,7 @@ public class TargetServiceImpl implements TargetService {
     public TargetDto.Create.Response createTarget(String groundId, UserDetails userDetails) {
 
         Issue target = Issue.builder()
-                .groundId(groundId)
+                .groundId(Integer.parseInt(groundId))
                 .childrenId(new ArrayList<>())
                 .author(userDetails.getUsername())
                 .step(1) // 최상단 문서의 단계는 1
@@ -40,8 +40,8 @@ public class TargetServiceImpl implements TargetService {
 
         return TargetDto.Create.Response.builder()
                 .message(TargetMessage.create())
-                .status(HttpStatus.OK.value())
-                .target(target)
+                .code(HttpStatus.OK.value())
+                .data(target)
                 .build();
     }
 
@@ -54,15 +54,15 @@ public class TargetServiceImpl implements TargetService {
         if(targetList.isEmpty()){
             return TargetDto.List.Response.builder()
                     .message(TargetMessage.emptyList())
-                    .status(HttpStatus.OK.value())
-                    .targetList(targetList)
+                    .code(HttpStatus.OK.value())
+                    .data(targetList)
                     .build();
         }
 
         return TargetDto.List.Response.builder()
                 .message(TargetMessage.list())
-                .status(HttpStatus.OK.value())
-                .targetList(targetList)
+                .code(HttpStatus.OK.value())
+                .data(targetList)
                 .build();
     }
 
@@ -74,8 +74,8 @@ public class TargetServiceImpl implements TargetService {
 
         return TargetDto.Detail.Response.builder()
                 .message(TargetMessage.detail())
-                .status(HttpStatus.OK.value())
-                .target(target)
+                .code(HttpStatus.OK.value())
+                .data(target)
                 .build();
     }
 
@@ -116,7 +116,7 @@ public class TargetServiceImpl implements TargetService {
 
         return TargetDto.Delete.Response.builder()
                 .message(TargetMessage.delete())
-                .status(HttpStatus.OK.value())
+                .code(HttpStatus.OK.value())
                 .build();
     }
 
@@ -135,8 +135,8 @@ public class TargetServiceImpl implements TargetService {
 
         return TargetDto.Update.Response.builder()
                 .message(TargetMessage.update())
-                .status(HttpStatus.OK.value())
-                .target(target)
+                .code(HttpStatus.OK.value())
+                .data(target)
                 .build();
     }
 
@@ -166,6 +166,7 @@ public class TargetServiceImpl implements TargetService {
                                     .id(issueObject.getId())
                                     .title(issueObject.getTitle())
                                     .step(issueObject.getStep())
+                                    .sprintId(issueObject.getSprintId())
                                     .build());
                 }
 
@@ -190,8 +191,8 @@ public class TargetServiceImpl implements TargetService {
 
         return TargetDto.Tree.Response.builder()
                 .message("그라운드 전체 문서 트리")
-                .status(HttpStatus.OK.value())
-                .tree(docs)
+                .code(HttpStatus.OK.value())
+                .data(docs)
                 .build();
     }
 

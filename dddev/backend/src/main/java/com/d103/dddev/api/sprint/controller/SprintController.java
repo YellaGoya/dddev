@@ -23,7 +23,8 @@ public class SprintController {
 
     @PostMapping
     @ApiOperation(value = "스프린트 생성", notes = "스프린트 생성하는 API")
-    public ResponseEntity<?> createSprint(@PathVariable("groundId") int groundId){
+    public ResponseEntity<?> createSprint(@PathVariable("groundId") int groundId,
+                                          @RequestHeader String Authorization){
         ResponseVO<SprintEntity> responseVo;
         try{
             SprintEntity returnSprint = sprintService.createSprint(groundId);
@@ -45,7 +46,8 @@ public class SprintController {
     // groundId로 거기에 속하는 sprint들 다 들고오기
     @GetMapping
     @ApiOperation(value = "그라운드 소속 모든 sprint 불러오기")
-    public ResponseEntity<?> loadSprintList(@PathVariable("groundId") int groundId){
+    public ResponseEntity<?> loadSprintList(@PathVariable("groundId") int groundId,
+                                            @RequestHeader String Authorization){
         ResponseVO<List> responseVo;
 
         try{
@@ -67,7 +69,8 @@ public class SprintController {
     }
     @DeleteMapping("/{sprintId}")
     @ApiOperation(value = "스프린트 삭제하기")
-    public ResponseEntity<?> deleteSprint(@PathVariable("sprintId") int sprintId){
+    public ResponseEntity<?> deleteSprint(@PathVariable("sprintId") int sprintId,
+                                          @RequestHeader String Authorization){
         ResponseVO<Object> responseVo;
 
         try{
@@ -88,7 +91,8 @@ public class SprintController {
     }
     @PutMapping("/{sprintId}")
     @ApiOperation(value = "스프린트 수정하기")
-    public ResponseEntity<?> updateSprint(@PathVariable("sprintId") int sprintId, @RequestBody SprintEntity sprint){
+    public ResponseEntity<?> updateSprint(@PathVariable("sprintId") int sprintId, @RequestBody SprintEntity sprint,
+                                          @RequestHeader String Authorization){
         ResponseVO<SprintEntity> responseVo;
 
         try{
@@ -111,7 +115,8 @@ public class SprintController {
     // 스프린트 시작버튼을 눌렀을 때
     @PutMapping("/{sprintId}/start")
     @ApiOperation(value = "스프린트 시작하기")
-    public ResponseEntity<?> startSprint(@PathVariable("sprintId") int sprintId){
+    public ResponseEntity<?> startSprint(@PathVariable("sprintId") int sprintId,
+                                         @RequestHeader String Authorization){
         ResponseVO<Object> responseVo;
 
         try{
@@ -134,7 +139,8 @@ public class SprintController {
     // 스프린트 완료버튼을 눌렀을 때
     @PutMapping("/{sprintId}/complete")
     @ApiOperation(value = "스프린트 완료하기")
-    public ResponseEntity<?> completeSprint(@PathVariable("sprintId") int sprintId){
+    public ResponseEntity<?> completeSprint(@PathVariable("sprintId") int sprintId,
+                                            @RequestHeader String Authorization){
         ResponseVO<Object> responseVo;
 
         try{

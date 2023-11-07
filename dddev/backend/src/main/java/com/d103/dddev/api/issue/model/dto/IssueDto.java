@@ -26,8 +26,8 @@ public class IssueDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private Issue issue;
+            private Integer code;
+            private Issue data;
         }
     }
 
@@ -36,8 +36,8 @@ public class IssueDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private ArrayList<Issue> issueList;
+            private Integer code;
+            private ArrayList<Issue> data;
         }
     }
 
@@ -46,8 +46,8 @@ public class IssueDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private Issue issue;
+            private Integer code;
+            private Issue data;
         }
     }
 
@@ -56,7 +56,7 @@ public class IssueDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
+            private Integer code;
         }
     }
 
@@ -72,9 +72,9 @@ public class IssueDto {
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue issue;
+            private Issue data;
         }
     }
 
@@ -90,9 +90,9 @@ public class IssueDto {
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue issue;
+            private Issue data;
         }
     }
 
@@ -107,9 +107,9 @@ public class IssueDto {
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue issue;
+            private Issue data;
         }
     }
 
@@ -118,17 +118,17 @@ public class IssueDto {
         @ApiModel(value="이슈 문서 시간 변경", description = "이슈 문서 시간 변경 API")
         public static class Request{
             @ApiModelProperty(value="집중 시간", example = "1")
-            private Integer workTime;
+            private Integer focusTime;
             @ApiModelProperty(value="연구 시간", example = "2")
-            private Integer studyTime;
+            private Integer activeTime;
         }
 
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue issue;
+            private Issue data;
         }
     }
 
@@ -143,9 +143,9 @@ public class IssueDto {
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue issue;
+            private Issue data;
         }
     }
 }

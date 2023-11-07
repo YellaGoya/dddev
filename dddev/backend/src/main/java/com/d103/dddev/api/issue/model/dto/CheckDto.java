@@ -22,8 +22,8 @@ public class CheckDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private Issue check;
+            private Integer code;
+            private Issue data;
         }
     }
 
@@ -32,8 +32,8 @@ public class CheckDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private ArrayList<Issue> checkList;
+            private Integer code;
+            private ArrayList<Issue> data;
         }
     }
 
@@ -42,8 +42,8 @@ public class CheckDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private Issue check;
+            private Integer code;
+            private Issue data;
         }
     }
 
@@ -52,7 +52,7 @@ public class CheckDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
+            private Integer code;
         }
     }
 
@@ -70,9 +70,9 @@ public class CheckDto {
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue check;
+            private Issue data;
         }
     }
 
@@ -90,9 +90,9 @@ public class CheckDto {
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue check;
+            private Issue data;
         }
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -59,13 +60,13 @@ public class IssueServiceImpl implements IssueService{
         }
 
         Issue issue = Issue.builder()
-                .groundId(groundId)
+                .groundId(Integer.parseInt(groundId))
                 .parentId(issueUtil.unclassified(request.getParentId(),groundId,"check"))
                 .sprintId(sprintId)
                 .step(3) // 고정값
                 .author(userDetails.getUsername())
-                .workTime(0) // 기본값
-                .studyTime(0) // 기본값
+                .focusTime(0) // 기본값
+                .activeTime(0) // 기본값
                 .type("issue")
                 .status(0) // 0 : 미분류, 1 : 진행 예정, 2 : 진행 중, 3 : 완료
                 .title("")
@@ -87,8 +88,8 @@ public class IssueServiceImpl implements IssueService{
 
         return IssueDto.Create.Response.builder()
                 .message(IssueMessage.create())
-                .status(HttpStatus.OK.value())
-                .issue(issue)
+                .code(HttpStatus.OK.value())
+                .data(issue)
                 .build();
     }
 
@@ -99,15 +100,15 @@ public class IssueServiceImpl implements IssueService{
         if(issueList.isEmpty()){
             return IssueDto.List.Response.builder()
                     .message(IssueMessage.emptyList())
-                    .status(HttpStatus.OK.value())
-                    .issueList(issueList)
+                    .code(HttpStatus.OK.value())
+                    .data(issueList)
                     .build();
         }
 
         return IssueDto.List.Response.builder()
                 .message(IssueMessage.list())
-                .status(HttpStatus.OK.value())
-                .issueList(issueList)
+                .code(HttpStatus.OK.value())
+                .data(issueList)
                 .build();
     }
 
@@ -122,8 +123,8 @@ public class IssueServiceImpl implements IssueService{
 
         return IssueDto.Detail.Response.builder()
                 .message(IssueMessage.detail())
-                .status(HttpStatus.OK.value())
-                .issue(issue)
+                .code(HttpStatus.OK.value())
+                .data(issue)
                 .build();
     }
 
@@ -147,7 +148,7 @@ public class IssueServiceImpl implements IssueService{
 
         return IssueDto.Delete.Response.builder()
                 .message(IssueMessage.delete())
-                .status(HttpStatus.OK.value())
+                .code(HttpStatus.OK.value())
                 .build();
     }
 
@@ -164,8 +165,8 @@ public class IssueServiceImpl implements IssueService{
 
         return IssueDto.Content.Response.builder()
                 .message(IssueMessage.content())
-                .status(HttpStatus.OK.value())
-                .issue(issue)
+                .code(HttpStatus.OK.value())
+                .data(issue)
                 .build();
     }
 
@@ -174,15 +175,37 @@ public class IssueServiceImpl implements IssueService{
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
-        issue.setStatus(request.getStatus());
+        if(issue.getStatus() == 1 && request.getStatus() == 2){
+            issue.setStartDate(LocalDateTime.now());
+        }
+
+        if(issue.getStatus() == 2 && request.getStatus() == 3){
+            issue.setEndDate(LocalDateTime.now());
+        }
+
+        if(issue.getStatus() > request.getStatus() && request.getStatus() == 0){
+            issue.setEndDate(null);
+            issue.setStartDate(null);
+        }
+
+        if(issue.getStatus() > request.getStatus() && request.getStatus() == 1){
+            issue.setEndDate(null);
+            issue.setStartDate(null);
+        }
+
+        if(issue.getStatus() > request.getStatus() && request.getStatus() == 2){
+            issue.setEndDate(null);
+        }
+
         issue.setModifier(userDetails.getUsername());
+        issue.setStatus(request.getStatus());
 
         issueRepository.save(issue);
 
         return IssueDto.Status.Response.builder()
                 .message(IssueMessage.status())
-                .status(HttpStatus.OK.value())
-                .issue(issue)
+                .code(HttpStatus.OK.value())
+                .data(issue)
                 .build();
     }
 
@@ -220,8 +243,8 @@ public class IssueServiceImpl implements IssueService{
 
         return IssueDto.Connect.Response.builder()
                 .message(IssueMessage.connect())
-                .status(HttpStatus.OK.value())
-                .issue(issue)
+                .code(HttpStatus.OK.value())
+                .data(issue)
                 .build();
     }
 
@@ -230,16 +253,16 @@ public class IssueServiceImpl implements IssueService{
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
-        issue.setWorkTime(request.getWorkTime());
-        issue.setStudyTime(request.getStudyTime());
+        issue.setFocusTime(request.getFocusTime());
+        issue.setActiveTime(request.getActiveTime());
         issue.setModifier(userDetails.getUsername());
 
         issueRepository.save(issue);
 
         return IssueDto.Time.Response.builder()
                 .message(IssueMessage.time())
-                .status(HttpStatus.OK.value())
-                .issue(issue)
+                .code(HttpStatus.OK.value())
+                .data(issue)
                 .build();
     }
 
@@ -255,8 +278,8 @@ public class IssueServiceImpl implements IssueService{
 
         return IssueDto.Sprint.Response.builder()
                 .message(IssueMessage.sprint())
-                .status(HttpStatus.OK.value())
-                .issue(issue)
+                .code(HttpStatus.OK.value())
+                .data(issue)
                 .build();
     }
 

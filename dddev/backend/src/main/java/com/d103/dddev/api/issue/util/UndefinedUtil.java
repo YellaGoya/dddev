@@ -19,7 +19,7 @@ public class UndefinedUtil {
     @Transactional
     public void createUndefined(GroundDto groundDto){
         Issue target = Issue.builder()
-                .groundId(groundDto.getId().toString())
+                .groundId(groundDto.getId())
                 .childrenId(new ArrayList<>())
                 .step(1) // 최상단 문서의 단계는 1
                 .type("target")
@@ -29,7 +29,7 @@ public class UndefinedUtil {
 
         issueRepository.save(target);
         Issue check = Issue.builder()
-                .groundId(groundDto.getId().toString())
+                .groundId(groundDto.getId())
                 .parentId(target.getId())
                 .childrenId(new ArrayList<>())
                 .step(2)
