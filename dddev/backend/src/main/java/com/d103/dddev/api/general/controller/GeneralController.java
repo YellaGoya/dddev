@@ -31,6 +31,7 @@ public class GeneralController {
                                                         "step값이 1일때는 parentId 필요없음\n" +
                                                         "title -> not required")
                                            @RequestBody GeneralInsertOneDto generalInsertOneDto,
+                                           @RequestHeader String Authorization,
                                            @AuthenticationPrincipal UserDetails userDetails){
         ResponseVO<General> responseVo;
 
@@ -54,7 +55,8 @@ public class GeneralController {
     @PostMapping("/titles")
     @ApiOperation(value="제목들로 step1 일반 문서들 생성")
     public ResponseEntity<?> insertGeneralsWithTitles(@PathVariable("groundId") int groundId,
-                                                     @RequestBody GeneralInsertManyDto generalInsertManyDto){
+                                                     @RequestBody GeneralInsertManyDto generalInsertManyDto,
+                                                      @RequestHeader String Authorization){
         ResponseVO<List<General>> responseVo;
 
         try{
@@ -75,7 +77,7 @@ public class GeneralController {
     }
     @GetMapping("/{generalId}")
     @ApiOperation(value="일반 문서 상세 조회")
-    public ResponseEntity<?> getGeneral(@PathVariable("groundId") int groundId, @PathVariable("generalId") String generalId){
+    public ResponseEntity<?> getGeneral(@PathVariable("groundId") int groundId, @PathVariable("generalId") String generalId,@RequestHeader String Authorization){
         ResponseVO<General> responseVo;
 
         try{
@@ -96,7 +98,7 @@ public class GeneralController {
     }
     @GetMapping("/step1")
     @ApiOperation(value="step1 문서들 불러오기")
-    public ResponseEntity<?> getStep1Generals(@PathVariable("groundId") int groundId){
+    public ResponseEntity<?> getStep1Generals(@PathVariable("groundId") int groundId,@RequestHeader String Authorization){
         ResponseVO<List<GeneralResponseDto>> responseVo;
 
         try{
@@ -117,7 +119,8 @@ public class GeneralController {
     }
     @GetMapping("/step2")
     @ApiOperation(value="step2 문서들 불러오기")
-    public ResponseEntity<?> getStep2Generals(@PathVariable("groundId") int groundId){
+    public ResponseEntity<?> getStep2Generals(@PathVariable("groundId") int groundId,
+                                              @RequestHeader String Authorization){
         ResponseVO<List<General>> responseVo;
 
         try{
@@ -141,7 +144,8 @@ public class GeneralController {
     public ResponseEntity<?> updateGeneral(@PathVariable("groundId") int groundId,
                                            @PathVariable("generalId") String generalId,
                                            @RequestBody GeneralUpdateDto generalUpdateDto,
-                                           @AuthenticationPrincipal UserDetails userDetails){
+                                           @AuthenticationPrincipal UserDetails userDetails,
+                                           @RequestHeader String Authorization){
         ResponseVO<General> responseVo;
 
         try{
@@ -166,7 +170,8 @@ public class GeneralController {
     @ApiOperation(value="일반 문서 위치이동")
     public ResponseEntity<?> moveGeneral(@PathVariable("groundId") int groundId,
                                           @ApiParam(value="id -> 옮기려는 문서의 아이디\n" +
-                                                  "parentId -> 목적지 부모의 아이디") @RequestBody GeneralMoveDto GeneralMoveDto) {
+                                                  "parentId -> 목적지 부모의 아이디") @RequestBody GeneralMoveDto GeneralMoveDto,
+                                         @RequestHeader String Authorization) {
         ResponseVO<General> responseVo;
 
         try{
@@ -188,7 +193,8 @@ public class GeneralController {
 
     @DeleteMapping("/{generalId}")
     @ApiOperation(value="일반 문서 삭제")
-    public ResponseEntity<?> deleteGeneral(@PathVariable("groundId") int groundId, @PathVariable("generalId") String generalId){
+    public ResponseEntity<?> deleteGeneral(@PathVariable("groundId") int groundId, @PathVariable("generalId") String generalId,
+    @RequestHeader String Authorization){
 
         ResponseVO<General> responseVo;
 

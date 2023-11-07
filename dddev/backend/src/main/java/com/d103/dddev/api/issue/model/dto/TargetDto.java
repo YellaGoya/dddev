@@ -17,8 +17,8 @@ public class TargetDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private Issue target;
+            private Integer code;
+            private Issue data;
         }
     }
 
@@ -27,8 +27,8 @@ public class TargetDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private ArrayList<Issue> targetList;
+            private Integer code;
+            private ArrayList<Issue> data;
         }
     }
 
@@ -37,8 +37,8 @@ public class TargetDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private Issue target;
+            private Integer code;
+            private Issue data;
         }
     }
 
@@ -47,7 +47,7 @@ public class TargetDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
+            private Integer code;
         }
     }
 
@@ -65,9 +65,9 @@ public class TargetDto {
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue target;
+            private Issue data;
         }
     }
 
@@ -78,15 +78,16 @@ public class TargetDto {
             private String id;
             private String title;
             private Integer step;
+            private Integer sprintId;
             private java.util.List<Docs> children;
         }
 
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Object tree;
+            private Object data;
         }
     }
 }

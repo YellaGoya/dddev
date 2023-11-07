@@ -29,7 +29,7 @@ public class CheckServiceImpl implements CheckService{
     @Transactional
     public CheckDto.Create.Response createCheck(String groundId, CheckDto.Create.Request request, UserDetails userDetails) {
         Issue check = Issue.builder()
-                .groundId(groundId)
+                .groundId(Integer.parseInt(groundId))
                 .parentId(issueUtil.unclassified(request.getParentId(),groundId, "target"))
                 .childrenId(new ArrayList<>())
                 .author(userDetails.getUsername())
@@ -51,8 +51,8 @@ public class CheckServiceImpl implements CheckService{
 
         return CheckDto.Create.Response.builder()
                 .message(CheckMessage.create())
-                .status(HttpStatus.OK.value())
-                .check(check)
+                .code(HttpStatus.OK.value())
+                .data(check)
                 .build();
     }
 
@@ -63,15 +63,15 @@ public class CheckServiceImpl implements CheckService{
         if(checkList.isEmpty()){
             return CheckDto.List.Response.builder()
                     .message(CheckMessage.emptyList())
-                    .status(HttpStatus.OK.value())
-                    .checkList(checkList)
+                    .code(HttpStatus.OK.value())
+                    .data(checkList)
                     .build();
         }
 
         return CheckDto.List.Response.builder()
                 .message(CheckMessage.list())
-                .status(HttpStatus.OK.value())
-                .checkList(checkList)
+                .code(HttpStatus.OK.value())
+                .data(checkList)
                 .build();
     }
 
@@ -87,8 +87,8 @@ public class CheckServiceImpl implements CheckService{
         }
         return CheckDto.Detail.Response.builder()
                 .message(CheckMessage.detail())
-                .status(HttpStatus.OK.value())
-                .check(check)
+                .code(HttpStatus.OK.value())
+                .data(check)
                 .build();
     }
 
@@ -148,7 +148,7 @@ public class CheckServiceImpl implements CheckService{
 
         return CheckDto.Delete.Response.builder()
                 .message(CheckMessage.delete())
-                .status(HttpStatus.OK.value())
+                .code(HttpStatus.OK.value())
                 .build();
     }
 
@@ -166,8 +166,8 @@ public class CheckServiceImpl implements CheckService{
 
         return CheckDto.Update.Response.builder()
                 .message(CheckMessage.update())
-                .status(HttpStatus.OK.value())
-                .check(check)
+                .code(HttpStatus.OK.value())
+                .data(check)
                 .build();
     }
 
@@ -194,8 +194,8 @@ public class CheckServiceImpl implements CheckService{
         }else{
             return CheckDto.Connect.Response.builder()
                     .message(CheckMessage.notContains())
-                    .status(HttpStatus.OK.value())
-                    .check(check)
+                    .code(HttpStatus.OK.value())
+                    .data(check)
                     .build();
         }
 
@@ -204,8 +204,8 @@ public class CheckServiceImpl implements CheckService{
         }else{
             return CheckDto.Connect.Response.builder()
                     .message(CheckMessage.contains())
-                    .status(HttpStatus.OK.value())
-                    .check(check)
+                    .code(HttpStatus.OK.value())
+                    .data(check)
                     .build();
         }
         log.info(oldChildren.toString());
@@ -225,8 +225,8 @@ public class CheckServiceImpl implements CheckService{
 
         return CheckDto.Connect.Response.builder()
                 .message(CheckMessage.connect())
-                .status(HttpStatus.OK.value())
-                .check(check)
+                .code(HttpStatus.OK.value())
+                .data(check)
                 .build();
     }
 

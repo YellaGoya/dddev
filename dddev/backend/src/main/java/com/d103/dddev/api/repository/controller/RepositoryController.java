@@ -48,7 +48,7 @@ public class RepositoryController {
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 혹은 pat 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<List<RepositoryVO>>> getRepositoryList(HttpServletRequest request) {
+	ResponseEntity<ResponseVO<List<RepositoryVO>>> getRepositoryList(HttpServletRequest request, @RequestHeader String Authorization) {
 		try {
 			log.info("controller - getRepositoryList :: 사용자 레포지토리 목록 조회 진입");
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");

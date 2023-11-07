@@ -34,6 +34,7 @@ public class RequestController {
                                            @ApiParam(value = "step -> required\n"+
                                                    "step값이 1일때는 parentId 필요없음\n" +
                                                    "title -> not required")@RequestBody RequestInsertOneDto requestInsertOneDto,
+                                           @RequestHeader String Authorization,
                                            @AuthenticationPrincipal UserDetails userDetails){
         ResponseVO<Request> responseVo;
 
@@ -57,7 +58,8 @@ public class RequestController {
     @PostMapping("/titles")
     @ApiOperation(value="제목들로 step1 요청 문서들 생성")
     public ResponseEntity<?> insertRequestsWithTitles(@PathVariable("groundId") int groundId,
-                                                      @RequestBody RequestInsertManyDto requestInsertManyDto){
+                                                      @RequestBody RequestInsertManyDto requestInsertManyDto,
+                                                      @RequestHeader String Authorization){
         ResponseVO<List<Request>> responseVo;
 
         try{
@@ -77,9 +79,10 @@ public class RequestController {
         }
     }
 
-    @GetMapping("/{reqeustId}")
-    @ApiOperation(value="요청 문서 상세 조회")
-    public ResponseEntity<?> getRequest(@PathVariable("groundId") int groundId, @PathVariable("RequestId") String RequestId){
+    @GetMapping("/{requestId}")
+    @ApiOperation(value="문서 아이디로 요청 문서 가져오기")
+    public ResponseEntity<?> getRequest(@PathVariable("groundId") int groundId, @PathVariable("requestId") String RequestId,
+                                        @RequestHeader String Authorization){
         ResponseVO<Request> responseVo;
 
         try{
@@ -100,7 +103,8 @@ public class RequestController {
     }
     @GetMapping("/step1")
     @ApiOperation(value="step1 문서들 불러오기")
-    public ResponseEntity<?> getStep1Requests(@PathVariable("groundId") int groundId){
+    public ResponseEntity<?> getStep1Requests(@PathVariable("groundId") int groundId,
+    @RequestHeader String Authorization){
         ResponseVO<List<RequestResponseDto>> responseVo;
 
         try{
@@ -121,7 +125,8 @@ public class RequestController {
     }
     @GetMapping("/step2")
     @ApiOperation(value="step2 문서들 불러오기")
-    public ResponseEntity<?> getStep2Requests(@PathVariable("groundId") int groundId){
+    public ResponseEntity<?> getStep2Requests(@PathVariable("groundId") int groundId,
+                                              @RequestHeader String Authorization){
         ResponseVO<List<Request>> responseVo;
 
         try{
@@ -146,6 +151,7 @@ public class RequestController {
     public ResponseEntity<?> updateRequest(@PathVariable("groundId") int groundId,
                                            @PathVariable("requestId") String requestId,
                                            @RequestBody RequestUpdateDto requestUpdateDto,
+                                           @RequestHeader String Authorization,
                                            @AuthenticationPrincipal UserDetails userDetails) {
         ResponseVO<Request> responseVo;
 
@@ -169,7 +175,8 @@ public class RequestController {
     @ApiOperation(value="요청 문서 위치이동")
     public ResponseEntity<?> moveRequest(@PathVariable("groundId") int groundId,
                                          @ApiParam(value="id -> 옮기려는 문서의 아이디\n" +
-                                                 "parentId -> 목적지 부모의 아이디") @RequestBody RequestMoveDto requestMoveDto) {
+                                                 "parentId -> 목적지 부모의 아이디") @RequestBody RequestMoveDto requestMoveDto,
+                                         @RequestHeader String Authorization) {
         ResponseVO<Request> responseVo;
 
         try{
@@ -191,7 +198,7 @@ public class RequestController {
 
     @DeleteMapping("/{requestId}")
     @ApiOperation(value="요청 문서 삭제")
-    public ResponseEntity<?> deleteRequest(@PathVariable("groundId") int groundId, @PathVariable("requestId") String requestId){
+    public ResponseEntity<?> deleteRequest(@PathVariable("groundId") int groundId, @PathVariable("requestId") String requestId,@RequestHeader String Authorization){
 
         ResponseVO<Request> responseVo;
 
