@@ -27,7 +27,7 @@ public class TargetController {
 
     @ApiOperation("목표 문서 생성")
     @PostMapping("/create")
-    public ResponseEntity createTarget(@PathVariable String groundId,
+    public ResponseEntity createTarget(@PathVariable Integer groundId,
                                        @AuthenticationPrincipal UserDetails userDetails,
                                        @RequestHeader String Authorization) {
         try{
@@ -43,7 +43,7 @@ public class TargetController {
 
     @ApiOperation("목표 문서 목록 조회")
     @GetMapping("/list")
-    public ResponseEntity targetList(@PathVariable String groundId,
+    public ResponseEntity targetList(@PathVariable Integer groundId,
                                      @RequestHeader String Authorization){
         try{
             log.info("목표 문서 목록 조회");
@@ -58,7 +58,7 @@ public class TargetController {
 
     @ApiOperation("목표 문서 상세 조회")
     @GetMapping("/{targetId}")
-    public ResponseEntity targetDetail(@PathVariable String groundId,
+    public ResponseEntity targetDetail(@PathVariable Integer groundId,
                                        @PathVariable String targetId,
                                        @RequestHeader String Authorization){
         try{
@@ -75,7 +75,7 @@ public class TargetController {
 
     @ApiOperation("목표 삭제")
     @DeleteMapping("/{targetId}")
-    public ResponseEntity targetDelete(@PathVariable String groundId,
+    public ResponseEntity targetDelete(@PathVariable Integer groundId,
                                        @PathVariable String targetId,
                                        @RequestHeader String Authorization){
         try{
@@ -91,7 +91,7 @@ public class TargetController {
 
     @ApiOperation("목표 수정")
     @PutMapping("/{targetId}")
-    public ResponseEntity targetUpdate(@PathVariable String groundId,
+    public ResponseEntity targetUpdate(@PathVariable Integer groundId,
                                        @PathVariable String targetId,
                                        @RequestBody TargetDto.Update.Request request,
                                        @AuthenticationPrincipal UserDetails userDetails,
@@ -109,7 +109,7 @@ public class TargetController {
 
     @ApiOperation("문서 트리 조회")
     @GetMapping("/total")
-    public ResponseEntity total(@PathVariable String groundId,
+    public ResponseEntity total(@PathVariable Integer groundId,
                                 @RequestHeader String Authorization){
         try{
             log.info("문서 트리 조회");

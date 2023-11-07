@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 @Service
 public interface IssueService  {
 
-    IssueDto.Create.Response issueCreate(String groundId, IssueDto.Create.Request request, UserDetails userDetails);
+    IssueDto.Create.Response issueCreate(Integer groundId, IssueDto.Create.Request request, UserDetails userDetails);
 
-    IssueDto.List.Response issueList(String groundId, String checkId);
+    IssueDto.List.Response issueList(Integer groundId, String checkId);
 
-    IssueDto.Detail.Response issueDetail(String groundId, String issueId);
+    IssueDto.Detail.Response issueDetail(Integer groundId, String issueId);
 
     IssueDto.Delete.Response issueDelete(String issueId);
 

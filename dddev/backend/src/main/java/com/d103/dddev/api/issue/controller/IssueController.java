@@ -28,7 +28,7 @@ public class IssueController {
     private final IssueService issueService;
     @ApiOperation(value="이슈 문서 생성", notes = "이슈 문서 생성 API", response = IssueDto.Create.Response.class)
     @PostMapping("/create")
-    public ResponseEntity createIssue(@PathVariable String groundId,
+    public ResponseEntity createIssue(@PathVariable Integer groundId,
                                       @RequestBody @ApiParam(value = "이슈 생성 요청") IssueDto.Create.Request request,
                                       @AuthenticationPrincipal UserDetails userDetails,
                                       @RequestHeader String Authorization) {
@@ -45,7 +45,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 목록 조회")
     @GetMapping("{checkId}/list")
-    public ResponseEntity issueList(@PathVariable String groundId,
+    public ResponseEntity issueList(@PathVariable Integer groundId,
                                     @PathVariable String checkId,
                                     @RequestHeader String Authorization){
         try{
@@ -61,7 +61,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 상세 조회")
     @GetMapping("/{issueId}")
-    public ResponseEntity issueDetail(@PathVariable String groundId,
+    public ResponseEntity issueDetail(@PathVariable Integer groundId,
                                       @PathVariable String issueId,
                                       @RequestHeader String Authorization){
         try{
@@ -78,7 +78,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 삭제")
     @DeleteMapping("/{issueId}")
-    public ResponseEntity issueDelete(@PathVariable String groundId,
+    public ResponseEntity issueDelete(@PathVariable Integer groundId,
                                       @PathVariable String issueId,
                                       @RequestHeader String Authorization){
         try{
@@ -94,7 +94,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 수정")
     @PutMapping("/{issueId}/content")
-    public ResponseEntity issueContent(@PathVariable String groundId,
+    public ResponseEntity issueContent(@PathVariable Integer groundId,
                                        @PathVariable String issueId,
                                        @RequestBody IssueDto.Content.Request request,
                                        @AuthenticationPrincipal UserDetails userDetails,
@@ -112,7 +112,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 진행 상태 변경")
     @PutMapping("/{issueId}/status")
-    public ResponseEntity issueStatus(@PathVariable String groundId,
+    public ResponseEntity issueStatus(@PathVariable Integer groundId,
                                       @PathVariable String issueId,
                                       @RequestBody IssueDto.Status.Request request,
                                       @AuthenticationPrincipal UserDetails userDetails,
@@ -130,7 +130,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 상위 문서 연결")
     @PutMapping("/{issueId}/connect")
-    public ResponseEntity issueConnect(@PathVariable String groundId,
+    public ResponseEntity issueConnect(@PathVariable Integer groundId,
                                        @PathVariable String issueId,
                                        @RequestBody IssueDto.Connect.Request request,
                                        @AuthenticationPrincipal UserDetails userDetails,
@@ -148,7 +148,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 시간 변경")
     @PutMapping("/{issueId}/time")
-    public ResponseEntity issueTime(@PathVariable String groundId,
+    public ResponseEntity issueTime(@PathVariable Integer groundId,
                                     @PathVariable String issueId,
                                     @RequestBody IssueDto.Time.Request request,
                                     @AuthenticationPrincipal UserDetails userDetails,
@@ -166,7 +166,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 스프린트 연결")
     @PutMapping("/{issueId}/sprint")
-    public ResponseEntity issueSprint(@PathVariable String groundId,
+    public ResponseEntity issueSprint(@PathVariable Integer groundId,
                                       @PathVariable String issueId,
                                       @RequestBody IssueDto.Sprint.Request request,
                                       @AuthenticationPrincipal UserDetails userDetails,

@@ -28,7 +28,7 @@ public class CheckController {
 
     @ApiOperation(value="체크포인트 문서 생성", notes = "체크포인트 문서 생성 API", response = CheckDto.Create.Response.class)
     @PostMapping("/create")
-    public ResponseEntity createCheck(@PathVariable String groundId,
+    public ResponseEntity createCheck(@PathVariable Integer groundId,
                                       @RequestBody @ApiParam(value = "체크포인트 생성 요청") CheckDto.Create.Request request,
                                       @AuthenticationPrincipal UserDetails userDetails,
                                       @RequestHeader String Authorization) {
@@ -45,7 +45,7 @@ public class CheckController {
 
     @ApiOperation("체크포인트 문서 목록 조회")
     @GetMapping("{targetId}/list")
-    public ResponseEntity checkList(@PathVariable String groundId,
+    public ResponseEntity checkList(@PathVariable Integer groundId,
                                     @PathVariable String targetId,
                                     @RequestHeader String Authorization){
         try{
@@ -61,7 +61,7 @@ public class CheckController {
 
     @ApiOperation("체크포인트 문서 상세 조회")
     @GetMapping("/{checkId}")
-    public ResponseEntity checkDetail(@PathVariable String groundId,
+    public ResponseEntity checkDetail(@PathVariable Integer groundId,
                                       @PathVariable String checkId,
                                       @RequestHeader String Authorization){
         try{
@@ -78,7 +78,7 @@ public class CheckController {
 
     @ApiOperation("체크포인트 문서 삭제")
     @DeleteMapping("/{checkId}")
-    public ResponseEntity checkDelete(@PathVariable String groundId,
+    public ResponseEntity checkDelete(@PathVariable Integer groundId,
                                       @PathVariable String checkId,
                                       @RequestHeader String Authorization){
         try{
@@ -94,7 +94,7 @@ public class CheckController {
 
     @ApiOperation("체크포인트 문서 수정")
     @PutMapping("/{checkId}")
-    public ResponseEntity checkUpdate(@PathVariable String groundId,
+    public ResponseEntity checkUpdate(@PathVariable Integer groundId,
                                       @PathVariable String checkId,
                                       @RequestBody CheckDto.Update.Request request,
                                       @AuthenticationPrincipal UserDetails userDetails,
@@ -112,7 +112,7 @@ public class CheckController {
 
     @ApiOperation("목표 문서와 연결")
     @PutMapping("/connect")
-    public ResponseEntity connectTarget(@PathVariable String groundId,
+    public ResponseEntity connectTarget(@PathVariable Integer groundId,
                                         @RequestBody CheckDto.Connect.Request request,
                                         @AuthenticationPrincipal UserDetails userDetails,
                                         @RequestHeader String Authorization){

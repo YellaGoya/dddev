@@ -12,10 +12,9 @@ import java.util.Optional;
 
 @Repository
 public interface IssueRepository extends MongoRepository<Issue, String> {
+    ArrayList<Issue> findAllByGroundIdAndType(Integer groundId, String type);
 
-	ArrayList<Issue> findAllByGroundIdAndType(String groundId, String type);
-
-	Optional<Issue> findByGroundIdAndId(String groundId, String targetId);
+    Optional<Issue> findByGroundIdAndId(Integer groundId, String targetId);
 
 	Optional<Issue> findByGroundIdAndUnclassifiedAndType(String groundId, boolean unclassified, String type);
 
@@ -32,5 +31,9 @@ public interface IssueRepository extends MongoRepository<Issue, String> {
 
 	@Query("{ 'ground_id' : ?0, 'sprint_id' : ?1, 'status' : { $gt : 0, $lt : 3 }, 'active_time' : { $gt : 0 } }")
 	List<Issue> findActiveTimeUndone(Integer groundId, Integer sprintId);
+
+    Optional<Issue> findByGroundIdAndUnclassifiedAndType(Integer groundId, boolean unclassified, String type);
+
+    ArrayList<Issue> findAllByGroundIdAndParentIdAndType(Integer groundId, String parentId, String type);
 
 }

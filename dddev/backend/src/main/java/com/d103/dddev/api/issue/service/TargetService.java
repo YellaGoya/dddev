@@ -7,15 +7,15 @@ import org.springframework.stereotype.Service;
 @Service
 public interface TargetService {
 
-    TargetDto.Create.Response createTarget(String groundId, UserDetails userDetails);
+    TargetDto.Create.Response createTarget(Integer groundId, UserDetails userDetails);
 
-    TargetDto.List.Response targetList(String groundId);
+    TargetDto.List.Response targetList(Integer groundId);
 
-    TargetDto.Detail.Response targetDetail(String groundId, String targetId);
+    TargetDto.Detail.Response targetDetail(Integer groundId, String targetId);
 
-    TargetDto.Delete.Response targetDelete(String groundId, String targetId);
+    TargetDto.Delete.Response targetDelete(Integer groundId, String targetId);
 
     TargetDto.Update.Response targetUpdate(TargetDto.Update.Request request, String targetId, UserDetails userDetails);
 
-    TargetDto.Tree.Response Tree(String groundId);
+    TargetDto.Tree.Response Tree(Integer groundId);
 }

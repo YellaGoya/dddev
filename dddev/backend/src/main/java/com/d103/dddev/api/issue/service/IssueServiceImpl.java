@@ -53,7 +53,7 @@ public class IssueServiceImpl implements IssueService{
      *  */
 
     @Override
-    public IssueDto.Create.Response issueCreate(String groundId, IssueDto.Create.Request request, UserDetails userDetails) {
+    public IssueDto.Create.Response issueCreate(Integer groundId, IssueDto.Create.Request request, UserDetails userDetails) {
         Integer sprintId = request.getSprintId();
         if(sprintId != null && sprintId != 0){
             SprintEntity sprint = sprintRepository.findById(sprintId)
@@ -64,7 +64,7 @@ public class IssueServiceImpl implements IssueService{
         }
 
         Issue issue = Issue.builder()
-                .groundId(Integer.parseInt(groundId))
+                .groundId(groundId)
                 .parentId(issueUtil.unclassified(request.getParentId(),groundId,"check"))
                 .sprintId(sprintId)
                 .step(3) // 고정값
@@ -98,7 +98,7 @@ public class IssueServiceImpl implements IssueService{
     }
 
     @Override
-    public IssueDto.List.Response issueList(String groundId, String checkId) {
+    public IssueDto.List.Response issueList(Integer groundId, String checkId) {
         ArrayList<Issue> issueList = issueRepository.findAllByGroundIdAndParentIdAndType(groundId, checkId,"issue");
 
         if(issueList.isEmpty()){
@@ -117,7 +117,7 @@ public class IssueServiceImpl implements IssueService{
     }
 
     @Override
-    public IssueDto.Detail.Response issueDetail(String groundId, String issueId) {
+    public IssueDto.Detail.Response issueDetail(Integer groundId, String issueId) {
         Issue issue = issueRepository.findByGroundIdAndId(groundId, issueId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
