@@ -1,10 +1,17 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import Quill from 'quill';
 import * as Y from 'yjs';
 import { QuillBinding } from 'y-quill';
 import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
+
+import { setMenu } from 'redux/actions/menu';
+import { setMessage } from 'redux/actions/menu';
+import { logoutUser } from 'redux/actions/user';
+import eetch from 'eetch/eetch';
 
 import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import hljs from 'highlight.js';
@@ -14,10 +21,12 @@ import 'quill/dist/quill.snow.css';
 import 'highlight.js/styles/github-dark.css';
 import * as s from 'reacts/styles/components/document/Write';
 const Write = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
   const quillRef = useRef(null);
   const params = useParams();
-
-  // const [docType, setDocType] = React.useState(2);
+  const [lastEditor, setLastEditor] = useState(null);
 
   const getRandomPastelColor = () => {
     const r = Math.floor(Math.random() * 127 + 128);
@@ -52,11 +61,37 @@ const Write = () => {
   };
 
   useEffect(() => {
-    // 없으면 테스트용으로 test로 설정
+    console.log(lastEditor);
+  }, [lastEditor]);
+
+  useEffect(() => {
+    eetch
+      .detailDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  }, [user, params.groundId, params.docId]);
+
+  useEffect(() => {
     const roomName = `${params.docId || 'test'}`;
     const doc = new Y.Doc();
     const type = doc.getText('quill');
 
+    // const wsProvider = new WebsocketProvider('ws://34.64.243.47:6001', roomName, doc);
     const wsProvider = new WebsocketProvider('ws://34.64.243.47:6001', roomName, doc);
 
     const editor = quillRef.current.getEditor();
@@ -110,10 +145,12 @@ const Write = () => {
 
     editor.on('selection-change', () => {
       updateCursor();
+      setLastEditor(wsProvider.awareness.clientID);
     });
     editor.on('text-change', (delta, olddelta, source) => {
       if (source === 'user') {
         updateCursor();
+        setLastEditor(wsProvider.awareness.clientID);
       }
     });
 
@@ -132,6 +169,7 @@ const Write = () => {
             if (id === wsProvider.awareness.clientID) return;
 
             const userState = users.get(id);
+
             if (userState && userState.user && userState.user.cursor !== null) {
               const { user } = userState;
               if (!user.react) updateCursor(true);
@@ -152,7 +190,11 @@ const Write = () => {
               }
 
               const cursorPosition = editor.getBounds(user.cursor);
-              if (!user.react) cursorElement.style.left = cursorPosition.left + 'px';
+              if (!user.react) {
+                cursorElement.style.left = cursorPosition.left + 'px';
+                setLastEditor(id);
+              }
+
               cursorElement.style.top = cursorPosition.top + 'px';
             }
           });
