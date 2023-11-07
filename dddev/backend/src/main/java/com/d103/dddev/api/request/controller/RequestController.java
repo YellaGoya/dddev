@@ -78,7 +78,7 @@ public class RequestController {
     }
 
     @GetMapping("/{reqeustId}")
-    @ApiOperation(value="문서 아이디로 요청 문서 가져오기")
+    @ApiOperation(value="요청 문서 상세 조회")
     public ResponseEntity<?> getRequest(@PathVariable("groundId") int groundId, @PathVariable("RequestId") String RequestId){
         ResponseVO<Request> responseVo;
 
@@ -141,13 +141,16 @@ public class RequestController {
         }
     }
 
-    @PutMapping
-    @ApiOperation(value="문서 수정하기")
-    public ResponseEntity<?> updateRequest(@PathVariable("groundId") int groundId, @RequestBody RequestUpdateDto requestUpdateDto, @AuthenticationPrincipal UserDetails userDetails) {
+    @PutMapping("/{requestId}")
+    @ApiOperation(value="요청 문서 수정")
+    public ResponseEntity<?> updateRequest(@PathVariable("groundId") int groundId,
+                                           @PathVariable("requestId") String requestId,
+                                           @RequestBody RequestUpdateDto requestUpdateDto,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
         ResponseVO<Request> responseVo;
 
         try{
-            Request Request = requestService.updateRequest(groundId, requestUpdateDto, userDetails);
+            Request Request = requestService.updateRequest(groundId, requestId, requestUpdateDto, userDetails);
             responseVo = ResponseVO.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 수정했습니다.")
@@ -163,7 +166,7 @@ public class RequestController {
         }
     }
     @PutMapping("/move")
-    @ApiOperation(value="요청 문서 위치이동하기")
+    @ApiOperation(value="요청 문서 위치이동")
     public ResponseEntity<?> moveRequest(@PathVariable("groundId") int groundId,
                                          @ApiParam(value="id -> 옮기려는 문서의 아이디\n" +
                                                  "parentId -> 목적지 부모의 아이디") @RequestBody RequestMoveDto requestMoveDto) {
@@ -186,14 +189,14 @@ public class RequestController {
         }
     }
 
-    @DeleteMapping
-    @ApiOperation(value="요청 문서 삭제하기")
-    public ResponseEntity<?> deleteRequest(@PathVariable("groundId") int groundId, @RequestBody RequestDeleteDto RequestDeleteDto){
+    @DeleteMapping("/{requestId}")
+    @ApiOperation(value="요청 문서 삭제")
+    public ResponseEntity<?> deleteRequest(@PathVariable("groundId") int groundId, @PathVariable("requestId") String requestId){
 
         ResponseVO<Request> responseVo;
 
         try{
-            requestService.deleteRequest(groundId, RequestDeleteDto);
+            requestService.deleteRequest(groundId, requestId);
             responseVo = ResponseVO.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 삭제했습니다.")

@@ -14,9 +14,9 @@ public interface GeneralService {
     General getGeneral(int groundId, String generalId);
     List<GeneralResponseDto> getStep1Generals(int groundId);
     List<General> getStep2Generals(int groundId);
-    General updateGeneral(int groundId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails);
+    General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails);
 
     General moveGeneral(int groundId, GeneralMoveDto GeneralMoveDto) throws InvalidAttributeValueException;
-    void deleteGeneral(int groundId, GeneralDeleteDto generalDeleteDto);
+    void deleteGeneral(int groundId, String generalId);
 
 }

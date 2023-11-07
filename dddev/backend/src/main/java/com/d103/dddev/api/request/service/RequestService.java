@@ -14,9 +14,9 @@ public interface RequestService {
     Request getRequest(int groundId, String requestId);
     List<RequestResponseDto> getStep1Requests(int groundId);
     List<Request> getStep2Requests(int groundId);
-    Request updateRequest(int groundId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception;
+    Request updateRequest(int groundId, String requestId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception;
 
     Request moveRequest(int groundId, RequestMoveDto requestMoveDto) throws InvalidAttributeValueException;
-    void deleteRequest(int groundId, RequestDeleteDto requestDeleteDto);
+    void deleteRequest(int groundId, String requestId);
 
 }

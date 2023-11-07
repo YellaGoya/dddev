@@ -132,7 +132,7 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Request updateRequest(int groundId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception{
+    public Request updateRequest(int groundId, String requestId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception{
         int sendUserId = requestUpdateDto.getSendUserId();
         int receiveUserId = requestUpdateDto.getReceiveUserId();
         UserDto sendUser = userRepository.findById(sendUserId).orElseThrow(()->new TransactionException("유저를 불러오는데 실패했습니다."));
@@ -143,7 +143,7 @@ public class RequestServiceImpl implements RequestService{
         if(receiveUser == null){
             throw new InvalidAttributeValueException("잘못된 받는 유저 아이디입니다.");
         }
-        Request loadRequest = requestRepository.findById(requestUpdateDto.getId()).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
         int step = loadRequest.getStep();
         loadRequest.setTitle(requestUpdateDto.getTitle());
         loadRequest.setContent(requestUpdateDto.getContent());
@@ -214,8 +214,7 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public void deleteRequest(int groundId, RequestDeleteDto requestDeleteDto) {
-        String requestId = requestDeleteDto.getId();
+    public void deleteRequest(int groundId, String requestId) {
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
         int step = loadRequest.getStep();
         // step1인 문서가 삭제되었을 때

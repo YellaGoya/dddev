@@ -130,8 +130,8 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General updateGeneral(int groundId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails) {
-        General loadGeneral = generalRepository.findById(generalUpdateDto.getId()).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
+    public General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails) {
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
         loadGeneral.setTitle(generalUpdateDto.getTitle());
         loadGeneral.setContent(generalUpdateDto.getContent());
@@ -201,8 +201,7 @@ public class GeneralServiceImpl implements GeneralService{
 
 
     @Override
-    public void deleteGeneral(int groundId, GeneralDeleteDto generalDeleteDto) {
-        String generalId = generalDeleteDto.getId();
+    public void deleteGeneral(int groundId, String generalId) {
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
         // step1인 문서가 삭제되었을 때
