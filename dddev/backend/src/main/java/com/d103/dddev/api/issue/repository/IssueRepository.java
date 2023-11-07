@@ -16,9 +16,9 @@ public interface IssueRepository extends MongoRepository<Issue, String> {
 
     Optional<Issue> findByGroundIdAndId(Integer groundId, String targetId);
 
-	Optional<Issue> findByGroundIdAndUnclassifiedAndType(String groundId, boolean unclassified, String type);
+	Optional<Issue> findByGroundIdAndUnclassifiedAndType(Integer groundId, boolean unclassified, String type);
 
-	ArrayList<Issue> findAllByGroundIdAndParentIdAndType(String groundId, String parentId, String type);
+	ArrayList<Issue> findAllByGroundIdAndParentIdAndType(Integer groundId, String parentId, String type);
 
 	@Query("{ 'ground_id' : ?0, 'sprint_id' : ?1, 'status' : 3, 'focus_time' : { $gt : 0 } }")
 	List<Issue> findFocusTimeDone(Integer groundId, Integer sprintId);
@@ -31,9 +31,5 @@ public interface IssueRepository extends MongoRepository<Issue, String> {
 
 	@Query("{ 'ground_id' : ?0, 'sprint_id' : ?1, 'status' : { $gt : 0, $lt : 3 }, 'active_time' : { $gt : 0 } }")
 	List<Issue> findActiveTimeUndone(Integer groundId, Integer sprintId);
-
-    Optional<Issue> findByGroundIdAndUnclassifiedAndType(Integer groundId, boolean unclassified, String type);
-
-    ArrayList<Issue> findAllByGroundIdAndParentIdAndType(Integer groundId, String parentId, String type);
 
 }
