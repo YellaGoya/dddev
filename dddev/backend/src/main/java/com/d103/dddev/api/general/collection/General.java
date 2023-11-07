@@ -36,4 +36,5 @@ public class General {
     private LocalDateTime updatedAt;
     private String author;
     private String modifier;
+    private boolean unclassified;
 }
