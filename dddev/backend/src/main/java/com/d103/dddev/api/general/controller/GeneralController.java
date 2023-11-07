@@ -24,7 +24,7 @@ import java.util.List;
 public class GeneralController {
     private final GeneralServiceImpl generalService;
 
-    @PostMapping
+    @PostMapping("/create")
     @ApiOperation(value="일반 문서 생성")
     public ResponseEntity<?> insertGeneral(@PathVariable("groundId") int groundId,
                                            @ApiParam(value = "step -> required\n"+
@@ -55,12 +55,13 @@ public class GeneralController {
     @PostMapping("/titles")
     @ApiOperation(value="제목들로 step1 일반 문서들 생성")
     public ResponseEntity<?> insertGeneralsWithTitles(@PathVariable("groundId") int groundId,
-                                                     @RequestBody GeneralInsertManyDto generalInsertManyDto,
-                                                      @RequestHeader String Authorization){
+                                                      @RequestBody GeneralInsertManyDto generalInsertManyDto,
+                                                      @RequestHeader String Authorization,
+                                                      @AuthenticationPrincipal UserDetails userDetails){
         ResponseVO<List<General>> responseVo;
 
         try{
-            List<General> generalList = generalService.insertGeneralsWithTitles(groundId, generalInsertManyDto);
+            List<General> generalList = generalService.insertGeneralsWithTitles(groundId, generalInsertManyDto, userDetails);
             responseVo = ResponseVO.<List<General>>builder()
                     .code(HttpStatus.OK.value())
                     .message("일반 문서들이 생성되었습니다.")
@@ -166,16 +167,16 @@ public class GeneralController {
     }
 
     
-    @PutMapping("/move")
+    @PutMapping("/move/{generalId}")
     @ApiOperation(value="일반 문서 위치이동")
     public ResponseEntity<?> moveGeneral(@PathVariable("groundId") int groundId,
-                                          @ApiParam(value="id -> 옮기려는 문서의 아이디\n" +
-                                                  "parentId -> 목적지 부모의 아이디") @RequestBody GeneralMoveDto GeneralMoveDto,
+                                          @PathVariable("generalId") String generalId,
+                                          @ApiParam(value= "parentId -> 목적지 부모의 아이디") @RequestBody GeneralMoveDto GeneralMoveDto,
                                          @RequestHeader String Authorization) {
         ResponseVO<General> responseVo;
 
         try{
-            General general = generalService.moveGeneral(groundId, GeneralMoveDto);
+            General general = generalService.moveGeneral(groundId, generalId, GeneralMoveDto);
             responseVo = ResponseVO.<General>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 이동했습니다.")
