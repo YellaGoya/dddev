@@ -2,9 +2,13 @@ package com.d103.dddev.api.general.service;
 
 import com.d103.dddev.api.general.collection.General;
 import com.d103.dddev.api.general.repository.GeneralRepository;
-import com.d103.dddev.api.general.repository.dto.*;
+import com.d103.dddev.api.general.repository.dto.requestDto.*;
+import com.d103.dddev.api.general.repository.dto.responseDto.GeneralResponseDto;
+import com.d103.dddev.api.request.collection.Request;
+import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +27,7 @@ public class GeneralServiceImpl implements GeneralService{
     private final GeneralRepository generalRepository;
 
     @Override
-    public General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto) throws InvalidAttributeValueException{
+    public General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException{
         int step = generalInsertOneDto.getStep(); // 문서의 step
         General insertGeneral; // DB에 저장될 문서
         General parent; // 저장될 문서의 부모
@@ -36,6 +40,8 @@ public class GeneralServiceImpl implements GeneralService{
                     .groundId(groundId)
                     .step(step)
                     .title(generalInsertOneDto.getTitle())
+                    .author(userDetails.getUsername())
+                    .modifier(userDetails.getUsername())
                     .build();
             try{
                 generalRepository.save(insertGeneral);
@@ -56,6 +62,8 @@ public class GeneralServiceImpl implements GeneralService{
                     .step(step)
                     .title(generalInsertOneDto.getTitle())
                     .parentId(generalInsertOneDto.getParentId())
+                    .author(userDetails.getUsername())
+                    .modifier(userDetails.getUsername())
                     .build();
             try{
                 generalRepository.save(insertGeneral);
@@ -106,8 +114,14 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public List<General> getStep1Generals(int groundId){
-        return generalRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    public List<GeneralResponseDto> getStep1Generals(int groundId){
+        List<General> generalList = generalRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<GeneralResponseDto> generalResponseDtoList = new ArrayList<>();
+        for (General general : generalList) {
+            GeneralResponseDto generalResponseDto = convertToDto(general);
+            generalResponseDtoList.add(generalResponseDto);
+        }
+        return generalResponseDtoList;
     }
 
     @Override
@@ -116,12 +130,13 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General updateGeneral(int groundId, GeneralUpdateDto generalUpdateDto) {
-        General loadGeneral = generalRepository.findById(generalUpdateDto.getId()).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
+    public General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails) {
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
         loadGeneral.setTitle(generalUpdateDto.getTitle());
         loadGeneral.setContent(generalUpdateDto.getContent());
         loadGeneral.setUpdatedAt(LocalDateTime.now());
+        loadGeneral.setModifier(userDetails.getUsername());
         try{
             generalRepository.save(loadGeneral);
         }catch(Exception e){
@@ -186,8 +201,7 @@ public class GeneralServiceImpl implements GeneralService{
 
 
     @Override
-    public void deleteGeneral(int groundId, GeneralDeleteDto generalDeleteDto) {
-        String generalId = generalDeleteDto.getId();
+    public void deleteGeneral(int groundId, String generalId) {
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
         // step1인 문서가 삭제되었을 때
@@ -228,5 +242,27 @@ public class GeneralServiceImpl implements GeneralService{
     public boolean stepIsRange(int step){
         return step>=1 && step<=2;
     }
+    public GeneralResponseDto convertToDto(General general) {
+        GeneralResponseDto generalResponseDto = new GeneralResponseDto();
+        generalResponseDto.setId(general.getId());
+        generalResponseDto.setStep(general.getStep());
+        if(general.getTitle() == null){
+            generalResponseDto.setTitle("");
+        }
+        else{
+            generalResponseDto.setTitle(general.getTitle());
+        }
+
+        List<GeneralResponseDto> children = new ArrayList<>();
+        if (general.getChildren() != null) {
+            for (General child : general.getChildren()) {
+                children.add(convertToDto(child));
+            }
+        }
+        generalResponseDto.setChildren(children);
+
+        return generalResponseDto;
+    }
+
 
 }

@@ -27,7 +27,7 @@ public class TargetServiceImpl implements TargetService {
     public TargetDto.Create.Response createTarget(String groundId, UserDetails userDetails) {
 
         Issue target = Issue.builder()
-                .groundId(groundId)
+                .groundId(Integer.parseInt(groundId))
                 .childrenId(new ArrayList<>())
                 .author(userDetails.getUsername())
                 .step(1) // 최상단 문서의 단계는 1
@@ -40,8 +40,8 @@ public class TargetServiceImpl implements TargetService {
 
         return TargetDto.Create.Response.builder()
                 .message(TargetMessage.create())
-                .status(HttpStatus.OK.value())
-                .target(target)
+                .code(HttpStatus.OK.value())
+                .data(target)
                 .build();
     }
 
@@ -54,15 +54,15 @@ public class TargetServiceImpl implements TargetService {
         if(targetList.isEmpty()){
             return TargetDto.List.Response.builder()
                     .message(TargetMessage.emptyList())
-                    .status(HttpStatus.OK.value())
-                    .targetList(targetList)
+                    .code(HttpStatus.OK.value())
+                    .data(targetList)
                     .build();
         }
 
         return TargetDto.List.Response.builder()
                 .message(TargetMessage.list())
-                .status(HttpStatus.OK.value())
-                .targetList(targetList)
+                .code(HttpStatus.OK.value())
+                .data(targetList)
                 .build();
     }
 
@@ -74,8 +74,8 @@ public class TargetServiceImpl implements TargetService {
 
         return TargetDto.Detail.Response.builder()
                 .message(TargetMessage.detail())
-                .status(HttpStatus.OK.value())
-                .target(target)
+                .code(HttpStatus.OK.value())
+                .data(target)
                 .build();
     }
 
@@ -116,7 +116,7 @@ public class TargetServiceImpl implements TargetService {
 
         return TargetDto.Delete.Response.builder()
                 .message(TargetMessage.delete())
-                .status(HttpStatus.OK.value())
+                .code(HttpStatus.OK.value())
                 .build();
     }
 
@@ -135,8 +135,64 @@ public class TargetServiceImpl implements TargetService {
 
         return TargetDto.Update.Response.builder()
                 .message(TargetMessage.update())
-                .status(HttpStatus.OK.value())
-                .target(target)
+                .code(HttpStatus.OK.value())
+                .data(target)
+                .build();
+    }
+
+    @Override
+    public TargetDto.Tree.Response Tree(String groundId) {
+        // 목표의 내용을 조회
+        List<Issue> targetList = issueRepository.findAllByGroundIdAndType(groundId, "target");
+
+        List<TargetDto.Tree.Docs> docs = new ArrayList<>();
+
+        for(Issue target : targetList){
+            // 목표 문서 하나에 대한 트리
+            List<TargetDto.Tree.Docs> checkTree = new ArrayList<>();
+
+            // check의 하위 문서 조회
+            for(String childCheck : target.getChildrenId()){
+                Issue checkObject = issueRepository.findById(childCheck)
+                        .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+                List<TargetDto.Tree.Docs> issueTree = new ArrayList<>();
+
+                for(String childIssue : checkObject.getChildrenId()){
+                    Issue issueObject = issueRepository.findById(childIssue)
+                            .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+                    issueTree.add(TargetDto.Tree.Docs.builder()
+                                    .id(issueObject.getId())
+                                    .title(issueObject.getTitle())
+                                    .step(issueObject.getStep())
+                                    .sprintId(issueObject.getSprintId())
+                                    .build());
+                }
+
+                TargetDto.Tree.Docs check = TargetDto.Tree.Docs.builder()
+                        .id(checkObject.getId())
+                        .title(checkObject.getTitle())
+                        .step(checkObject.getStep())
+                        .children(issueTree)
+                        .build();
+
+                checkTree.add(check);
+            }
+
+
+            docs.add(TargetDto.Tree.Docs.builder()
+                    .id(target.getId())
+                    .title(target.getTitle())
+                    .step(target.getStep())
+                    .children(checkTree)
+                    .build());
+        }
+
+        return TargetDto.Tree.Response.builder()
+                .message("그라운드 전체 문서 트리")
+                .code(HttpStatus.OK.value())
+                .data(docs)
                 .build();
     }
 

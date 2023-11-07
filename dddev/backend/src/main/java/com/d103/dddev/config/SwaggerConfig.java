@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -26,37 +27,15 @@ public class SwaggerConfig {
 	@Bean
 	public Docket api() {
 
-		List<RequestParameter> globalParameters = new ArrayList<>();
-
-		RequestParameter authTokenHeader = new RequestParameterBuilder()
-				.name("Authorization")
-				.description("Access Token")
-				.in(ParameterIn.HEADER.toString())
-				.required(false)
-				.query(q -> q.model(m -> m.scalarModel(ScalarType.STRING))
-						.defaultValue("Bearer "))
-				.build();
-
-		globalParameters.add(authTokenHeader);
-
-
 		return new Docket(DocumentationType.SWAGGER_2)
-				.select()
-				.apis(RequestHandlerSelectors.basePackage("com.d103.dddev.api"))
-				.build()
-				.apiInfo(apiInfo())
-				.globalRequestParameters(globalParameters)
-				.ignoredParameterTypes(UserDetails.class)
-				.useDefaultResponseMessages(true);
-
-//		return new Docket(DocumentationType.SWAGGER_2)
-//			.select()
-//			.apis(RequestHandlerSelectors.basePackage("com.d103.dddev.api"))
-//			.paths(PathSelectors.any())
-//			.build()
-//			.apiInfo(apiInfo())
-//			.enable(true);
+			.select()
+			.apis(RequestHandlerSelectors.basePackage("com.d103.dddev.api"))
+			.paths(PathSelectors.any())
+			.build()
+			.ignoredParameterTypes(UserDetails.class)
+			.apiInfo(apiInfo());
 	}
+
 
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder()

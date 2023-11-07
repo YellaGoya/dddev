@@ -1,7 +1,7 @@
 package com.d103.dddev.api.issue.model.message;
 
 public class IssueMessage {
-    public static String create(){ return "체크 포인트 문서 생성 완료"; }
+    public static String create(){ return "이슈 문서 생성 완료"; }
 
     public static String list(){
         return "이슈 문서 목록 조회 완료";

@@ -22,8 +22,8 @@ public class CheckDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private Issue check;
+            private Integer code;
+            private Issue data;
         }
     }
 
@@ -32,8 +32,8 @@ public class CheckDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private ArrayList<Issue> checkList;
+            private Integer code;
+            private ArrayList<Issue> data;
         }
     }
 
@@ -42,8 +42,8 @@ public class CheckDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
-            private Issue check;
+            private Integer code;
+            private Issue data;
         }
     }
 
@@ -52,41 +52,47 @@ public class CheckDto {
         @Builder
         public static class Response{
             private String message;
-            private Integer status;
+            private Integer code;
         }
     }
 
     public static class Update{
         @Data
         @Builder
+        @ApiModel(value="체크 문서 수정", description = "체크 문서의 제목 및 내용 수정")
         public static class Request{
+            @ApiModelProperty(value="제목", example = "제목")
             private String title;
+            @ApiModelProperty(value="내용", example = "내용")
             private String content;
         }
 
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue check;
+            private Issue data;
         }
     }
 
     public static class Connect{
 
         @Data
+        @ApiModel(value="체크 문서 수정", description = "체크 문서의 제목 및 내용 수정")
         public static class Request{
+            @ApiModelProperty(value="체크 문서 ID", example = "")
             private String checkId;
+            @ApiModelProperty(value="목표 문서 ID", example = "")
             private String targetId;
         }
 
         @Data
         @Builder
         public static class Response{
-            private Integer status;
+            private Integer code;
             private String message;
-            private Issue check;
+            private Issue data;
         }
     }
 }

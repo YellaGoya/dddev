@@ -24,7 +24,7 @@ public class Issue {
     private String id;
 
     @Field("ground_id")
-    private String groundId;
+    private Integer groundId;
     @Field("sprint_id")
     private Integer sprintId;
     @Field("parent_id")
@@ -44,13 +44,16 @@ public class Issue {
     private LocalDateTime updatedAt;
 
     // status changing time
+    @Field("start_date")
     private LocalDateTime startDate;
+
+    @Field("end_date")
     private LocalDateTime endDate;
 
-    @Field("work_time")
-    private Integer workTime;
-    @Field("study_time")
-    private Integer studyTime;
+    @Field("focus_time")
+    private Integer focusTime;
+    @Field("active_time")
+    private Integer activeTime;
 
     @CreatedBy
     private String author; // user name
