@@ -24,9 +24,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.ground.repository.vo.GroundUserVO;
 import com.d103.dddev.api.ground.service.GroundService;
 import com.d103.dddev.api.ground.service.GroundUserService;
-import com.d103.dddev.api.ground.repository.vo.GroundUserVO;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.dto.UserDto;
@@ -56,8 +56,9 @@ public class GroundController {
 
 	@PostMapping("/repo/{repoId}")
 	@ApiOperation(value = "그라운드 생성", notes = "{\"name\" : {name}}")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+	@ApiResponses(value = {@ApiResponse(code = 401, message = "존재하지 않는 레포지토리"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 409, message = "이미 존재하는 그라운드의 레포지토리"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> createGround(@RequestHeader String Authorization, HttpServletRequest request,
@@ -91,20 +92,13 @@ public class GroundController {
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
-		} catch (NoSuchFieldException e) {
+		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.UNAUTHORIZED.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());
-			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.NOT_ACCEPTABLE.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (EntityExistsException e) {
 			log.error(e.getMessage());
 			ResponseVO<GroundDto> responseVO = ResponseVO.<GroundDto>builder()
@@ -122,11 +116,9 @@ public class GroundController {
 		}
 	}
 
-	// TODO : 구현하기
-
 	@PostMapping("/{groundId}/invite/{githubId}")
 	@ApiOperation(value = "그라운드에 멤버 추가하기", notes = "그라운드에 멤버 추가하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
+	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<GroundUserVO>>> inviteMemberToGround(@RequestHeader String Authorization,
@@ -156,13 +148,6 @@ public class GroundController {
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<List<GroundUserVO>>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<List<GroundUserVO>>builder()
@@ -183,8 +168,8 @@ public class GroundController {
 	@GetMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 정보 조회", notes = "그라운드 정보를 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
-		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> getGroundInfo(@RequestHeader String Authorization,
 		HttpServletRequest request) {
@@ -201,13 +186,6 @@ public class GroundController {
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.NOT_ACCEPTABLE.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
@@ -220,8 +198,9 @@ public class GroundController {
 
 	@GetMapping("/{groundId}/user/{email}")
 	@ApiOperation(value = "이메일로 사용자 찾기", notes = "이메일로 사용자를 찾는 API(이미 그라운드에 추가된 사람은 제외됨)")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드의 owner가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<Map<String, String>>>> getUserByEmail(@RequestHeader String Authorization,
 		@PathVariable Integer groundId,
@@ -245,13 +224,6 @@ public class GroundController {
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<List<Map<String, String>>>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<List<Map<String, String>>>builder()
@@ -271,8 +243,9 @@ public class GroundController {
 
 	@GetMapping("/{groundId}/is-owner")
 	@ApiOperation(value = "그라운드 owner 확인", notes = "그라운드의 owner인지 확인하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<Boolean>> checkIsGroundOwner(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
@@ -280,7 +253,6 @@ public class GroundController {
 		log.info("controller - getGroundInfo :: 그라운드 정보 조회 진입");
 		ResponseVO<Boolean> responseVO;
 		try {
-
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
 			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 
@@ -293,20 +265,6 @@ public class GroundController {
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<Boolean>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<Boolean>builder()
-				.code(HttpStatus.NOT_ACCEPTABLE.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<Boolean>builder()
@@ -319,8 +277,9 @@ public class GroundController {
 
 	@GetMapping("/{groundId}/is-member")
 	@ApiOperation(value = "사용자가 그라운드 멤버인지 확인", notes = "사용자가 그라운드 멤버인지 확인하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<Boolean>> checkIsGroundMember(@RequestHeader String Authorization,
 		@PathVariable Integer groundId,
@@ -335,26 +294,12 @@ public class GroundController {
 
 			responseVO = ResponseVO.<Boolean>builder()
 				.code(HttpStatus.OK.value())
-				.message("그라운드 owner 확인 성공!")
+				.message("그라운드 멤버 확인 성공!")
 				.data(isMember)
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<Boolean>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<Boolean>builder()
-				.code(HttpStatus.NOT_ACCEPTABLE.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<Boolean>builder()
@@ -368,8 +313,8 @@ public class GroundController {
 	@GetMapping("/{groundId}/users")
 	@ApiOperation(value = "그라운드 사용자 목록 조회", notes = "그라운드 사용자 목록을 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
-		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<GroundUserVO>>> getGroundUsers(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId) {
@@ -388,20 +333,6 @@ public class GroundController {
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<List<GroundUserVO>>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<List<GroundUserVO>>builder()
-				.code(HttpStatus.NOT_ACCEPTABLE.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<List<GroundUserVO>>builder()
@@ -412,59 +343,77 @@ public class GroundController {
 		}
 	}
 
-	@GetMapping("/{groundId}/chart/{sprintId}/focus-time")
-	@ApiOperation(value = "그라운드 차트 - 집중시간 조회", notes = "그라운드 차트 - 집중시간 조회하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
+	@GetMapping("/{groundId}/chart/focus-time/{sprintId}")
+	@ApiOperation(value = "그라운드 차트 - 집중시간 조회", notes = "그라운드 차트 - 완료/미완료 집중시간 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "그라운드의 멤버가 아님"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<?>> getFocusTime(@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
+	ResponseEntity<ResponseVO<Map<String, Integer>>> getFocusTime(
+		@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
 		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
 		HttpServletRequest request) {
 
 		log.info("controller - getFocusTime :: 차트 집중시간 조회 진입");
-		ResponseVO<?> responseVO;
+		ResponseVO<Map<String, Integer>> responseVO;
 		try {
-			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			Map<String, Integer> groundFocusTime = groundService.getGroundFocusTime(groundId, sprintId);
 
-			if(!groundUserService.checkIsGroundMember(groundId, userDto.getId())) {
-				throw new NoSuchFieldException("해당 그라운드의 멤버가 아닙니다.");
-			}
-
-			Map<String, Integer> groundFocusTime = groundService.getGroundFocusTime(groundId, sprintId, 3);
-			System.out.println(groundFocusTime.get("focusTime"));
-			System.out.println(groundFocusTime.get("focusTimeLeft"));
-			return null;
-
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
+			responseVO = ResponseVO.<Map<String, Integer>>builder()
+				.code(HttpStatus.OK.value())
+				.message("그라운드 완료/미완료 집중시간 조회 완료!")
+				.data(groundFocusTime)
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.NOT_ACCEPTABLE.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<GroundDto>builder()
+			responseVO = ResponseVO.<Map<String, Integer>>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
 
+	@GetMapping("/{groundId}/chart/active-time/{sprintId}")
+	@ApiOperation(value = "그라운드 차트 - 집중시간 조회", notes = "그라운드 차트 - 완료/미완료 집중시간 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseVO<Map<String, Integer>>> getActiveTime(
+		@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
+		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
+		HttpServletRequest request) {
+		log.info("controller - getFocusTime :: 차트 연구시간 조회 진입");
+		ResponseVO<Map<String, Integer>> responseVO;
+		try {
+			Map<String, Integer> groundActiveTime = groundService.getGroundActiveTime(groundId, sprintId);
+
+			responseVO = ResponseVO.<Map<String, Integer>>builder()
+				.code(HttpStatus.OK.value())
+				.message("그라운드 완료/미완료 연구시간 조회 성공!")
+				.data(groundActiveTime)
+				.build();
+
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<Map<String, Integer>>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@PutMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 정보 수정", notes = "그라운드 정보를 수정하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자거나 해당 그라운드의 owner가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> updateGroundInfo(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
@@ -473,7 +422,6 @@ public class GroundController {
 		log.info("controller - updateGroundInfo :: 그라운드 정보 수정 진입");
 		ResponseVO<GroundDto> responseVO;
 		try {
-
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
 			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 			GroundDto groundDto = (GroundDto)mav.getModel().get("groundDto");
@@ -491,13 +439,6 @@ public class GroundController {
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
@@ -518,16 +459,15 @@ public class GroundController {
 	@PutMapping("/{groundId}/profile")
 	@ApiOperation(value = "그라운드 프로필 사진 수정", notes = "그라운드 프로필 사진 수정하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
-		@ApiResponse(code = 401, message = "access token 오류"),
+		@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> modifyGroundProfile(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId, @RequestParam MultipartFile file,
 		HttpServletRequest request) {
-		log.info("controller - modifyGroundName :: 그라운드 이름 수정 진입");
+		log.info("controller - modifyGroundName :: 그라운드 프로필 수정 진입");
 		ResponseVO<GroundDto> responseVO;
 		try {
-
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
 			UserDto userDto = (UserDto)mav.getModel().get("userDto");
 			GroundDto groundDto = (GroundDto)mav.getModel().get("groundDto");
@@ -540,19 +480,12 @@ public class GroundController {
 
 			responseVO = ResponseVO.<GroundDto>builder()
 				.code(HttpStatus.OK.value())
-				.message("그라운드 이름 수정 성공!")
+				.message("그라운드 프로필 수정 성공!")
 				.data(groundDto)
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
@@ -572,7 +505,8 @@ public class GroundController {
 
 	@DeleteMapping("/{groundId}/profile")
 	@ApiOperation(value = "그라운드 프로필 사진 삭제", notes = "그라운드 프로필 사진 삭제하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<GroundDto>> deleteGroundProfileImg(@RequestHeader String Authorization,
@@ -599,13 +533,6 @@ public class GroundController {
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<GroundDto>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<GroundDto>builder()
@@ -624,10 +551,10 @@ public class GroundController {
 	}
 
 	@DeleteMapping("/{groundId}/owner/user/{githubId}")
-	@ApiOperation(value = "그라운드에서 사용자 나가기", notes = "그라운드 멤버인 사용자 나가기 API")
+	@ApiOperation(value = "그라운드에서 사용자 강퇴시키기", notes = "그라운드 멤버인 사용자 강퇴시키는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
-		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드의 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> deleteMemberFromGroundByOwner(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
@@ -655,13 +582,6 @@ public class GroundController {
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
@@ -682,8 +602,8 @@ public class GroundController {
 	@DeleteMapping("/{groundId}/user")
 	@ApiOperation(value = "그라운드에서 사용자 나가기", notes = "그라운드 멤버인 사용자 나가기 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
-		@ApiResponse(code = 401, message = "access token 오류"),
-		@ApiResponse(code = 403, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> deleteMemberFromGround(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId, HttpServletRequest request) {
@@ -702,20 +622,6 @@ public class GroundController {
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.NOT_ACCEPTABLE.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()
@@ -728,7 +634,8 @@ public class GroundController {
 
 	@DeleteMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 삭제", notes = "그라운드를 삭제하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 오류"),
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<String>> deleteGround(@RequestHeader String Authorization,
@@ -754,13 +661,6 @@ public class GroundController {
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<String>builder()

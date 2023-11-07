@@ -18,6 +18,7 @@ import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.repository.IssueRepository;
+import com.d103.dddev.api.issue.service.IssueService;
 import com.d103.dddev.api.issue.util.UndefinedUtil;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
@@ -37,7 +38,7 @@ public class GroundServiceImpl implements GroundService {
 	private final UserService userService;
 	private final ProfileService profileService;
 	private final RepositoryService repositoryService;
-	private final IssueRepository issueRepository;
+	private final IssueService issueService;
 	private final UndefinedUtil undefinedUtil;
 	private final Integer DEFAULT_GROUND_FOCUS_TIME = 5;
 	private final Integer DEFAULT_GROUND_ACTIVE_TIME = 3;
@@ -91,36 +92,15 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
-	public Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId, Integer status) throws
+	public Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws
 		Exception {
-		List<Issue> focusTimeList = issueRepository.findByGroundIdAndSprintIdAndStatusAndWorkTimeGreaterThan(String.valueOf(groundId),
-			sprintId, status, 0);
-		List<Issue> focusTimeLeftList = issueRepository.findByGroundIdAndSprintIdAndStatusBetweenAndWorkTimeGreaterThan(
-			String.valueOf(groundId), sprintId, 0, 3, 0);
-
-		Integer focusTime = 0;
-		for (Issue i : focusTimeList) {
-			System.out.println(i);
-			focusTime += i.getWorkTime();
-		}
-
-		Integer focusTimeLeft = 0;
-		for (Issue i : focusTimeLeftList) {
-			System.out.println(i);
-			focusTimeLeft += i.getWorkTime();
-		}
-
-		Map<String, Integer> result = new HashMap<>();
-		result.put("focusTime", focusTime);
-		result.put("focusTimeLeft", focusTimeLeft);
-
-		return result;
+		return issueService.getGroundFocusTime(groundId, sprintId);
 	}
 
 	@Override
-	public Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId, Integer status) throws
+	public Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws
 		Exception {
-		return null;
+		return issueService.getGroundActiveTime(groundId, sprintId);
 	}
 
 	@Override

@@ -1,5 +1,8 @@
 package com.d103.dddev.api.issue.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.d103.dddev.api.issue.model.dto.IssueDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -24,4 +27,7 @@ public interface IssueService  {
     IssueDto.Time.Response issueTime(IssueDto.Time.Request request, String issueId, UserDetails userDetails);
 
     IssueDto.Sprint.Response issueSprint(IssueDto.Sprint.Request request, String issueId, UserDetails userDetails);
+
+    Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws Exception;
+    Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws Exception;
 }

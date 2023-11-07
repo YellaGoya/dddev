@@ -45,8 +45,9 @@ public class RepositoryController {
 
 	@GetMapping("/list")
 	@ApiOperation(value = "사용자 레포지토리 목록 조회", notes = "사용자 레포지토리 목록 조회하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 401, message = "access token 혹은 pat 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+	@ApiResponses(value = {@ApiResponse(code = 401, message = "pat 오류"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<RepositoryVO>>> getRepositoryList(HttpServletRequest request, @RequestHeader String Authorization) {
 		try {
@@ -63,13 +64,6 @@ public class RepositoryController {
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchFieldException e) {
-			log.error(e.getMessage());
-			ResponseVO<List<RepositoryVO>> responseVO = ResponseVO.<List<RepositoryVO>>builder()
-				.code(HttpStatus.UNAUTHORIZED.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
 		} catch (HttpClientErrorException e) {
 			log.error("personal access token 에러 :: 만료 기간을 확인하세요");
 			ResponseVO<List<RepositoryVO>> responseVO = ResponseVO.<List<RepositoryVO>>builder()
@@ -77,13 +71,6 @@ public class RepositoryController {
 				.message("personal access token 에러 :: 만료 기간을 확인하세요")
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.UNAUTHORIZED);
-		} catch (NoSuchElementException e) {
-			log.error(e.getMessage());
-			ResponseVO<List<RepositoryVO>> responseVO = ResponseVO.<List<RepositoryVO>>builder()
-				.code(HttpStatus.FORBIDDEN.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			e.printStackTrace();

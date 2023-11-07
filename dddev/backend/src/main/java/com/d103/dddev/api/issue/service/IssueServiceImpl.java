@@ -1,5 +1,16 @@
 package com.d103.dddev.api.issue.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.model.dto.IssueDto;
 import com.d103.dddev.api.issue.model.message.Error;
@@ -8,16 +19,9 @@ import com.d103.dddev.api.issue.repository.IssueRepository;
 import com.d103.dddev.api.issue.util.IssueUtil;
 import com.d103.dddev.api.sprint.repository.SprintRepository;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -283,6 +287,48 @@ public class IssueServiceImpl implements IssueService{
                 .build();
     }
 
+    @Override
+    public Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws Exception {
+        List<Issue> focusTimeDoneList = issueRepository.findFocusTimeDone(groundId, sprintId);
+        List<Issue> focusTimeUndoneList = issueRepository.findFocusTimeUndone(groundId, sprintId);
 
+        Integer focusTimeDone = 0;
+        for (Issue i : focusTimeDoneList) {
+            focusTimeDone += i.getFocusTime();
+        }
+
+        Integer focusTimeUndone = 0;
+        for (Issue i : focusTimeUndoneList) {
+            focusTimeUndone += i.getFocusTime();
+        }
+
+        Map<String, Integer> result = new HashMap<>();
+        result.put("focusTimeDone", focusTimeDone);
+        result.put("focusTimeUndone", focusTimeUndone);
+
+        return result;
+    }
+
+    @Override
+    public Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws Exception {
+        List<Issue> activeTimeDoneList = issueRepository.findActiveTimeDone(groundId, sprintId);
+        List<Issue> activeTimeUndoneList = issueRepository.findActiveTimeUndone(groundId, sprintId);
+
+        Integer activeTimeDone = 0;
+        for (Issue i : activeTimeDoneList) {
+            activeTimeDone += i.getActiveTime();
+        }
+
+        Integer activeTimeUndone = 0;
+        for (Issue i : activeTimeUndoneList) {
+            activeTimeUndone += i.getActiveTime();
+        }
+
+        Map<String, Integer> result = new HashMap<>();
+        result.put("activeTimeDone", activeTimeDone);
+        result.put("activeTimeUndone", activeTimeUndone);
+
+        return result;
+    }
 
 }
