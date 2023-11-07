@@ -118,38 +118,7 @@ public class GeneralServiceImpl implements GeneralService{
         List<General> generalList = generalRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
         List<GeneralResponseDto> generalResponseDtoList = new ArrayList<>();
         for (General general : generalList) {
-            List<General> children = general.getChildren();
-            List<GeneralResponseDto> generalResponseDtoChildren = new ArrayList<>();
-            if(children != null){
-                for (General child : children) {
-                    GeneralResponseDto generalResponseDto = new GeneralResponseDto();
-                    generalResponseDto.setId(child.getId());
-                    generalResponseDto.setStep(child.getStep());
-                    if(child.getTitle() == null)
-                        generalResponseDto.setTitle("");
-                    else{
-                        generalResponseDto.setTitle(child.getTitle());
-                    }
-                    if(child.getChildren() == null){
-                        generalResponseDto.setChildren(new ArrayList<>());
-                    }
-                    generalResponseDtoChildren.add(generalResponseDto);
-                }
-            }
-            GeneralResponseDto generalResponseDto = new GeneralResponseDto();
-            generalResponseDto.setId(general.getId());
-            generalResponseDto.setStep(general.getStep());
-            if(general.getTitle() == null)
-                generalResponseDto.setTitle("");
-            else{
-                generalResponseDto.setTitle(general.getTitle());
-            }
-            if(general.getChildren() == null){
-                generalResponseDto.setChildren(new ArrayList<>());
-            }
-            else{
-                generalResponseDto.setChildren(generalResponseDtoChildren);
-            }
+            GeneralResponseDto generalResponseDto = convertToDto(general);
             generalResponseDtoList.add(generalResponseDto);
         }
         return generalResponseDtoList;
@@ -274,5 +243,27 @@ public class GeneralServiceImpl implements GeneralService{
     public boolean stepIsRange(int step){
         return step>=1 && step<=2;
     }
+    public GeneralResponseDto convertToDto(General general) {
+        GeneralResponseDto generalResponseDto = new GeneralResponseDto();
+        generalResponseDto.setId(general.getId());
+        generalResponseDto.setStep(general.getStep());
+        if(general.getTitle() == null){
+            generalResponseDto.setTitle("");
+        }
+        else{
+            generalResponseDto.setTitle(general.getTitle());
+        }
+
+        List<GeneralResponseDto> children = new ArrayList<>();
+        if (general.getChildren() != null) {
+            for (General child : general.getChildren()) {
+                children.add(convertToDto(child));
+            }
+        }
+        generalResponseDto.setChildren(children);
+
+        return generalResponseDto;
+    }
+
 
 }
