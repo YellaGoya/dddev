@@ -32,4 +32,16 @@ public interface IssueRepository extends MongoRepository<Issue, String> {
 	@Query("{ 'ground_id' : ?0, 'sprint_id' : ?1, 'status' : { $gt : 0, $lt : 3 }, 'active_time' : { $gt : 0 } }")
 	List<Issue> findActiveTimeUndone(Integer groundId, Integer sprintId);
 
+	@Query("{ 'ground_id' : ?0, 'sprint_id' : ?1, 'status' : 3, 'focus_time' : { $gt : 0 } }")
+	long findFocusTimeDoneCount(Integer groundId, Integer sprintId);
+
+	@Query("{ 'ground_id' : ?0, 'sprint_id' : ?1, 'status' : { $gt : 0, $lt : 3 }, 'focus_time' : { $gt : 0 } }")
+	long findFocusTimeUndoneCount(Integer groundId, Integer sprintId);
+
+	@Query("{ 'ground_id' : ?0, 'sprint_id' : ?1, 'status' : 3, 'active_time' : { $gt : 0 } }")
+	long findActiveTimeDoneCount(Integer groundId, Integer sprintId);
+
+	@Query("{ 'ground_id' : ?0, 'sprint_id' : ?1, 'status' : { $gt : 0, $lt : 3 }, 'active_time' : { $gt : 0 } }")
+	long findActiveTimeUndoneCount(Integer groundId, Integer sprintId);
+
 }
