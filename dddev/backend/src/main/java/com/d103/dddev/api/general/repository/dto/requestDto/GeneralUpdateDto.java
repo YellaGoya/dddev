@@ -10,7 +10,6 @@ import lombok.*;
 @Builder
 
 public class GeneralUpdateDto {
-    private String id;
     private String title;
     private String content;
 }

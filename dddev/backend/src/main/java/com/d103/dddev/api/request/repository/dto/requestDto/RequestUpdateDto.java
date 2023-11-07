@@ -9,7 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RequestUpdateDto {
-    private String id;
     private String title;
     private String content;
     private int sendUserId;

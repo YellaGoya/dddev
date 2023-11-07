@@ -74,7 +74,7 @@ public class GeneralController {
         }
     }
     @GetMapping("/{generalId}")
-    @ApiOperation(value="문서 아이디로 일반 문서 가져오기")
+    @ApiOperation(value="일반 문서 상세 조회")
     public ResponseEntity<?> getGeneral(@PathVariable("groundId") int groundId, @PathVariable("generalId") String generalId){
         ResponseVO<General> responseVo;
 
@@ -136,13 +136,16 @@ public class GeneralController {
             return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PutMapping
-    @ApiOperation(value="문서 수정하기")
-    public ResponseEntity<?> updateGeneral(@PathVariable("groundId") int groundId, @RequestBody GeneralUpdateDto generalUpdateDto, @AuthenticationPrincipal UserDetails userDetails){
+    @PutMapping("/{generalId}")
+    @ApiOperation(value="일반 문서 수정")
+    public ResponseEntity<?> updateGeneral(@PathVariable("groundId") int groundId,
+                                           @PathVariable("generalId") String generalId,
+                                           @RequestBody GeneralUpdateDto generalUpdateDto,
+                                           @AuthenticationPrincipal UserDetails userDetails){
         ResponseVO<General> responseVo;
 
         try{
-            General general = generalService.updateGeneral(groundId, generalUpdateDto, userDetails);
+            General general = generalService.updateGeneral(groundId, generalId, generalUpdateDto, userDetails);
             responseVo = ResponseVO.<General>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 수정했습니다.")
@@ -160,7 +163,7 @@ public class GeneralController {
 
     
     @PutMapping("/move")
-    @ApiOperation(value="일반 문서 위치이동하기")
+    @ApiOperation(value="일반 문서 위치이동")
     public ResponseEntity<?> moveGeneral(@PathVariable("groundId") int groundId,
                                           @ApiParam(value="id -> 옮기려는 문서의 아이디\n" +
                                                   "parentId -> 목적지 부모의 아이디") @RequestBody GeneralMoveDto GeneralMoveDto) {
@@ -183,14 +186,14 @@ public class GeneralController {
         }
     }
 
-    @DeleteMapping
-    @ApiOperation(value="일반 문서 삭제하기")
-    public ResponseEntity<?> deleteGeneral(@PathVariable("groundId") int groundId, @RequestBody GeneralDeleteDto generalDeleteDto){
+    @DeleteMapping("/{generalId}")
+    @ApiOperation(value="일반 문서 삭제")
+    public ResponseEntity<?> deleteGeneral(@PathVariable("groundId") int groundId, @PathVariable("generalId") String generalId){
 
         ResponseVO<General> responseVo;
 
         try{
-            generalService.deleteGeneral(groundId, generalDeleteDto);
+            generalService.deleteGeneral(groundId, generalId);
             responseVo = ResponseVO.<General>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 삭제했습니다.")
