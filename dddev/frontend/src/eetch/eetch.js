@@ -1,6 +1,7 @@
 import * as user from 'eetch/user';
 import * as repo from 'eetch/repo';
 import * as ground from 'eetch/ground';
+import * as test from 'eetch/test';
 // import * as notice from "apis/notice";
 // import * as question from "apis/question";
 // import * as statistics from "apis/statistics";
@@ -36,6 +37,9 @@ const eetch = async (url, options) => {
 
   return res;
 };
+
+eetch.addDeviceToken = (values) => test.addDeviceToken(values);
+eetch.alertList = (values) => test.alertList(values);
 
 eetch.githubSync = (values) => user.githubSync(values);
 eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);

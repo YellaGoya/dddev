@@ -25,7 +25,7 @@ self.addEventListener('push', function (e) {
 
   e.waitUntil(self.registration.showNotification(notificationTitle, notificationOptions));
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  // self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 // const messaging = firebaseApp.messaging();
