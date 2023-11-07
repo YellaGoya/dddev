@@ -1,5 +1,8 @@
 package com.d103.dddev.api.request.service;
 
+import com.d103.dddev.api.file.repository.DocumentRepository;
+import com.d103.dddev.api.file.repository.entity.FileEntity;
+import com.d103.dddev.api.file.service.DocumentServiceImpl;
 import com.d103.dddev.api.general.collection.General;
 import com.d103.dddev.api.general.repository.dto.responseDto.GeneralResponseDto;
 import com.d103.dddev.api.request.collection.Comment;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.management.InvalidAttributeValueException;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +33,7 @@ public class RequestServiceImpl implements RequestService{
 
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
+    private final DocumentServiceImpl documentService;
 
     @Override
     public Request insertRequest(int groundId, RequestInsertOneDto requestInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException{
@@ -258,7 +263,7 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public void deleteRequest(int groundId, String requestId) throws InvalidAttributeValueException{
+    public void deleteRequest(int groundId, String requestId) throws InvalidAttributeValueException, TransactionException{
         Request unclassifiedRequest = requestRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()->new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new TransactionException("해당 문서를 가지고 오는데 실패했습니다."));
         if(unclassifiedRequest.getId().equals(loadRequest.getId())) throw new InvalidAttributeValueException("미분류 문서를 삭제할 수 없습니다.");
@@ -280,7 +285,7 @@ public class RequestServiceImpl implements RequestService{
         else{
             // 부모를 업데이트한다.
             String parentId = loadRequest.getParentId();
-            Request parent = requestRepository.findById(loadRequest.getParentId()).orElseThrow(()-> new TransactionException("문서를 불러오는데 실패했습니다."));
+            Request parent = requestRepository.findById(parentId).orElseThrow(()-> new TransactionException("문서를 불러오는데 실패했습니다."));
             List<Request> children = parent.getChildren();
             children.removeIf((child) -> (child.getId().equals(requestId)));
             parent.setChildren(children);
@@ -296,6 +301,9 @@ public class RequestServiceImpl implements RequestService{
         }catch(Exception e){
             throw new TransactionException("문서를 삭제하는데 실패했습니다.");
         }
+
+        documentService.deleteFile(requestId);
+
     }
     public boolean stepIsRange(int step){
         return step>=1 && step<=2;
