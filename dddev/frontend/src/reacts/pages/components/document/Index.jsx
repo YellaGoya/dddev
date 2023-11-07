@@ -96,7 +96,7 @@ const Index = () => {
               );
             }}
           >
-            {doc.title === '' ? '새 문서' : doc.name}
+            {doc.title === '' ? '새 문서' : doc.title}
             {doc.step < (type === 'issue' ? 3 : 2) && (
               <LibraryAddIcon
                 className="addChild"

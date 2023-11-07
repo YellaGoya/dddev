@@ -31,7 +31,6 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
   const handleChange = (event) => {
     const formData = new FormData();
     formData.append('file', event.target.files[0]);
-    console.log(event.target.files[0]);
 
     eetch
       .userUploadImage({ accessToken: user.accessToken, refreshToken: user.refreshToken, formData })
@@ -73,7 +72,12 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
 
   const submitChange = () => {
     eetch.userEdit({ accessToken: user.accessToken, refreshToken: user.refreshToken, nickname, statusMsg }).catch((err) => {
-      console.log(err);
+      if (err.message === 'RefreshTokenExpired') {
+        dispatch(logoutUser());
+        dispatch(setMenu(false));
+        dispatch(setMessage(false));
+        navigate(`/login`);
+      }
     });
   };
 

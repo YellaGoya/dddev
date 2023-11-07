@@ -26,7 +26,6 @@ const Input = ({ label, data = '', holder, setData, array, fixed, click, enter, 
   };
 
   const removeCategory = (i) => {
-    console.log(array.length, array);
     return array.filter((item) => item !== i);
   };
 
