@@ -258,9 +258,10 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public void deleteRequest(int groundId, String requestId) {
+    public void deleteRequest(int groundId, String requestId) throws InvalidAttributeValueException{
         Request unclassifiedRequest = requestRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()->new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new TransactionException("해당 문서를 가지고 오는데 실패했습니다."));
+        if(unclassifiedRequest.getId().equals(loadRequest.getId())) throw new InvalidAttributeValueException("미분류 문서를 삭제할 수 없습니다.");
         int step = loadRequest.getStep();
         // step1인 문서가 삭제되었을 때
         if(step == 1){

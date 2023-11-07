@@ -15,10 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class DocumentController {
     private final DocumentServiceImpl documentService;
 
-    @PostMapping("/saveImg")
-    ResponseEntity<?> saveImg(@RequestHeader String Authorization, @RequestPart MultipartFile[] files) {
+    @PostMapping("/saveImg/{documentId}")
+    ResponseEntity<?> saveImg(@RequestHeader String Authorization, @PathVariable("documentId") String documentId, @RequestPart MultipartFile file) {
         try {
-            String path = documentService.saveImg(files);
+            String path = documentService.saveImg(documentId, file);
             ResponseVO<String> responseVO = ResponseVO.<String>builder()
                     .code(HttpStatus.OK.value())
                     .message("이미지 저장 성공")
@@ -29,7 +29,7 @@ public class DocumentController {
         } catch (Exception e) {
             ResponseVO<String> responseVO = ResponseVO.<String>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("이미지 저장 실패")
+                    .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }

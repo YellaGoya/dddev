@@ -19,6 +19,6 @@ public interface RequestService {
     void sendRequest(int groundId, String requestId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception;
     Comment createComment(int groundId, String requestId, String comment, UserDetails userDetails);
     Request moveRequest(int groundId, String requestId, RequestMoveDto requestMoveDto) throws InvalidAttributeValueException;
-    void deleteRequest(int groundId, String requestId);
+    void deleteRequest(int groundId, String requestId) throws InvalidAttributeValueException;
 
 }

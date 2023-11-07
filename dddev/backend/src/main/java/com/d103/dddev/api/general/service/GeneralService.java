@@ -17,6 +17,5 @@ public interface GeneralService {
     General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails);
 
     General moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws InvalidAttributeValueException;
-    void deleteGeneral(int groundId, String generalId);
-
+    void deleteGeneral(int groundId, String generalId) throws InvalidAttributeValueException;
 }
