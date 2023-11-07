@@ -24,10 +24,10 @@ public class TargetServiceImpl implements TargetService {
     private final IssueRepository issueRepository;
 
     @Override
-    public TargetDto.Create.Response createTarget(String groundId, UserDetails userDetails) {
+    public TargetDto.Create.Response createTarget(Integer groundId, UserDetails userDetails) {
 
         Issue target = Issue.builder()
-                .groundId(Integer.parseInt(groundId))
+                .groundId(groundId)
                 .childrenId(new ArrayList<>())
                 .author(userDetails.getUsername())
                 .step(1) // 최상단 문서의 단계는 1
@@ -48,7 +48,7 @@ public class TargetServiceImpl implements TargetService {
     // 그라운드에 해당하는 목표 문서 리스트 조회
 
     @Override
-    public TargetDto.List.Response targetList(String groundId) {
+    public TargetDto.List.Response targetList(Integer groundId) {
         ArrayList<Issue> targetList = issueRepository.findAllByGroundIdAndType(groundId,"target"); // 입력한 그라운드에 해당하는 target만
 
         if(targetList.isEmpty()){
@@ -67,7 +67,7 @@ public class TargetServiceImpl implements TargetService {
     }
 
     @Override
-    public TargetDto.Detail.Response targetDetail(String groundId, String targetId) {
+    public TargetDto.Detail.Response targetDetail(Integer groundId, String targetId) {
         // targetId만 있어도 조회는 가능 하지만 조금 더 확실히 하기 위해 두개를 비교
         Issue target = issueRepository.findByGroundIdAndId(groundId, targetId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
@@ -81,7 +81,7 @@ public class TargetServiceImpl implements TargetService {
 
     @Override
     @Transactional
-    public TargetDto.Delete.Response targetDelete(String groundId, String targetId) {
+    public TargetDto.Delete.Response targetDelete(Integer groundId, String targetId) {
         // 해당 그라운드에 해당 목표 문서가 존재하는지 존재 여부 판단
         Issue target = issueRepository.findByGroundIdAndId(groundId, targetId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
@@ -141,7 +141,7 @@ public class TargetServiceImpl implements TargetService {
     }
 
     @Override
-    public TargetDto.Tree.Response Tree(String groundId) {
+    public TargetDto.Tree.Response Tree(Integer groundId) {
         // 목표의 내용을 조회
         List<Issue> targetList = issueRepository.findAllByGroundIdAndType(groundId, "target");
 

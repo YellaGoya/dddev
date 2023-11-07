@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
 public class IssueUtil {
     private final IssueRepository issueRepository;
 
-    public String unclassified(String parentId, String groundId, String type){
+    public String unclassified(String parentId, Integer groundId, String type){
         if(parentId == null || parentId.isEmpty()){
             return issueRepository.findByGroundIdAndUnclassifiedAndType(groundId, true, type)
                     .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())).getId();

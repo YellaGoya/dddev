@@ -27,9 +27,9 @@ public class CheckServiceImpl implements CheckService{
 
     @Override
     @Transactional
-    public CheckDto.Create.Response createCheck(String groundId, CheckDto.Create.Request request, UserDetails userDetails) {
+    public CheckDto.Create.Response createCheck(Integer groundId, CheckDto.Create.Request request, UserDetails userDetails) {
         Issue check = Issue.builder()
-                .groundId(Integer.parseInt(groundId))
+                .groundId(groundId)
                 .parentId(issueUtil.unclassified(request.getParentId(),groundId, "target"))
                 .childrenId(new ArrayList<>())
                 .author(userDetails.getUsername())
@@ -57,7 +57,7 @@ public class CheckServiceImpl implements CheckService{
     }
 
     @Override
-    public CheckDto.List.Response checkList(String groundId, String targetId) {
+    public CheckDto.List.Response checkList(Integer groundId, String targetId) {
         ArrayList<Issue> checkList = issueRepository.findAllByGroundIdAndParentIdAndType(groundId,targetId,"check");
 
         if(checkList.isEmpty()){
@@ -78,7 +78,7 @@ public class CheckServiceImpl implements CheckService{
 
 
     @Override
-    public CheckDto.Detail.Response checkDetail(String groundId, String checkId) {
+    public CheckDto.Detail.Response checkDetail(Integer groundId, String checkId) {
         Issue check = issueRepository.findById(checkId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
@@ -95,7 +95,7 @@ public class CheckServiceImpl implements CheckService{
     // 삭제 시 연결된 이슈 미분류로 변경하는 로직 필요
     @Override
     @Transactional
-    public CheckDto.Delete.Response checkDelete(String groundId, String checkId) {
+    public CheckDto.Delete.Response checkDelete(Integer groundId, String checkId) {
         Issue check = issueRepository.findByGroundIdAndId(groundId, checkId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 체크 포인트 문서 조회
 

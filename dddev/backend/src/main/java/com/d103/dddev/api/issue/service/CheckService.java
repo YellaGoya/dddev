@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 public interface CheckService {
 
 
-    CheckDto.Create.Response createCheck(String groundId, CheckDto.Create.Request request, UserDetails userDetails);
+    CheckDto.Create.Response createCheck(Integer groundId, CheckDto.Create.Request request, UserDetails userDetails);
 
-    CheckDto.List.Response checkList(String groundId, String targetId);
+    CheckDto.List.Response checkList(Integer groundId, String targetId);
 
-    CheckDto.Detail.Response checkDetail(String groundId, String checkId);
+    CheckDto.Detail.Response checkDetail(Integer groundId, String checkId);
 
-    CheckDto.Delete.Response checkDelete(String groundId, String checkId);
+    CheckDto.Delete.Response checkDelete(Integer groundId, String checkId);
 
     CheckDto.Update.Response checkUpdate(CheckDto.Update.Request request, String checkId, UserDetails userDetails);
 
