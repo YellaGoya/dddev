@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.nio.file.NoSuchFileException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,7 +23,7 @@ public class DocumentServiceImpl implements DocumentService{
 
     @Value("${file.folder.document}")
     private String DOCUMENT_FOLDER;
-    @Value("{file.return.link}")
+    @Value("${file.return.link}")
     private String DOCUMENT_RETURN_LINK;
 
     private final DocumentRepository documentRepository;
@@ -33,10 +34,27 @@ public class DocumentServiceImpl implements DocumentService{
         String savedName = saveDocumentImg(documentId, path, file);
         return DOCUMENT_RETURN_LINK + savedName;
     }
-
     @Override
     public String createRandomFileName() throws Exception {
         return UUID.randomUUID().toString();
+    }
+    @Override
+    public void deleteFile(String documentId) throws TransactionException{
+        // 문서에 포함된 파일 삭제
+        List<FileEntity> files = documentRepository.findByDocumentId(documentId).orElseThrow(()->new TransactionException("문서에 포함된 파일을 들고오는데 실패했습니다."));
+
+        for(FileEntity file : files){
+        String prevFilePath = file.getFilePath();
+        File prevFile = new File(prevFilePath);
+        if(!prevFile.delete())
+            throw new TransactionException("파일 삭제에 실패했습니다.");
+        }
+
+        try{
+            documentRepository.deleteByDocumentId(documentId);
+        }catch(Exception e){
+            throw new TransactionException("db에 있는 파일정보 삭제에 실패했습니다.");
+        }
     }
     public String saveDocumentImg(String documentId, String path, MultipartFile newFile) throws Exception {
         if (newFile.isEmpty())

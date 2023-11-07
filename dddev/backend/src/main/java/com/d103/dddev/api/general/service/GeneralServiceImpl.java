@@ -1,5 +1,6 @@
 package com.d103.dddev.api.general.service;
 
+import com.d103.dddev.api.file.service.DocumentServiceImpl;
 import com.d103.dddev.api.general.collection.General;
 import com.d103.dddev.api.general.repository.GeneralRepository;
 import com.d103.dddev.api.general.repository.dto.requestDto.*;
@@ -25,6 +26,7 @@ import java.util.NoSuchElementException;
 public class GeneralServiceImpl implements GeneralService{
 
     private final GeneralRepository generalRepository;
+    private final DocumentServiceImpl documentService;
 
     @Override
     public General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException{
@@ -200,7 +202,7 @@ public class GeneralServiceImpl implements GeneralService{
 
 
     @Override
-    public void deleteGeneral(int groundId, String generalId) throws InvalidAttributeValueException{
+    public void deleteGeneral(int groundId, String generalId) throws InvalidAttributeValueException, TransactionException{
         General unclassifiedGeneral = generalRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()->new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("해당 문서를 가지고 오는데 실패했습니다."));
         if(unclassifiedGeneral.getId().equals(loadGeneral.getId())) throw new InvalidAttributeValueException("미분류 문서를 삭제할 수 없습니다.");
@@ -238,6 +240,8 @@ public class GeneralServiceImpl implements GeneralService{
         }catch(Exception e){
             throw new TransactionException("문서를 삭제하는데 실패했습니다.");
         }
+
+        documentService.deleteFile(generalId);
     }
 
     public boolean stepIsRange(int step){
