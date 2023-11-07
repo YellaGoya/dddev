@@ -1,4 +1,4 @@
-package com.d103.dddev.api.general.repository.dto;
+package com.d103.dddev.api.general.repository.dto.requestDto;
 
 import lombok.*;
 
@@ -10,7 +10,6 @@ import lombok.*;
 @Builder
 
 public class GeneralUpdateDto {
-    private String id;
     private String title;
     private String content;
 }
