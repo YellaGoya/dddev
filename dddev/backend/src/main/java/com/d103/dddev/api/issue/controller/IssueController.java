@@ -26,9 +26,9 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class IssueController {
     private final IssueService issueService;
-    @ApiOperation(value="이슈 문서 생성", notes = "이슈 문서 생성 API", response = IssueDto.Create.Response.class)
+    @ApiOperation(value="이슈 문서 생성", notes = "모든 값이 들어가지 않아도 생성 가능(부모문서 => 미분류, 스프린트 ID => 0)", response = IssueDto.Create.Response.class)
     @PostMapping("/create")
-    public ResponseEntity createIssue(@PathVariable Integer groundId,
+    public ResponseEntity<IssueDto.Create.Response> createIssue(@PathVariable Integer groundId,
                                       @RequestBody @ApiParam(value = "이슈 생성 요청") IssueDto.Create.Request request,
                                       @AuthenticationPrincipal UserDetails userDetails,
                                       @RequestHeader String Authorization) {
@@ -45,7 +45,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 목록 조회")
     @GetMapping("{checkId}/list")
-    public ResponseEntity issueList(@PathVariable Integer groundId,
+    public ResponseEntity<IssueDto.List.Response> issueList(@PathVariable Integer groundId,
                                     @PathVariable String checkId,
                                     @RequestHeader String Authorization){
         try{
@@ -61,7 +61,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 상세 조회")
     @GetMapping("/{issueId}")
-    public ResponseEntity issueDetail(@PathVariable Integer groundId,
+    public ResponseEntity<IssueDto.Detail.Response> issueDetail(@PathVariable Integer groundId,
                                       @PathVariable String issueId,
                                       @RequestHeader String Authorization){
         try{
@@ -78,7 +78,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 삭제")
     @DeleteMapping("/{issueId}")
-    public ResponseEntity issueDelete(@PathVariable Integer groundId,
+    public ResponseEntity<IssueDto.Delete.Response> issueDelete(@PathVariable Integer groundId,
                                       @PathVariable String issueId,
                                       @RequestHeader String Authorization){
         try{
@@ -92,9 +92,9 @@ public class IssueController {
         }
     }
 
-    @ApiOperation("이슈 문서 수정")
+    @ApiOperation(value = "이슈 문서 수정",notes = "이슈 문서 수정 => 들어오는 값 그대로 저장")
     @PutMapping("/{issueId}/content")
-    public ResponseEntity issueContent(@PathVariable Integer groundId,
+    public ResponseEntity<IssueDto.Content.Response> issueContent(@PathVariable Integer groundId,
                                        @PathVariable String issueId,
                                        @RequestBody IssueDto.Content.Request request,
                                        @AuthenticationPrincipal UserDetails userDetails,
@@ -110,9 +110,14 @@ public class IssueController {
         }
     }
 
-    @ApiOperation("이슈 문서 진행 상태 변경")
+    @ApiOperation(value = "이슈 문서 진행 상태 변경", notes = "0 : 미분류(이 미분류는 문서 카테고리의 미분류와는 차이가 있음) \n" +
+                                                        "1 : 진행 예정(스프린트가 시작되는 경우임) \n" +
+                                                        "2 : 진행 중 \n" +
+                                                        "3 : 완료 \n" +
+                                                        " + 진행 상태에 따라 startDate, endDate 생성\n" +
+                                                        " + 완료 -> 진행 중 -> 진행 예정 처럼 뒤로 가는 경우 startDate, endDate 삭제됨")
     @PutMapping("/{issueId}/status")
-    public ResponseEntity issueStatus(@PathVariable Integer groundId,
+    public ResponseEntity<IssueDto.Status.Response> issueStatus(@PathVariable Integer groundId,
                                       @PathVariable String issueId,
                                       @RequestBody IssueDto.Status.Request request,
                                       @AuthenticationPrincipal UserDetails userDetails,
@@ -128,9 +133,9 @@ public class IssueController {
         }
     }
 
-    @ApiOperation("이슈 문서 상위 문서 연결")
+    @ApiOperation("체크포인트 문서와 연결")
     @PutMapping("/{issueId}/connect")
-    public ResponseEntity issueConnect(@PathVariable Integer groundId,
+    public ResponseEntity<IssueDto.Connect.Response> issueConnect(@PathVariable Integer groundId,
                                        @PathVariable String issueId,
                                        @RequestBody IssueDto.Connect.Request request,
                                        @AuthenticationPrincipal UserDetails userDetails,
@@ -146,9 +151,9 @@ public class IssueController {
         }
     }
 
-    @ApiOperation("이슈 문서 시간 변경")
+    @ApiOperation(value = "이슈 문서 시간 변경",notes = "이슈 문서 시간 변경 => 들어오는 값 그대로 저장")
     @PutMapping("/{issueId}/time")
-    public ResponseEntity issueTime(@PathVariable Integer groundId,
+    public ResponseEntity<IssueDto.Time.Response> issueTime(@PathVariable Integer groundId,
                                     @PathVariable String issueId,
                                     @RequestBody IssueDto.Time.Request request,
                                     @AuthenticationPrincipal UserDetails userDetails,
@@ -182,4 +187,21 @@ public class IssueController {
         }
     }
 
+    @ApiOperation(value = "이슈 문서 제목 변경",notes = "이슈 문서 제목 변경 => 들어오는 값 그대로 저장")
+    @PutMapping("/{issueId}/title")
+    public ResponseEntity<IssueDto.Title.Response> issueTitle(@PathVariable Integer groundId,
+                                                            @PathVariable String issueId,
+                                                            @RequestBody IssueDto.Title.Request request,
+                                                            @AuthenticationPrincipal UserDetails userDetails,
+                                                            @RequestHeader String Authorization){
+        try{
+            log.info("이슈 문서 제목 변경");
+            IssueDto.Title.Response response = issueService.issueTitle(request, issueId,userDetails);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
 }

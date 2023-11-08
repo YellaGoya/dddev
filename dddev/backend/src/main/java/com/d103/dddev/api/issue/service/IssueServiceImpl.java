@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.d103.dddev.api.file.service.DocumentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -377,5 +378,22 @@ public class IssueServiceImpl implements IssueService {
 
 		return groundTotalTimeCount;
 	}
+
+    @Override
+    public IssueDto.Title.Response issueTitle(IssueDto.Title.Request request, String issueId, UserDetails userDetails) {
+        Issue issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+        issue.setTitle(request.getTitle());
+        issue.setModifier(userDetails.getUsername());
+
+        issueRepository.save(issue);
+
+        return IssueDto.Title.Response.builder()
+                .message(IssueMessage.title())
+                .code(HttpStatus.OK.value())
+                .data(issue)
+                .build();
+    }
 
 }

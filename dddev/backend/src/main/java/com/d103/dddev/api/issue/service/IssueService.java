@@ -35,4 +35,6 @@ public interface IssueService  {
     Map<String, Long> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception;
     Map<String, Long> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception;
     Map<String, Long> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception;
+
+    IssueDto.Title.Response issueTitle(IssueDto.Title.Request request, String issueId, UserDetails userDetails);
 }

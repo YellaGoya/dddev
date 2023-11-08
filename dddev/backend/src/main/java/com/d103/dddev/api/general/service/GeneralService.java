@@ -18,4 +18,6 @@ public interface GeneralService {
 
     General moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws InvalidAttributeValueException;
     void deleteGeneral(int groundId, String generalId) throws InvalidAttributeValueException;
+
+    General titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails);
 }

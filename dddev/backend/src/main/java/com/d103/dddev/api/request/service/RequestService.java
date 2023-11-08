@@ -21,4 +21,5 @@ public interface RequestService {
     Request moveRequest(int groundId, String requestId, RequestMoveDto requestMoveDto) throws InvalidAttributeValueException;
     void deleteRequest(int groundId, String requestId) throws InvalidAttributeValueException;
 
+    Request titleRequest(int groundId, String requestId, RequestTitleDto requestTitleDto, UserDetails userDetails)throws Exception;
 }

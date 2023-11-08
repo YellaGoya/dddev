@@ -1,5 +1,6 @@
 package com.d103.dddev.api.issue.service;
 
+import com.d103.dddev.api.issue.model.dto.IssueDto;
 import com.d103.dddev.api.issue.model.dto.TargetDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -18,4 +19,6 @@ public interface TargetService {
     TargetDto.Update.Response targetUpdate(TargetDto.Update.Request request, String targetId, UserDetails userDetails);
 
     TargetDto.Tree.Response Tree(Integer groundId);
+
+    TargetDto.Title.Response targetTitle(TargetDto.Title.Request request, String targetId, UserDetails userDetails);
 }
