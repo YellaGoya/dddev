@@ -2,6 +2,7 @@ package com.d103.dddev.api.sprint.service;
 
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.sprint.repository.dto.SprintUpdateDto;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.repository.SprintRepository;
 import lombok.RequiredArgsConstructor;
@@ -101,10 +102,10 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
-    public SprintEntity updateSprint(int sprintId, SprintEntity sprint) {
+    public SprintEntity updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) {
         SprintEntity loadSprint = sprintRepository.findById(sprintId).orElseThrow(() -> new NoSuchElementException("getSprintInfo :: 존재하지 않는 스프린트입니다."));
-        loadSprint.setName(sprint.getName());
-        loadSprint.setGoal(sprint.getGoal());
+        loadSprint.setName(sprintUpdateDto.getName());
+        loadSprint.setGoal(sprintUpdateDto.getGoal());
         try{
             sprintRepository.save(loadSprint);
         }catch(Exception e){

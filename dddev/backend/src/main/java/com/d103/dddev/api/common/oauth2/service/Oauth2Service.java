@@ -66,13 +66,13 @@ public class Oauth2Service {
 		String accessToken = jwtService.createAccessToken(githubId);
 		String refreshToken = jwtService.createRefreshToken(githubId);
 
-		UserDto userDto = getUser(githubId).orElseGet(() -> saveUser(userInfo));
+		UserDto userDto = getUser(githubId, name).orElseGet(() -> saveUser(userInfo));
 
 		// access, refresh token, 이름
 		Map<String, String> map = new HashMap<>();
 		map.put("Authorization", accessToken);
 		map.put("Authorization-refresh", refreshToken);
-		map.put("nickname", name);
+		map.put("nickname", userDto.getNickname());
 		map.put("role", String.valueOf(userDto.getRole()));
 		map.put("lastGroundId", String.valueOf(userDto.getLastGroundId()));
 
@@ -166,9 +166,16 @@ public class Oauth2Service {
 		return response.getStatusCode().is2xxSuccessful();
 	}
 
-	public Optional<UserDto> getUser(Integer githubId) throws Exception {
+	public Optional<UserDto> getUser(Integer githubId, String name) throws Exception {
 		log.info("getUser :: DB에서 사용자 정보 가져오기");
-		return userRepository.findByGithubId(githubId);
+		Optional<UserDto> byGithubId = userRepository.findByGithubId(githubId);
+		if(byGithubId.isPresent()) {
+			UserDto userDto = byGithubId.get();
+			userDto.setGithubName(name);
+			userDto = userRepository.saveAndFlush(userDto);
+			byGithubId = Optional.of(userDto);
+		}
+		return byGithubId;
 	}
 
 	public UserDto saveUser(Map<String, Object> userInfo) {

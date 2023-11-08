@@ -21,6 +21,8 @@ import org.hibernate.annotations.DynamicInsert;
 
 import com.d103.dddev.api.common.oauth2.Role;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,6 +59,7 @@ public class UserDto {
 
 	private String email;
 
+	@JsonIgnore
 	@Column(name = "github_name")
 	private String githubName;
 
@@ -67,15 +70,19 @@ public class UserDto {
 	@JoinColumn(name = "create_time")
 	private Date createTime;
 
+	@JsonIgnore
 	private Boolean valid;
 
+	@JsonIgnore
 	@Column(name = "personal_access_token")
 	private String personalAccessToken;
 
+	@JsonIgnore
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
 	@ElementCollection(fetch = FetchType.EAGER)
+	@JsonIgnore
 	@Column(name = "device_token")
 	private Set<String> deviceToken;
 	

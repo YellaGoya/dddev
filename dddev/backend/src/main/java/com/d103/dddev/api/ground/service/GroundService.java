@@ -1,5 +1,6 @@
 package com.d103.dddev.api.ground.service;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +14,14 @@ public interface GroundService {
 
 	Optional<GroundDto> getGroundByRepoId(Integer repoId) throws Exception;
 	Optional<GroundDto> getGroundInfo(Integer groundId) throws Exception;
+
+	Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws Exception;
+	Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws Exception;
+	Map<String, Integer> getGroundTotalTime(Integer groundId, Integer sprintId) throws Exception;
+
+	Map<String, Long> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception;
+	Map<String, Long> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception;
+	Map<String, Long> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception;
 
 	GroundDto updateGroundInfo(GroundDto newGroundDto, GroundDto groundDto) throws Exception;
 	GroundDto updateGroundProfile(MultipartFile file, GroundDto groundDto) throws Exception;

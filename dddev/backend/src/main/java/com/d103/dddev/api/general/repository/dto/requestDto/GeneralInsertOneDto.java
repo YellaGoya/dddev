@@ -1,4 +1,4 @@
-package com.d103.dddev.api.general.repository.dto;
+package com.d103.dddev.api.general.repository.dto.requestDto;
 
 import lombok.*;
 
@@ -9,7 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class GeneralInsertOneDto {
-    private int step;
     private String title;
     private String parentId;
 }

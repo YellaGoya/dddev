@@ -1,6 +1,8 @@
 package com.d103.dddev.api.ground.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -14,6 +16,9 @@ import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
+import com.d103.dddev.api.issue.model.document.Issue;
+import com.d103.dddev.api.issue.repository.IssueRepository;
+import com.d103.dddev.api.issue.service.IssueService;
 import com.d103.dddev.api.issue.util.UndefinedUtil;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
 import com.d103.dddev.api.repository.service.RepositoryService;
@@ -33,6 +38,7 @@ public class GroundServiceImpl implements GroundService {
 	private final UserService userService;
 	private final ProfileService profileService;
 	private final RepositoryService repositoryService;
+	private final IssueService issueService;
 	private final UndefinedUtil undefinedUtil;
 	private final Integer DEFAULT_GROUND_FOCUS_TIME = 5;
 	private final Integer DEFAULT_GROUND_ACTIVE_TIME = 3;
@@ -85,6 +91,38 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
+	public Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws
+		Exception {
+		return issueService.getGroundFocusTime(groundId, sprintId);
+	}
+
+	@Override
+	public Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws
+		Exception {
+		return issueService.getGroundActiveTime(groundId, sprintId);
+	}
+
+	@Override
+	public Map<String, Integer> getGroundTotalTime(Integer groundId, Integer sprintId) throws Exception {
+		return issueService.getGroundTotalTime(groundId, sprintId);
+	}
+
+	@Override
+	public Map<String, Long> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception {
+		return issueService.getGroundFocusTimeCount(groundId, sprintId);
+	}
+
+	@Override
+	public Map<String, Long> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception {
+		return issueService.getGroundActiveTimeCount(groundId, sprintId);
+	}
+
+	@Override
+	public Map<String, Long> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception {
+		return issueService.getGroundTotalTimeCount(groundId, sprintId);
+	}
+
+	@Override
 	public GroundDto updateGroundInfo(GroundDto newGroundDto, GroundDto groundDto) throws Exception {
 		log.info("service - updateGroundInfo :: 그라운드 이름 수정 진입");
 		// dto 업데이트하기
@@ -107,13 +145,14 @@ public class GroundServiceImpl implements GroundService {
 
 		// 새 프로필 사진 userDto에 저장
 		groundDto.setProfileDto(newProfile);
+		groundDto = groundRepository.saveAndFlush(groundDto);
 
 		// 기존 프로필 사진 서버/db에서 삭제
 		if (prevProfile != null) {
 			profileService.deleteProfile(prevProfile);
 		}
 
-		return groundRepository.saveAndFlush(groundDto);
+		return groundDto;
 	}
 
 	@Override
@@ -123,13 +162,14 @@ public class GroundServiceImpl implements GroundService {
 		ProfileDto profileDto = groundDto.getProfileDto();
 
 		groundDto.setProfileDto(null);
+		groundDto = groundRepository.saveAndFlush(groundDto);
 
 		// 프로필 사진 서버/db에서 삭제
 		if (profileDto != null) {
 			profileService.deleteProfile(profileDto);
 		}
 
-		return groundRepository.saveAndFlush(groundDto);
+		return groundDto;
 	}
 
 	@Override
@@ -168,7 +208,7 @@ public class GroundServiceImpl implements GroundService {
 		List<GroundUserDto> groundMembers = groundUserService.getGroundMembers(groundDto.getId());
 
 		// 그라운드 멤버 리스트 db에서 삭제하기
-		for(GroundUserDto g : groundMembers) {
+		for (GroundUserDto g : groundMembers) {
 			groundUserService.deleteGroundUser(g);
 		}
 

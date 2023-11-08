@@ -1,5 +1,6 @@
 package com.d103.dddev.api.general.collection;
 
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -33,4 +34,7 @@ public class General {
     @Field("updated_at")
     @CreatedDate
     private LocalDateTime updatedAt;
+    private String author;
+    private String modifier;
+    private boolean unclassified;
 }

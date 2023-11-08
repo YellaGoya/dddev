@@ -1,4 +1,4 @@
-package com.d103.dddev.api.request.repository.dto;
+package com.d103.dddev.api.request.repository.dto.requestDto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -10,7 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RequestInsertOneDto {
-    private int step;
     private String title;
     private String parentId;
 }

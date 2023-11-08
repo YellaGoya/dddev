@@ -99,13 +99,14 @@ public class UserServiceImpl implements UserService {
 
 		// 새 프로필 사진 userDto에 저장
 		userDto.setProfileDto(newProfile);
+		userDto = userRepository.saveAndFlush(userDto);
 
 		// 기존 프로필 사진 서버/db에서 삭제
 		if(prevProfile != null) {
 			profileService.deleteProfile(prevProfile);
 		}
 
-		return userRepository.saveAndFlush(userDto);
+		return userDto;
 	}
 
 	@Override
@@ -155,13 +156,14 @@ public class UserServiceImpl implements UserService {
 		ProfileDto profileDto = userDto.getProfileDto();
 
 		userDto.setProfileDto(null);
+		userDto = userRepository.saveAndFlush(userDto);
 
 		// 프로필 사진 서버/db에서 삭제
 		if(profileDto != null) {
 			profileService.deleteProfile(profileDto);
 		}
 
-		return userRepository.saveAndFlush(userDto);
+		return userDto;
 	}
 
 	@Override
