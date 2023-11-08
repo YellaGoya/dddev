@@ -97,7 +97,7 @@ public class GeneralController {
             return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @GetMapping("/step1")
+    @GetMapping("/total")
     @ApiOperation(value="step1 문서들 불러오기")
     public ResponseEntity<?> getStep1Generals(@PathVariable("groundId") int groundId,@RequestHeader String Authorization){
         ResponseVO<List<GeneralResponseDto>> responseVo;

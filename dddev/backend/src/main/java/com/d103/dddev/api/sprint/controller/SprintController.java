@@ -2,10 +2,13 @@ package com.d103.dddev.api.sprint.controller;
 
 import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.sprint.repository.dto.SprintUpdateDto;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.service.SprintService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +25,11 @@ public class SprintController {
     private final SprintService sprintService;
 
     @PostMapping
-    @ApiOperation(value = "스프린트 생성", notes = "스프린트 생성하는 API")
+    @ApiOperation(value = "스프린트 생성", notes = "스프린트 생성하는 API", response = ResponseVO.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 4000, message = "ㄹㄹㄹ")
+
+    })
     public ResponseEntity<?> createSprint(@PathVariable("groundId") int groundId,
                                           @RequestHeader String Authorization){
         ResponseVO<SprintEntity> responseVo;
@@ -91,12 +98,12 @@ public class SprintController {
     }
     @PutMapping("/{sprintId}")
     @ApiOperation(value = "스프린트 수정하기")
-    public ResponseEntity<?> updateSprint(@PathVariable("sprintId") int sprintId, @RequestBody SprintEntity sprint,
+    public ResponseEntity<?> updateSprint(@PathVariable("sprintId") int sprintId, @RequestBody SprintUpdateDto sprintUpdateDto,
                                           @RequestHeader String Authorization){
         ResponseVO<SprintEntity> responseVo;
 
         try{
-            SprintEntity returnSprint = sprintService.updateSprint(sprintId, sprint);
+            SprintEntity returnSprint = sprintService.updateSprint(sprintId, sprintUpdateDto);
             responseVo = ResponseVO.<SprintEntity>builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트를 업데이트했습니다.")
@@ -144,7 +151,7 @@ public class SprintController {
         ResponseVO<Object> responseVo;
 
         try{
-            sprintService.deleteSprint(sprintId);
+            sprintService.completeSprint(sprintId);
             responseVo = ResponseVO.builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트를 완료헀습니다.")
