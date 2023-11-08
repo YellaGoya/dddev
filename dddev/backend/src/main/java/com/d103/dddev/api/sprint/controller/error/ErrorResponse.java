@@ -1,6 +1,5 @@
 package com.d103.dddev.api.sprint.controller.error;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 @Getter
@@ -9,8 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorResponse {
-    @ApiModelProperty(example = "200")
-    private String status;
-    @ApiModelProperty("편지 생성 성공")
+    private int status;
     private String message;
 }

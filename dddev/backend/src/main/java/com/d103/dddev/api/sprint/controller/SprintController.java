@@ -2,13 +2,11 @@ package com.d103.dddev.api.sprint.controller;
 
 import com.d103.dddev.api.common.ResponseVO;
 import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.sprint.controller.error.ErrorResponse;
 import com.d103.dddev.api.sprint.repository.dto.SprintUpdateDto;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.service.SprintService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +25,9 @@ public class SprintController {
     @PostMapping
     @ApiOperation(value = "스프린트 생성", notes = "스프린트 생성하는 API", response = ResponseVO.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 4000, message = "ㄹㄹㄹ")
-
+            @ApiResponse(code = 4000, message = "메시지", response = ErrorResponse.class, examples = @Example(value = {
+                    @ExampleProperty(mediaType = "application/json", value = "{\"status\":\"200\", \"message\":\"나와라\"}")
+            }))
     })
     public ResponseEntity<?> createSprint(@PathVariable("groundId") int groundId,
                                           @RequestHeader String Authorization){
