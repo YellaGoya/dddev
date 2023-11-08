@@ -214,4 +214,30 @@ public class GeneralController {
             return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/{generalId}/title")
+    @ApiOperation(value="일반 문서 제목 수정")
+    public ResponseEntity<?> updateGeneral(@PathVariable("groundId") int groundId,
+                                           @PathVariable("generalId") String generalId,
+                                           @RequestBody GeneralTitleDto generalTitleDto,
+                                           @AuthenticationPrincipal UserDetails userDetails,
+                                           @RequestHeader String Authorization){
+        ResponseVO<General> responseVo;
+
+        try{
+            General general = generalService.titleGeneral(groundId, generalId, generalTitleDto, userDetails);
+            responseVo = ResponseVO.<General>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("문서의 제목을 수정했습니다.")
+                    .data(general)
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+        }catch(Exception e){
+            responseVo = ResponseVO.<General>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

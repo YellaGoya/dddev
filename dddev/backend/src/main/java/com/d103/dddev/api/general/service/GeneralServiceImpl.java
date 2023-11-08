@@ -244,6 +244,39 @@ public class GeneralServiceImpl implements GeneralService{
         documentService.deleteFile(generalId);
     }
 
+    @Override
+    public General titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) {
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("해당 문서를 불러오는데 실패했습니다."));
+        int step = loadGeneral.getStep();
+        loadGeneral.setTitle(generalTitleDto.getTitle());
+        try{
+            generalRepository.save(loadGeneral);
+        }catch(Exception e){
+            throw new TransactionException("문서 업데이트를 실패했습니다.");
+        }
+        // step1 문서가 아니라면 부모를 찾아서 업데이트해줘야한다.
+        if(step != 1){
+            String parentId = loadGeneral.getParentId();
+            General parent = generalRepository.findById(parentId).orElseThrow(()->new NoSuchElementException("부모 문서를 불러오는데 실패했습니다."));
+            List<General> children = parent.getChildren();
+            ListIterator<General> iterator = children.listIterator();
+            while (iterator.hasNext()) {
+                General child = iterator.next();
+                if (child.getId().equals(loadGeneral.getId())) {
+                    iterator.set(loadGeneral);
+                }
+            }
+            parent.setChildren(children);
+            try{
+                generalRepository.save(parent);
+            }catch(Exception e){
+                throw new TransactionException("부모 문서를 저장하는데 실패했습니다.");
+            }
+        }
+
+        return loadGeneral;
+    }
+
     public boolean stepIsRange(int step){
         return step>=1 && step<=2;
     }
