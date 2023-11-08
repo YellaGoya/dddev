@@ -4,8 +4,7 @@ import com.d103.dddev.api.issue.model.dto.TargetDto;
 import com.d103.dddev.api.issue.model.message.Error;
 import com.d103.dddev.api.issue.model.message.Response;
 import com.d103.dddev.api.issue.service.TargetService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,14 +24,14 @@ public class TargetController {
 
     private final TargetService targetService;
 
-    @ApiOperation("목표 문서 생성")
+    @ApiOperation(value="목표 문서 생성", notes="목표 문서 생성 API")
     @PostMapping("/create")
-    public ResponseEntity createTarget(@PathVariable Integer groundId,
+    public ResponseEntity<TargetDto.Create.Response> createTarget(@PathVariable Integer groundId,
                                        @AuthenticationPrincipal UserDetails userDetails,
                                        @RequestHeader String Authorization) {
         try{
-            log.info("목표 문서 생성");
             TargetDto.Create.Response response = targetService.createTarget(groundId, userDetails);
+            log.debug("목표 문서 생성 : {}", response);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
@@ -43,7 +42,7 @@ public class TargetController {
 
     @ApiOperation("목표 문서 목록 조회")
     @GetMapping("/list")
-    public ResponseEntity targetList(@PathVariable Integer groundId,
+    public ResponseEntity<TargetDto.List.Response> targetList(@PathVariable Integer groundId,
                                      @RequestHeader String Authorization){
         try{
             log.info("목표 문서 목록 조회");
@@ -58,7 +57,7 @@ public class TargetController {
 
     @ApiOperation("목표 문서 상세 조회")
     @GetMapping("/{targetId}")
-    public ResponseEntity targetDetail(@PathVariable Integer groundId,
+    public ResponseEntity<TargetDto.Detail.Response> targetDetail(@PathVariable Integer groundId,
                                        @PathVariable String targetId,
                                        @RequestHeader String Authorization){
         try{
@@ -75,7 +74,7 @@ public class TargetController {
 
     @ApiOperation("목표 삭제")
     @DeleteMapping("/{targetId}")
-    public ResponseEntity targetDelete(@PathVariable Integer groundId,
+    public ResponseEntity<TargetDto.Delete.Response> targetDelete(@PathVariable Integer groundId,
                                        @PathVariable String targetId,
                                        @RequestHeader String Authorization){
         try{
@@ -91,7 +90,7 @@ public class TargetController {
 
     @ApiOperation("목표 수정")
     @PutMapping("/{targetId}")
-    public ResponseEntity targetUpdate(@PathVariable Integer groundId,
+    public ResponseEntity<TargetDto.Update.Response> targetUpdate(@PathVariable Integer groundId,
                                        @PathVariable String targetId,
                                        @RequestBody TargetDto.Update.Request request,
                                        @AuthenticationPrincipal UserDetails userDetails,
@@ -109,7 +108,7 @@ public class TargetController {
 
     @ApiOperation("문서 트리 조회")
     @GetMapping("/total")
-    public ResponseEntity total(@PathVariable Integer groundId,
+    public ResponseEntity<TargetDto.Tree.Response> total(@PathVariable Integer groundId,
                                 @RequestHeader String Authorization){
         try{
             log.info("문서 트리 조회");

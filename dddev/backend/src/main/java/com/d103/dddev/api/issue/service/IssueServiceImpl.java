@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.d103.dddev.api.file.service.DocumentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class IssueServiceImpl implements IssueService{
     private final IssueRepository issueRepository;
     private final IssueUtil issueUtil;
     private final SprintRepository sprintRepository;
-
+    private final DocumentService documentService;
     /*
      * groundId는 필수 값
      * 스프린트 내에서 생성하는 경우에는 sprintId 같이 저장
@@ -149,6 +150,8 @@ public class IssueServiceImpl implements IssueService{
         issueRepository.deleteById(issueId); // 이슈 문서 삭제
 
         issueRepository.save(check); // 상위 체크 포인트 문서 최신화
+
+        documentService.deleteFile(issueId);
 
         return IssueDto.Delete.Response.builder()
                 .message(IssueMessage.delete())

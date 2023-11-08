@@ -1,5 +1,7 @@
 package com.d103.dddev.api.issue.model.message;
 
+import lombok.Builder;
+
 public class TargetMessage {
 
     public static String create(){
@@ -24,5 +26,8 @@ public class TargetMessage {
         return "목표 문서 수정 완료";
     }
 
+    public static String tree(){
+        return "그라운드 전체 문서 트리";
+    }
 
 }

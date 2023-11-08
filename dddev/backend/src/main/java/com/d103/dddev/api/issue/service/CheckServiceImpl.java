@@ -1,5 +1,6 @@
 package com.d103.dddev.api.issue.service;
 
+import com.d103.dddev.api.file.service.DocumentService;
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.model.dto.CheckDto;
 import com.d103.dddev.api.issue.model.message.CheckMessage;
@@ -24,6 +25,7 @@ public class CheckServiceImpl implements CheckService{
 
     private final IssueRepository issueRepository;
     private final IssueUtil issueUtil;
+    private final DocumentService documentService;
 
     @Override
     @Transactional
@@ -146,6 +148,8 @@ public class CheckServiceImpl implements CheckService{
 
         issueRepository.deleteById(checkId); // 체크 포인트 문서 삭제
 
+        documentService.deleteFile(checkId);
+
         return CheckDto.Delete.Response.builder()
                 .message(CheckMessage.delete())
                 .code(HttpStatus.OK.value())
@@ -173,11 +177,11 @@ public class CheckServiceImpl implements CheckService{
 
     @Override
     @Transactional
-    public CheckDto.Connect.Response connectTarget(CheckDto.Connect.Request request, UserDetails userDetails) {
-        Issue newTarget = issueRepository.findById(request.getTargetId())
+    public CheckDto.Connect.Response connectTarget(CheckDto.Connect.Request request, UserDetails userDetails, String checkId) {
+        Issue newTarget = issueRepository.findById(request.getParentId())
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 목표 문서 조회
 
-        Issue check = issueRepository.findById(request.getCheckId())
+        Issue check = issueRepository.findById(checkId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 체크포인트 문서 조회
 
         Issue oldTarget = issueRepository.findById(check.getParentId())
@@ -189,7 +193,7 @@ public class CheckServiceImpl implements CheckService{
         log.info(oldChildren.toString());
         log.info(newChildren.toString());
 
-        if(oldChildren.contains(request.getCheckId())){
+        if(oldChildren.contains(checkId)){
             oldChildren.remove(check.getId()); // 기존 연결된 문서에서 하위 문서 정보 삭제
         }else{
             return CheckDto.Connect.Response.builder()
@@ -199,8 +203,8 @@ public class CheckServiceImpl implements CheckService{
                     .build();
         }
 
-        if(!newChildren.contains(request.getCheckId())){
-            newChildren.add(request.getCheckId()); // 새로 연결할 문서에 추가
+        if(!newChildren.contains(checkId)){
+            newChildren.add(checkId); // 새로 연결할 문서에 추가
         }else{
             return CheckDto.Connect.Response.builder()
                     .message(CheckMessage.contains())

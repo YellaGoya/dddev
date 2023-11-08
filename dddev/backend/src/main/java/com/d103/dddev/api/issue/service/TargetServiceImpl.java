@@ -1,5 +1,6 @@
 package com.d103.dddev.api.issue.service;
 
+import com.d103.dddev.api.file.service.DocumentService;
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.model.dto.TargetDto;
 import com.d103.dddev.api.issue.model.message.Error;
@@ -22,6 +23,7 @@ import java.util.NoSuchElementException;
 public class TargetServiceImpl implements TargetService {
 
     private final IssueRepository issueRepository;
+    private final DocumentService documentService;
 
     @Override
     public TargetDto.Create.Response createTarget(Integer groundId, UserDetails userDetails) {
@@ -114,6 +116,8 @@ public class TargetServiceImpl implements TargetService {
         // 목표 문서 삭제
         issueRepository.deleteById(targetId);
 
+        documentService.deleteFile(targetId);
+
         return TargetDto.Delete.Response.builder()
                 .message(TargetMessage.delete())
                 .code(HttpStatus.OK.value())
@@ -190,7 +194,7 @@ public class TargetServiceImpl implements TargetService {
         }
 
         return TargetDto.Tree.Response.builder()
-                .message("그라운드 전체 문서 트리")
+                .message(TargetMessage.tree())
                 .code(HttpStatus.OK.value())
                 .data(docs)
                 .build();
