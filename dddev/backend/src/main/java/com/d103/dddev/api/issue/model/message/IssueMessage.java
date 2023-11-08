@@ -23,5 +23,8 @@ public class IssueMessage {
     public static String status(){return "이슈 문서 상태 수정 완료";}
     public static String time(){return "이슈 문서 시간 수정 완료";}
     public static String sprint(){return "이슈 문서 스프린트 연결 완료";}
-    public static String connect(){return "연결 변경이 완료";}
+    public static String connect(){return "이슈 문서 연결 변경 완료";}
+
+    public static String title() {return "이슈 문서 제목 수정 완료";
+    }
 }

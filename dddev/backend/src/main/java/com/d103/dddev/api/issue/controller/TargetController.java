@@ -121,4 +121,22 @@ public class TargetController {
         }
     }
 
+    @ApiOperation(value = "목표 문서 제목 변경",notes = "목표 문서 제목 변경 => 들어오는 값 그대로 저장")
+    @PutMapping("/{targetId}/title")
+    public ResponseEntity<TargetDto.Title.Response> targetTitle(@PathVariable Integer groundId,
+                                                              @PathVariable String targetId,
+                                                              @RequestBody TargetDto.Title.Request request,
+                                                              @AuthenticationPrincipal UserDetails userDetails,
+                                                              @RequestHeader String Authorization){
+        try{
+            log.info("이슈 문서 제목 변경");
+            TargetDto.Title.Response response = targetService.targetTitle(request, targetId,userDetails);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
+
 }

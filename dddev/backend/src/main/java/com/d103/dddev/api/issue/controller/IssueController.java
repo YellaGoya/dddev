@@ -187,4 +187,21 @@ public class IssueController {
         }
     }
 
+    @ApiOperation(value = "이슈 문서 제목 변경",notes = "이슈 문서 제목 변경 => 들어오는 값 그대로 저장")
+    @PutMapping("/{issueId}/title")
+    public ResponseEntity<IssueDto.Title.Response> issueTitle(@PathVariable Integer groundId,
+                                                            @PathVariable String issueId,
+                                                            @RequestBody IssueDto.Title.Request request,
+                                                            @AuthenticationPrincipal UserDetails userDetails,
+                                                            @RequestHeader String Authorization){
+        try{
+            log.info("이슈 문서 제목 변경");
+            IssueDto.Title.Response response = issueService.issueTitle(request, issueId,userDetails);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
 }

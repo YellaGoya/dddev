@@ -2,6 +2,7 @@ package com.d103.dddev.api.issue.controller;
 
 import com.d103.dddev.api.issue.model.dto.CheckDto;
 import com.d103.dddev.api.issue.model.dto.IssueDto;
+import com.d103.dddev.api.issue.model.dto.TargetDto;
 import com.d103.dddev.api.issue.model.message.Error;
 import com.d103.dddev.api.issue.model.message.Response;
 import com.d103.dddev.api.issue.service.CheckService;
@@ -128,4 +129,22 @@ public class CheckController {
             return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
         }
     }
+    @ApiOperation(value = "체크포인트 문서 제목 변경",notes = "체크 포인트 문서 제목 변경 => 들어오는 값 그대로 저장")
+    @PutMapping("/{checkId}/title")
+    public ResponseEntity<CheckDto.Title.Response> targetTitle(@PathVariable Integer groundId,
+                                                                @PathVariable String checkId,
+                                                                @RequestBody CheckDto.Title.Request request,
+                                                                @AuthenticationPrincipal UserDetails userDetails,
+                                                                @RequestHeader String Authorization){
+        try{
+            log.info("이슈 문서 제목 변경");
+            CheckDto.Title.Response response = checkService.checkTitle(request, checkId,userDetails);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
+
 }

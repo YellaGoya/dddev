@@ -21,4 +21,7 @@ public class CheckMessage {
     public static String contains() {return "이미 연결 된 문서.";}
     public static String notContains() {return "연결되지 않은 문서";}
     public static String connect(){return "체크 포인트 문서 연결 변경 완료";}
+
+    public static String title() {return "체크 포인트 문서 제목 수정 완료";
+    }
 }

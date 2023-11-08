@@ -334,4 +334,21 @@ public class IssueServiceImpl implements IssueService{
         return result;
     }
 
+    @Override
+    public IssueDto.Title.Response issueTitle(IssueDto.Title.Request request, String issueId, UserDetails userDetails) {
+        Issue issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+        issue.setTitle(request.getTitle());
+        issue.setModifier(userDetails.getUsername());
+
+        issueRepository.save(issue);
+
+        return IssueDto.Title.Response.builder()
+                .message(IssueMessage.title())
+                .code(HttpStatus.OK.value())
+                .data(issue)
+                .build();
+    }
+
 }

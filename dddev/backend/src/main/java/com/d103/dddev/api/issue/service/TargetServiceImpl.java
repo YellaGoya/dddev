@@ -2,8 +2,10 @@ package com.d103.dddev.api.issue.service;
 
 import com.d103.dddev.api.file.service.DocumentService;
 import com.d103.dddev.api.issue.model.document.Issue;
+import com.d103.dddev.api.issue.model.dto.IssueDto;
 import com.d103.dddev.api.issue.model.dto.TargetDto;
 import com.d103.dddev.api.issue.model.message.Error;
+import com.d103.dddev.api.issue.model.message.IssueMessage;
 import com.d103.dddev.api.issue.model.message.TargetMessage;
 import com.d103.dddev.api.issue.repository.IssueRepository;
 import lombok.AllArgsConstructor;
@@ -199,5 +201,24 @@ public class TargetServiceImpl implements TargetService {
                 .data(docs)
                 .build();
     }
+
+    @Override
+    public TargetDto.Title.Response targetTitle(TargetDto.Title.Request request, String targetId, UserDetails userDetails) {
+        Issue target = issueRepository.findById(targetId)
+                .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+        target.setTitle(request.getTitle());
+        target.setModifier(userDetails.getUsername());
+
+        issueRepository.save(target);
+
+        return TargetDto.Title.Response.builder()
+                .message(TargetMessage.title())
+                .code(HttpStatus.OK.value())
+                .data(target)
+                .build();
+    }
+
+
 
 }

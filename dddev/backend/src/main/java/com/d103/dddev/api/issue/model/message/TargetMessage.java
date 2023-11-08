@@ -30,4 +30,5 @@ public class TargetMessage {
         return "그라운드 전체 문서 트리";
     }
 
+    public static String title() {return "목표 문서 제목 수정 완료";}
 }

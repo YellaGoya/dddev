@@ -3,8 +3,10 @@ package com.d103.dddev.api.issue.service;
 import com.d103.dddev.api.file.service.DocumentService;
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.model.dto.CheckDto;
+import com.d103.dddev.api.issue.model.dto.IssueDto;
 import com.d103.dddev.api.issue.model.message.CheckMessage;
 import com.d103.dddev.api.issue.model.message.Error;
+import com.d103.dddev.api.issue.model.message.IssueMessage;
 import com.d103.dddev.api.issue.repository.IssueRepository;
 import com.d103.dddev.api.issue.util.IssueUtil;
 import lombok.AllArgsConstructor;
@@ -229,6 +231,23 @@ public class CheckServiceImpl implements CheckService{
 
         return CheckDto.Connect.Response.builder()
                 .message(CheckMessage.connect())
+                .code(HttpStatus.OK.value())
+                .data(check)
+                .build();
+    }
+
+    @Override
+    public CheckDto.Title.Response checkTitle(CheckDto.Title.Request request, String checkId, UserDetails userDetails) {
+        Issue check = issueRepository.findById(checkId)
+                .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+        check.setTitle(request.getTitle());
+        check.setModifier(userDetails.getUsername());
+
+        issueRepository.save(check);
+
+        return CheckDto.Title.Response.builder()
+                .message(CheckMessage.title())
                 .code(HttpStatus.OK.value())
                 .data(check)
                 .build();

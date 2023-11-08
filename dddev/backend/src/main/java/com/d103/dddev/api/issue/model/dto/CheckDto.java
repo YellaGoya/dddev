@@ -111,4 +111,24 @@ public class CheckDto {
             private Issue data;
         }
     }
+
+    public static class Title{
+        @Data
+        @ApiModel(value="체크 포인트 문서 제목 변경", description = "체크 포인트 문서 제목 변경 API")
+        public static class Request{
+            @ApiModelProperty(value="제목", example = "제목")
+            private String title;
+        }
+
+        @Data
+        @Builder
+        @ApiModel(value="체크 포인트 문서 제목 변경 응답")
+        public static class Response{
+            @ApiModelProperty(value="message", example = "체크 포인트 문서 제목 수정 완료")
+            private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
+            private Issue data;
+        }
+    }
 }

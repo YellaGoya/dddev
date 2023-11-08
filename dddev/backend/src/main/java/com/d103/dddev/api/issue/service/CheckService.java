@@ -19,4 +19,6 @@ public interface CheckService {
     CheckDto.Update.Response checkUpdate(CheckDto.Update.Request request, String checkId, UserDetails userDetails);
 
     CheckDto.Connect.Response connectTarget(CheckDto.Connect.Request request, UserDetails userDetails, String checkId);
+
+    CheckDto.Title.Response checkTitle(CheckDto.Title.Request request, String checkId, UserDetails userDetails);
 }

@@ -30,4 +30,6 @@ public interface IssueService  {
 
     Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws Exception;
     Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws Exception;
+
+    IssueDto.Title.Response issueTitle(IssueDto.Title.Request request, String issueId, UserDetails userDetails);
 }

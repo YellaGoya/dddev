@@ -128,7 +128,7 @@ public class IssueDto {
         @Builder
         @ApiModel(value="상위 문서 연결 응답")
         public static class Response{
-            @ApiModelProperty(value="message", example = "연결 변경이 완료")
+            @ApiModelProperty(value="message", example = "이슈 문서 연결 변경 완료")
             private String message;
             @ApiModelProperty(value="code", example = "200")
             private Integer code;
@@ -171,6 +171,26 @@ public class IssueDto {
         @ApiModel(value="이슈 문서 스프린트 연결 응답")
         public static class Response{
             @ApiModelProperty(value="message", example = "이슈 문서 스프린트 연결 완료")
+            private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
+            private Issue data;
+        }
+    }
+
+    public static class Title{
+        @Data
+        @ApiModel(value="이슈 문서 제목 변경", description = "이슈 문서 제목 변경 API")
+        public static class Request{
+            @ApiModelProperty(value="제목", example = "제목")
+            private String title;
+        }
+
+        @Data
+        @Builder
+        @ApiModel(value="이슈 문서 제목 변경 응답")
+        public static class Response{
+            @ApiModelProperty(value="message", example = "이슈 문서 제목 수정 완료")
             private String message;
             @ApiModelProperty(value="code", example = "200")
             private Integer code;
