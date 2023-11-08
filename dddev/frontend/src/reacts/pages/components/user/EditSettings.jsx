@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+
 import eetch from 'eetch/eetch';
+import { setMenu } from 'redux/actions/menu';
+import { setMessage } from 'redux/actions/menu';
+import { logoutUser } from 'redux/actions/user';
 
 import Input from 'reacts/pages/components/common/Input';
 
 import * as s from 'reacts/styles/components/user/EditSettings';
 const EditSettings = ({ toggle, setToggle, groundInfo }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const [groundName, setGroundName] = useState(groundInfo.name);
   const [focusTime, setFocusTime] = useState(groundInfo.focusTime);
@@ -27,8 +34,13 @@ const EditSettings = ({ toggle, setToggle, groundInfo }) => {
         focusTime,
         activeTime,
       })
-      .then((res) => {
-        console.log(res);
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
       });
   };
 

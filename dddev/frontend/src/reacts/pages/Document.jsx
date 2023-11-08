@@ -29,7 +29,7 @@ const Document = () => {
       element: <Write />,
     },
     {
-      path: '/docs/:docId',
+      path: '/docs/:type/:docId',
       element: <Write />,
     },
   ]);

@@ -1,10 +1,17 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import Quill from 'quill';
 import * as Y from 'yjs';
 import { QuillBinding } from 'y-quill';
 import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
+
+import { setMenu } from 'redux/actions/menu';
+import { setMessage } from 'redux/actions/menu';
+import { logoutUser } from 'redux/actions/user';
+import eetch from 'eetch/eetch';
 
 import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import hljs from 'highlight.js';
@@ -14,16 +21,36 @@ import 'quill/dist/quill.snow.css';
 import 'highlight.js/styles/github-dark.css';
 import * as s from 'reacts/styles/components/document/Write';
 const Write = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
   const quillRef = useRef(null);
   const params = useParams();
-
-  // const [docType, setDocType] = React.useState(2);
+  const [lastEditor, setLastEditor] = useState(null);
+  const [title, setTitle] = useState('');
 
   const getRandomPastelColor = () => {
     const r = Math.floor(Math.random() * 127 + 128);
     const g = Math.floor(Math.random() * 127 + 128);
     const b = Math.floor(Math.random() * 127 + 128);
     return `rgb(${r}, ${g}, ${b})`;
+  };
+
+  const editDocument = () => {
+    console.log(title);
+    eetch
+      .editDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+        title,
+        content: quillRef.current.getEditor().root.innerHTML,
+      })
+      .then((res) => {
+        console.log(res);
+      });
   };
 
   const modules = useMemo(() => {
@@ -42,7 +69,9 @@ const Write = () => {
     };
   }, []);
 
-  Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
+  if (!Quill.imports['modules/markdownShortcuts']) {
+    Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
+  }
 
   const insertBottom = () => {
     const editor = quillRef.current.getEditor();
@@ -52,17 +81,29 @@ const Write = () => {
   };
 
   useEffect(() => {
-    // 없으면 테스트용으로 test로 설정
+    console.log(lastEditor);
+  }, [lastEditor]);
+
+  useEffect(() => {
+    console.log(quillRef.current);
+  }, [quillRef.current]);
+
+  useEffect(() => {
     const roomName = `${params.docId || 'test'}`;
     const doc = new Y.Doc();
     const type = doc.getText('quill');
 
     const wsProvider = new WebsocketProvider('ws://34.64.243.47:6001', roomName, doc);
-
     const editor = quillRef.current.getEditor();
-
     editor.format('font', 'Pretendard');
     const { container } = editor;
+
+    const ping = (noise) => {
+      wsProvider.awareness.setLocalStateField('user', {
+        ping: true,
+        noise,
+      });
+    };
 
     const updateCursor = (react) => {
       const range = editor.getSelection();
@@ -108,18 +149,50 @@ const Write = () => {
       return false;
     };
 
+    const initRoom = () => {
+      eetch
+        .detailDocument({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId: params.groundId,
+          type: params.type,
+          id: params.docId,
+        })
+        .then((res) => {
+          setTitle(res.data.title);
+          quillRef.current.getEditor().root.innerHTML = res.data.content;
+          setTitle('test');
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+    };
+
     editor.on('selection-change', () => {
       updateCursor();
+      setLastEditor(wsProvider.awareness.clientID);
     });
     editor.on('text-change', (delta, olddelta, source) => {
       if (source === 'user') {
         updateCursor();
+        setLastEditor(wsProvider.awareness.clientID);
       }
     });
 
     editor.container.onclick = () => {
       editor.enable();
     };
+
+    wsProvider.on('status', (event) => {
+      if (event.status === 'connected') {
+        ping(0);
+      }
+    });
 
     wsProvider.awareness.on('update', ({ added, updated, removed }) => {
       const users = wsProvider.awareness.getStates();
@@ -129,11 +202,18 @@ const Write = () => {
 
         if (editorClassName !== 'ql-editor ql-blank') {
           added.concat(updated).forEach((id) => {
-            if (id === wsProvider.awareness.clientID) return;
-
             const userState = users.get(id);
+
             if (userState && userState.user && userState.user.cursor !== null) {
               const { user } = userState;
+              if (user.ping) {
+                if (user.noise < 3) ping(user.noise + 1);
+                if (user.noise === 3 && [...users.keys()].length === 1) initRoom();
+                return;
+              }
+
+              if (id === wsProvider.awareness.clientID) return;
+
               if (!user.react) updateCursor(true);
 
               let cursorElement = document.getElementById(`cursor-${id}`);
@@ -152,7 +232,11 @@ const Write = () => {
               }
 
               const cursorPosition = editor.getBounds(user.cursor);
-              if (!user.react) cursorElement.style.left = cursorPosition.left + 'px';
+              if (!user.react) {
+                cursorElement.style.left = cursorPosition.left + 'px';
+                setLastEditor(id);
+              }
+
               cursorElement.style.top = cursorPosition.top + 'px';
             }
           });
@@ -174,8 +258,6 @@ const Write = () => {
     return () => {
       binding.destroy();
       wsProvider.disconnect();
-
-      console.log('언마운트. 여기서 db에 저장');
     };
   }, [params.docId]);
 
@@ -202,7 +284,8 @@ const Write = () => {
 
       <div
         onClick={() => {
-          quillRef.current.getEditor().root.innerHTML = '<p>초기화된텍스트</p>';
+          // quillRef.current.getEditor().root.innerHTML = '<p>초기화된텍스트</p>';
+          editDocument();
         }}
       >
         button?

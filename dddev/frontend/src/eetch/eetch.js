@@ -68,6 +68,8 @@ eetch.createDocument = (values) => ground.createDocument(values);
 eetch.listDocument = (values) => ground.listDocument(values);
 eetch.treeDocument = (values) => ground.treeDocument(values);
 eetch.detailDocument = (values) => ground.detailDocument(values);
+eetch.editDocument = (values) => ground.editDocument(values);
+eetch.deleteDocument = (values) => ground.deleteDocument(values);
 
 // eetch.valid = (values) => user.valid(values);
 // eetch.refresh = (values) => user.refresh(values);

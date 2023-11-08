@@ -41,6 +41,7 @@ module.exports = {
     'react/jsx-one-expression-per-line': 'off',
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
+    'react-hooks/exhaustive-deps': 'off',
     'capitalized-comments': 'off',
   },
 };

@@ -132,17 +132,21 @@ export const TreeChild = styled.li`
   }
 `;
 
-export const TreeName = styled.span`
+export const DocTitle = styled.p``;
+
+export const TreeName = styled.div`
   position: relative;
+  width: 100%;
 
   padding: 3px 0px 3px 30px;
   color: var(--font-rev);
 
   display: flex;
   align-items: center;
+  overflow: hidden;
   cursor: pointer;
 
-  & > svg {
+  & > .foldSign {
     position: absolute;
     left: 0.3rem;
     top: 0px;
@@ -150,7 +154,76 @@ export const TreeName = styled.span`
     transform: ${({ $toggle }) => ($toggle ? 'rotate(-90deg)' : 'rotate(0deg)')};
     transition:
       transform 0.4s ease,
-      color 0.4s ease;
+      fill 0.4s ease;
+  }
+
+  svg {
+    fill: var(--font-editor-placeholder);
+    &:hover {
+      fill: var(--font-rev);
+
+      transition:
+        fill 0.2s ease,
+        top 0.3s ease,
+        opacity 0.2s ease;
+    }
+  }
+
+  .moreButton {
+    position: absolute;
+    right: 9px;
+
+    width: 23px;
+    height: 23px;
+
+    display: block;
+    fill: var(--font-editor-placeholder);
+
+    opacity: 0;
+
+    display: ${({ $isMore }) => ($isMore ? 'none' : 'block')};
+
+    &:hover {
+      fill: var(--font-rev);
+    }
+  }
+
+  .editName {
+    position: absolute;
+    right: 38px;
+
+    width: 23px;
+    height: 23px;
+
+    display: block;
+    fill: var(--font-editor-placeholder);
+
+    opacity: 0;
+
+    &:hover {
+      fill: var(--font-rev);
+    }
+
+    display: ${({ $isMore }) => ($isMore ? 'block' : 'none')};
+  }
+
+  .deleteDoc {
+    position: absolute;
+    right: 9px;
+
+    width: 21px;
+    height: 21px;
+
+    display: block;
+    fill: var(--font-editor-placeholder);
+
+    opacity: 0;
+
+    display: ${({ $isMore }) => ($isMore ? 'block' : 'none')};
+
+    &:hover {
+      fill: var(--font-delete);
+    }
   }
 
   .addChild {
@@ -158,7 +231,7 @@ export const TreeName = styled.span`
     width: 21px;
     height: 21px;
 
-    right: -0.9rem;
+    right: -1rem;
 
     fill: var(--font-editor-placeholder);
     opacity: 0;
@@ -173,7 +246,10 @@ export const TreeName = styled.span`
     background-color: var(--font-basic);
     border-radius: 4px;
 
-    .addChild {
+    .addChild,
+    .moreButton,
+    .editName,
+    .deleteDoc {
       opacity: 1;
     }
   }
@@ -184,7 +260,7 @@ export const TreeName = styled.span`
     padding-right: 10px;
     margin: 0;
 
-    color: ${({ $isEmpty }) => ($isEmpty ? 'var(--font-editor-placeholder)' : 'var(--font-rev)')};
+    color: ${(props) => (props.$isEmpty ? (props.$isNew ? 'var(--font-new)' : 'var(--font-editor-placeholder)') : 'var(--font-rev)')};
     transition: color 0.2s ease;
 
     &:hover {
