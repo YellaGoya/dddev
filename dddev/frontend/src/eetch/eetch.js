@@ -33,13 +33,19 @@ const eetch = async (url, options, refreshToken) => {
     return retry;
   }
 
-  if (!res.ok && res.status !== 403) throw new Error(`${res.status} 에러`);
+  if (!res.ok && res.status !== 403) {
+    throw new Error(`${res.status} 에러`);
+  }
 
   return res;
 };
 
 eetch.addDeviceToken = (values) => test.addDeviceToken(values);
 eetch.alertList = (values) => test.alertList(values);
+eetch.createAlert = (values) => test.createAlert(values);
+eetch.updateAlert = (values) => test.updateAlert(values);
+eetch.deleteAlert = (values) => test.deleteAlert(values);
+eetch.userGroundsExample = (values) => test.userGroundsExample(values);
 
 eetch.githubSync = (values) => user.githubSync(values);
 eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);

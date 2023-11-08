@@ -50,6 +50,8 @@ const GroundInit = () => {
           dispatch(setMenu(false));
           dispatch(setMessage(false));
           navigate(`/login`);
+        } else {
+          console.log(err);
         }
       });
   }, [user.accessToken]);

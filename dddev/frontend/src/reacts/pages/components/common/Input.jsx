@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 
+import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 import * as s from 'reacts/styles/components/common/Input';
+// label = 이름, data='텍스트용 데이터', array='배열용 데이터', message= '하단 메시지'
 const Input = ({ label, data = '', holder, setData, array, fixed, click, enter, message, debounce }) => {
   const [value, setValue] = useState(data === null ? '' : data);
   const [isData, setIsData] = useState(true); // [TODO] [REFACTORING

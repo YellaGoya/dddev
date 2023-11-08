@@ -6,7 +6,7 @@ import { db } from 'fcm/firebaseConfig';
 
 const AlertData = () => {
   const user = useSelector((state) => state.user);
-  const [docList, setDocList] = useState([{}]);
+  const [docs, setDocs] = useState([{}]);
 
   // const messages = [
   //   { id: 3, content: 'test', title: 'test', show: true },
@@ -18,16 +18,33 @@ const AlertData = () => {
   useEffect(() => {
     if (user.isLoggedIn) requestPermission({ accessToken: user.accessToken, refreshToken: user.refreshToken });
 
-    db.collection('AlertData')
-      .get()
-      .then((res) => {
-        console.log('firestore res :: ', res);
+    // collection.get().then((res) => {
+    //   // console.log('firestore res :: ', res);
+    //   const arr = [];
+    //   res.forEach((doc) => {
+    //     arr.push(doc.data());
+    //   });
+    //   setDocs(arr);
+    // });
+
+    const collection = db.collection('AlertData').where('alertType', '==', 'pull_request');
+
+    collection.onSnapshot(
+      (snapshot) => {
         const arr = [];
-        res.forEach((doc) => {
+        // console.log(`new alert data!! ${snapshot.docs}`);
+        console.log(`Received query snapshot of size ${snapshot.size}`);
+        snapshot.forEach((doc) => {
+          // console.log(doc.data());
           arr.push(doc.data());
         });
-        setDocList(arr);
-      });
+        setDocs(arr);
+        // console.log(docs);
+      },
+      (err) => {
+        console.log(`snapshot error: ${err}`);
+      },
+    );
   }, []);
 
   // useEffect(() => {
@@ -47,7 +64,7 @@ const AlertData = () => {
       {/* {messages.map((message) => {
         return message.show ? <div key={message.id}>{message.id}</div> : null;
       })} */}
-      {docList.map((doc) => {
+      {docs.map((doc) => {
         return (
           <div key={doc.id}>
             {doc.alertType}

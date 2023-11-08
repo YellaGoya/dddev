@@ -11,9 +11,9 @@ import Login from 'reacts/pages/Login';
 import Ground from 'reacts/pages/Ground';
 import GroundCheck from 'layouts/GroundCheck';
 
-import AlertData from 'markup/pages/components/alert/AlertData';
+import Template from 'reacts/pages/Template';
 
-import { Global } from 'markup/styles/Global';
+import { Global } from 'reacts/styles/Global';
 
 const Routing = memo(() => {
   const location = useLocation();
@@ -25,7 +25,7 @@ const Routing = memo(() => {
     },
     {
       path: '/temp',
-      element: <AlertData />,
+      element: <Template />,
     },
     {
       path: '/',

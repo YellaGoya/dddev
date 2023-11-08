@@ -33,13 +33,13 @@ export const alertList = async ({ accessToken, refreshToken }) => {
   };
 
   const res = await eetch(url, options);
-  console.log('alertList res :: ', res);
+  // console.log('alertList res :: ', res);
   if (!res.ok) throw new Error('gayeonNotGood');
 
   return res;
 };
 
-export const createAlert = async ({ accessToken, refreshToken, alert }) => {
+export const createAlert = async ({ accessToken, refreshToken, repoId, keyword, type }) => {
   const url = base + `/alert-service/create-alert`;
   const options = {
     method: 'POST',
@@ -48,17 +48,17 @@ export const createAlert = async ({ accessToken, refreshToken, alert }) => {
       Authorization: accessToken,
       'Authorization-refresh': refreshToken,
     },
-    body: JSON.stringify({ alert }),
+    body: JSON.stringify({ repoId, keyword, type }),
   };
 
   const res = await eetch(url, options);
-  console.log('alertList res :: ', res);
+  // console.log('alertList res :: ', res);
   if (!res.ok) throw new Error('gayeonNotGood');
 
   return res;
 };
 
-export const updateAlert = async ({ accessToken, refreshToken, alertId }) => {
+export const updateAlert = async ({ accessToken, refreshToken, alertId, keyword, type }) => {
   const url = base + `/alert-service/${alertId}`;
   const options = {
     method: 'PUT',
@@ -67,12 +67,45 @@ export const updateAlert = async ({ accessToken, refreshToken, alertId }) => {
       Authorization: accessToken,
       'Authorization-refresh': refreshToken,
     },
-    body: JSON.stringify({}),
+    body: JSON.stringify({ keyword, type }),
   };
 
   const res = await eetch(url, options);
-  console.log('alertList res :: ', res);
+  // console.log('alertList res :: ', res);
   if (!res.ok) throw new Error('gayeonNotGood');
 
   return res;
+};
+
+export const deleteAlert = async ({ accessToken, refreshToken, alertId }) => {
+  const url = base + `/alert-service/${alertId}`;
+  const options = {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
+    },
+  };
+
+  const res = await eetch(url, options);
+  // console.log('alertList res :: ', res);
+  if (!res.ok) throw new Error('gayeonNotGood');
+
+  return res;
+};
+
+export const userGroundsExample = async ({ accessToken, refreshToken }) => {
+  const url = base + `/user/ground/list`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
 };
