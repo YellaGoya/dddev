@@ -132,7 +132,35 @@ export const TreeChild = styled.li`
   }
 `;
 
-export const DocTitle = styled.p``;
+export const TitleWrapper = styled.div`
+  position: relative;
+  width: fit-content;
+  height: 21px;
+
+  max-width: calc(100% - 97px);
+`;
+export const DocTitle = styled.p`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: auto;
+
+  height: 21px;
+  margin: 0;
+`;
+
+export const DocEdit = styled.input`
+  position: fixed;
+  left: -200px;
+  color: var(--font-basic);
+  border: none;
+  outline: none;
+
+  width: fit-content;
+
+  width: 100px;
+  height: 100px;
+`;
 
 export const TreeName = styled.div`
   position: relative;
@@ -231,7 +259,8 @@ export const TreeName = styled.div`
     width: 21px;
     height: 21px;
 
-    right: -1rem;
+    right: -1.5rem;
+    top: 0;
 
     fill: var(--font-editor-placeholder);
     opacity: 0;
@@ -257,7 +286,7 @@ export const TreeName = styled.div`
   & > p {
     position: relative;
     font-weight: 300;
-    padding-right: 10px;
+    padding-right: 100px;
     margin: 0;
 
     color: ${(props) => (props.$isEmpty ? (props.$isNew ? 'var(--font-new)' : 'var(--font-editor-placeholder)') : 'var(--font-rev)')};

@@ -5,11 +5,13 @@ import storage from 'redux-persist/lib/storage';
 import menuReducer from 'redux/reducers/menu';
 import groundReducer from 'redux/reducers/ground';
 import userReducer from 'redux/reducers/user';
+import docReducer from 'redux/reducers/doc';
 
 const rootReducer = combineReducers({
   menu: menuReducer,
   ground: groundReducer,
   user: userReducer,
+  doc: docReducer,
 });
 
 const persistConfig = {

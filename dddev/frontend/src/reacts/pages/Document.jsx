@@ -3,7 +3,7 @@ import { useRoutes } from 'react-router-dom';
 import Index from 'reacts/pages/components/document/Index';
 import Issue from 'reacts/pages/components/document/Issue';
 import Request from 'reacts/pages/components/document/Request';
-import Explore from 'reacts/pages/components/document/Explore';
+import General from 'reacts/pages/components/document/General';
 import Write from 'reacts/pages/components/document/Write';
 
 const Document = () => {
@@ -21,8 +21,8 @@ const Document = () => {
       element: <Request />,
     },
     {
-      path: '/explore',
-      element: <Explore />,
+      path: '/general',
+      element: <General />,
     },
     {
       path: '/docs',

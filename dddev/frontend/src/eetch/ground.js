@@ -124,6 +124,22 @@ export const editDocument = async ({ accessToken, refreshToken, groundId, type, 
   return res.json();
 };
 
+export const titleDocument = async ({ accessToken, refreshToken, groundId, type, id, title }) => {
+  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/${id}/title`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ title }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
 export const deleteDocument = async ({ accessToken, refreshToken, groundId, type, id }) => {
   const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/${id}`;
   const options = {

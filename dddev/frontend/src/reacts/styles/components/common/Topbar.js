@@ -27,6 +27,14 @@ export const PositionWrapper = styled.div`
   height: 35px;
 
   background-color: var(--bg-dark);
+
+  & > :nth-child(2) {
+    margin-left: ${({ $isGround }) => ($isGround ? '6px' : '0')};
+  }
+
+  & > :nth-child(3) {
+    margin-left: 6px;
+  }
 `;
 
 export const MenuButton = styled.button`
@@ -37,7 +45,8 @@ export const SelectedGround = styled.h1`
   display: inline-block;
 
   color: var(--font-rev);
-  font-size: 1.3rem;
+  font-size: 1rem;
+  font-weight: 500;
 
   display: flex;
   align-items: center;
@@ -46,9 +55,20 @@ export const SelectedGround = styled.h1`
   cursor: pointer;
 
   & > svg {
-    transform: translateY(0px);
     margin: 0 10px;
   }
+`;
+
+export const PathsText = styled.h1`
+  display: inline-block;
+
+  color: var(--font-rev);
+  font-size: 1rem;
+  font-weight: 300;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const ProfileImage = styled.img`

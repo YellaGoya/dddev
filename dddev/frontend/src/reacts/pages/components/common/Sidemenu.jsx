@@ -10,6 +10,17 @@ import { logoutUser } from 'redux/actions/user';
 
 import EditSettings from 'reacts/pages/components/user/EditSettings';
 
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
+import FreeBreakfastRoundedIcon from '@mui/icons-material/FreeBreakfastRounded';
+import FolderCopyRoundedIcon from '@mui/icons-material/FolderCopyRounded';
+import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
+import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
+import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
+
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
+import MeetingRoomRoundedIcon from '@mui/icons-material/MeetingRoomRounded';
+
 import * as s from 'reacts/styles/components/common/Sidemenu';
 const Sidemenu = () => {
   const dispatch = useDispatch();
@@ -43,7 +54,7 @@ const Sidemenu = () => {
   }, [menuToggle]);
 
   useEffect(() => {
-    if (user.isLoggedIn)
+    if (user.isLoggedIn && user.lastGround)
       eetch
         .getGround({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: user.lastGround })
         .then((res) => {
@@ -63,13 +74,34 @@ const Sidemenu = () => {
     <s.SidemenuWrapper $menuToggle={menuToggle}>
       <s.PositionWrapper>
         <s.MenuNav>
-          <s.MenuCategory to={`/${groundId}/project`}>프로젝트</s.MenuCategory>
-          <s.MenuChild to={`/${groundId}/project/chart`}>차트</s.MenuChild>
-          <s.MenuChild to={`/${groundId}/project/log`}>로그</s.MenuChild>
-          <s.MenuCategory to={`/${groundId}/document`}>문서</s.MenuCategory>
-          <s.MenuChild to={`/${groundId}/document/issue`}>이슈</s.MenuChild>
-          <s.MenuChild to={`/${groundId}/document/request`}>요청</s.MenuChild>
-          <s.MenuChild to={`/${groundId}/document/explore`}>문서</s.MenuChild>
+          <s.MenuCategory to={`/${groundId}/project`}>
+            <AutoAwesomeRoundedIcon />
+            프로젝트
+          </s.MenuCategory>
+          <s.MenuChild to={`/${groundId}/project/chart`}>
+            <BarChartRoundedIcon />
+            차트
+          </s.MenuChild>
+          <s.MenuChild to={`/${groundId}/project/log`}>
+            <FreeBreakfastRoundedIcon />
+            로그
+          </s.MenuChild>
+          <s.MenuCategory to={`/${groundId}/document`}>
+            <FolderCopyRoundedIcon />
+            문서
+          </s.MenuCategory>
+          <s.MenuChild to={`/${groundId}/document/issue`}>
+            <FlagRoundedIcon />
+            이슈
+          </s.MenuChild>
+          <s.MenuChild to={`/${groundId}/document/request`}>
+            <ForumRoundedIcon />
+            요청
+          </s.MenuChild>
+          <s.MenuChild to={`/${groundId}/document/general`}>
+            <AssignmentRoundedIcon />
+            일반
+          </s.MenuChild>
         </s.MenuNav>
 
         <s.GroundList $groundListToggle={groundListToggle}>
@@ -89,9 +121,11 @@ const Sidemenu = () => {
         </s.GroundList>
         <s.BottomWrapper>
           <s.MenuButton type="button" onClick={() => setSettingToggle(true)}>
+            <SettingsRoundedIcon />
             설정
           </s.MenuButton>
           <s.MenuButton type="button" onClick={logoutHandler}>
+            <MeetingRoomRoundedIcon />
             로그아웃
           </s.MenuButton>
         </s.BottomWrapper>

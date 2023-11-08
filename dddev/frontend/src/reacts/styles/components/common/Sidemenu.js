@@ -36,11 +36,35 @@ export const MenuNav = styled.nav`
 `;
 
 export const MenuCategory = styled(Link)`
+  text-decoration: none;
   display: block;
+  padding: 3px 10px;
+  margin-top: 10px;
+
+  display: flex;
+  align-items: center;
+
+  & > svg {
+    width: 19px;
+    height: 19px;
+    margin-right: 4px;
+  }
 `;
 
 export const MenuChild = styled(Link)`
+  text-decoration: none;
+  margin-left: 10px;
+  padding: 1px 10px;
   display: block;
+
+  display: flex;
+  align-items: center;
+
+  & > svg {
+    width: 19px;
+    height: 19px;
+    margin-right: 4px;
+  }
 `;
 
 export const GroundList = styled.ul`
@@ -79,9 +103,27 @@ export const GroundItem = styled.li`
   cursor: pointer;
 `;
 
-export const BottomWrapper = styled.div``;
+export const BottomWrapper = styled.div`
+  margin-top: 30px;
+`;
 
 export const MenuButton = styled.button`
   display: block;
-  color: var(--font-basic);
+  color: var(--font-rev);
+
+  font-size: 18px;
+  padding: 5px 10px 0 10px;
+
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+
+  & > svg {
+    width: 19px;
+    height: 19px;
+    margin-right: 4px;
+  }
 `;

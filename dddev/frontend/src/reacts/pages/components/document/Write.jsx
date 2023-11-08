@@ -8,6 +8,7 @@ import { QuillBinding } from 'y-quill';
 import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
 
+import { setDoc } from 'redux/actions/doc';
 import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
@@ -37,7 +38,6 @@ const Write = () => {
   };
 
   const editDocument = () => {
-    console.log(title);
     eetch
       .editDocument({
         accessToken: user.accessToken,
@@ -149,7 +149,7 @@ const Write = () => {
       return false;
     };
 
-    const initRoom = () => {
+    const initRoom = (needData) => {
       eetch
         .detailDocument({
           accessToken: user.accessToken,
@@ -160,8 +160,8 @@ const Write = () => {
         })
         .then((res) => {
           setTitle(res.data.title);
-          quillRef.current.getEditor().root.innerHTML = res.data.content;
-          setTitle('test');
+          setDoc({ docTitle: res.data.title });
+          if (needData) quillRef.current.getEditor().root.innerHTML = res.data.content;
         })
         .catch((err) => {
           if (err.message === 'RefreshTokenExpired') {
@@ -208,7 +208,8 @@ const Write = () => {
               const { user } = userState;
               if (user.ping) {
                 if (user.noise < 3) ping(user.noise + 1);
-                if (user.noise === 3 && [...users.keys()].length === 1) initRoom();
+                if (user.noise === 3) initRoom([...users.keys()].length === 1);
+
                 return;
               }
 
