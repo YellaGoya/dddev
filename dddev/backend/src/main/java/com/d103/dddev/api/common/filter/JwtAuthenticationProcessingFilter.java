@@ -68,7 +68,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		String requestURI = request.getRequestURI();
 		if (requestURI.startsWith(NO_CHECK_URL_SIGN_IN) || requestURI.equals(NO_CHECK_URL_MAIN)
 			|| requestURI.startsWith("/swagger") || requestURI.startsWith("/v2/api-docs")
-			|| requestURI.equals("/alert-service/push-webhook") || requestURI.equals("/alert-service/pull-request/webhook")) {
+			|| requestURI.equals("/alert-service/push-webhook") || requestURI.equals("/alert-service/pull-request-webhook")) {
 			filterChain.doFilter(request, response); // "/oauth/sign-in" 요청이 들어오면, 다음 필터 호출
 			return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
 		}

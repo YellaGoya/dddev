@@ -66,11 +66,9 @@ public class AlertServiceImpl implements AlertService {
 		UserDto userDto = jwtService.getUser(header).orElseThrow(
 			() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
-		if (userDto.getDeviceToken() == null) {
+		if (userDto.getDeviceToken().size() == 0) {
 			throw new NoSuchElementException("createWebhook :: 사용자 알림 허용이 필요합니다.");
 		}
-
-		String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
 
 		Integer repositoryId = createWebhookRequestDto.getRepoId();
 		List<String> keyword = createWebhookRequestDto.getKeyword();
@@ -128,56 +126,6 @@ public class AlertServiceImpl implements AlertService {
 			.build();
 
 		alertRepository.save(alertEntity);
-		// else if(type.equals("pull_request")) {
-		// 	createPullRequestWebhook(userDto, repositoryDto, "pull-request");
-		// }
-
-		// HashMap<String, Object> body = new HashMap<>();
-		// HttpHeaders headers = new HttpHeaders();
-		// headers.add("Accept", "application/vnd.github+json");
-		// headers.add("Authorization", "Bearer "+token);
-		// headers.add("X-GitHub-Api-Version", "2022-11-28");
-		//
-		// body.put("name", "web");
-		// body.put("active", true);
-		// body.put("events", new String[]{"push"});
-		// HashMap<String, Object> configHashMap = new HashMap<>();
-		// configHashMap.put("url", "https://k9d103.p.ssafy.io/alert-service/receive-webhook");
-		// configHashMap.put("content_type", "json");
-		// configHashMap.put("insecure_ssl", "0");
-		// body.put("config", configHashMap);
-		//
-		// HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
-		//
-		// RestTemplate restTemplate = new RestTemplate();
-		//
-		// ResponseEntity<CreateWebhookResponseDto> response = restTemplate.exchange(
-		// 	"https://api.github.com/repos/"+userDto.getGithubName()+"/"+repositoryDto.getName()+"/hooks",
-		// 	HttpMethod.POST,
-		// 	entity,
-		// 	CreateWebhookResponseDto.class
-		// );
-		//
-		// // 201 Created 가 아닌 경우
-		// if(response.getStatusCode().value() != 201) {
-		// 	throw new Exception("알림을 생성하지 못했습니다.");
-		// }
-
-		// log.info("response {}", response);
-		// 알림 생성된 정보 저장 - id, push/PR
-
-		// CreateWebhookResponseDto createWebhookResponseDto = response.getBody();
-		//
-		// AlertEntity alertEntity = AlertEntity.builder()
-		// 	.webhookId(createWebhookResponseDto.getId())
-		// 	.createdDate(createWebhookResponseDto.getCreatedAt())
-		// 	.repositoryId(repositoryId)
-		// 	.keyword(keyword)
-		// 	.type(createWebhookResponseDto.getEvents().get(0))
-		// 	.userDto(userDto)
-		// 	.build();
-		//
-		// alertRepository.save(alertEntity);
 
 	}
 
@@ -345,10 +293,10 @@ public class AlertServiceImpl implements AlertService {
 			.content(content)
 			.alertType(type)
 			.branch(branch)
-			.receiverId(receiver.getId())
+			.receiverId(receiver.getGithubId())
 			.sendingDate(LocalDateTime.now().toString())
 			.compareUrl(url)
-			.creatorId(sender.getId())
+			.creatorId(sender.getGithubId())
 			.keywordList(keywordSet)
 			.commitMessageList(commitMessageList)
 			.changedFileList(changedFileList)
