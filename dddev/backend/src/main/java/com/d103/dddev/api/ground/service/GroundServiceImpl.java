@@ -108,17 +108,17 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
-	public Map<String, Long> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception {
+	public Map<String, Integer> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception {
 		return issueService.getGroundFocusTimeCount(groundId, sprintId);
 	}
 
 	@Override
-	public Map<String, Long> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception {
+	public Map<String, Integer> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception {
 		return issueService.getGroundActiveTimeCount(groundId, sprintId);
 	}
 
 	@Override
-	public Map<String, Long> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception {
+	public Map<String, Integer> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception {
 		return issueService.getGroundTotalTimeCount(groundId, sprintId);
 	}
 
