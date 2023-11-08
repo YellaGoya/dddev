@@ -347,32 +347,32 @@ public class IssueServiceImpl implements IssueService {
 	}
 
 	@Override
-	public Map<String, Long> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception {
-		long focusTimeDoneCount = issueRepository.findFocusTimeDoneCount(groundId, sprintId);
-		long focusTimeUndoneCount = issueRepository.findFocusTimeUndoneCount(groundId, sprintId);
+	public Map<String, Integer> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception {
+		Integer focusTimeDoneCount = issueRepository.findFocusTimeDoneCount(groundId, sprintId);
+		Integer focusTimeUndoneCount = issueRepository.findFocusTimeUndoneCount(groundId, sprintId);
 
-		Map<String, Long> result = new HashMap<>();
+		Map<String, Integer> result = new HashMap<>();
 		result.put("done", focusTimeDoneCount);
 		result.put("undone", focusTimeUndoneCount);
 		return result;
 	}
 
 	@Override
-	public Map<String, Long> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception {
-		long focusTimeDoneCount = issueRepository.findActiveTimeDoneCount(groundId, sprintId);
-		long focusTimeUndoneCount = issueRepository.findActiveTimeUndoneCount(groundId, sprintId);
+	public Map<String, Integer> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception {
+		Integer focusTimeDoneCount = issueRepository.findActiveTimeDoneCount(groundId, sprintId);
+		Integer focusTimeUndoneCount = issueRepository.findActiveTimeUndoneCount(groundId, sprintId);
 
-		Map<String, Long> result = new HashMap<>();
+		Map<String, Integer> result = new HashMap<>();
 		result.put("done", focusTimeDoneCount);
 		result.put("undone", focusTimeUndoneCount);
 		return result;
 	}
 
 	@Override
-	public Map<String, Long> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception {
-		Map<String, Long> groundFocusTimeCount = getGroundFocusTimeCount(groundId, sprintId);
-		Map<String, Long> groundActiveTimeCount = getGroundActiveTimeCount(groundId, sprintId);
-		Map<String, Long> groundTotalTimeCount = new HashMap<>();
+	public Map<String, Integer> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception {
+		Map<String, Integer> groundFocusTimeCount = getGroundFocusTimeCount(groundId, sprintId);
+		Map<String, Integer> groundActiveTimeCount = getGroundActiveTimeCount(groundId, sprintId);
+		Map<String, Integer> groundTotalTimeCount = new HashMap<>();
 		groundTotalTimeCount.put("done", groundFocusTimeCount.get("done") + groundActiveTimeCount.get("done"));
 		groundFocusTimeCount.put("undone", groundFocusTimeCount.get("undone") + groundActiveTimeCount.get("undone"));
 

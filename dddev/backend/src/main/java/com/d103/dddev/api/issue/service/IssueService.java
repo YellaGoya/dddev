@@ -32,9 +32,9 @@ public interface IssueService  {
     Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws Exception;
     Map<String, Integer> getGroundTotalTime(Integer groundId, Integer sprintId) throws Exception;
 
-    Map<String, Long> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception;
-    Map<String, Long> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception;
-    Map<String, Long> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception;
+    Map<String, Integer> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception;
+    Map<String, Integer> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception;
+    Map<String, Integer> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception;
 
     IssueDto.Title.Response issueTitle(IssueDto.Title.Request request, String issueId, UserDetails userDetails);
 }
