@@ -1,4 +1,4 @@
-package com.d103.dddev.api.alert.dto.receive;
+package com.d103.dddev.api.alert.dto;
 
 import java.util.Map;
 

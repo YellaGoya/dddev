@@ -1,4 +1,4 @@
-package com.d103.dddev.api.alert.dto.receive;
+package com.d103.dddev.api.alert.dto;
 
 import java.time.OffsetDateTime;
 
@@ -11,11 +11,12 @@ import lombok.Data;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PullRequestDto {
 	private String url;
-	private Integer id;
+	private Long id;
 	private String nodeId;
 	private Integer number;
 	private String state;
 	private Boolean locked;
+	private String htmlUrl;
 	private String title;
 	private PullRequestUserDto user;
 	private String body;

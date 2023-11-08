@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -197,91 +198,20 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void saveDeviceToken(UserDto userDto, String deviceToken) throws Exception {
 
-		log.info("saveDeviceToken service :: ");
-		// String serverKey = "AAAA-JR50zk:APA91bF4mudANm2i7fUAWnk9SGV2C4wvnqbal6AsiIwG9P8sxiQxNBU7eaEkPZ6RVQpJ8M5POblq43u94Wpja7qXL01GKE4yjAk9pE8a-yDYbdB98_LJ1lOBftUVoloFaCY6IAE7MuDs";
+		Set<String> deviceTokenList = userDto.getDeviceToken();
+		deviceTokenList.add(deviceToken);
+		userDto.setDeviceToken(deviceTokenList);
 
-		HashMap<String, Object> body = new HashMap<>();
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Content-Type", "application/json");
-		headers.add("Authorization", "key="+SERVERKEY);
-		headers.add("project_id", "1067642901305");
+		userRepository.save(userDto);
+	}
 
-		if(userDto.getDeviceToken() == null) {
-			// 새 그룹 토큰 만들기
-			createNewDeviceToken(userDto, deviceToken);
+	@Override
+	public void deleteDeviceToken(UserDto userDto, String deviceToken) throws Exception {
+		Set<String> deviceTokenList = userDto.getDeviceToken();
+		deviceTokenList.remove(deviceToken);
+		userDto.setDeviceToken(deviceTokenList);
 
-			// body.put("operation", "create");
-			// body.put("notification_key_name", userDto.getId().toString());
-			// List<String> list = new ArrayList<>();
-			// list.add(deviceToken);
-			// body.put("registration_ids", list);
-			//
-			// log.info("new deviceToken arrayList :: {}", list);
-			//
-			// HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
-			//
-			// RestTemplate restTemplate = new RestTemplate();
-			//
-			// ResponseEntity<Map<String, String>> response = restTemplate.exchange(
-			// 	"https://fcm.googleapis.com/fcm/notification",
-			// 	HttpMethod.POST,
-			// 	entity,
-			// 	new ParameterizedTypeReference <Map<String, String>>(){}
-			// );
-			//
-			// log.info("new deviceToken response :: {}", response);
-			//
-			// userDto.setDeviceToken(response.getBody().get("notification_key"));
-			//
-			// userRepository.save(userDto);
-
-		} else {
-			// 기존 그룹 토큰에 현재 받은 새 토큰 추가하기
-			body.put("operation", "add");
-			body.put("notification_key_name", userDto.getId().toString());
-			body.put("notification_key", userDto.getDeviceToken());
-
-			log.info("add device token :: notification_key :: {}", userDto.getDeviceToken());
-			List<String> list = new ArrayList<>();
-			list.add(deviceToken);
-			body.put("registration_ids", list);
-
-			HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
-
-			RestTemplate restTemplate = new RestTemplate();
-
-			ResponseEntity<Map<String, String>> response = null;
-
-			try {
-				response = restTemplate.exchange(
-					"https://fcm.googleapis.com/fcm/notification",
-					HttpMethod.POST,
-					entity,
-					new ParameterizedTypeReference <Map<String, String>>(){}
-					// Object.class
-				);
-			} catch (Exception e) {
-				log.error("400 error :: {}", e);
-				log.error("400 errorMsg :: {}", e.getMessage());
-				log.info("response :: {}", response);
-
-				if(e.getMessage().contains("notification_key not found")) {
-					log.info("그룹 토큰 삭제");
-					createNewDeviceToken(userDto, deviceToken);
-				}
-				return;
-			}
-
-			// if(response.getStatusCode().value() == 400 && response.getBody().get("error").equals("notification_key not found")) {
-			// 	log.info("그룹 토큰 삭제");
-			// }
-
-			log.info("new deviceToken response :: {}", response);
-
-			userDto.setDeviceToken(response.getBody().get("notification_key"));
-
-			userRepository.save(userDto);
-		}
+		userRepository.save(userDto);
 	}
 
 	private void createNewDeviceToken(UserDto userDto, String deviceToken) {
@@ -298,7 +228,7 @@ public class UserServiceImpl implements UserService {
 		list.add(deviceToken);
 		body.put("registration_ids", list);
 
-		log.info("new deviceToken arrayList :: {}", list);
+		// log.info("new deviceToken arrayList :: {}", list);
 
 		HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
 
@@ -313,7 +243,10 @@ public class UserServiceImpl implements UserService {
 
 		log.info("new deviceToken response :: {}", response);
 
-		userDto.setDeviceToken(response.getBody().get("notification_key"));
+		Set<String> deviceTokenList = userDto.getDeviceToken();
+		deviceTokenList.add(response.getBody().get("notification_key"));
+
+		userDto.setDeviceToken(deviceTokenList);
 
 		userRepository.save(userDto);
 	}

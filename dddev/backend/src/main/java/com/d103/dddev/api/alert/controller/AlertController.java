@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.d103.dddev.api.alert.dto.CreateWebhookRequestDto;
-import com.d103.dddev.api.alert.dto.ReceiveWebhookDto;
+import com.d103.dddev.api.alert.dto.PushWebhookDto;
 import com.d103.dddev.api.alert.dto.UpdateAlertDto;
-import com.d103.dddev.api.alert.dto.receive.PullRequestWebhookDto;
+import com.d103.dddev.api.alert.dto.PullRequestWebhookDto;
 import com.d103.dddev.api.alert.entity.AlertEntity;
 import com.d103.dddev.api.alert.service.AlertServiceImpl;
 import com.d103.dddev.api.common.ResponseVO;
@@ -44,13 +44,13 @@ public class AlertController {
 	private final JwtService jwtService;
 
 	// 새 알림 생성
-	@PostMapping("/create-webhook")
+	@PostMapping("/create-alert")
 	@ApiOperation(value = "알림 생성", notes = "커밋(푸시) 알림을 생성하는 API")
 	@ApiResponses(value = {
 		@ApiResponse(code = 406, message = "사용자 accessToken, 레포 id, 기기 토큰 오류"),
 		@ApiResponse(code = 409, message = "알림 중복 생성 요청"),
 		@ApiResponse(code = 500, message = "서버 오류")})
-	public ResponseEntity<ResponseVO<String>> createWebhook(@RequestHeader("Authorization") String header,
+	public ResponseEntity<ResponseVO<String>> createAlert(@RequestHeader("Authorization") String header,
 		@RequestBody CreateWebhookRequestDto createWebhookRequestDto) {
 		try {
 			alertService.createAlert(header, createWebhookRequestDto);
@@ -85,32 +85,32 @@ public class AlertController {
 	}
 
 
-	@PostMapping(value = "/receive-webhook")
-	@ApiOperation(value = "hide endpoint", hidden = true)
-	public ResponseEntity<?> receiveWebhook(@RequestHeader(required = false) Map<String, Object> headerMap,
-		@RequestBody ReceiveWebhookDto receiveWebhookDto) {
-		try {
-			log.info("alert controller");
-			alertService.receiveWebhook(headerMap, receiveWebhookDto);
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
-				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+	// @PostMapping(value = "/receive-webhook")
+	// @ApiOperation(value = "hide endpoint", hidden = true)
+	// public ResponseEntity<?> receiveWebhook(@RequestHeader(required = false) Map<String, Object> headerMap,
+	// 	@RequestBody ReceiveWebhookDto receiveWebhookDto) {
+	// 	try {
+	// 		log.info("alert controller");
+	// 		alertService.receiveWebhook(headerMap, receiveWebhookDto);
+	// 		return new ResponseEntity<>(HttpStatus.OK);
+	// 	} catch (Exception e) {
+	// 		log.error(e.getMessage());
+	// 		ResponseVO<String> responseVO = ResponseVO.<String>builder()
+	// 			.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+	// 			.message(e.getMessage())
+	// 			.build();
+	// 		return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+	// 	}
+	// }
 
 	// 깃허브 이벤트 수신 - push event
 	@PostMapping(value = "/push-webhook")
 	@ApiOperation(value = "hide endpoint", hidden = true)
 	public ResponseEntity<?> receivePushWebhook(@RequestHeader(required = false) Map<String, Object> headerMap,
-		@RequestBody ReceiveWebhookDto receiveWebhookDto) {
+		@RequestBody PushWebhookDto pushWebhookDto) {
 		try {
 			log.info("alert controller");
-			alertService.receiveWebhook(headerMap, receiveWebhookDto);
+			alertService.receivePushWebhook(headerMap, pushWebhookDto);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -143,7 +143,7 @@ public class AlertController {
 
 
 
-	@PutMapping("/commit/{alertId}")
+	@PutMapping("/{alertId}")
 	@ApiOperation(value = "알림 수정", notes = "커밋(푸시) 알림의 키워드를 수정하는 API")
 	// @ApiImplicitParam(name = "map", paramType = "body", example = "{\n"
 	// 	+ "  \"keyword\": [\n"
@@ -178,7 +178,7 @@ public class AlertController {
 		}
 	}
 
-	@GetMapping("/commit")
+	@GetMapping("")
 	@ApiOperation(value = "알림 조회", notes = "커밋(푸시) 알림을 조회하는 API")
 	@ApiResponses(value = {
 		@ApiResponse(code = 406, message = "사용자 accessToken 오류")
@@ -210,7 +210,7 @@ public class AlertController {
 		}
 	}
 
-	@DeleteMapping("/commit/{alertId}")
+	@DeleteMapping("/{alertId}")
 	@ApiOperation(value = "알림 삭제", notes = "커밋(푸시) 알림과 연결된 깃허브 웹훅을 삭제하는 API")
 	@ApiResponses(value = {
 		@ApiResponse(code = 406, message = "사용자 accessToken, 깃허브 id 오류")

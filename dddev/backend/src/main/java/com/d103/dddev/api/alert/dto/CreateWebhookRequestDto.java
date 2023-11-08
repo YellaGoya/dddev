@@ -10,7 +10,7 @@ import lombok.ToString;
 @Data
 @Getter @Setter @ToString
 public class CreateWebhookRequestDto {
-	private Integer repositoryId;
+	private Integer repoId;
 	private List<String> keyword;
 	private String type;
 }

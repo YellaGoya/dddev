@@ -1,11 +1,15 @@
 package com.d103.dddev.api.user.repository.dto;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -71,8 +75,9 @@ public class UserDto {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
+	@ElementCollection(fetch = FetchType.EAGER)
 	@Column(name = "device_token")
-	private String deviceToken;
+	private Set<String> deviceToken;
 	
 	public void updatePersonalAccessToken(String personalAccessToken) {
 		this.personalAccessToken = personalAccessToken;

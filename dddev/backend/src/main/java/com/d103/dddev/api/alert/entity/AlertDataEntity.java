@@ -2,6 +2,8 @@ package com.d103.dddev.api.alert.entity;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,27 +28,34 @@ import lombok.ToString;
 @Setter
 @ToString
 public class AlertDataEntity {
-	// @Id
-	// // @GeneratedValue(strategy = GenerationType.IDENTITY)
-	// private String id;
+
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private String id;
 
 	private String title;
 	private String content;
 
-	@Column(name = "sending_date")
+	private Set<String> keywordList;
+
+	private List<String> changedFileList;
+
+	private List<String> commitMessageList;
+
+	private String compareUrl;	// commit compare url
+
+	private String url;	// pull request url
+
+	private String branch;
+
 	@CreationTimestamp
 	private String sendingDate;
 
-	@Column(name = "creator_id")
 	private Integer creatorId;
 
-	@Column(name = "receiver_id")
 	private Integer receiverId;
 
-	@Column(name = "alert_type")
 	private String alertType;
 
-	@Column(name = "is_success")
 	private Boolean isSuccess;
 
 }

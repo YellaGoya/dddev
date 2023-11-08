@@ -19,7 +19,7 @@ import com.google.firebase.FirebaseOptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Configuration
+// @Configuration
 @Slf4j
 @RequiredArgsConstructor
 public class FirebaseConfig {

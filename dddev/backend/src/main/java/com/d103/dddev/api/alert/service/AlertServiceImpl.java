@@ -12,7 +12,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,9 +24,10 @@ import com.d103.dddev.api.alert.dto.AlertUserDto;
 import com.d103.dddev.api.alert.dto.CommitDataDto;
 import com.d103.dddev.api.alert.dto.CreateWebhookRequestDto;
 import com.d103.dddev.api.alert.dto.CreateWebhookResponseDto;
-import com.d103.dddev.api.alert.dto.ReceiveWebhookDto;
+import com.d103.dddev.api.alert.dto.FcmResponseDto;
+import com.d103.dddev.api.alert.dto.PushWebhookDto;
 import com.d103.dddev.api.alert.dto.UpdateAlertDto;
-import com.d103.dddev.api.alert.dto.receive.PullRequestWebhookDto;
+import com.d103.dddev.api.alert.dto.PullRequestWebhookDto;
 import com.d103.dddev.api.alert.entity.AlertDataEntity;
 import com.d103.dddev.api.alert.entity.AlertEntity;
 import com.d103.dddev.api.alert.repository.AlertDataRepo;
@@ -54,6 +55,8 @@ public class AlertServiceImpl implements AlertService {
 	private final AlertRepository alertRepository;
 	private final AlertDataRepo alertDataRepo;
 
+	@Value("${firebase.server.key}")
+	private String SERVER_KEY;
 	private final static String PUSH_WEBHOOK_URL = "https://k9d103.p.ssafy.io/alert-service/push-webhook";
 	private final static String PULL_REQUEST_WEBHOOK_URL = "https://k9d103.p.ssafy.io/alert-service/pull-request-webhook";
 
@@ -69,7 +72,7 @@ public class AlertServiceImpl implements AlertService {
 
 		String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
 
-		Integer repositoryId = createWebhookRequestDto.getRepositoryId();
+		Integer repositoryId = createWebhookRequestDto.getRepoId();
 		List<String> keyword = createWebhookRequestDto.getKeyword();
 		String type = createWebhookRequestDto.getType();
 
@@ -239,23 +242,25 @@ public class AlertServiceImpl implements AlertService {
 	}
 
 	@Override
-	public void receiveWebhook(Map<String, Object> headerMap, ReceiveWebhookDto receiveWebhookDto) throws Exception {
+	public void receivePushWebhook(Map<String, Object> headerMap, PushWebhookDto pushWebhookDto) throws Exception {
 
 		// 해당 레포, 타입 알림을 수신하는 사용자, 키워드 조회
 		List<AlertUserDto> userDtoList = alertRepository.findByRepositoryIdAndType(
-			receiveWebhookDto.getRepository().getId(), "push");
-		// TODO: 수정 필요 : repo 형식이 dddev에서 정의한 repoDto랑 달라서 오류남
+			pushWebhookDto.getRepository().getId(), "push");
 
 		// 트리거 발생자
-		UserDto sender = userService.getUserInfo(Integer.valueOf(receiveWebhookDto.getSender().get("id"))).orElse(null);
+		UserDto sender = userService.getUserInfo(Integer.valueOf(pushWebhookDto.getSender().get("id"))).orElse(null);
 
 		for (AlertUserDto alertUserDto : userDtoList) {
+			FcmResponseDto fcmResponseDto = null;
+			String title = null;
+			String content = null;
 			// 변경될 파일 알려주기 위한 리스트
 			List<String> changedFileList = new ArrayList<>();
 
 			Set<String> keywordSet = new HashSet<>();
 
-			for (CommitDataDto commitDataDto : receiveWebhookDto.getCommits()) {
+			for (CommitDataDto commitDataDto : pushWebhookDto.getCommits()) {
 
 				for (String keyword : alertUserDto.getKeyword()) {
 
@@ -278,21 +283,23 @@ public class AlertServiceImpl implements AlertService {
 							keywordSet.add(keyword);
 						}
 					}
-					// commitDataDto.getAdded().stream()
-					// 	.filter(filename -> filename.contains(keyword))
-					// 	.forEach(filename -> changedFileList.add(filename));
 
 				} // 키워드
 			}    // 커밋 리스트
 
 			if (!changedFileList.isEmpty()) {
-				log.info("changedFile :: ");
-				sendAlert(alertUserDto.getUserDto(), sender, keywordSet, changedFileList, 0);
+				title = "❗파일이 변경되엇습니다❗";
+				content = String.join(",", keywordSet) + "키워드 발생!!";
+				fcmResponseDto = sendAlert(alertUserDto.getUserDto(), title, content);
+
+				// 응답, 보낸 알림 제목, 보낸 알림 내용, 수신자, 발신자, 발생 브랜치, 비교 url, 알림 타입
+				saveAlertData(fcmResponseDto, title, content, alertUserDto.getUserDto(), sender,
+					pushWebhookDto.getRef(), pushWebhookDto.getCompare(), "push", keywordSet, null, changedFileList);
 				continue;
 			}
 
 			List<String> commitMessageList = new ArrayList<>();
-			for (CommitDataDto commitDataDto : receiveWebhookDto.getCommits()) {
+			for (CommitDataDto commitDataDto : pushWebhookDto.getCommits()) {
 				for (String keyword : alertUserDto.getKeyword()) {
 					String commitMsg = commitDataDto.getMessage();
 
@@ -305,14 +312,54 @@ public class AlertServiceImpl implements AlertService {
 			}    // 커밋 리스트
 
 			if (!commitMessageList.isEmpty()) {
-				log.info("commitMessage :: ");
-				sendAlert(alertUserDto.getUserDto(), sender, keywordSet, commitMessageList, 1);
+				title = "❗커밋 메시지가 발생했습니다❗";
+				content = String.join(",", keywordSet) + "키워드 발생!!";
+				fcmResponseDto = sendAlert(alertUserDto.getUserDto(), title, content);
+
+				// 응답, 보낸 알림 제목, 보낸 알림 내용, 수신자, 발신자, 발생 브랜치, 비교 url, 알림 타입
+				saveAlertData(fcmResponseDto, title, content, alertUserDto.getUserDto(), sender,
+					pushWebhookDto.getRef(), pushWebhookDto.getCompare(), "push", keywordSet, commitMessageList, null);
 				continue;
 			}
+
+			log.info("fcm response :: {}", fcmResponseDto);
 
 			// TODO: 커밋 파일별 상세 변경사항 검색
 
 		}    // 사용자+키워드
+	}
+
+	private void saveAlertData(FcmResponseDto fcmResponseDto, String title, String content, UserDto receiver,
+		UserDto sender, String branch, String url, String type, Set<String> keywordSet, List<String> commitMessageList,
+		List<String> changedFileList) throws Exception {
+		Boolean isSuccess = true;
+
+		if (fcmResponseDto.getFailure() != 0) {
+			log.error("sendAlert :: 알림 전송에 실패했습니다.");
+			isSuccess = false;
+		}
+
+		// 전송한 알림 내역을 db에 저장
+		AlertDataEntity alertDataEntity = AlertDataEntity.builder()
+			.title(title)
+			.content(content)
+			.alertType(type)
+			.branch(branch)
+			.receiverId(receiver.getId())
+			.sendingDate(LocalDateTime.now().toString())
+			.compareUrl(url)
+			.creatorId(sender.getId())
+			.keywordList(keywordSet)
+			.commitMessageList(commitMessageList)
+			.changedFileList(changedFileList)
+			.isSuccess(isSuccess)
+			.build();
+
+		log.info("데이터 저장하기 전 로그");
+
+		alertDataRepo.addAlertData(alertDataEntity);
+
+		log.info("firestore에 데이터가 정상 저장되었습니다.");
 	}
 
 	@Override
@@ -408,6 +455,8 @@ public class AlertServiceImpl implements AlertService {
 	public void receivePullRequestWebhook(Map<String, Object> headerMap,
 		PullRequestWebhookDto pullRequestWebhookDto) throws Exception {
 
+		FcmResponseDto fcmResponseDto = null;
+
 		// 해당 레포, 타입 알림을 수신하는 사용자, 키워드 조회
 		List<AlertUserDto> userDtoList = alertRepository.findByRepositoryIdAndType(
 			pullRequestWebhookDto.getRepository().getId(), "pull_request");
@@ -415,7 +464,14 @@ public class AlertServiceImpl implements AlertService {
 		UserDto sender = userService.getUserInfo(Integer.valueOf(pullRequestWebhookDto.getSender().get("id")))
 			.orElse(null);
 
+		String headBranch = pullRequestWebhookDto.getPullRequest().getHead().getRef();
+		String baseBranch = pullRequestWebhookDto.getPullRequest().getBase().getRef();
+		String url = pullRequestWebhookDto.getPullRequest().getUrl();
+
 		for (AlertUserDto alertUserDto : userDtoList) {
+
+			String alertTitle = null;
+			String alertContent = null;
 
 			Set<String> keywordSet = new HashSet<>();
 			String title = pullRequestWebhookDto.getPullRequest().getTitle();
@@ -434,8 +490,14 @@ public class AlertServiceImpl implements AlertService {
 				}
 
 			} // 키워드
-			if(!keywordSet.isEmpty()) {
-				sendAlert(alertUserDto.getUserDto(), sender, keywordSet, title, body);
+			if (!keywordSet.isEmpty()) {
+				alertTitle = "❗풀 리퀘스트가 발생했습니다❗";
+				alertContent = String.join(",", keywordSet) + "키워드 발생!!";
+				fcmResponseDto = sendAlert(alertUserDto.getUserDto(), alertTitle, alertContent);
+
+				// 응답, 보낸 알림 제목, 보낸 알림 내용, 수신자, 발신자, 발생 브랜치, 비교 url, 알림 타입
+				saveAlertData(fcmResponseDto, alertTitle, alertContent, alertUserDto.getUserDto(), sender,
+					headBranch+"->"+baseBranch, url, "push", keywordSet, null, null);
 			}
 		}
 
@@ -484,129 +546,35 @@ public class AlertServiceImpl implements AlertService {
 
 	}
 
-	public void sendAlert(UserDto userDto, UserDto sender, Set<String> keywordSet, List<String> bodyList,
-		Integer type) throws Exception {
+	public FcmResponseDto sendAlert(UserDto userDto, String alertTitle, String alertBody) throws Exception {
 		// 기기 토큰 불러오기
-		// String token = userDto.getDeviceToken();
-		String token = "fGhyTsSkUvIKfHFsZyZKNh:APA91bE0UvmvKX9C_4QylHX_WTgDChjC1cVFJRMpIfzpPb5kuHg43SYiPLWdYF6hmcFsfhY6l_tGdW_yy3X5f-rsIf9daqRWEWs7Ikq0VgQl4l3VEB-LRFcTo1o3-Zz_FcMDj-kL7LT7";
-
-		// 백 -> fcm 요청
-		// test
-		String serverKey = "AAAA-JR50zk:APA91bF4mudANm2i7fUAWnk9SGV2C4wvnqbal6AsiIwG9P8sxiQxNBU7eaEkPZ6RVQpJ8M5POblq43u94Wpja7qXL01GKE4yjAk9pE8a-yDYbdB98_LJ1lOBftUVoloFaCY6IAE7MuDs";
+		Set<String> token = userDto.getDeviceToken();
 
 		HashMap<String, Object> body = new HashMap<>();
 		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "key=" + serverKey);
+		headers.add("Authorization", "key=" + SERVER_KEY);
 
 		HashMap<String, String> notificationContentMap = new HashMap<>();
 
-		String title = null;
-		if (type == 0) {
-			title = "파일이 변경되엇습니다.";
-		} else if (type == 1) {
-			title = "커밋 메시지가 발생했습니다.";
-		}
-
 		// notificationContentMap.put("title", String.join(",", titleSet));	// 해당 키워드 셋
-		notificationContentMap.put("title", title);
-		notificationContentMap.put("body", String.join(",", bodyList));
+		notificationContentMap.put("title", alertTitle);
+		notificationContentMap.put("body", alertBody);
 
-		body.put("to", token);
+		body.put("registration_ids", token);
 		body.put("notification", notificationContentMap);
 
 		HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
 
 		RestTemplate restTemplate = new RestTemplate();
 
-		ResponseEntity<Object> response = restTemplate.exchange(
+		ResponseEntity<FcmResponseDto> response = restTemplate.exchange(
 			"https://fcm.googleapis.com/fcm/send",
 			HttpMethod.POST,
 			entity,
-			Object.class
+			FcmResponseDto.class
 		);
-		// }
 
-		log.info("fcm response :: {}", response);
-
-		// 전송한 알림 내역을 db에 저장
-		AlertDataEntity alertDataEntity = AlertDataEntity.builder()
-			.title(title)
-			.content(String.join(",", bodyList))
-			.alertType("push")
-			.receiverId(userDto.getId())
-			.sendingDate(LocalDateTime.now().toString())
-			.creatorId(sender.getId())
-			.build();
-
-		log.info("데이터 저장하기 전 로그");
-
-		alertDataRepo.addAlertData(alertDataEntity);
-
-		log.info("firestore에 데이터가 정상 저장되었습니다.");
-
-	}
-
-	public void sendAlert(UserDto userDto, UserDto sender, Set<String> keywordSet, String title, String content) throws
-		Exception {
-		log.info("sendAlert :: ");
-		// 기기 토큰 불러오기
-		String token = userDto.getDeviceToken();
-		// String token = "fGhyTsSkUvIKfHFsZyZKNh:APA91bE0UvmvKX9C_4QylHX_WTgDChjC1cVFJRMpIfzpPb5kuHg43SYiPLWdYF6hmcFsfhY6l_tGdW_yy3X5f-rsIf9daqRWEWs7Ikq0VgQl4l3VEB-LRFcTo1o3-Zz_FcMDj-kL7LT7";
-
-		// 백 -> fcm 요청
-		// test
-		String serverKey = "AAAA-JR50zk:APA91bF4mudANm2i7fUAWnk9SGV2C4wvnqbal6AsiIwG9P8sxiQxNBU7eaEkPZ6RVQpJ8M5POblq43u94Wpja7qXL01GKE4yjAk9pE8a-yDYbdB98_LJ1lOBftUVoloFaCY6IAE7MuDs";
-
-		HashMap<String, Object> body = new HashMap<>();
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "key=" + serverKey);
-
-		HashMap<String, String> notificationContentMap = new HashMap<>();
-
-		// notificationContentMap.put("title", String.join(",", titleSet));	// 해당 키워드 셋
-		notificationContentMap.put("title", "pull request가 발생했습니다.");
-		notificationContentMap.put("body", title+"\n"+content);
-
-		body.put("to", token);
-		body.put("notification", notificationContentMap);
-
-		HttpEntity<HashMap<String, Object>> entity = new HttpEntity<>(body, headers);
-
-		RestTemplate restTemplate = new RestTemplate();
-
-		ResponseEntity<Map<String, Integer>> response = restTemplate.exchange(
-			"https://fcm.googleapis.com/fcm/send",
-			HttpMethod.POST,
-			entity,
-			new ParameterizedTypeReference<Map<String, Integer>>() {
-			}
-		);
-		// }
-
-
-		log.info("fcm response :: {}", response);
-
-		Boolean isSuccess = true;
-
-		if(response.getBody().get("failure") == 1) {
-			log.error("sendAlert :: 알림 전송에 실패했습니다.");
-			isSuccess = false;
-		}
-		// 전송한 알림 내역을 db에 저장
-		AlertDataEntity alertDataEntity = AlertDataEntity.builder()
-			.title(title)
-			.content(content)
-			.alertType("pull_request")
-			.receiverId(userDto.getId())
-			.sendingDate(LocalDateTime.now().toString())
-			.creatorId(sender.getId())
-			.isSuccess(isSuccess)
-			.build();
-
-		alertDataRepo.addAlertData(alertDataEntity);
-
-		log.info("firestore에 데이터가 정상 저장되었습니다.");
-
+		return response.getBody();
 	}
 
 }

@@ -672,4 +672,39 @@ public class UserController {
 			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	@DeleteMapping("/device-token")
+	@ApiOperation(value = "사용자 기기 토큰 삭제", notes = "사용자가 알림을 허용한 기기 토큰을 삭제하는 API")
+	@ApiImplicitParam(name = "map", paramType = "body", example = "{\n"
+		+ "  \"deviceToken\": \"string\"\n"
+		+ "}")
+	@ApiResponses(value = {
+		@ApiResponse(code = 403, message = "존재하지 않는 사용자")
+	})
+	ResponseEntity<?> deleteDeviceToken(@RequestHeader String Authorization, @RequestBody Map<String, String> map,
+		HttpServletRequest request) {
+		try {
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			userService.deleteDeviceToken(userDto, map.get("deviceToken"));
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.OK.value())
+				.message("기기 토큰 삭제에 성공했습니다.")
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

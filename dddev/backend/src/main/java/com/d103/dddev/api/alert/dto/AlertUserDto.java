@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 public interface AlertUserDto {
+	/*
+	* 알림이 연결된 repository, 알림 타입으로 검색
+	* userDto, 키워드 찾기
+	*/
 	UserDto getUserDto();
 	List<String> getKeyword();
 }
