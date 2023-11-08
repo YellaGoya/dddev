@@ -14,7 +14,7 @@ public class IssueDto {
     public static class Create{
 
         @Data
-        @ApiModel(value="이슈 생성", description = "이슈 생성 RequestBody")
+        @ApiModel(value="이슈 생성 요청", description = "모든 값이 들어가지 않아도 생성 가능(부모문서 => 미분류, 스프린트 ID => 0)")
         public static class Request{
             @ApiModelProperty(value="상위문서 ID")
             private String parentId;
@@ -24,8 +24,11 @@ public class IssueDto {
 
         @Data
         @Builder
+        @ApiModel(value="이슈 생성 응답")
         public static class Response{
+            @ApiModelProperty(value="message", example = "이슈 문서 생성 완료")
             private String message;
+            @ApiModelProperty(value="code", example = "200")
             private Integer code;
             private Issue data;
         }
@@ -34,8 +37,11 @@ public class IssueDto {
     public static class List{
         @Data
         @Builder
+        @ApiModel(value="이슈 목록 조회 응답")
         public static class Response{
+            @ApiModelProperty(value="message", example = "이슈 문서 목록 조회 완료")
             private String message;
+            @ApiModelProperty(value="code", example = "200")
             private Integer code;
             private ArrayList<Issue> data;
         }
@@ -44,8 +50,11 @@ public class IssueDto {
     public static class Detail{
         @Data
         @Builder
+        @ApiModel(value="이슈 상세 조회 응답")
         public static class Response{
+            @ApiModelProperty(value="message", example = "이슈 문서 상세 조회 완료")
             private String message;
+            @ApiModelProperty(value="code", example = "200")
             private Integer code;
             private Issue data;
         }
@@ -54,8 +63,11 @@ public class IssueDto {
     public static class Delete{
         @Data
         @Builder
+        @ApiModel(value="이슈 삭제 응답")
         public static class Response{
+            @ApiModelProperty(value="message", example = "이슈 문서 삭제 완료")
             private String message;
+            @ApiModelProperty(value="code", example = "200")
             private Integer code;
         }
     }
@@ -63,17 +75,22 @@ public class IssueDto {
     public static class Content{
         @Data
         @Builder
-        @ApiModel(value="체크 문서 수정", description = "체크 문서의 제목 및 내용 수정")
+        @ApiModel(value="이슈 문서 수정", description = "이슈 문서 수정 => 들어오는 값 그대로 저장")
         public static class Request{
+            @ApiModelProperty(value="title", example = "제목")
             private String title;
+            @ApiModelProperty(value="content", example = "내용")
             private String content;
         }
 
         @Data
         @Builder
+        @ApiModel(value="이슈 문서 수정 응답")
         public static class Response{
-            private Integer code;
+            @ApiModelProperty(value="message", example = "이슈 문서 수정 완료")
             private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
             private Issue data;
         }
     }
@@ -89,9 +106,12 @@ public class IssueDto {
 
         @Data
         @Builder
+        @ApiModel(value="이슈 상태 변경")
         public static class Response{
-            private Integer code;
+            @ApiModelProperty(value="message", example = "이슈 문서 상태 수정 완료")
             private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
             private Issue data;
         }
     }
@@ -100,15 +120,18 @@ public class IssueDto {
         @Data
         @ApiModel(value ="상위 문서 연결 변경", description = "이슈 문서 연결 변경 API")
         public static class Request{
-            @ApiModelProperty(value = "연결할 체크포인트 문서 ID")
+            @ApiModelProperty(value = "부모 문서 ID")
             private String parentId;
         }
 
         @Data
         @Builder
+        @ApiModel(value="상위 문서 연결 응답")
         public static class Response{
-            private Integer code;
+            @ApiModelProperty(value="message", example = "이슈 문서 연결 변경 완료")
             private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
             private Issue data;
         }
     }
@@ -125,9 +148,12 @@ public class IssueDto {
 
         @Data
         @Builder
+        @ApiModel(value="이슈 문서 시간 변경 응답")
         public static class Response{
-            private Integer code;
+            @ApiModelProperty(value="message", example = "이슈 문서 시간 수정 완료")
             private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
             private Issue data;
         }
     }
@@ -142,9 +168,32 @@ public class IssueDto {
 
         @Data
         @Builder
+        @ApiModel(value="이슈 문서 스프린트 연결 응답")
         public static class Response{
-            private Integer code;
+            @ApiModelProperty(value="message", example = "이슈 문서 스프린트 연결 완료")
             private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
+            private Issue data;
+        }
+    }
+
+    public static class Title{
+        @Data
+        @ApiModel(value="이슈 문서 제목 변경", description = "이슈 문서 제목 변경 API")
+        public static class Request{
+            @ApiModelProperty(value="제목", example = "제목")
+            private String title;
+        }
+
+        @Data
+        @Builder
+        @ApiModel(value="이슈 문서 제목 변경 응답")
+        public static class Response{
+            @ApiModelProperty(value="message", example = "이슈 문서 제목 수정 완료")
+            private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
             private Issue data;
         }
     }

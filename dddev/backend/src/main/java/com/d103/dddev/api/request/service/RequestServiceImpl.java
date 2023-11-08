@@ -295,6 +295,44 @@ public class RequestServiceImpl implements RequestService{
         documentService.deleteFile(requestId);
 
     }
+
+    @Override
+    public Request titleRequest(int groundId, String requestId, RequestTitleDto requestTitleDto, UserDetails userDetails) throws Exception{
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new NoSuchElementException("해당 문서를 불러오는데 실패했습니다."));
+        // 이미 보낸 요청이라면 수정할 수 없다.
+        if(loadRequest.getStatus() == 1){
+            throw new InvalidAttributeValueException("수정할 수 없습니다.");
+        }
+        int step = loadRequest.getStep();
+        loadRequest.setTitle(requestTitleDto.getTitle());
+        try{
+            requestRepository.save(loadRequest);
+        }catch(Exception e){
+            throw new TransactionException("문서 업데이트를 실패했습니다.");
+        }
+        // step1 문서가 아니라면 부모를 찾아서 업데이트해줘야한다.
+        if(step != 1){
+            String parentId = loadRequest.getParentId();
+            Request parent = requestRepository.findById(parentId).orElseThrow(()->new NoSuchElementException("부모 문서를 불러오는데 실패했습니다."));
+            List<Request> children = parent.getChildren();
+            ListIterator<Request> iterator = children.listIterator();
+            while (iterator.hasNext()) {
+                Request child = iterator.next();
+                if (child.getId().equals(loadRequest.getId())) {
+                    iterator.set(loadRequest);
+                }
+            }
+            parent.setChildren(children);
+            try{
+                requestRepository.save(parent);
+            }catch(Exception e){
+                throw new TransactionException("부모 문서를 저장하는데 실패했습니다.");
+            }
+        }
+
+        return loadRequest;
+    }
+
     public boolean stepIsRange(int step){
         return step>=1 && step<=2;
     }

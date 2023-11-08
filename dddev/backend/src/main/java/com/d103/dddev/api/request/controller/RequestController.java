@@ -268,5 +268,30 @@ public class RequestController {
             return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    @PutMapping("/{requestId}/title")
+    @ApiOperation(value="요청 문서 제목 수정")
+    public ResponseEntity<?> updateRequest(@PathVariable("groundId") int groundId,
+                                           @PathVariable("requestId") String requestId,
+                                           @RequestBody RequestTitleDto requestTitleDto,
+                                           @RequestHeader String Authorization,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        ResponseVO<Request> responseVo;
+
+        try{
+            Request Request = requestService.titleRequest(groundId, requestId, requestTitleDto, userDetails);
+            responseVo = ResponseVO.<Request>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("문서의 제목을 수정했습니다.")
+                    .data(Request)
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+        }catch(Exception e){
+            responseVo = ResponseVO.<Request>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
