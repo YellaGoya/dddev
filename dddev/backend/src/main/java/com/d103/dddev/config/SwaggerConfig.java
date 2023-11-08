@@ -18,6 +18,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -28,6 +29,7 @@ public class SwaggerConfig {
 	public Docket api() {
 
 		return new Docket(DocumentationType.SWAGGER_2)
+			.useDefaultResponseMessages(false)
 			.select()
 			.apis(RequestHandlerSelectors.basePackage("com.d103.dddev.api"))
 			.paths(PathSelectors.any())
