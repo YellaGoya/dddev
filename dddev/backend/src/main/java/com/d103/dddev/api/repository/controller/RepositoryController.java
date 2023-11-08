@@ -48,6 +48,7 @@ public class RepositoryController {
 	@ApiResponses(value = {@ApiResponse(code = 401, message = "pat 오류"),
 		@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드 오너가 아님"),
+		@ApiResponse(code = 410, message = "pat가 존재하지 않음"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<RepositoryVO>>> getRepositoryList(HttpServletRequest request, @RequestHeader String Authorization) {
 		try {
@@ -64,6 +65,13 @@ public class RepositoryController {
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			log.error("personal access token 에러 :: pat가 없습니다.");
+			ResponseVO<List<RepositoryVO>> responseVO = ResponseVO.<List<RepositoryVO>>builder()
+				.code(HttpStatus.GONE.value())
+				.message("personal access token 에러 :: 만료 기간을 확인하세요")
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.GONE);
 		} catch (HttpClientErrorException e) {
 			log.error("personal access token 에러 :: 만료 기간을 확인하세요");
 			ResponseVO<List<RepositoryVO>> responseVO = ResponseVO.<List<RepositoryVO>>builder()

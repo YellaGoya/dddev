@@ -122,7 +122,7 @@ public class GroundController {
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<GroundUserVO>>> inviteMemberToGround(@RequestHeader String Authorization,
-		@PathVariable Integer groundId, @PathVariable Integer githubId,
+		@ApiParam(value = "groundId") @PathVariable Integer groundId, @ApiParam(value = "githubId") @PathVariable Integer githubId,
 		HttpServletRequest request) {
 		log.info("controller - inviteMemberToGround :: 그라운드에 멤버 추가하기 진입");
 		ResponseVO<List<GroundUserVO>> responseVO;
@@ -203,8 +203,8 @@ public class GroundController {
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드의 owner가 아님"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<List<Map<String, String>>>> getUserByEmail(@RequestHeader String Authorization,
-		@PathVariable Integer groundId,
-		@PathVariable String email, HttpServletRequest request) {
+		@ApiParam(value = "groundId") @PathVariable Integer groundId,
+		@ApiParam(value = "email") @PathVariable String email, HttpServletRequest request) {
 		log.info("controller - getUserByEmail :: 이메일로 멤버 찾기 진입(이미 그라운드에 추가된 사람은 제외됨)");
 		ResponseVO<List<Map<String, String>>> responseVO;
 		try {
@@ -282,7 +282,7 @@ public class GroundController {
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<Boolean>> checkIsGroundMember(@RequestHeader String Authorization,
-		@PathVariable Integer groundId,
+		@ApiParam(value = "groundId") @PathVariable Integer groundId,
 		HttpServletRequest request) {
 		log.info("controller - checkIsGroundMember :: 사용자가 그라운드 멤버인지 조회 진입");
 		ResponseVO<Boolean> responseVO;
@@ -321,7 +321,6 @@ public class GroundController {
 		log.info("controller - getGroundInfo :: 그라운드 정보 조회 진입");
 		ResponseVO<List<GroundUserVO>> responseVO;
 		try {
-
 			// 그라운드의 유저 목록 불러오기
 			List<GroundUserVO> groundMembers = groundUserService.getGroundMembersAsVO(groundId);
 
@@ -351,18 +350,15 @@ public class GroundController {
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<Map<String, Integer>>> getFocusTime(
 		@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
-		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
-		HttpServletRequest request) {
+		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization) {
 
 		log.info("controller - getFocusTime :: 차트 집중시간 조회 진입");
 		ResponseVO<Map<String, Integer>> responseVO;
 		try {
-			Map<String, Integer> groundFocusTime = groundService.getGroundFocusTime(groundId, sprintId);
-
 			responseVO = ResponseVO.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
 				.message("그라운드 완료/미완료 집중시간 조회 완료!")
-				.data(groundFocusTime)
+				.data(groundService.getGroundFocusTime(groundId, sprintId))
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
@@ -385,23 +381,135 @@ public class GroundController {
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseVO<Map<String, Integer>>> getActiveTime(
 		@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
-		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
-		HttpServletRequest request) {
+		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization) {
 		log.info("controller - getFocusTime :: 차트 연구시간 조회 진입");
 		ResponseVO<Map<String, Integer>> responseVO;
 		try {
-			Map<String, Integer> groundActiveTime = groundService.getGroundActiveTime(groundId, sprintId);
-
 			responseVO = ResponseVO.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
 				.message("그라운드 완료/미완료 연구시간 조회 성공!")
-				.data(groundActiveTime)
+				.data(groundService.getGroundActiveTime(groundId, sprintId))
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseVO = ResponseVO.<Map<String, Integer>>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/{groundId}/chart/total-time/{sprintId}")
+	@ApiOperation(value = "그라운드 차트 - 전체 완료/미완료 시간 조회", notes = "그라운드 차트 - 전체 완료/미완료 시간 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseVO<Map<String, Integer>>> getTotalTime(
+		@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
+		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization) {
+		log.info("controller - getTotalTime :: 전체 완료/미완료 시간 조회 진입");
+		ResponseVO<Map<String, Integer>> responseVO;
+		try {
+			responseVO = ResponseVO.<Map<String, Integer>>builder()
+				.code(HttpStatus.OK.value())
+				.message("그라운드 전체 완료/미완료 연구시간 조회 성공!")
+				.data(groundService.getGroundTotalTime(groundId, sprintId))
+				.build();
+
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<Map<String, Integer>>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/{groundId}/chart/focus-count/{sprintId}")
+	@ApiOperation(value = "그라운드 차트 - 집중시간 완료/미완료 개수 조회", notes = "그라운드 차트 - 집중시간 완료/미완료 시간 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseVO<Map<String, Long>>> getFocusCount(
+		@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
+		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
+		HttpServletRequest request) {
+		log.info("controller - getFocusCount :: 집중시간 완료/미완료 개수 조회 진입");
+		ResponseVO<Map<String, Long>> responseVO;
+		try {
+			responseVO = ResponseVO.<Map<String, Long>>builder()
+				.code(HttpStatus.OK.value())
+				.message("집중시간 완료/미완료 개수 조회 성공!")
+				.data(groundService.getGroundFocusTimeCount(groundId, sprintId))
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<Map<String, Long>>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/{groundId}/chart/active-count/{sprintId}")
+	@ApiOperation(value = "그라운드 차트 - 연구시간 완료/미완료 개수 조회", notes = "그라운드 차트 - 연구시간 완료/미완료 시간 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseVO<Map<String, Long>>> getActiveCount(
+		@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
+		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization) {
+		log.info("controller - getActiveCount :: 연구시간 완료/미완료 개수 조회 진입");
+		ResponseVO<Map<String, Long>> responseVO;
+		try {
+			responseVO = ResponseVO.<Map<String, Long>>builder()
+				.code(HttpStatus.OK.value())
+				.message("집중시간 완료/미완료 개수 조회 성공!")
+				.data(groundService.getGroundActiveTimeCount(groundId, sprintId))
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<Map<String, Long>>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/{groundId}/chart/total-count/{sprintId}")
+	@ApiOperation(value = "그라운드 차트 - 전체 완료/미완료 개수 조회", notes = "그라운드 차트 - 전체 완료/미완료 시간 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseVO<Map<String, Long>>> getTotalCount(
+		@ApiParam(value = "그라운드 아이디") @PathVariable Integer groundId,
+		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
+		HttpServletRequest request) {
+		log.info("controller - getTotalCount :: 전체 완료/미완료 개수 조회 진입");
+		ResponseVO<Map<String, Long>> responseVO;
+		try {
+			responseVO = ResponseVO.<Map<String, Long>>builder()
+				.code(HttpStatus.OK.value())
+				.message("집중시간 완료/미완료 개수 조회 성공!")
+				.data(groundService.getGroundTotalTimeCount(groundId, sprintId))
+				.build();
+			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseVO = ResponseVO.<Map<String, Long>>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();

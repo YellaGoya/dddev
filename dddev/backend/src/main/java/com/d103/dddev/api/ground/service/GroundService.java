@@ -17,6 +17,11 @@ public interface GroundService {
 
 	Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws Exception;
 	Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws Exception;
+	Map<String, Integer> getGroundTotalTime(Integer groundId, Integer sprintId) throws Exception;
+
+	Map<String, Long> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception;
+	Map<String, Long> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception;
+	Map<String, Long> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception;
 
 	GroundDto updateGroundInfo(GroundDto newGroundDto, GroundDto groundDto) throws Exception;
 	GroundDto updateGroundProfile(MultipartFile file, GroundDto groundDto) throws Exception;

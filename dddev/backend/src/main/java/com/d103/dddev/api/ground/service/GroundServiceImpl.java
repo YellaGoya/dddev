@@ -42,7 +42,6 @@ public class GroundServiceImpl implements GroundService {
 	private final UndefinedUtil undefinedUtil;
 	private final Integer DEFAULT_GROUND_FOCUS_TIME = 5;
 	private final Integer DEFAULT_GROUND_ACTIVE_TIME = 3;
-	private final Integer FINISHED_ISSUE_TYPE = 3;
 
 	/**
 	 * 그라운드 생성
@@ -101,6 +100,26 @@ public class GroundServiceImpl implements GroundService {
 	public Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws
 		Exception {
 		return issueService.getGroundActiveTime(groundId, sprintId);
+	}
+
+	@Override
+	public Map<String, Integer> getGroundTotalTime(Integer groundId, Integer sprintId) throws Exception {
+		return issueService.getGroundTotalTime(groundId, sprintId);
+	}
+
+	@Override
+	public Map<String, Long> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception {
+		return issueService.getGroundFocusTimeCount(groundId, sprintId);
+	}
+
+	@Override
+	public Map<String, Long> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception {
+		return issueService.getGroundActiveTimeCount(groundId, sprintId);
+	}
+
+	@Override
+	public Map<String, Long> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception {
+		return issueService.getGroundTotalTimeCount(groundId, sprintId);
 	}
 
 	@Override
