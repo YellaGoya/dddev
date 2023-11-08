@@ -9,7 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class GeneralInsertOneDto {
-    private int step;
     private String title;
     private String parentId;
 }
