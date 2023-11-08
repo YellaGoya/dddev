@@ -10,13 +10,12 @@ import java.util.List;
 
 public interface GeneralService {
     General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException;
-    List<General> insertGeneralsWithTitles(int groundId, GeneralInsertManyDto generalInsertManyDto);
+    List<General> insertGeneralsWithTitles(int groundId, GeneralInsertManyDto generalInsertManyDto, UserDetails userDetails);
     General getGeneral(int groundId, String generalId);
     List<GeneralResponseDto> getStep1Generals(int groundId);
     List<General> getStep2Generals(int groundId);
     General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails);
 
-    General moveGeneral(int groundId, GeneralMoveDto GeneralMoveDto) throws InvalidAttributeValueException;
-    void deleteGeneral(int groundId, String generalId);
-
+    General moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws InvalidAttributeValueException;
+    void deleteGeneral(int groundId, String generalId) throws InvalidAttributeValueException;
 }

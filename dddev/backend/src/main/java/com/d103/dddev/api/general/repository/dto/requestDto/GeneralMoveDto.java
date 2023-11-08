@@ -9,6 +9,5 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class GeneralMoveDto {
-    private String id;
     private String parentId;
 }

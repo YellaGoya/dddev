@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface RequestRepository extends MongoRepository<Request, String> {
     Optional<List<Request>> findByParentId(String parentId);
     Optional<List<Request>> findByGroundIdAndStep(int groundId, int step);
+    Optional<Request> findByGroundIdAndUnclassified(int groundId, boolean unclassified);
 }

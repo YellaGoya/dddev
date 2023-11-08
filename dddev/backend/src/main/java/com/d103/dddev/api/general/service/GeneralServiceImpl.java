@@ -1,5 +1,6 @@
 package com.d103.dddev.api.general.service;
 
+import com.d103.dddev.api.file.service.DocumentServiceImpl;
 import com.d103.dddev.api.general.collection.General;
 import com.d103.dddev.api.general.repository.GeneralRepository;
 import com.d103.dddev.api.general.repository.dto.requestDto.*;
@@ -25,24 +26,28 @@ import java.util.NoSuchElementException;
 public class GeneralServiceImpl implements GeneralService{
 
     private final GeneralRepository generalRepository;
+    private final DocumentServiceImpl documentService;
 
     @Override
     public General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException{
         int step = generalInsertOneDto.getStep(); // 문서의 step
-        General insertGeneral; // DB에 저장될 문서
+        General insertGeneral = new General(); // DB에 저장될 문서
         General parent; // 저장될 문서의 부모
 
         if(!stepIsRange(step)) throw new InvalidAttributeValueException("잘못된 step입니다.");
+
+        insertGeneral.setGroundId(groundId);
+        insertGeneral.setStep(step);
+        if(generalInsertOneDto.getTitle() == null)
+            insertGeneral.setTitle("");
+        else{
+            insertGeneral.setTitle(generalInsertOneDto.getTitle());
+        }
+        insertGeneral.setAuthor(userDetails.getUsername());
+        insertGeneral.setModifier(userDetails.getUsername());
+
         // step1의 문서는 부모가 필요가 없다.
         if(step == 1){
-            // 저장할 문서 생성
-            insertGeneral = General.builder()
-                    .groundId(groundId)
-                    .step(step)
-                    .title(generalInsertOneDto.getTitle())
-                    .author(userDetails.getUsername())
-                    .modifier(userDetails.getUsername())
-                    .build();
             try{
                 generalRepository.save(insertGeneral);
             }catch(Exception e){
@@ -51,20 +56,14 @@ public class GeneralServiceImpl implements GeneralService{
         }
         // step1이 아닌 문서들
         else{
-//            // 미분류 문서를 만들것인가?
-//            if(generalInsertOneDto.getParentId() == null){
-//
-//            }
-
-            // 저장할 문서 생성
-            insertGeneral = General.builder()
-                    .groundId(groundId)
-                    .step(step)
-                    .title(generalInsertOneDto.getTitle())
-                    .parentId(generalInsertOneDto.getParentId())
-                    .author(userDetails.getUsername())
-                    .modifier(userDetails.getUsername())
-                    .build();
+            // 미분류 문서를 부모로 설정
+            if(generalInsertOneDto.getParentId() == null){
+                General unclassified = generalRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()-> new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
+                insertGeneral.setParentId(unclassified.getId());
+            }
+            else{
+                insertGeneral.setParentId(generalInsertOneDto.getParentId());
+            }
             try{
                 generalRepository.save(insertGeneral);
             }catch(Exception e){
@@ -90,13 +89,15 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public List<General> insertGeneralsWithTitles(int groundId, GeneralInsertManyDto generalInsertManyDto) {
+    public List<General> insertGeneralsWithTitles(int groundId, GeneralInsertManyDto generalInsertManyDto, UserDetails userDetails) {
         List<General> list = new ArrayList<>();
         for(String title : generalInsertManyDto.getTitles()){
             General insertGeneral = General.builder()
                         .groundId(groundId)
                         .step(1)
                         .title(title)
+                        .author(userDetails.getUsername())
+                        .modifier(userDetails.getUsername())
                         .build();
             list.add(insertGeneral);
         }
@@ -110,7 +111,7 @@ public class GeneralServiceImpl implements GeneralService{
 
     @Override
     public General getGeneral(int groundId, String generalId) {
-        return generalRepository.findById(generalId).orElseThrow(()-> new TransactionException("문서를 불러오는데 실패했습니다."));
+        return generalRepository.findById(generalId).orElseThrow(()-> new NoSuchElementException("해당 문서가 존재하지 않습니다."));
     }
 
     @Override
@@ -131,7 +132,7 @@ public class GeneralServiceImpl implements GeneralService{
 
     @Override
     public General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails) {
-        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("해당 문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
         loadGeneral.setTitle(generalUpdateDto.getTitle());
         loadGeneral.setContent(generalUpdateDto.getContent());
@@ -145,7 +146,7 @@ public class GeneralServiceImpl implements GeneralService{
         // step1 문서가 아니라면 부모를 찾아서 업데이트해줘야한다.
         if(step != 1){
             String parentId = loadGeneral.getParentId();
-            General parent = generalRepository.findById(parentId).orElseThrow(()->new TransactionException("부모 문서를 불러오는데 실패했습니다."));
+            General parent = generalRepository.findById(parentId).orElseThrow(()->new NoSuchElementException("부모 문서를 불러오는데 실패했습니다."));
             List<General> children = parent.getChildren();
             ListIterator<General> iterator = children.listIterator();
             while (iterator.hasNext()) {
@@ -166,8 +167,8 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General moveGeneral(int groundId, GeneralMoveDto GeneralMoveDto) throws InvalidAttributeValueException{
-        General loadGeneral = generalRepository.findById(GeneralMoveDto.getId()).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
+    public General moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws InvalidAttributeValueException{
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
         if(loadGeneral.getStep() == 1){
             throw new InvalidAttributeValueException("움직일 수 없는 문서입니다.");
         }
@@ -201,16 +202,18 @@ public class GeneralServiceImpl implements GeneralService{
 
 
     @Override
-    public void deleteGeneral(int groundId, String generalId) {
-        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new TransactionException("문서를 불러오는데 실패했습니다."));
+    public void deleteGeneral(int groundId, String generalId) throws InvalidAttributeValueException, TransactionException{
+        General unclassifiedGeneral = generalRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()->new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("해당 문서를 가지고 오는데 실패했습니다."));
+        if(unclassifiedGeneral.getId().equals(loadGeneral.getId())) throw new InvalidAttributeValueException("미분류 문서를 삭제할 수 없습니다.");
         int step = loadGeneral.getStep();
         // step1인 문서가 삭제되었을 때
         if(step == 1){
-            List<General> children = generalRepository.findByParentId(generalId).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+            List<General> children = generalRepository.findByParentId(generalId).orElseThrow(()->new TransactionException("자식문서들을 들고 오는데 실패했습니다."));
             ListIterator<General> iterator = children.listIterator();
             while(iterator.hasNext()){
                 General child = iterator.next();
-                child.setParentId(null);
+                child.setParentId(unclassifiedGeneral.getId());
             }
             try{
                 generalRepository.saveAll(children);
@@ -237,6 +240,8 @@ public class GeneralServiceImpl implements GeneralService{
         }catch(Exception e){
             throw new TransactionException("문서를 삭제하는데 실패했습니다.");
         }
+
+        documentService.deleteFile(generalId);
     }
 
     public boolean stepIsRange(int step){
