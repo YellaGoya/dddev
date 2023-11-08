@@ -65,11 +65,11 @@ public class RepositoryController {
 				.build();
 
 			return new ResponseEntity<>(responseVO, HttpStatus.OK);
-		} catch (NoSuchElementException e) {
+		} catch (NullPointerException e) {
 			log.error("personal access token 에러 :: pat가 없습니다.");
 			ResponseVO<List<RepositoryVO>> responseVO = ResponseVO.<List<RepositoryVO>>builder()
 				.code(HttpStatus.GONE.value())
-				.message("personal access token 에러 :: 만료 기간을 확인하세요")
+				.message("personal access token 에러 :: pat가 없습니다")
 				.build();
 			return new ResponseEntity<>(responseVO, HttpStatus.GONE);
 		} catch (HttpClientErrorException e) {
