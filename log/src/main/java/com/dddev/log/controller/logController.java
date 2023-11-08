@@ -53,6 +53,31 @@ public class logController {
         }
     }
 
+    //인덱스 삭제
+    @ApiOperation(value = "인덱스 삭제 API")
+    @ApiResponses(
+            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
+                    @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
+                    @ApiResponse(code = 500, message = "서버 내부 오류")})
+    @DeleteMapping("")
+    public ResponseEntity<?> deleteLog(@RequestHeader String group_id) {
+        // 문자열을 파일로 저장
+        try{
+            elasticSearchLogService.deleteIndex(group_id);
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
+                    group_id + " 인덱스 삭제 완료", null));
+        }catch (ElasticSearchException.NoContentException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
+                    e.getMessage(), null));
+        }catch (ElasticSearchException.NoIndexException e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
+                    e.getMessage(), null));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    e.getMessage(), null));
+        }
+    }
+
 
     //인덱스별 정해진 특정 개수 만큼 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 size로 가져오는 API")
@@ -157,6 +182,4 @@ public class logController {
                     e.getMessage(), null));
         }
     }
-
-
 }

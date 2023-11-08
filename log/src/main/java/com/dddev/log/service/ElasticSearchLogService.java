@@ -5,6 +5,7 @@ import com.dddev.log.exception.ElasticSearchException;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchStatusException;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.NoSuchIndexException;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -113,5 +114,12 @@ public class ElasticSearchLogService {
         }
     }
 
-
+    //인덱스 삭제
+    public void deleteIndex(String group_id) {
+        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(group_id));
+        if (!indexOperations.exists()) {
+            throw new ElasticSearchException.NoIndexException("해당 인덱스가 없습니다.");
+        }
+        elasticsearchOperations.indexOps(IndexCoordinates.of(group_id)).delete();
+    }
 }
