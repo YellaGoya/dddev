@@ -34,7 +34,7 @@ const Document = () => {
     },
   ]);
 
-  return <>이거 도큐먼트 페이지?{routes}</>;
+  return routes;
 };
 
 export default Document;

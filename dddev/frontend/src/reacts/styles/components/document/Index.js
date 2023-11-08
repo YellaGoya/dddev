@@ -140,6 +140,7 @@ export const TitleWrapper = styled.div`
   max-width: calc(100% - 97px);
 `;
 export const DocTitle = styled.p`
+  color: ${({ $onEdit }) => ($onEdit ? 'var(--font-on-edit)' : 'var(--font-rev)')};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -275,11 +276,14 @@ export const TreeName = styled.div`
     background-color: var(--font-basic);
     border-radius: 4px;
 
-    .addChild,
     .moreButton,
     .editName,
     .deleteDoc {
       opacity: 1;
+    }
+
+    .addChild {
+      opacity: ${({ $onEdit }) => ($onEdit ? '0' : '1')};
     }
   }
 

@@ -12,21 +12,24 @@ export const TopbarWrapper = styled.header`
   -ms-user-select: none;
   user-select: none;
   transition: height 0.3s ease;
+  background-color: var(--bg-dark);
 
   border-bottom: 1px solid var(--border-basic);
 `;
 
-export const PositionWrapper = styled.div`
+export const PositionWrapper = styled.span`
   position: absolute;
   bottom: 0;
   left: 0;
 
   display: flex;
   align-items: center;
-  width: 100%;
+  width: calc(100% - 110px);
   height: 35px;
 
-  background-color: var(--bg-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   & > :nth-child(2) {
     margin-left: ${({ $isGround }) => ($isGround ? '6px' : '0')};
@@ -41,8 +44,8 @@ export const MenuButton = styled.button`
   margin: auto 0;
 `;
 
-export const SelectedGround = styled.h1`
-  display: inline-block;
+export const SelectedGround = styled.span`
+  display: inline;
 
   color: var(--font-rev);
   font-size: 1rem;
@@ -59,11 +62,12 @@ export const SelectedGround = styled.h1`
   }
 `;
 
-export const PathsText = styled.h1`
-  display: inline-block;
+export const PathsText = styled.span`
+  display: inline;
+  width: auto;
 
   color: var(--font-rev);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 300;
 
   display: flex;

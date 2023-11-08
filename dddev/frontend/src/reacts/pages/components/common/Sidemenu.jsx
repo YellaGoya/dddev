@@ -68,7 +68,7 @@ const Sidemenu = () => {
             navigate(`/login`);
           }
         });
-  }, [dispatch, navigate, user]);
+  }, [user.accessToken, groundListToggle]);
 
   return (
     <s.SidemenuWrapper $menuToggle={menuToggle}>

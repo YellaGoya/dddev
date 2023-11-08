@@ -95,6 +95,7 @@ const Index = () => {
   const RenderDocsTree = ({ doc, type }) => {
     const toggle = toggleDocs[doc.id] ?? true;
     const [title, setTitle] = useState(doc.title === '' ? '새 문서' : doc.title);
+    const [onEdit, setOnEdit] = useState(false);
     const editRef = useRef(null);
     return (
       <s.TreeChild>
@@ -103,6 +104,7 @@ const Index = () => {
           $isEmpty={doc.title === ''}
           $isNew={doc.id === newDocId}
           $isMore={doc.id === moreLine}
+          $onEdit={onEdit}
           onClick={() => {
             dispatchToggle({ type: 'TOGGLE', id: doc.id });
           }}
@@ -110,6 +112,7 @@ const Index = () => {
           {doc.children && doc.children.length > 0 && <KeyboardArrowDownIcon className="foldSign" />}
           <s.TitleWrapper>
             <s.DocTitle
+              $onEdit={onEdit}
               onClick={(event) => {
                 event.stopPropagation();
                 navigate(
@@ -145,6 +148,7 @@ const Index = () => {
             onClick={(event) => {
               event.stopPropagation();
               setMoreLine(doc.id);
+              setOnEdit(true);
               editRef.current.focus();
             }}
           />
@@ -166,6 +170,7 @@ const Index = () => {
           onBlur={(event) => {
             if (event.target.value === '') setTitle(doc.title === '' ? '새 문서' : doc.title);
             else titleDocument(type, doc.id, doc.step, event.target.value);
+            setOnEdit(false);
           }}
           onKeyPress={(event) => {
             if (event.key === 'Enter') {

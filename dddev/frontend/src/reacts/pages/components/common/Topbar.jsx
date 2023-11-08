@@ -70,7 +70,7 @@ const Topbar = () => {
       }
 
     setPathState(pathNames);
-  }, [paths]);
+  }, [window.location.pathname]);
 
   useEffect(() => {
     if (user.isLoggedIn) {
@@ -109,7 +109,7 @@ const Topbar = () => {
           }
         });
     }
-  }, [dispatch, navigate, user.accessToken, user.isLoggedIn, user.refreshToken]);
+  }, [user.accessToken]);
 
   return (
     <s.TopbarWrapper $isLoggedIn={isLoggedIn}>
@@ -125,7 +125,7 @@ const Topbar = () => {
         ) : null}
         {paths[3] ? (
           <s.PathsText>
-            <span>{pathState[1] || docTitle}</span>
+            <span>{pathState[1] || '/ ' + (docTitle === '' ? '새 문서' : docTitle)}</span>
           </s.PathsText>
         ) : null}
       </s.PositionWrapper>
