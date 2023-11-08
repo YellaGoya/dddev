@@ -1,6 +1,9 @@
 package com.dddev.log.config;
 
 import com.dddev.log.dto.ElasticSearchLog;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
@@ -11,6 +14,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @Configuration
 @EnableElasticsearchRepositories(basePackageClasses = {ElasticSearchLog.class})
 public class ElasticSearchConfig extends AbstractElasticsearchConfiguration {
+
     @Override
     public RestHighLevelClient elasticsearchClient() {
         ClientConfiguration clientConfiguration = ClientConfiguration.builder()

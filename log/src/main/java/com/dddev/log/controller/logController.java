@@ -2,6 +2,7 @@ package com.dddev.log.controller;
 
 import com.dddev.log.dto.ElasticSearchLog;
 import com.dddev.log.dto.ResponseVO;
+import com.dddev.log.dto.req.ChatGptReq;
 import com.dddev.log.dto.req.LogReq;
 import com.dddev.log.dto.res.LogRes;
 import com.dddev.log.exception.ElasticSearchException;
@@ -128,6 +129,7 @@ public class logController {
                     e.getMessage(), null));
         }
     }
+
     //인덱스별 시작 시간 끝 시간으로 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 시작 시간과 끝 시간으로 가져오는 API")
     @ApiResponses(
@@ -156,28 +158,5 @@ public class logController {
         }
     }
 
-    //최근 로그 20줄 불러와서 분석하기
-    @ApiOperation(value = "최근 저장된 로그 20줄을 불러와서 chat gpt가 자동으로 분석하는 API")
-    @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
-                    @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
-                    @ApiResponse(code = 500, message = "서버 내부 오류")})
-    @GetMapping("/analyze")
-    public ResponseEntity<?> analyze(@RequestHeader String group_id) {
-        try{
-            String result = "최근 로그를 불러 분석 완료";
-            String response = elasticSearchLogService.analyze(group_id).trim().replaceAll("\n", "");
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
-                    result, response));
-        }catch (ElasticSearchException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
-                    e.getMessage(), null));
-        }catch (NoSuchIndexException e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 Group id 접근입니다.", null));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    e.getMessage(), null));
-        }
-    }
+
 }

@@ -113,19 +113,5 @@ public class ElasticSearchLogService {
         }
     }
 
-    //최근 로그 불러서 분석
-    public String analyze(String groupId) throws NoSuchIndexException {
-        SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
-                new NativeSearchQueryBuilder()
-                        .withQuery(matchAllQuery())
-                        .withSort(fieldSort("localDateTime").order(DESC))
-                        .withPageable(PageRequest.of(0, 20))
-                        .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
-        if (searchHits.isEmpty()) throw new ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
-        StringBuilder temp = new StringBuilder();
-        searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList()).forEach(a -> {
-            temp.append(a.getLog()).append("\n");
-        });
-        return chatService.chatGptLog(temp.toString());
-    }
+
 }
