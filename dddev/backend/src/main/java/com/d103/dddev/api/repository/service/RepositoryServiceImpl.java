@@ -3,6 +3,7 @@ package com.d103.dddev.api.repository.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -43,6 +44,9 @@ public class RepositoryServiceImpl implements RepositoryService {
 		RestTemplate restTemplate = new RestTemplate();
 
 		String personalAccessToken = userService.getPersonalAccessToken(userDto);
+		if(personalAccessToken == null) {
+			throw new NoSuchElementException("personal access token이 없습니다.");
+		}
 
 		String url = API_URL + REPO_REQUEST_URL;
 
