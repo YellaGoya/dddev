@@ -30,14 +30,11 @@ public class GeneralServiceImpl implements GeneralService{
 
     @Override
     public General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException{
-        int step = generalInsertOneDto.getStep(); // 문서의 step
         General insertGeneral = new General(); // DB에 저장될 문서
         General parent; // 저장될 문서의 부모
 
-        if(!stepIsRange(step)) throw new InvalidAttributeValueException("잘못된 step입니다.");
 
         insertGeneral.setGroundId(groundId);
-        insertGeneral.setStep(step);
         if(generalInsertOneDto.getTitle() == null)
             insertGeneral.setTitle("");
         else{
@@ -46,24 +43,18 @@ public class GeneralServiceImpl implements GeneralService{
         insertGeneral.setAuthor(userDetails.getUsername());
         insertGeneral.setModifier(userDetails.getUsername());
 
-        // step1의 문서는 부모가 필요가 없다.
-        if(step == 1){
+        if(generalInsertOneDto.getParentId() == null){
+            insertGeneral.setStep(1);
             try{
                 generalRepository.save(insertGeneral);
             }catch(Exception e){
                 throw new TransactionException("문서 저장에 실패했습니다.");
             }
         }
-        // step1이 아닌 문서들
         else{
-            // 미분류 문서를 부모로 설정
-            if(generalInsertOneDto.getParentId() == null){
-                General unclassified = generalRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()-> new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
-                insertGeneral.setParentId(unclassified.getId());
-            }
-            else{
-                insertGeneral.setParentId(generalInsertOneDto.getParentId());
-            }
+            insertGeneral.setStep(2);
+            insertGeneral.setParentId(generalInsertOneDto.getParentId());
+
             try{
                 generalRepository.save(insertGeneral);
             }catch(Exception e){

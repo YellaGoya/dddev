@@ -37,13 +37,10 @@ public class RequestServiceImpl implements RequestService{
 
     @Override
     public Request insertRequest(int groundId, RequestInsertOneDto requestInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException{
-        int step = requestInsertOneDto.getStep(); // 문서의 step
         Request insertRequest = new Request(); // DB에 저장될 문서
         Request parent; // 저장될 문서의 부모
 
-        if(!stepIsRange(step)) throw new InvalidAttributeValueException("잘못된 step입니다.");
         insertRequest.setGroundId(groundId);
-        insertRequest.setStep(step);
         if(requestInsertOneDto.getTitle() == null)
             insertRequest.setTitle("");
         else{
@@ -52,25 +49,18 @@ public class RequestServiceImpl implements RequestService{
         insertRequest.setAuthor(userDetails.getUsername());
         insertRequest.setModifier(userDetails.getUsername());
 
-        // step1의 문서는 부모가 필요가 없다.
-        if(step == 1){
-            // 저장할 문서 생성
+        if(requestInsertOneDto.getParentId() == null){
+            insertRequest.setStep(1);
             try{
                 requestRepository.save(insertRequest);
             }catch(Exception e){
                 throw new TransactionException("문서 저장에 실패했습니다.");
             }
         }
-        // step1이 아닌 문서들
         else{
-            // 미분류 문서를 부모로 설정
-            if(requestInsertOneDto.getParentId() == null){
-                Request unclassified = requestRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()-> new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
-                insertRequest.setParentId(unclassified.getId());
-            }
-            else{
-                insertRequest.setParentId(requestInsertOneDto.getParentId());
-            }
+            insertRequest.setStep(2);
+            insertRequest.setParentId(requestInsertOneDto.getParentId());
+
             try{
                 requestRepository.save(insertRequest);
             }catch(Exception e){

@@ -32,9 +32,9 @@ public class RequestController {
     @PostMapping("/create")
     @ApiOperation(value="요청 문서 생성")
     public ResponseEntity<?> insertRequest(@PathVariable("groundId") int groundId,
-                                           @ApiParam(value = "step -> required\n"+
-                                                   "step값이 1일때는 parentId 필요없음\n" +
-                                                   "title -> not required")@RequestBody RequestInsertOneDto requestInsertOneDto,
+                                           @ApiParam(value = "step1문서 생성할 때 parentId 필요없음\n" +
+                                                   "미분류로 생성할 때 parentId 미분류 문서 id\n" +
+                                                   "title -> not required 없으면 빈 문자열 \"\"로 생성")@RequestBody RequestInsertOneDto requestInsertOneDto,
                                            @RequestHeader String Authorization,
                                            @AuthenticationPrincipal UserDetails userDetails){
         ResponseVO<Request> responseVo;
