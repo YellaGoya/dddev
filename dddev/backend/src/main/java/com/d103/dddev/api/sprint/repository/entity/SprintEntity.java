@@ -1,6 +1,6 @@
 package com.d103.dddev.api.sprint.repository.entity;
 
-import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.ground.repository.entity.Ground;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,5 +27,5 @@ public class SprintEntity {
     private LocalDate endDate;
     @ManyToOne
     @JoinColumn(name="ground_id")
-    private GroundDto ground;
+    private Ground ground;
 }

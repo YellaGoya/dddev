@@ -1,7 +1,6 @@
 package com.d103.dddev.api.common.filter;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
@@ -20,11 +19,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.d103.dddev.api.common.ResponseVO;
+import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.common.oauth2.utils.PasswordUtil;
 import com.d103.dddev.api.user.repository.UserRepository;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -98,20 +97,20 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 			}
 		}
 
-		Optional<UserDto> userDtoOptional = null;
-		UserDto userDto = null;
+		Optional<User> userOptional = null;
+		User user = null;
 
 		try {
 			// access token으로 유저를 받아와서 유효한 사용자인지 검증
-			userDtoOptional = jwtService.getUser(Authorization);
-			if (userDtoOptional.isEmpty()) {
-				ResponseVO<Object> responseVO = ResponseVO.builder()
+			userOptional = jwtService.getUser(Authorization);
+			if (userOptional.isEmpty()) {
+				ResponseDto<Object> responseDto = ResponseDto.builder()
 					.code(HttpStatus.NOT_ACCEPTABLE.value())
 					.message("존재하지 않는 사용자입니다.")
 					.build();
 
 				response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-				String result = mapper.writeValueAsString(responseVO);
+				String result = mapper.writeValueAsString(responseDto);
 				response.setCharacterEncoding("UTF-8");
 				response.setContentType("application/json;charset=utf-8");
 				response.getWriter().write(result);
@@ -120,9 +119,9 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 			throw new JWTVerificationException("존재하지 않는 사용자입니다.");
 		}
 
-		userDto = userDtoOptional.get();
+		user = userOptional.get();
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.addObject("userDto", userDto);
+		modelAndView.addObject("user", user);
 		request.setAttribute("modelAndView", modelAndView);
 		filterChain.doFilter(request, response);
 
@@ -165,8 +164,8 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 			.filter(jwtService::isTokenValid)
 			.flatMap(accessToken -> jwtService.extractGithubId(accessToken))
 			.flatMap(githubId -> userRepository.findByGithubId(githubId))
-			.map(userDto -> {
-				saveAuthentication(userDto);
+			.map(user -> {
+				saveAuthentication(user);
 				return true;
 			}).orElse(false);
 	}
@@ -186,7 +185,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 * SecurityContextHolder.getContext()로 SecurityContext를 꺼낸 후,
 	 * setAuthentication()을 이용하여 위에서 만든 Authentication 객체에 대한 인증 허가 처리
 	 */
-	public void saveAuthentication(UserDto myUser) {
+	public void saveAuthentication(User myUser) {
 		// 인증 시 사용할 랜덤 비밀번호
 		String password = PasswordUtil.generateRandomPassword();
 

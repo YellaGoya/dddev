@@ -12,9 +12,8 @@ import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.d103.dddev.api.user.repository.UserRepository;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -176,7 +175,7 @@ public class JwtService {
 		}
 	}
 
-	public Optional<UserDto> getUser(String Authorization) throws Exception {
+	public Optional<User> getUser(String Authorization) throws Exception {
 		Integer githubId = extractGithubId(Authorization).orElseThrow(() -> new NoSuchFieldException("깃허브 아이디가 없습니다."));
 		return userRepository.findByGithubId(githubId);
 	}

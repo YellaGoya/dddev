@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.d103.dddev.api.common.ResponseVO;
+import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.common.oauth2.service.Oauth2Service;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 
@@ -61,23 +61,23 @@ public class Oauth2Controller {
 	@ApiOperation(value = "refresh token으로 새 token 발급", notes = "refresh token으로 새 token 발급받는 API")
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "새 토큰 발급 성공"),
 		@ApiResponse(code = 403, message = "새 토큰 발급 실패")})
-	ResponseEntity<ResponseVO<String>> reIssueTokens(HttpServletRequest request, HttpServletResponse response) {
-		ResponseVO<String> responseVO;
+	ResponseEntity<ResponseDto<String>> reIssueTokens(HttpServletRequest request, HttpServletResponse response) {
+		ResponseDto<String> responseDto;
 		try {
 			jwtService.reIssueAccessAndRefreshToken(request, response);
-			responseVO = ResponseVO.<String>builder()
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("새 토큰 발급 성공!")
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
-			responseVO = ResponseVO.<String>builder()
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.FORBIDDEN.value())
 				.message("새 토큰 발급 실패ㅜ")
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(responseDto, HttpStatus.FORBIDDEN);
 		}
 	}
 

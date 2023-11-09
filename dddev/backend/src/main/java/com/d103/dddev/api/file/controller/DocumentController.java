@@ -1,7 +1,6 @@
 package com.d103.dddev.api.file.controller;
 
-import com.d103.dddev.api.common.ResponseVO;
-import com.d103.dddev.api.file.repository.dto.ProfileDto;
+import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.file.service.DocumentServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,19 +18,19 @@ public class DocumentController {
     ResponseEntity<?> saveImg(@RequestHeader String Authorization, @PathVariable("documentId") String documentId, @RequestPart MultipartFile file) {
         try {
             String path = documentService.saveImg(documentId, file);
-            ResponseVO<String> responseVO = ResponseVO.<String>builder()
+            ResponseDto<String> responseDto = ResponseDto.<String>builder()
                     .code(HttpStatus.OK.value())
                     .message("이미지 저장 성공")
                     .data(path)
                     .build();
 
-            return new ResponseEntity<>(responseVO, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         } catch (Exception e) {
-            ResponseVO<String> responseVO = ResponseVO.<String>builder()
+            ResponseDto<String> responseDto = ResponseDto.<String>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

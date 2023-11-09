@@ -1,13 +1,11 @@
 package com.d103.dddev.api.user.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,14 +21,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.d103.dddev.api.common.ResponseVO;
+import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
-import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
-import com.d103.dddev.api.ground.repository.vo.GroundVO;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.ground.repository.entity.GroundUser;
+import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.user.repository.entity.User;
 import com.d103.dddev.api.user.service.UserService;
 
 import io.swagger.annotations.Api;
@@ -56,98 +55,95 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<UserDto>> getUserInfo(@RequestHeader String Authorization, HttpServletRequest request) {
+	ResponseEntity<ResponseDto<User>> getUserInfo(@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - getUserInfo :: 사용자 정보 받아오기 진입");
-		ResponseVO<UserDto> responseVO;
+		ResponseDto<User> responseDto;
 		try {
 			ModelAndView max = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)max.getModel().get("userDto");
-			responseVO = ResponseVO.<UserDto>builder()
+			User user = (User)max.getModel().get("user");
+			responseDto = ResponseDto.<User>builder()
 				.code(HttpStatus.OK.value())
 				.message("사용자 정보 조회 성공")
-				.data(userDto)
+				.data(user)
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<User>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	@GetMapping("/profile")
-	@ApiOperation(value = "사용자 프로필 사진", notes = "사용자 프로필 사진을 받아오는 API")
+	@GetMapping("/{githubId}")
+	@ApiOperation(value = "github Id로 사용자 조회", notes = "github Id로 사용자를 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
-		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<byte[]> getUserProfile(@RequestHeader String Authorization, HttpServletRequest request) {
-		log.info("controller - getUserprofile :: 사용자 프로필 받아오기 진입");
+			@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+			@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseDto<UserDto>> getUserByGithubId(@PathVariable Integer githubId, @RequestHeader String Authorization) {
+		log.info("controller - getUserByGithubId :: github id로 사용자 조회 진입");
+		ResponseDto<UserDto> responseDto;
 		try {
-			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
-
-			ProfileDto profileDto = userDto.getProfileDto();
-
-			// 파일 확장자에 따라 파일 헤더 세팅
-			HttpHeaders headers = new HttpHeaders();
-			headers.add("Content-type", profileDto.getContentType());
-
-			byte[] profile = userService.getProfile(userDto);
-
-			return new ResponseEntity<>(profile, headers, HttpStatus.OK);
+			UserDto userDto = userService.getUserDto(githubId).orElseThrow(() -> new NoSuchElementException("존재하지 않는 사용자입니다"));
+			responseDto = ResponseDto.<UserDto>builder()
+					.code(HttpStatus.OK.value())
+					.message("사용자 조회 성공!")
+					.data(userDto)
+					.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<byte[]> responseVO = ResponseVO.<byte[]>builder()
-				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.message(e.getMessage())
-				.build();
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			responseDto = ResponseDto.<UserDto>builder()
+					.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+					.message(e.getMessage())
+					.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
 
 	@GetMapping("/ground/list")
 	@ApiOperation(value = "사용자가 가입한 그라운드 목록 조회", notes = "사용자가 가입한 그라운드 목록을 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<List<GroundVO>>> getGroundList(@RequestHeader String Authorization,
-		HttpServletRequest request) {
+	ResponseEntity<ResponseDto<List<GroundDto>>> getGroundList(@RequestHeader String Authorization,
+                                                               HttpServletRequest request) {
 		log.info("controller - getGroundList :: 사용자가 가입한 그라운드 목록 조회 진입");
-		ResponseVO<List<GroundVO>> responseVO;
+		ResponseDto<List<GroundDto>> responseDto;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
-			List<GroundUserDto> groundUserDtoList = userService.getGroundList(userDto);
-			List<GroundVO> groundVOList = new ArrayList<>();
+			List<GroundUser> groundUserList = userService.getGroundList(user);
+			List<GroundDto> groundDtoList = new ArrayList<>();
 
-			for (GroundUserDto g : groundUserDtoList) {
-				GroundVO groundVO = GroundVO.builder()
+			for (GroundUser g : groundUserList) {
+				GroundDto groundDto = GroundDto.builder()
 					.isOwner(g.getIsOwner())
-					.groundDto(g.getGroundDto())
+					.ground(g.getGround())
 					.build();
 
-				groundVOList.add(groundVO);
+				groundDtoList.add(groundDto);
 			}
 
-			responseVO = ResponseVO.<List<GroundVO>>builder()
+			responseDto = ResponseDto.<List<GroundDto>>builder()
 				.code(HttpStatus.OK.value())
 				.message("그라운드 목록 조회 성공!")
-				.data(groundVOList)
+				.data(groundDtoList)
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<List<GroundVO>>builder()
+			responseDto = ResponseDto.<List<GroundDto>>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -156,27 +152,27 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<String>> getStatusMsg(@RequestHeader String Authorization, HttpServletRequest request) {
+	ResponseEntity<ResponseDto<String>> getStatusMsg(@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - getStatusMsg :: 상태 메시지 조회 진입");
-		ResponseVO<String> responseVO;
+		ResponseDto<String> responseDto;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
-			responseVO = ResponseVO.<String>builder()
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("상태 메시지 조회 성공!")
-				.data(userDto.getStatusMsg())
+				.data(user.getStatusMsg())
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<String>builder()
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -185,28 +181,28 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<Boolean>> checkDupNickname(@ApiParam(value = "중복 체크할 닉네임") @PathVariable String nickname,
-		@RequestHeader String Authorization, HttpServletRequest request) {
+	ResponseEntity<ResponseDto<Boolean>> checkDupNickname(@ApiParam(value = "중복 체크할 닉네임") @PathVariable String nickname,
+                                                          @RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - checkDupNickname :: 사용자 닉네임 중복 조회 진입");
-		ResponseVO<Boolean> responseVO;
+		ResponseDto<Boolean> responseDto;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
-			responseVO = ResponseVO.<Boolean>builder()
+			responseDto = ResponseDto.<Boolean>builder()
 				.code(HttpStatus.OK.value())
 				.message("닉네임 중복 조회 성공!")
-				.data(userService.checkDupNickname(nickname, userDto.getId()))
+				.data(userService.checkDupNickname(nickname, user.getId()))
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<Boolean>builder()
+			responseDto = ResponseDto.<Boolean>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -215,61 +211,69 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<String>> savePersonalAccessToken(
+	ResponseEntity<ResponseDto<String>> savePersonalAccessToken(
 		@ApiParam(value = "personal access token") @RequestBody Map<String, String> personalAccessTokenMap,
 		@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - savePersonalAccessToken :: personal access token 저장 진입");
-		ResponseVO<String> responseVO;
+		ResponseDto<String> responseDto;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
 			String newPersonalAccessToken = personalAccessTokenMap.get("personalAccessToken");
 
-			userService.savePersonalAccessToken(newPersonalAccessToken, userDto);
-			responseVO = ResponseVO.<String>builder()
+			userService.savePersonalAccessToken(newPersonalAccessToken, user);
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("personal access token 저장 성공!")
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<String>builder()
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@PutMapping("/personal-access-token")
 	@ApiOperation(value = "personal access token 수정", notes = "personal access token 수정하는 API")
-	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
+	@ApiResponses(value = {@ApiResponse(code = 401, message = "pat 오류"),
+		@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<String>> updatePersonalAccessToken(
+	ResponseEntity<ResponseDto<String>> updatePersonalAccessToken(
 		@ApiParam(value = "personal-access-token") @RequestBody Map<String, String> personalAccessTokenMap,
 		@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - modifyPersonalAccessToken :: personal access token 수정 진입");
-		ResponseVO<String> responseVO;
+		ResponseDto<String> responseDto;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
 			String newPersonalAccessToken = personalAccessTokenMap.get("personal-access-token");
-			userService.savePersonalAccessToken(newPersonalAccessToken, userDto);
-			responseVO = ResponseVO.<String>builder()
+			userService.savePersonalAccessToken(newPersonalAccessToken, user);
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("personal access token 저장 성공!")
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		} catch (HttpClientErrorException e) {
+			log.error("personal access token 에러 :: pat를 확인하세요");
+			responseDto = ResponseDto.<String>builder()
+					.code(HttpStatus.UNAUTHORIZED.value())
+					.message("personal access token 에러 :: pat를 확인하세요")
+					.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.UNAUTHORIZED);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<String>builder()
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -278,31 +282,31 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<UserDto>> updateUserInfo(
+	ResponseEntity<ResponseDto<UserDto>> updateUserInfo(
 		@ApiParam(value = "{nickname : __, statusMsg : __}") @RequestBody UserDto newUserDto,
 		@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - updateUserInfo :: 그라운드 정보 수정 진입");
-		ResponseVO<UserDto> responseVO;
+		ResponseDto<UserDto> responseDto;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
-			userDto = userService.updateUserInfo(newUserDto, userDto);
+			UserDto userDto = userService.updateUserInfo(newUserDto, user);
 
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("사용자 정보 수정 성공!")
 				.data(userDto)
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -312,36 +316,36 @@ public class UserController {
 		@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<UserDto>> updateProfile(@RequestPart("file") MultipartFile file,
-		@RequestHeader String Authorization, HttpServletRequest request) {
+	ResponseEntity<ResponseDto<UserDto>> updateProfile(@RequestPart("file") MultipartFile file,
+                                                       @RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - updateProfile :: 프로필 사진 수정 진입");
-		ResponseVO<UserDto> responseVO;
+		ResponseDto<UserDto> responseDto;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("사용자 프로필 사진 수정 성공!")
-				.data(userService.updateProfile(file, userDto))
+				.data(userService.updateProfile(file, user))
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 
 		} catch (IOException e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.BAD_REQUEST.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(responseDto, HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -350,28 +354,28 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<String>> updateLastVisitedGround(@PathVariable Integer lastGroundId,
-		@RequestHeader String Authorization, HttpServletRequest request) {
+	ResponseEntity<ResponseDto<String>> updateLastVisitedGround(@PathVariable Integer lastGroundId,
+                                                                @RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - lastVisitedGround() :: 마지막으로 방문한 그라운드 수정 진입");
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
-			userService.updateLastVisitedGround(lastGroundId, userDto);
+			userService.updateLastVisitedGround(lastGroundId, user);
 
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			ResponseDto<String> responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("사용자가 마지막으로 방문한 그라운드 수정 성공!")
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			ResponseDto<String> responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -381,34 +385,34 @@ public class UserController {
 		@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<UserDto>> deleteProfile(@RequestHeader String Authorization, HttpServletRequest request) {
+	ResponseEntity<ResponseDto<UserDto>> deleteProfile(@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - deleteProfile :: 프로필 사진 삭제 진입");
-		ResponseVO<UserDto> responseVO;
+		ResponseDto<UserDto> responseDto;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("프로필 사진 삭제 성공!")
-				.data(userService.deleteProfile(userDto))
+				.data(userService.deleteProfile(user))
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (IOException e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.BAD_REQUEST.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(responseDto, HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -418,14 +422,14 @@ public class UserController {
 		@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<String>> deleteUser(@RequestParam String code, @RequestHeader String Authorization,
-		HttpServletRequest request) {
+	ResponseEntity<ResponseDto<String>> deleteUser(@RequestParam String code, @RequestHeader String Authorization,
+                                                   HttpServletRequest request) {
 		log.info("controller - deleteUser :: 사용자 탈퇴 진입");
-		ResponseVO<String> responseVO;
+		ResponseDto<String> responseDto;
 		try {
 			// 사용자 정보 받아오기
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
 			// github token 받아오기
 			Map<String, String> tokens = userService.githubToken(code);
@@ -435,27 +439,27 @@ public class UserController {
 			userService.unlink(githubAccessToken);
 
 			// 사용자 정보 db/서버에서 삭제하기
-			userService.deleteUser(userDto);
+			userService.deleteUser(user);
 
-			responseVO = ResponseVO.<String>builder()
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("사용자 탈퇴 성공!")
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (IOException e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<String>builder()
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.BAD_REQUEST.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(responseDto, HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<String>builder()
+			responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -464,28 +468,28 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseVO<UserDto>> deleteStatusMsg(@RequestHeader String Authorization,
-		HttpServletRequest request) {
+	ResponseEntity<ResponseDto<UserDto>> deleteStatusMsg(@RequestHeader String Authorization,
+                                                         HttpServletRequest request) {
 		log.info("controller - deleteStatusMsg :: 사용자 상태메시지 삭제 진입");
-		ResponseVO<UserDto> responseVO;
+		ResponseDto<UserDto> responseDto;
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
+			User user = (User)mav.getModel().get("user");
 
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("사용자 상태메시지 삭제 성공!")
-				.data(userService.deleteStatusMsg(userDto))
+				.data(userService.deleteStatusMsg(user))
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseVO = ResponseVO.<UserDto>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -501,20 +505,20 @@ public class UserController {
 		HttpServletRequest request) {
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
-			userService.saveDeviceToken(userDto, map.get("deviceToken"));
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			User user = (User)mav.getModel().get("user");
+			userService.saveDeviceToken(user, map.get("deviceToken"));
+			ResponseDto<String> responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("기기 토큰 등록에 성공했습니다.")
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			ResponseDto<String> responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	@DeleteMapping("/device-token")
@@ -529,27 +533,27 @@ public class UserController {
 		HttpServletRequest request) {
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-			UserDto userDto = (UserDto)mav.getModel().get("userDto");
-			userService.deleteDeviceToken(userDto, map.get("deviceToken"));
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			User user = (User)mav.getModel().get("user");
+			userService.deleteDeviceToken(user, map.get("deviceToken"));
+			ResponseDto<String> responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.OK.value())
 				.message("기기 토큰 삭제에 성공했습니다.")
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			ResponseDto<String> responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<>(responseDto, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ResponseVO<String> responseVO = ResponseVO.<String>builder()
+			ResponseDto<String> responseDto = ResponseDto.<String>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
-			return new ResponseEntity<>(responseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

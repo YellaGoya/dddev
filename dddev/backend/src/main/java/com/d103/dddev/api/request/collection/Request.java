@@ -1,6 +1,6 @@
 package com.d103.dddev.api.request.collection;
 
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -35,9 +35,9 @@ public class Request {
     @CreatedDate
     private LocalDateTime updatedAt;
     // 요청을 보내는 사람
-    private UserDto sendUser;
+    private User sendUser;
     // 요청을 받는 사람
-    private UserDto receiveUser;
+    private User receiveUser;
     // 작성한 사람
     private String author;
     // 마지막으로 수정한 사람

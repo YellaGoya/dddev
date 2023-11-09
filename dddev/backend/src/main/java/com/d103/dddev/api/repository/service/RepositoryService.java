@@ -3,21 +3,18 @@ package com.d103.dddev.api.repository.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.d103.dddev.api.repository.collection.RepositoryFiles;
+import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
-import com.d103.dddev.api.repository.repository.vo.RepositoryVO;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 
 public interface RepositoryService {
-	List<RepositoryVO> getRepositoryListFromGithub(UserDto userDto) throws Exception;
+	List<RepositoryDto> getRepositoryListFromGithub(User user) throws Exception;
 
-	Optional<RepositoryDto> getRepository(Integer repoId);
+	Optional<Repository> getRepository(Integer repoId);
 
-	RepositoryFiles getRepositoryFiles(UserDto userDto, RepositoryDto repositoryDto) throws Exception;
+	Optional<Repository> getAndUpdateRepository(Integer repoId, String repoName);
 
-	Optional<RepositoryDto> getAndUpdateRepository(Integer repoId, String repoName);
+	Repository saveRepository(Repository repository);
 
-	RepositoryDto saveRepository(RepositoryDto repositoryDto);
-
-	RepositoryDto updateIsGround(RepositoryDto repositoryDto, Boolean isGround) throws Exception;
+	RepositoryDto updateIsGround(Repository repository, Boolean isGround) throws Exception;
 }

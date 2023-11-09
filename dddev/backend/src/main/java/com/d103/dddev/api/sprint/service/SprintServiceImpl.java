@@ -1,7 +1,7 @@
 package com.d103.dddev.api.sprint.service;
 
 import com.d103.dddev.api.ground.repository.GroundRepository;
-import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.sprint.repository.dto.SprintUpdateDto;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.repository.SprintRepository;
@@ -37,7 +37,7 @@ public class SprintServiceImpl implements SprintService{
      */
     @Override
     public SprintEntity createSprint(int groundId) {
-        GroundDto ground = groundRepository.findById(groundId).orElseThrow(() -> new NoSuchElementException("getGroundInfo :: 존재하지 않는 그라운드입니다."));
+        Ground ground = groundRepository.findById(groundId).orElseThrow(() -> new NoSuchElementException("getGroundInfo :: 존재하지 않는 그라운드입니다."));
 
         LocalDate start, end;
         LocalDate now = LocalDate.now();

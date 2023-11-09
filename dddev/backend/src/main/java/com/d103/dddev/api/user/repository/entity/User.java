@@ -1,7 +1,6 @@
-package com.d103.dddev.api.user.repository.dto;
+package com.d103.dddev.api.user.repository.entity;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -16,13 +15,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 
 import com.d103.dddev.api.common.oauth2.Role;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,7 +38,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -89,6 +88,19 @@ public class UserDto {
 	public void updatePersonalAccessToken(String personalAccessToken) {
 		this.personalAccessToken = personalAccessToken;
 		this.role = Role.USER;
+	}
+
+	public UserDto convertToDto() {
+		return UserDto.builder()
+				.id(this.id)
+				.profileDto(this.profileDto)
+				.lastGroundId(this.lastGroundId)
+				.githubId(this.githubId)
+				.nickname(this.nickname)
+				.email(this.email)
+				.statusMsg(this.statusMsg)
+				.personalAccessToken(this.personalAccessToken.substring(0, 11))
+				.build();
 	}
 
 }
