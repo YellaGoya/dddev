@@ -49,6 +49,7 @@ public class Oauth2Controller {
 			response.setHeader("nickname", login.get("nickname"));
 			response.setHeader("role", login.get("role"));
 			response.setHeader("lastGroundId", login.get("lastGroundId"));
+			response.setHeader("githubId", login.get("githubId"));
 
 			return new ResponseEntity<>("로그인 성공!", HttpStatus.OK);
 		} catch (Exception e) {
