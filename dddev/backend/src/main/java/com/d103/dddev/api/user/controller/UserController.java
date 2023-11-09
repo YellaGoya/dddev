@@ -55,21 +55,21 @@ public class UserController {
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
 		@ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseDto<User>> getUserInfo(@RequestHeader String Authorization, HttpServletRequest request) {
+	ResponseEntity<ResponseDto<UserDto>> getUserInfo(@RequestHeader String Authorization, HttpServletRequest request) {
 		log.info("controller - getUserInfo :: 사용자 정보 받아오기 진입");
-		ResponseDto<User> responseDto;
+		ResponseDto<UserDto> responseDto;
 		try {
 			ModelAndView max = (ModelAndView)request.getAttribute("modelAndView");
 			User user = (User)max.getModel().get("user");
-			responseDto = ResponseDto.<User>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("사용자 정보 조회 성공")
-				.data(user)
+				.data(user.convertToDto())
 				.build();
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseDto = ResponseDto.<User>builder()
+			responseDto = ResponseDto.<UserDto>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
