@@ -189,6 +189,7 @@ public class AlertServiceImpl implements AlertService {
 		List<AlertUserKeyword> userKeyowrdList = alertRepository.findByRepositoryIdAndType(
 			pushWebhookDto.getRepository().getId(), "push");
 
+		log.info("sender id :: {}", Integer.valueOf(pushWebhookDto.getSender().get("id")));
 		// 트리거 발생자
 		UserDto sender = userService.getUserDto(Integer.valueOf(pushWebhookDto.getSender().get("id"))).orElse(null);
 
