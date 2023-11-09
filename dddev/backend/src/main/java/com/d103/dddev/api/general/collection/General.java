@@ -1,6 +1,5 @@
 package com.d103.dddev.api.general.collection;
 
-import com.d103.dddev.api.user.repository.dto.UserDto;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;

@@ -8,10 +8,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.d103.dddev.api.ground.repository.GroundUserRepository;
-import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.ground.repository.entity.Ground;
+import com.d103.dddev.api.ground.repository.entity.GroundUser;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
-import com.d103.dddev.api.ground.repository.vo.GroundUserVO;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,53 +35,44 @@ public class GroundUserServiceImpl implements GroundUserService {
 	}
 
 	@Override
-	public List<GroundUserVO> inviteMemberToGround(GroundDto groundDto, UserDto newMember) throws Exception {
+	public List<GroundUserDto> inviteMemberToGround(Ground ground, User newMember) throws Exception {
 		log.info("service - inviteMemberToGround :: 그라운드에 사용자 초대하기 진입");
-		GroundUserDto newGroundUserDto = GroundUserDto.builder()
-			.userDto(newMember)
-			.groundDto(groundDto)
+		GroundUser newGroundUser = GroundUser.builder()
+			.user(newMember)
+			.ground(ground)
 			.isOwner(false)
 			.build();
 
-		groundUserRepository.saveAndFlush(newGroundUserDto);
+		groundUserRepository.saveAndFlush(newGroundUser);
 
-		List<GroundUserDto> groundUserDtoList = groundUserRepository.findByGroundDto_Id(groundDto.getId());
-		List<GroundUserVO> groundUserVOList = new ArrayList<>();
+		List<GroundUser> groundUserList = groundUserRepository.findByGround_Id(ground.getId());
+		List<GroundUserDto> groundUserDtoList = new ArrayList<>();
 
-		for(GroundUserDto g : groundUserDtoList) {
-			GroundUserVO userVO = GroundUserVO.builder()
-				.isOwner(g.getIsOwner())
-				.userId(g.getUserDto().getId())
-				.profileDto(g.getUserDto().getProfileDto())
-				.githubId(g.getUserDto().getGithubId())
-				.nickname(g.getUserDto().getNickname())
-				.statusMsg(g.getUserDto().getStatusMsg())
-				.build();
-
-			groundUserVOList.add(userVO);
+		for(GroundUser g : groundUserList) {
+			groundUserDtoList.add(g.convertToGroundUserDto());
 		}
-		return groundUserVOList;
+		return groundUserDtoList;
 	}
 
 	/**
 	 * ground owner 설정
 	 * */
 	@Override
-	public GroundUserDto updateGroundOwner(GroundDto groundDto, UserDto userDto) throws Exception {
+	public GroundUser updateGroundOwner(Ground ground, User user) throws Exception {
 		log.info("service - updateGroundUser :: 그라운드 owner 업데이트 진입");
-		GroundUserDto groundUserDto = GroundUserDto.builder()
-			.groundDto(groundDto)
-			.userDto(userDto)
+		GroundUser groundUser = GroundUser.builder()
+			.ground(ground)
+			.user(user)
 			.isOwner(true)
 			.build();
 
-		return groundUserRepository.saveAndFlush(groundUserDto);
+		return groundUserRepository.saveAndFlush(groundUser);
 	}
 
 	@Override
 	public Boolean checkIsGroundOwner(Integer groundId, Integer userId) throws Exception {
 		log.info("service - checkIsGroundOwner :: 그라운드 오너 확인");
-		Optional<GroundUserDto> groundUserDtoOptional = groundUserRepository.findByGroundDto_IdAndUserDto_IdAndIsOwnerIsTrue(
+		Optional<GroundUser> groundUserDtoOptional = groundUserRepository.findByGround_IdAndUser_IdAndIsOwnerIsTrue(
 			groundId, userId);
 		return groundUserDtoOptional.isPresent();
 	}
@@ -89,48 +80,39 @@ public class GroundUserServiceImpl implements GroundUserService {
 	@Override
 	public Boolean checkIsGroundMember(Integer groundId, Integer userId) throws Exception {
 		log.info("service - checkIsGroundMember :: 그라운드 멤버 확인 진입");
-		Optional<GroundUserDto> groundUserDtoOptional = groundUserRepository.findByGroundDto_IdAndUserDto_Id(
+		Optional<GroundUser> groundUserDtoOptional = groundUserRepository.findByGround_IdAndUser_Id(
 			groundId, userId);
 
 		return groundUserDtoOptional.isPresent();
 	}
 
 	@Override
-	public List<GroundUserDto> getGroundMembers(Integer groundId) throws Exception {
-		return groundUserRepository.findByGroundDto_Id(groundId);
+	public List<GroundUser> getGroundMembers(Integer groundId) throws Exception {
+		return groundUserRepository.findByGround_Id(groundId);
 	}
 
 	@Override
-	public List<GroundUserVO> getGroundMembersAsVO(Integer groundId) throws Exception {
-		List<GroundUserDto> groundMemberList = groundUserRepository.findByGroundDto_Id(groundId);
-		List<GroundUserVO> groundUserVOList = new ArrayList<>();
+	public List<GroundUserDto> getGroundMembersAsDto(Integer groundId) throws Exception {
+		List<GroundUser> groundMemberList = groundUserRepository.findByGround_Id(groundId);
+		List<GroundUserDto> groundUserDtoList = new ArrayList<>();
 
-		for(GroundUserDto g : groundMemberList) {
-			if(!g.getUserDto().getValid())
+		for(GroundUser g : groundMemberList) {
+			if(!g.getUser().getValid())
 				continue;
 
-			GroundUserVO groundUserVO = GroundUserVO.builder()
-				.isOwner(g.getIsOwner())
-				.userId(g.getUserDto().getId())
-				.profileDto(g.getUserDto().getProfileDto())
-				.githubId(g.getUserDto().getGithubId())
-				.nickname(g.getUserDto().getNickname())
-				.statusMsg(g.getUserDto().getStatusMsg())
-				.build();
-
-			groundUserVOList.add(groundUserVO);
+			groundUserDtoList.add(g.convertToGroundUserDto());
 		}
 
-		return groundUserVOList;
+		return groundUserDtoList;
 	}
 
 	@Override
-	public Optional<GroundUserDto> getGroundMember(Integer groundId, Integer userId) throws Exception {
-		return groundUserRepository.findByGroundDto_IdAndUserDto_Id(groundId, userId);
+	public Optional<GroundUser> getGroundMember(Integer groundId, Integer userId) throws Exception {
+		return groundUserRepository.findByGround_IdAndUser_Id(groundId, userId);
 	}
 
 	@Override
-	public void deleteGroundUser(GroundUserDto groundUserDto) throws Exception {
-		groundUserRepository.delete(groundUserDto);
+	public void deleteGroundUser(GroundUser groundUser) throws Exception {
+		groundUserRepository.delete(groundUser);
 	}
 }

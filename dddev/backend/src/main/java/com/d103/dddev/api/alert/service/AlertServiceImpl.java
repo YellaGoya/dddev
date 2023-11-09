@@ -12,6 +12,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,9 +34,9 @@ import com.d103.dddev.api.alert.entity.AlertEntity;
 import com.d103.dddev.api.alert.repository.AlertDataRepo;
 import com.d103.dddev.api.alert.repository.AlertRepository;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
-import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
+import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 import com.d103.dddev.api.user.service.UserServiceImpl;
 import com.sun.jdi.InvalidTypeException;
 import com.sun.jdi.request.DuplicateRequestException;
@@ -63,10 +64,10 @@ public class AlertServiceImpl implements AlertService {
 	@Override
 	public void createAlert(String header, CreateWebhookRequestDto createWebhookRequestDto) throws Exception {
 
-		UserDto userDto = jwtService.getUser(header).orElseThrow(
+		User user = jwtService.getUser(header).orElseThrow(
 			() -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
 
-		if (userDto.getDeviceToken().size() == 0) {
+		if (user.getDeviceToken().size() == 0) {
 			throw new NoSuchElementException("createWebhook :: 사용자 알림 허용이 필요합니다.");
 		}
 
@@ -74,7 +75,7 @@ public class AlertServiceImpl implements AlertService {
 		List<String> keyword = createWebhookRequestDto.getKeyword();
 		String type = createWebhookRequestDto.getType();
 
-		RepositoryDto repositoryDto = repositoryService.getRepository(repositoryId).orElseThrow(
+		Repository repository = repositoryService.getRepository(repositoryId).orElseThrow(
 			() -> new NoSuchElementException("getRepoInfo :: 존재하지 않는 레포지터리입니다.")
 		);
 
@@ -83,7 +84,7 @@ public class AlertServiceImpl implements AlertService {
 
 		if (!alertEntityOptional.isEmpty()) {
 
-			Optional<AlertEntity> userAlertDto = alertRepository.findByUserDto_IdAndRepositoryIdAndType(userDto.getId(),
+			Optional<AlertEntity> userAlertDto = alertRepository.findByUser_IdAndRepositoryIdAndType(user.getId(),
 				repositoryId, type);
 			if (userAlertDto.isPresent()) {
 				throw new DuplicateRequestException("이미 생성한 알림입니다.");
@@ -93,7 +94,7 @@ public class AlertServiceImpl implements AlertService {
 				.webhookId(existAlertEntity.getWebhookId())
 				.type(existAlertEntity.getType())
 				.createdDate(LocalDateTime.now())
-				.userDto(userDto)
+				.user(user)
 				.keyword(keyword)
 				.repositoryId(existAlertEntity.getRepositoryId())
 				.build();
@@ -114,7 +115,7 @@ public class AlertServiceImpl implements AlertService {
 			throw new InvalidTypeException("createWebhook :: 존재하지 않는 알림 타입입니다.");
 		}
 
-		CreateWebhookResponseDto createWebhookResponseDto = createWebhook(userDto, repositoryDto, keyword, type, url);
+		CreateWebhookResponseDto createWebhookResponseDto = createWebhook(user, repository, keyword, type, url);
 
 		AlertEntity alertEntity = AlertEntity.builder()
 			.webhookId(createWebhookResponseDto.getId())
@@ -122,18 +123,18 @@ public class AlertServiceImpl implements AlertService {
 			.repositoryId(repositoryId)
 			.keyword(keyword)
 			.type(createWebhookResponseDto.getEvents().get(0))
-			.userDto(userDto)
+			.user(user)
 			.build();
 
 		alertRepository.save(alertEntity);
 
 	}
 
-	private CreateWebhookResponseDto createWebhook(UserDto userDto, RepositoryDto repositoryDto, List<String> keyword,
-		String type, String url) throws Exception {
+	private CreateWebhookResponseDto createWebhook(User user, Repository repository, List<String> keyword,
+												   String type, String url) throws Exception {
 
-		String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
-		Integer repositoryId = repositoryDto.getRepoId();
+		String token = userService.decryptPersonalAccessToken(user.getPersonalAccessToken());
+		Integer repositoryId = repository.getRepoId();
 
 		HashMap<String, Object> body = new HashMap<>();
 		HttpHeaders headers = new HttpHeaders();
@@ -160,7 +161,7 @@ public class AlertServiceImpl implements AlertService {
 
 		// try {
 		response = restTemplate.exchange(
-			"https://api.github.com/repos/" + userDto.getGithubName() + "/" + repositoryDto.getName() + "/hooks",
+			"https://api.github.com/repos/" + user.getGithubName() + "/" + repository.getName() + "/hooks",
 			HttpMethod.POST,
 			entity,
 			CreateWebhookResponseDto.class
@@ -197,7 +198,7 @@ public class AlertServiceImpl implements AlertService {
 			pushWebhookDto.getRepository().getId(), "push");
 
 		// 트리거 발생자
-		UserDto sender = userService.getUserInfo(Integer.valueOf(pushWebhookDto.getSender().get("id"))).orElse(null);
+		UserDto sender = userService.getUserDto(Integer.valueOf(pushWebhookDto.getSender().get("id"))).orElse(null);
 
 		for (AlertUserDto alertUserDto : userDtoList) {
 			FcmResponseDto fcmResponseDto = null;
@@ -277,9 +278,9 @@ public class AlertServiceImpl implements AlertService {
 		}    // 사용자+키워드
 	}
 
-	private void saveAlertData(FcmResponseDto fcmResponseDto, String title, String content, UserDto receiver,
-		UserDto sender, String branch, String url, String type, Set<String> keywordSet, List<String> commitMessageList,
-		List<String> changedFileList) throws Exception {
+	private void saveAlertData(FcmResponseDto fcmResponseDto, String title, String content, User receiver,
+							   UserDto sender, String branch, String url, String type, Set<String> keywordSet, List<String> commitMessageList,
+							   List<String> changedFileList) throws Exception {
 		Boolean isSuccess = true;
 
 		if (fcmResponseDto.getFailure() != 0) {
@@ -326,14 +327,14 @@ public class AlertServiceImpl implements AlertService {
 		 * 생성하려는 타입 알림이 없는 경우 - 새로운 웹훅 생성 필요
 		 * */
 		if (!type.equals(alertEntity.getType())) {
-			UserDto userDto = alertEntity.getUserDto();
+			User user = alertEntity.getUser();
 			// 삭제하려는 타입 알림 조회 - 하나뿐이면 웹훅 삭제 -> 삭제 메소드에서 조건 수행
 			// List<AlertEntity> existAlertEntityList = alertRepository.findAllByRepositoryIdAndType(repoId, alertEntity.getType());
 			// if(existAlertEntityList.size() == 1) {
 			// 	deleteAlert(userDto, alertId);
 			// }
 
-			deleteAlertCondition(userDto, alertEntity);
+			deleteAlertCondition(user, alertEntity);
 
 			// 생성하려는 타입 알림 조회
 			List<AlertEntity> alertEntityList = alertRepository.findAllByRepositoryIdAndType(repositoryId, type);
@@ -361,11 +362,11 @@ public class AlertServiceImpl implements AlertService {
 				throw new InvalidTypeException("updateAlert :: 존재하지 않는 알림 타입입니다.");
 			}
 
-			RepositoryDto repositoryDto = repositoryService.getRepository(repositoryId).orElseThrow(
+			Repository repository = repositoryService.getRepository(repositoryId).orElseThrow(
 				() -> new NoSuchElementException("updateAlert :: 존재하지 않는 레포지터리입니다.")
 			);
 
-			CreateWebhookResponseDto createWebhookResponseDto = createWebhook(userDto, repositoryDto, keyword, type,
+			CreateWebhookResponseDto createWebhookResponseDto = createWebhook(user, repository, keyword, type,
 				url);
 
 			alertEntity.setType(type);
@@ -381,19 +382,19 @@ public class AlertServiceImpl implements AlertService {
 	}
 
 	@Override
-	public List<AlertEntity> alertList(UserDto userDto) throws Exception {
-		return alertRepository.findByUserDto_Id(userDto.getId());
+	public List<AlertEntity> alertList(User user) throws Exception {
+		return alertRepository.findByUser_Id(user.getId());
 	}
 
 	@Override
-	public void deleteAlert(UserDto userDto, Integer alertId) throws Exception {
+	public void deleteAlert(User user, Integer alertId) throws Exception {
 
 		// alertId로 웹훅 아이디 찾고, alert 테이블에 해당 웹훅 아이디로 만들어진 다른 알람이 없을 때
 		// 알림 소유자만 삭제할 수 있도록
-		AlertEntity alertEntity = alertRepository.findByIdAndUserDto_Id(alertId, userDto.getId()).orElseThrow(
+		AlertEntity alertEntity = alertRepository.findByIdAndUser_Id(alertId, user.getId()).orElseThrow(
 			() -> new Exception("deleteAlert :: 해당 알림 정보를 찾을 수 없습니다."));
 
-		deleteAlertCondition(userDto, alertEntity);
+		deleteAlertCondition(user, alertEntity);
 
 		// db에서 알림 및 키워드 삭제
 		alertRepository.deleteById(alertId);
@@ -409,7 +410,7 @@ public class AlertServiceImpl implements AlertService {
 		List<AlertUserDto> userDtoList = alertRepository.findByRepositoryIdAndType(
 			pullRequestWebhookDto.getRepository().getId(), "pull_request");
 		// 트리거 발생자
-		UserDto sender = userService.getUserInfo(Integer.valueOf(pullRequestWebhookDto.getSender().get("id")))
+		UserDto sender = userService.getUserDto(Integer.valueOf(pullRequestWebhookDto.getSender().get("id")))
 			.orElse(null);
 
 		String headBranch = pullRequestWebhookDto.getPullRequest().getHead().getRef();
@@ -453,7 +454,7 @@ public class AlertServiceImpl implements AlertService {
 
 	}    // 사용자+키워드
 
-	private void deleteAlertCondition(UserDto userDto, AlertEntity alertEntity) throws Exception {
+	private void deleteAlertCondition(User user, AlertEntity alertEntity) throws Exception {
 
 		// alert 테이블에 해당 웹훅 아이디로 만들어진 다른 알람이 없을 때
 		List<AlertEntity> sameWebhookAlertList = alertRepository.findByWebhookId(alertEntity.getWebhookId());
@@ -461,8 +462,8 @@ public class AlertServiceImpl implements AlertService {
 		if (sameWebhookAlertList.size() == 1) {
 			// 깃허브에서 훅 삭제
 
-			String token = userService.decryptPersonalAccessToken(userDto.getPersonalAccessToken());
-			RepositoryDto repositoryDto = repositoryService.getRepository(alertEntity.getRepositoryId()).orElseThrow(
+			String token = userService.decryptPersonalAccessToken(user.getPersonalAccessToken());
+			Repository repository = repositoryService.getRepository(alertEntity.getRepositoryId()).orElseThrow(
 				() -> new Exception("deleteAlert :: 알림이 생성된 리포지터리 정보를 찾을 수 없습니다.")
 			);
 
@@ -479,7 +480,7 @@ public class AlertServiceImpl implements AlertService {
 			RestTemplate restTemplate = new RestTemplate();
 
 			ResponseEntity<Object> response = restTemplate.exchange(
-				"https://api.github.com/repos/" + userDto.getGithubName() + "/" + repositoryDto.getName() + "/hooks/"
+				"https://api.github.com/repos/" + user.getGithubName() + "/" + repository.getName() + "/hooks/"
 					+ alertEntity.getWebhookId(),
 				HttpMethod.DELETE,
 				entity,
@@ -494,9 +495,9 @@ public class AlertServiceImpl implements AlertService {
 
 	}
 
-	public FcmResponseDto sendAlert(UserDto userDto, String alertTitle, String alertBody) throws Exception {
+	public FcmResponseDto sendAlert(User user, String alertTitle, String alertBody) throws Exception {
 		// 기기 토큰 불러오기
-		Set<String> token = userDto.getDeviceToken();
+		Set<String> token = user.getDeviceToken();
 
 		HashMap<String, Object> body = new HashMap<>();
 		HttpHeaders headers = new HttpHeaders();

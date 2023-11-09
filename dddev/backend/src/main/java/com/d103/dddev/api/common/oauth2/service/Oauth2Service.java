@@ -20,7 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import com.d103.dddev.api.common.oauth2.Role;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.user.repository.UserRepository;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,16 +66,17 @@ public class Oauth2Service {
 		String accessToken = jwtService.createAccessToken(githubId);
 		String refreshToken = jwtService.createRefreshToken(githubId);
 
-		UserDto userDto = getUser(githubId, name).orElseGet(() -> saveUser(userInfo));
+		User user = getUser(githubId, name).orElseGet(() -> saveUser(userInfo));
 
 		// access, refresh token, 이름
 		Map<String, String> map = new HashMap<>();
 		map.put("Authorization", accessToken);
 		map.put("Authorization-refresh", refreshToken);
-		map.put("nickname", userDto.getNickname());
-		map.put("role", String.valueOf(userDto.getRole()));
-		map.put("lastGroundId", String.valueOf(userDto.getLastGroundId()));
-		map.put("githubId", String.valueOf(userDto.getGithubId()));
+		map.put("nickname", user.getNickname());
+		map.put("role", String.valueOf(user.getRole()));
+		map.put("lastGroundId", String.valueOf(user.getLastGroundId()));
+		map.put("githubId", String.valueOf(user.getGithubId()));
+
 
 		log.info("login :: github api login 성공");
 
@@ -167,24 +168,24 @@ public class Oauth2Service {
 		return response.getStatusCode().is2xxSuccessful();
 	}
 
-	public Optional<UserDto> getUser(Integer githubId, String name) throws Exception {
+	public Optional<User> getUser(Integer githubId, String name) throws Exception {
 		log.info("getUser :: DB에서 사용자 정보 가져오기");
-		Optional<UserDto> byGithubId = userRepository.findByGithubId(githubId);
+		Optional<User> byGithubId = userRepository.findByGithubId(githubId);
 		if(byGithubId.isPresent()) {
-			UserDto userDto = byGithubId.get();
-			userDto.setGithubName(name);
-			userDto = userRepository.saveAndFlush(userDto);
-			byGithubId = Optional.of(userDto);
+			User user = byGithubId.get();
+			user.setGithubName(name);
+			user = userRepository.saveAndFlush(user);
+			byGithubId = Optional.of(user);
 		}
 		return byGithubId;
 	}
 
-	public UserDto saveUser(Map<String, Object> userInfo) {
+	public User saveUser(Map<String, Object> userInfo) {
 		log.info("saveUser :: DB에 사용자 정보 저장");
 		String name = (String)userInfo.get("login");
 		Integer githubId = (Integer)userInfo.get("id");
 
-		UserDto user = UserDto.builder()
+		User user = User.builder()
 			.nickname(name)
 			.githubName(name)
 			.githubId(githubId)
