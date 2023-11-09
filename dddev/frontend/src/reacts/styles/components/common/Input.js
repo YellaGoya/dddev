@@ -13,21 +13,23 @@ export const Label = styled.div`
   color: var(--font-border);
   background-color: var(--bg-dark);
 
-  font-weight: 300;
-  font-size: 0.9rem;
+  font-weight: 500;
+  font-size: 0.8rem;
 `;
 
 export const Input = styled.input`
   width: calc(100% - 50px);
-  height: 60px;
+  height: 55px;
 
   border-radius: 0.75rem;
-  border: 1px solid ${($isActive) => ($isActive ? 'var(--font-border)' : 'var(--border-basic)')};
+  border: 1px solid ${({ $isActive }) => ($isActive ? 'var(--border-focus)' : 'var(--border-basic)')};
   background-color: transparent;
+
+  font-size: 0.9rem;
 
   margin: 0 25px;
   color: var(--font-rev);
-  padding: ${($isClick) => ($isClick ? '0 57px 0 20px' : '0 20px 0 20px')};
+  padding: ${({ $isClick }) => ($isClick ? '0 57px 0 20px' : '0 20px 0 20px')};
 
   &:focus {
     outline: none;
@@ -65,7 +67,7 @@ export const Message = styled.p`
   right: 35px;
   bottom: -32px;
   font-size: 0.8rem;
-  color: ${($fail) => ($fail ? '#ff5555' : 'var(--font-border)')};
+  color: ${({ $fail }) => ($fail ? 'var(--font-warning)' : 'var(--font-border)')};
 `;
 
 export const ArrayList = styled.ul`

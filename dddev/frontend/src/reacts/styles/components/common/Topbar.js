@@ -75,24 +75,12 @@ export const PathsText = styled.span`
   justify-content: center;
 `;
 
-export const ProfileImage = styled.img`
-  width: 100px;
-  height: 50px;
-
-  //비율 유지
-  object-fit: cover;
-
-  transition: filter 0.3s ease;
-  border-radius: 25px 0 0 25px;
-  cursor: pointer;
-`;
-
 export const PorfileButtonWrapper = styled.div`
   position: absolute;
-  top: -8px;
-  right: 0;
-  width: 100px;
-  height: 50px;
+  top: 2px;
+  right: 15px;
+  width: 90px;
+  height: 30px;
 
   &:hover {
     > img {
@@ -118,4 +106,27 @@ export const PorfileButtonWrapper = styled.div`
 
     cursor: pointer;
   }
+`;
+
+export const ProfileImage = styled.img`
+  width: 90px;
+  height: 30px;
+
+  //비율 유지
+  object-fit: cover;
+
+  transition: filter 0.3s ease;
+  border-radius: 25px;
+  cursor: pointer;
+`;
+
+export const GradBox = styled.div`
+  position: fixed;
+  height: 34px;
+  width: 15px;
+
+  top: 0;
+  right: 110px;
+
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
 `;

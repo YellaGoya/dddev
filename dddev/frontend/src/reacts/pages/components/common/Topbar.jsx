@@ -134,6 +134,7 @@ const Topbar = () => {
         <ReviewsRoundedIcon />
       </s.PorfileButtonWrapper>
       <Message messageToggle={messageToggle} editToggle={editToggle} setEditToggle={setEditToggle} userInfo={userInfo} setUserInfo={setUserInfo} />
+      <s.GradBox />
     </s.TopbarWrapper>
   );
 };

@@ -34,23 +34,57 @@ export const EditModalWrapper = styled.div`
   position: fixed;
   left: 50%;
   width: calc(100% - 20px);
-  max-width: 600px;
+  max-width: 500px;
   min-width: 355px;
-  aspect-ratio: 3 / 4;
+  height: 330px;
 
-  @media (min-height: 755px) {
-    top: 50%;
-    transform: translate(-50%, -50%);
+  & > :first-child {
+    margin-top: 30px;
   }
 
-  @media (max-height: 754px) {
-    top: 10px;
-
+  @media (max-height: 500px) {
+    top: 68px;
     transform: translateX(-50%);
+  }
+
+  @media (min-height: 500px) {
+    top: 50%;
+    transform: translate(-50%, -50%);
   }
 
   border-radius: 0.75rem;
   border: 1px solid var(--border-basic);
 
   background-color: var(--bg-dark);
+`;
+
+export const ButtonWrapper = styled.span`
+  position: relative;
+  display: block;
+  width: calc(100% - 40px);
+  margin: 0 25px 30px 25px;
+  height: 21px;
+
+  & > button {
+    position: absolute;
+    bottom: 0;
+    display: block;
+    padding: 0%;
+
+    font-size: 1rem;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+`;
+
+export const ProfileEditButton = styled.button`
+  right: 50px;
+  font-weight: 600;
+`;
+
+export const CloseButton = styled.button`
+  right: 2px;
+  font-weight: 300;
+  opacity: 0.9;
 `;

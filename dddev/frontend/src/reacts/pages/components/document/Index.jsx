@@ -98,13 +98,12 @@ const Index = () => {
     const [onEdit, setOnEdit] = useState(false);
     const editRef = useRef(null);
     return (
-      <s.TreeChild>
+      <s.TreeChild $onEdit={onEdit}>
         <s.TreeName
           $toggle={toggle}
           $isEmpty={doc.title === ''}
           $isNew={doc.id === newDocId}
           $isMore={doc.id === moreLine}
-          $onEdit={onEdit}
           onClick={() => {
             dispatchToggle({ type: 'TOGGLE', id: doc.id });
           }}

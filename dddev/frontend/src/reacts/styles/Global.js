@@ -60,7 +60,8 @@ export const ViewWrapper = styled.div`
   z-index: 0;
 
   display: flex;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   flex-direction: row;
   width: 100%;
   height: ${({ $isLoggedIn }) => ($isLoggedIn ? 'calc(100vh - 35px)' : '100vh')};

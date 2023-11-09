@@ -24,7 +24,7 @@ const EditSettings = ({ toggle, setToggle, groundInfo }) => {
     setActiveTime(groundInfo.activeTime);
   }, [groundInfo]);
 
-  const submitHandler = () => {
+  const submitChange = () => {
     eetch
       .editGround({
         accessToken: user.accessToken,
@@ -52,9 +52,14 @@ const EditSettings = ({ toggle, setToggle, groundInfo }) => {
           <Input label="그라운드 명" data={groundName} setData={setGroundName} />
           <Input label="집중시간" data={focusTime} setData={setFocusTime} />
           <Input label="활동시간" data={activeTime} setData={setActiveTime} />
-          <p onClick={() => setToggle(false)}>close</p>
+          <s.ButtonWrapper>
+            <s.ProfileEditButton type="button" onClick={submitChange}>
+              적용
+            </s.ProfileEditButton>
+            <s.CloseButton onClick={() => setToggle(false)}>닫기</s.CloseButton>
+          </s.ButtonWrapper>
         </s.EditModalWrapper>
-        <p onClick={submitHandler}>hello</p>
+        <p onClick={submitChange}>hello</p>
       </s.EditWrapper>
     </>
   );

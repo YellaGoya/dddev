@@ -110,7 +110,30 @@ export const TreeParent = styled.ul`
 `;
 
 export const TreeChild = styled.li`
+  position: relative;
   margin: 2px 0;
+
+  &:hover {
+    input {
+      background-color: var(--bg-black);
+    }
+
+    & > :first-child {
+      background-color: var(--bg-black);
+      border-radius: 4px;
+    }
+
+    .moreButton,
+    .editName,
+    .deleteDoc {
+      opacity: 1;
+    }
+
+    .addChild {
+      opacity: 1;
+      visibility: ${({ $onEdit }) => ($onEdit ? 'hide' : 'show')};
+    }
+  }
 
   & > .add-button {
     opacity: 0.65;
@@ -139,6 +162,7 @@ export const TitleWrapper = styled.div`
 
   max-width: calc(100% - 97px);
 `;
+
 export const DocTitle = styled.p`
   color: ${({ $onEdit }) => ($onEdit ? 'var(--font-on-edit)' : 'var(--font-rev)')};
   overflow: hidden;
@@ -151,16 +175,22 @@ export const DocTitle = styled.p`
 `;
 
 export const DocEdit = styled.input`
-  position: fixed;
-  left: -200px;
-  color: var(--font-basic);
-  border: none;
-  outline: none;
+  position: absolute;
+  left: 28px;
+  top: 1px;
 
   width: fit-content;
+  display: none;
 
-  width: 100px;
-  height: 100px;
+  border: none;
+  outline: none;
+  color: var(--font-on-edit);
+  font-size: 18px;
+  font-weight: 400;
+  background-color: var(--bg-basic);
+
+  width: calc(100% - 100px);
+  height: 27px;
 `;
 
 export const TreeName = styled.div`
@@ -205,13 +235,11 @@ export const TreeName = styled.div`
     width: 23px;
     height: 23px;
 
-    display: block;
     fill: var(--font-editor-placeholder);
-
     opacity: 0;
-
     display: ${({ $isMore }) => ($isMore ? 'none' : 'block')};
 
+    transition: opacity 0.2s ease;
     &:hover {
       fill: var(--font-rev);
     }
@@ -228,6 +256,9 @@ export const TreeName = styled.div`
     fill: var(--font-editor-placeholder);
 
     opacity: 0;
+    transition:
+      opacity 0.2s ease,
+      fill 0.2s ease;
 
     &:hover {
       fill: var(--font-rev);
@@ -247,6 +278,9 @@ export const TreeName = styled.div`
     fill: var(--font-editor-placeholder);
 
     opacity: 0;
+    transition:
+      opacity 0.2s ease,
+      fill 0.2s ease;
 
     display: ${({ $isMore }) => ($isMore ? 'block' : 'none')};
 
@@ -269,21 +303,6 @@ export const TreeName = styled.div`
 
     &:hover {
       fill: var(--font-rev);
-    }
-  }
-
-  &:hover {
-    background-color: var(--font-basic);
-    border-radius: 4px;
-
-    .moreButton,
-    .editName,
-    .deleteDoc {
-      opacity: 1;
-    }
-
-    .addChild {
-      opacity: ${({ $onEdit }) => ($onEdit ? '0' : '1')};
     }
   }
 
