@@ -10,8 +10,8 @@ import java.util.TimeZone;
 public class LogApplication {
 
 	@PostConstruct
-	public void started() {
-		TimeZone.setDefault(TimeZone.getTimeZone("KST"));
+	void started(){
+		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
 	}
 	public static void main(String[] args) {
 		SpringApplication.run(LogApplication.class, args);
