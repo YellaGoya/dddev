@@ -165,6 +165,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 			.flatMap(accessToken -> jwtService.extractGithubId(accessToken))
 			.flatMap(githubId -> userRepository.findByGithubId(githubId))
 			.map(user -> {
+				System.out.println(user);
 				saveAuthentication(user);
 				return true;
 			}).orElse(false);
