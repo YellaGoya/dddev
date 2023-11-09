@@ -48,8 +48,11 @@ const GitResult = () => {
         eetch
           .userGrounds({ accessToken: res.accessToken })
           .then((grounds) => {
-            const groundsList = grounds.data.map((ground) => ground.groundDto.id);
-            const groundsMap = grounds.data.map((ground) => ground.groundDto);
+            console.log(grounds.data);
+            const groundsList = grounds.data.map((ground) => {
+              return ground.ground.id;
+            });
+            const groundsMap = grounds.data.map((ground) => ground.ground);
             dispatch(
               loginUser({
                 accessToken: res.accessToken,

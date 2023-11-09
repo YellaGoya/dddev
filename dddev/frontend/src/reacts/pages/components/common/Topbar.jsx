@@ -91,8 +91,8 @@ const Topbar = () => {
       eetch
         .userGrounds({ accessToken: user.accessToken, refreshToken: user.refreshToken })
         .then((grounds) => {
-          const groundsList = grounds.data.map((ground) => ground.groundDto.id);
-          const groundsMap = grounds.data.map((ground) => ground.groundDto);
+          const groundsList = grounds.data.map((ground) => ground.ground.id);
+          const groundsMap = grounds.data.map((ground) => ground.ground);
           dispatch(
             updateUser({
               groundsList,

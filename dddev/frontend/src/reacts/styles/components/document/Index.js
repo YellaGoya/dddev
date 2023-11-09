@@ -112,47 +112,6 @@ export const TreeParent = styled.ul`
 export const TreeChild = styled.li`
   position: relative;
   margin: 2px 0;
-
-  &:hover {
-    input {
-      background-color: var(--bg-black);
-    }
-
-    & > :first-child {
-      background-color: var(--bg-black);
-      border-radius: 4px;
-    }
-
-    .moreButton,
-    .editName,
-    .deleteDoc {
-      opacity: 1;
-    }
-
-    .addChild {
-      opacity: 1;
-      visibility: ${({ $onEdit }) => ($onEdit ? 'hide' : 'show')};
-    }
-  }
-
-  & > .add-button {
-    opacity: 0.65;
-    transition: opacity 0.2s ease;
-    margin-top: 10px;
-
-    &:hover {
-      opacity: 1;
-    }
-
-    & > svg {
-      width: 21px;
-      height: 21px;
-
-      margin: 3px;
-
-      fill: var(--font-rev);
-    }
-  }
 `;
 
 export const TitleWrapper = styled.div`
@@ -164,7 +123,6 @@ export const TitleWrapper = styled.div`
 `;
 
 export const DocTitle = styled.p`
-  color: ${({ $onEdit }) => ($onEdit ? 'var(--font-on-edit)' : 'var(--font-rev)')};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -177,17 +135,16 @@ export const DocTitle = styled.p`
 export const DocEdit = styled.input`
   position: absolute;
   left: 28px;
-  top: 1px;
-
-  width: fit-content;
-  display: none;
+  top: 0;
 
   border: none;
   outline: none;
   color: var(--font-on-edit);
   font-size: 18px;
-  font-weight: 400;
-  background-color: var(--bg-basic);
+  font-weight: 300;
+  background-color: transparent;
+
+  display: ${({ $onEdit }) => ($onEdit ? 'block' : 'none')};
 
   width: calc(100% - 100px);
   height: 27px;
@@ -198,7 +155,6 @@ export const TreeName = styled.div`
   width: 100%;
 
   padding: 3px 0px 3px 30px;
-  color: var(--font-rev);
 
   display: flex;
   align-items: center;
@@ -225,6 +181,22 @@ export const TreeName = styled.div`
         fill 0.2s ease,
         top 0.3s ease,
         opacity 0.2s ease;
+    }
+  }
+
+  &:hover {
+    background-color: var(--bg-black);
+    border-radius: 4px;
+
+    .moreButton,
+    .editName,
+    .deleteDoc {
+      opacity: 1;
+    }
+
+    .addChild {
+      opacity: 1;
+      display: ${({ $onEdit }) => ($onEdit ? 'hide' : 'show')};
     }
   }
 
@@ -294,6 +266,8 @@ export const TreeName = styled.div`
     width: 21px;
     height: 21px;
 
+    display: ${({ $onEdit }) => ($onEdit ? 'none' : 'block')};
+
     right: -1.5rem;
     top: 0;
 
@@ -306,13 +280,13 @@ export const TreeName = styled.div`
     }
   }
 
-  & > p {
+  & > div > p {
     position: relative;
     font-weight: 300;
-    padding-right: 100px;
     margin: 0;
 
     color: ${(props) => (props.$isEmpty ? (props.$isNew ? 'var(--font-new)' : 'var(--font-editor-placeholder)') : 'var(--font-rev)')};
+    opacity: ${({ $onEdit }) => ($onEdit ? '0' : '1')};
     transition: color 0.2s ease;
 
     &:hover {

@@ -10,7 +10,7 @@ import { logoutUser } from 'redux/actions/user';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
-import LinearScaleIcon from '@mui/icons-material/LinearScale';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import * as s from 'reacts/styles/components/document/Index';
@@ -98,10 +98,11 @@ const Index = () => {
     const [onEdit, setOnEdit] = useState(false);
     const editRef = useRef(null);
     return (
-      <s.TreeChild $onEdit={onEdit}>
+      <s.TreeChild>
         <s.TreeName
           $toggle={toggle}
-          $isEmpty={doc.title === ''}
+          $onEdit={onEdit}
+          $isEmpty={title === '새 문서'}
           $isNew={doc.id === newDocId}
           $isMore={doc.id === moreLine}
           onClick={() => {
@@ -135,7 +136,7 @@ const Index = () => {
             )}
           </s.TitleWrapper>
 
-          <LinearScaleIcon
+          <MoreHorizIcon
             className="moreButton"
             onClick={(event) => {
               event.stopPropagation();
@@ -146,8 +147,8 @@ const Index = () => {
             className="editName"
             onClick={(event) => {
               event.stopPropagation();
-              setMoreLine(doc.id);
               setOnEdit(true);
+              editRef.current.style.display = 'block';
               editRef.current.focus();
             }}
           />
@@ -158,27 +159,30 @@ const Index = () => {
               deleteDocument(type, doc.id, doc.step);
             }}
           />
-        </s.TreeName>
-        <s.DocEdit
-          ref={editRef}
-          value={title}
-          onClick={(event) => event.stopPropagation()}
-          onChange={(event) => {
-            setTitle(event.target.value);
-          }}
-          onBlur={(event) => {
-            if (event.target.value === '') setTitle(doc.title === '' ? '새 문서' : doc.title);
-            else titleDocument(type, doc.id, doc.step, event.target.value);
-            setOnEdit(false);
-          }}
-          onKeyPress={(event) => {
-            if (event.key === 'Enter') {
+          <s.DocEdit
+            ref={editRef}
+            $onEdit={onEdit}
+            value={title}
+            onClick={(event) => event.stopPropagation()}
+            onChange={(event) => {
+              setTitle(event.target.value);
+            }}
+            onBlur={(event) => {
               if (event.target.value === '') setTitle(doc.title === '' ? '새 문서' : doc.title);
               else titleDocument(type, doc.id, doc.step, event.target.value);
-              event.target.blur();
-            }
-          }}
-        />
+              console.log('hey');
+              editRef.current.style.display = 'none';
+              setOnEdit(false);
+            }}
+            onKeyPress={(event) => {
+              if (event.key === 'Enter') {
+                if (event.target.value === '') setTitle(doc.title === '' ? '새 문서' : doc.title);
+                else titleDocument(type, doc.id, doc.step, event.target.value);
+                event.target.blur();
+              }
+            }}
+          />
+        </s.TreeName>
         <s.TreeParent $toggle={toggle}>
           {doc.children && doc.children.map((child) => <RenderDocsTree key={child.id} doc={child} type={type} />)}
         </s.TreeParent>

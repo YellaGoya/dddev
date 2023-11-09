@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import eetch from 'eetch/eetch';
 import Input from 'reacts/pages/components/common/Input';
+import Select from 'reacts/pages/components/common/Select';
 
 import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
@@ -13,11 +14,16 @@ import DisabledByDefaultRoundedIcon from '@mui/icons-material/DisabledByDefaultR
 import PhotoFilterIcon from '@mui/icons-material/PhotoFilter';
 
 import * as s from 'reacts/styles/components/user/EditProfile';
+
+const testDummy = [
+  { id: 1, name: 'test1' },
+  { id: 2, name: 'test2' },
+];
 const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  const patRef = useRef(userInfo.personalAccessToken && userInfo.personalAccessToken.substr(0, 10).concat(' ···'));
+  const patRef = useRef('');
   const nicknameRef = useRef(userInfo.nickname);
   const statusRef = useRef(userInfo.statusMsg);
   const [imgMessage, setImgMessage] = useState('');
@@ -157,7 +163,7 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
     <>
       <s.OutWrapper $toggle={toggle} onClick={() => setToggle(false)} />
       <s.EditWrapper $toggle={toggle} onClick={() => setToggle(false)}>
-        <s.EditModalWrapper>
+        <s.EditModalWrapper onClick={(event) => event.stopPropagation()}>
           <s.ButtonWrapper>
             <s.ProfileEditButton type="button" onClick={submitChange}>
               적용
@@ -180,12 +186,18 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
             </s.EditImageWrapper>
             <s.descriptionMessage>{imgMessage}</s.descriptionMessage>
           </s.MessageWrapper>
-
+          <Input
+            label="깃헙 엑세스 토큰 변경"
+            holder={userInfo.personalAccessToken && userInfo.personalAccessToken.substr(0, 10).concat(' ···')}
+            dataRef={patRef}
+            enter={submitPat}
+            click={submitPat}
+            message={patMessage}
+          />
           <Input label="닉네임" data={nicknameRef.current} dataRef={nicknameRef} message={nicknameMessage} debounce={nicknameCheck} />
           <Input label="상태 메시지" dataRef={statusRef} />
           <s.DivLine />
-          <Input label="깃헙 엑세스 토큰 변경" holder={patRef.current} dataRef={patRef} enter={submitPat} click={submitPat} message={patMessage} />
-          <Input label="닉네임" data={nicknameRef.current} dataRef={nicknameRef} message={nicknameMessage} debounce={nicknameCheck} />
+          <Select label="알림 대상" list={testDummy} />
           <Input label="상태 메시지" dataRef={statusRef} />
 
           <s.ButtonWrapper>

@@ -47,8 +47,8 @@ const EditSettings = ({ toggle, setToggle, groundInfo }) => {
   return (
     <>
       <s.OutWrapper $toggle={toggle} onClick={() => setToggle(false)} />
-      <s.EditWrapper $toggle={toggle}>
-        <s.EditModalWrapper>
+      <s.EditWrapper $toggle={toggle} onClick={() => setToggle(false)}>
+        <s.EditModalWrapper onClick={(event) => event.stopPropagation()}>
           <Input label="그라운드 명" data={groundName} setData={setGroundName} />
           <Input label="집중시간" data={focusTime} setData={setFocusTime} />
           <Input label="활동시간" data={activeTime} setData={setActiveTime} />

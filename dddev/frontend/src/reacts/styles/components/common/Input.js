@@ -20,6 +20,7 @@ export const Label = styled.div`
 export const Input = styled.input`
   width: calc(100% - 50px);
   height: 55px;
+  margin: 0 25px;
 
   border-radius: 0.75rem;
   border: 1px solid ${({ $isActive }) => ($isActive ? 'var(--border-focus)' : 'var(--border-basic)')};
@@ -27,7 +28,6 @@ export const Input = styled.input`
 
   font-size: 0.9rem;
 
-  margin: 0 25px;
   color: var(--font-rev);
   padding: ${({ $isClick }) => ($isClick ? '0 57px 0 20px' : '0 20px 0 20px')};
 
