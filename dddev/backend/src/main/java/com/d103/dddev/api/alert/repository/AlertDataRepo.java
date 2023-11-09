@@ -36,10 +36,11 @@ public class AlertDataRepo {
 		FIRE_STORE = FirestoreClient.getFirestore();
 	}
 
-	public void addAlertData(AlertDataEntity alertDataEntity) throws Exception{
+	public String addAlertData(AlertDataEntity alertDataEntity) throws Exception{
 		// Firestore FIRE_STORE = FirestoreClient.getFirestore();
 		DocumentReference document = FIRE_STORE.collection(COLLECTION_NAME).document();
 		document.set(alertDataEntity);
 		log.info("새로운 문서 - 알림 데이터 - 가 추가되었습니다. document id: {}", document.getId()	);
+		return document.getId();
 	}
 }

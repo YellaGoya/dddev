@@ -19,7 +19,7 @@ import com.google.firebase.FirebaseOptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-// @Configuration
+@Configuration
 @Slf4j
 @RequiredArgsConstructor
 public class FirebaseConfig {
@@ -42,11 +42,14 @@ public class FirebaseConfig {
 				FirebaseApp.initializeApp(options);
 			}
 			alertDataRepo.getFirestore();
+			log.info("Firebase :: getFirestore() success!");
 
 		} catch (FileNotFoundException e) {
 			log.error("Firebase ServiceAccountKey FileNotFoundException" + e.getMessage());
 		} catch (IOException e) {
 			log.error("FirebaseOptions IOException" + e.getMessage());
+		} catch (Exception e) {
+			log.error("Firebase PostConstruct Exception {}", e.getMessage());
 		}
 	}
 }
