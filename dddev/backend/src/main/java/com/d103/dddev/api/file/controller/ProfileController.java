@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.d103.dddev.api.common.ResponseVO;
+import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
 
@@ -23,32 +23,32 @@ public class ProfileController {
 	private final ProfileService profileService;
 
 	@PostMapping("/default/user")
-	ResponseEntity<ResponseVO<ProfileDto>> defaultUserProfile(@RequestHeader String Authorization, @RequestPart MultipartFile file) {
+	ResponseEntity<ResponseDto<ProfileDto>> defaultUserProfile(@RequestHeader String Authorization, @RequestPart MultipartFile file) {
 		try {
 			ProfileDto profileDto = profileService.saveDefaultUserProfileImg(file);
-			ResponseVO<ProfileDto> responseVO = ResponseVO.<ProfileDto>builder()
+			ResponseDto<ProfileDto> responseDto = ResponseDto.<ProfileDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("디폴트 유저 프로필 이미지 저장 성공!")
 				.data(profileDto)
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
 	@PostMapping("/default/ground")
-	ResponseEntity<ResponseVO<ProfileDto>> defaultGroundProfile(@RequestHeader String Authorization, @RequestPart MultipartFile file) {
+	ResponseEntity<ResponseDto<ProfileDto>> defaultGroundProfile(@RequestHeader String Authorization, @RequestPart MultipartFile file) {
 		try {
 			ProfileDto profileDto = profileService.saveDefaultGroundProfileImg(file);
-			ResponseVO<ProfileDto> responseVO = ResponseVO.<ProfileDto>builder()
+			ResponseDto<ProfileDto> responseDto = ResponseDto.<ProfileDto>builder()
 				.code(HttpStatus.OK.value())
 				.message("디폴트 그라운드 프로필 이미지 저장 성공!")
 				.data(profileDto)
 				.build();
 
-			return new ResponseEntity<>(responseVO, HttpStatus.OK);
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			return null;
 		}

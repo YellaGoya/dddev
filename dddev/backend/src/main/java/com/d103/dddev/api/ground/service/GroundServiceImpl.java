@@ -1,6 +1,5 @@
 package com.d103.dddev.api.ground.service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -14,15 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
-import com.d103.dddev.api.ground.repository.dto.GroundDto;
-import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
-import com.d103.dddev.api.issue.model.document.Issue;
-import com.d103.dddev.api.issue.repository.IssueRepository;
+import com.d103.dddev.api.ground.repository.entity.Ground;
+import com.d103.dddev.api.ground.repository.entity.GroundUser;
 import com.d103.dddev.api.issue.service.IssueService;
 import com.d103.dddev.api.issue.util.UndefinedUtil;
-import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
+import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 import com.d103.dddev.api.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -50,22 +47,22 @@ public class GroundServiceImpl implements GroundService {
 	 * */
 	@Override
 	@Transactional
-	public GroundDto createGround(String groundName, UserDto userDto, RepositoryDto repositoryDto) throws Exception {
+	public Ground createGround(String groundName, User user, Repository repository) throws Exception {
 		log.info("service - createGround :: 그라운드 생성 진입");
-		GroundDto groundDto = GroundDto.builder()
+		Ground ground = Ground.builder()
 			.name(groundName)
 			.focusTime(DEFAULT_GROUND_FOCUS_TIME)
 			.activeTime(DEFAULT_GROUND_ACTIVE_TIME)
 			.build();
 
-		groundDto.setRepositoryDto(repositoryDto);
-		groundDto = groundRepository.saveAndFlush(groundDto);
+		ground.setRepository(repository);
+		ground = groundRepository.saveAndFlush(ground);
 
 		// 그라운드 오너 update하기
-		groundUserService.updateGroundOwner(groundDto, userDto);
+		groundUserService.updateGroundOwner(ground, user);
 
 		// 생성자의 최근 방문 ground를 생성한 그라운드로 하기
-		userService.updateLastVisitedGround(groundDto.getId(), userDto);
+		userService.updateLastVisitedGround(ground.getId(), user);
 
 		/*
 		 *
@@ -73,19 +70,19 @@ public class GroundServiceImpl implements GroundService {
 		 *
 		 * */
 
-		undefinedUtil.createUndefined(groundDto);
+		undefinedUtil.createUndefined(ground);
 
-		return groundDto;
+		return ground;
 	}
 
 	@Override
-	public Optional<GroundDto> getGroundByRepoId(Integer repoId) throws Exception {
+	public Optional<Ground> getGroundByRepoId(Integer repoId) throws Exception {
 		log.info("service - 레포지토리 아이디로 ground 조회 진입");
-		return groundRepository.findByRepositoryDto_Id(repoId);
+		return groundRepository.findByRepository_Id(repoId);
 	}
 
 	@Override
-	public Optional<GroundDto> getGroundInfo(Integer groundId) throws Exception {
+	public Optional<Ground> getGroundInfo(Integer groundId) throws Exception {
 		log.info("service - getGroundInfo :: 그라운드 조회 진입");
 		return groundRepository.findById(groundId);
 	}
@@ -123,76 +120,84 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
-	public GroundDto updateGroundInfo(GroundDto newGroundDto, GroundDto groundDto) throws Exception {
+	public Ground updateGroundInfo(Ground newGround, Ground ground) throws Exception {
 		log.info("service - updateGroundInfo :: 그라운드 이름 수정 진입");
 		// dto 업데이트하기
-		groundDto.setName(newGroundDto.getName());
-		groundDto.setFocusTime(newGroundDto.getFocusTime());
-		groundDto.setActiveTime(newGroundDto.getActiveTime());
+		if(newGround.getName() != null) {
+			ground.setName(newGround.getName());
+		}
 
-		return groundRepository.saveAndFlush(groundDto);
+		if(newGround.getFocusTime() != null) {
+			ground.setFocusTime(newGround.getFocusTime());
+		}
+
+		if(newGround.getActiveTime() != null) {
+			ground.setActiveTime(newGround.getActiveTime());
+		}
+
+		return groundRepository.saveAndFlush(ground);
 	}
 
 	@Override
-	public GroundDto updateGroundProfile(MultipartFile file, GroundDto groundDto) throws Exception {
+	public Ground updateGroundProfile(MultipartFile file, Ground ground) throws Exception {
 		log.info("service - modifyGroundProfile :: 그라운드 프로필 사진 수정 진입");
 
 		// 기존 프로필
-		ProfileDto prevProfile = groundDto.getProfileDto();
+		ProfileDto prevProfile = ground.getProfileDto();
 
 		// 새 프로필 사진 서버/db에 저장
 		ProfileDto newProfile = profileService.saveGroundProfile(file);
 
 		// 새 프로필 사진 userDto에 저장
-		groundDto.setProfileDto(newProfile);
-		groundDto = groundRepository.saveAndFlush(groundDto);
+		ground.setProfileDto(newProfile);
+		ground = groundRepository.saveAndFlush(ground);
 
 		// 기존 프로필 사진 서버/db에서 삭제
 		if (prevProfile != null) {
 			profileService.deleteProfile(prevProfile);
 		}
 
-		return groundDto;
+		return ground;
 	}
 
 	@Override
-	public GroundDto deleteGroundProfile(GroundDto groundDto) throws Exception {
+	public Ground deleteGroundProfile(Ground ground) throws Exception {
 		log.info("service - deleteGroundProfile :: 그라운드 프로필 사진 삭제 진입");
 		// 그라운드 프로필 dto
-		ProfileDto profileDto = groundDto.getProfileDto();
+		ProfileDto profileDto = ground.getProfileDto();
 
-		groundDto.setProfileDto(null);
-		groundDto = groundRepository.saveAndFlush(groundDto);
+		ground.setProfileDto(null);
+		ground = groundRepository.saveAndFlush(ground);
 
 		// 프로필 사진 서버/db에서 삭제
 		if (profileDto != null) {
 			profileService.deleteProfile(profileDto);
 		}
 
-		return groundDto;
+		return ground;
 	}
 
 	@Override
-	public void deleteMemberFromGround(GroundDto groundDto, UserDto userDto) throws Exception {
+	public void deleteMemberFromGround(Ground ground, User user) throws Exception {
 		log.info("service - deleteMemberFromGround :: 그라운드 멤버 나가기 진입");
 
-		GroundUserDto groundUserDto = groundUserService.getGroundMember(groundDto.getId(), userDto.getId())
+		GroundUser groundUser = groundUserService.getGroundMember(ground.getId(), user.getId())
 			.orElseThrow(() -> new NoSuchElementException("그라운드에 해당 사용자가 존재하지 않습니다."));
 
-		groundUserService.deleteGroundUser(groundUserDto);
+		groundUserService.deleteGroundUser(groundUser);
 
 	}
 
 	// TODO :: ground에 속한 이슈, 문서, 리퀘스트 모두 삭제하기
 	@Override
-	public void deleteGround(GroundDto groundDto) throws Exception {
+	public void deleteGround(Ground ground) throws Exception {
 		log.info("service - deleteGround :: 그라운드 삭제 진입");
 
 		// 프로필 사진 받아오기
-		ProfileDto profileDto = groundDto.getProfileDto();
+		ProfileDto profileDto = ground.getProfileDto();
 
 		// 레포지토리 받아오기
-		RepositoryDto repositoryDto = groundDto.getRepositoryDto();
+		Repository repository = ground.getRepository();
 
 		// 이슈 리스트 받아오기
 
@@ -205,15 +210,15 @@ public class GroundServiceImpl implements GroundService {
 		// 차트 데이터 받아오기
 
 		// 그라운드 멤버 리스트 받아오기
-		List<GroundUserDto> groundMembers = groundUserService.getGroundMembers(groundDto.getId());
+		List<GroundUser> groundMembers = groundUserService.getGroundMembers(ground.getId());
 
 		// 그라운드 멤버 리스트 db에서 삭제하기
-		for (GroundUserDto g : groundMembers) {
+		for (GroundUser g : groundMembers) {
 			groundUserService.deleteGroundUser(g);
 		}
 
 		// 그라운드 삭제
-		groundRepository.delete(groundDto);
+		groundRepository.delete(ground);
 
 		// 서버/db에서 프로필 사진 삭제
 		if (profileDto != null) {
@@ -221,7 +226,7 @@ public class GroundServiceImpl implements GroundService {
 		}
 
 		// 레포지토리 is_ground = false로 변경
-		repositoryService.updateIsGround(repositoryDto, false);
+		repositoryService.updateIsGround(repository, false);
 
 		// 이슈 삭제
 

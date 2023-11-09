@@ -1,17 +1,13 @@
 package com.d103.dddev.api.request.service;
 
-import com.d103.dddev.api.file.repository.DocumentRepository;
-import com.d103.dddev.api.file.repository.entity.FileEntity;
 import com.d103.dddev.api.file.service.DocumentServiceImpl;
-import com.d103.dddev.api.general.collection.General;
-import com.d103.dddev.api.general.repository.dto.responseDto.GeneralResponseDto;
 import com.d103.dddev.api.request.collection.Comment;
 import com.d103.dddev.api.request.collection.Request;
 import com.d103.dddev.api.request.repository.RequestRepository;
 import com.d103.dddev.api.request.repository.dto.requestDto.*;
 import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
 import com.d103.dddev.api.user.repository.UserRepository;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.management.InvalidAttributeValueException;
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -132,8 +127,8 @@ public class RequestServiceImpl implements RequestService{
     public Request updateRequest(int groundId, String requestId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception{
         int sendUserId = requestUpdateDto.getSendUserId();
         int receiveUserId = requestUpdateDto.getReceiveUserId();
-        UserDto sendUser = userRepository.findById(sendUserId).orElseThrow(()->new NoSuchElementException("유저를 불러오는데 실패했습니다."));
-        UserDto receiveUser = userRepository.findById(receiveUserId).orElseThrow(()->new NoSuchElementException("유저를 불러오는데 실패했습니다."));
+        User sendUser = userRepository.findById(sendUserId).orElseThrow(()->new NoSuchElementException("유저를 불러오는데 실패했습니다."));
+        User receiveUser = userRepository.findById(receiveUserId).orElseThrow(()->new NoSuchElementException("유저를 불러오는데 실패했습니다."));
         if(sendUser == null){
             throw new InvalidAttributeValueException("잘못된 보내는 유저 아이디입니다.");
         }

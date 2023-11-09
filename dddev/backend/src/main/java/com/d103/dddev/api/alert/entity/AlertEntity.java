@@ -14,7 +14,7 @@ import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
@@ -49,7 +49,7 @@ public class AlertEntity {
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "user_id")
-	private UserDto userDto;
+	private User user;
 
 	@CreationTimestamp
 	private LocalDateTime createdDate;

@@ -1,11 +1,12 @@
 package com.d103.dddev.api.repository.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
+import com.d103.dddev.api.repository.repository.RepositoryRepository;
+import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
+import com.d103.dddev.api.repository.repository.entity.Repository;
+import com.d103.dddev.api.user.repository.entity.User;
+import com.d103.dddev.api.user.service.UserService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,15 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.d103.dddev.api.repository.collection.RepositoryFiles;
-import com.d103.dddev.api.repository.repository.RepositoryRepository;
-import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
-import com.d103.dddev.api.repository.repository.vo.RepositoryVO;
-import com.d103.dddev.api.user.repository.dto.UserDto;
-import com.d103.dddev.api.user.service.UserService;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,11 +35,11 @@ public class RepositoryServiceImpl implements RepositoryService {
 	 * github api로 repository list 불러오는 함수
 	 * */
 	@Override
-	public List<RepositoryVO> getRepositoryListFromGithub(UserDto userDto) throws Exception {
+	public List<RepositoryDto> getRepositoryListFromGithub(User user) throws Exception {
 		log.info("getRepositoryListFromGithub 진입");
 		RestTemplate restTemplate = new RestTemplate();
 
-		String personalAccessToken = userService.getPersonalAccessToken(userDto);
+		String personalAccessToken = userService.getPersonalAccessToken(user);
 
 		String url = API_URL + REPO_REQUEST_URL;
 
@@ -61,13 +57,13 @@ public class RepositoryServiceImpl implements RepositoryService {
 		);
 
 		List<Map<String, Object>> repoMap = response.getBody();
-		List<RepositoryVO> repoList = new ArrayList<>();
+		List<RepositoryDto> repoList = new ArrayList<>();
 
 		log.info("repository db 저장 진입");
 		for (Map<String, Object> repo : repoMap) {
-			RepositoryDto repositoryDto = RepositoryDto.builder()
+			Repository repository = Repository.builder()
 				.name((String)repo.get("name"))
-				.userDto(userDto)
+				.user(user)
 				.fork((Boolean)repo.get("fork"))
 				.repoId((Integer)repo.get("id"))
 				.defaultBranch((String)repo.get("default_branch"))
@@ -75,19 +71,11 @@ public class RepositoryServiceImpl implements RepositoryService {
 				.build();
 
 			// repository 조회해서 이름이 바뀌었으면 업데이트하기
-			RepositoryDto repository = getAndUpdateRepository(repositoryDto.getRepoId(),
-				repositoryDto.getName()).orElseGet(() -> saveRepository(repositoryDto));
+			Repository repositoryEntity = getAndUpdateRepository(repository.getRepoId(),
+					repository.getName()).orElseGet(() -> saveRepository(repository));
 
-			RepositoryVO repositoryVO = RepositoryVO.builder()
-				.id(repository.getId())
-				.repoId(repository.getRepoId())
-				.name(repository.getName())
-				.isPrivate(repository.getIsPrivate())
-				.defaultBranch(repository.getDefaultBranch())
-				.isGround(repository.getIsGround())
-				.build();
 
-			repoList.add(repositoryVO);
+			repoList.add(repositoryEntity.convertToDto());
 		}
 		return repoList;
 	}
@@ -96,55 +84,22 @@ public class RepositoryServiceImpl implements RepositoryService {
 	 * repoId로 repository 불러오기
 	 * */
 	@Override
-	public Optional<RepositoryDto> getRepository(Integer repoId) {
+	public Optional<Repository> getRepository(Integer repoId) {
 		return repositoryRepository.findByRepoId(repoId);
 	}
 
-	@Override
-	public RepositoryFiles getRepositoryFiles(UserDto userDto, RepositoryDto repositoryDto) throws Exception {
-		log.info("service - getRepositoryFiles :: 레포지토리 파일 목록 불러오기 진입");
-
-		// 깃허브 api로 파일 목록 불러오기
-		String url = API_URL + "/repos/" + userDto.getGithubName() + "/" + repositoryDto.getName() + "/git/trees/"
-			+ repositoryDto.getDefaultBranch() + "?recursive=true";
-
-		System.out.println(url);
-
-		String pat = userService.getPersonalAccessToken(userDto);
-
-		RestTemplate restTemplate = new RestTemplate();
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "token " + pat);
-
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-
-		ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-			url,
-			HttpMethod.GET,
-			entity,
-			new ParameterizedTypeReference<Map<String, Object>>() {
-			}
-		);
-
-		Map<String, Object> repoFileInfo = response.getBody();
-		System.out.println(repoFileInfo.get("sha"));
-		System.out.println(repoFileInfo.get("url"));
-		System.out.println(repoFileInfo.get("tree"));
-		return null;
-	}
 
 	/**
 	 * repository를 가져와서 이름 변경이 있으면 db에 저장
 	 * */
 	@Override
-	public Optional<RepositoryDto> getAndUpdateRepository(Integer repoId, String repoName) {
-		Optional<RepositoryDto> byRepoId = repositoryRepository.findByRepoId(repoId);
+	public Optional<Repository> getAndUpdateRepository(Integer repoId, String repoName) {
+		Optional<Repository> byRepoId = repositoryRepository.findByRepoId(repoId);
 		if (byRepoId.isPresent()) {
-			RepositoryDto repositoryDto = byRepoId.get();
-			if (!repositoryDto.getName().equals(repoName)) {
-				repositoryDto.setName(repoName);
-				return Optional.of(repositoryRepository.saveAndFlush(repositoryDto));
+			Repository repository = byRepoId.get();
+			if (!repository.getName().equals(repoName)) {
+				repository.setName(repoName);
+				return Optional.of(repositoryRepository.saveAndFlush(repository));
 			}
 		}
 		return byRepoId;
@@ -154,18 +109,14 @@ public class RepositoryServiceImpl implements RepositoryService {
 	 * db에 repository 저장
 	 * */
 	@Override
-	public RepositoryDto saveRepository(RepositoryDto repositoryDto) {
-		return repositoryRepository.saveAndFlush(repositoryDto);
+	public Repository saveRepository(Repository repository) {
+		return repositoryRepository.saveAndFlush(repository);
 	}
 
 	@Override
-	public RepositoryDto updateIsGround(RepositoryDto repositoryDto, Boolean isGround) throws Exception {
-		repositoryDto.setIsGround(isGround);
-		return repositoryRepository.saveAndFlush(repositoryDto);
-	}
-
-	public RepositoryFiles convertToTree(Map<String, Object> origRepoFile) throws Exception {
-		return null;
+	public RepositoryDto updateIsGround(Repository repository, Boolean isGround) throws Exception {
+		repository.setIsGround(isGround);
+		return repositoryRepository.saveAndFlush(repository).convertToDto();
 	}
 
 }

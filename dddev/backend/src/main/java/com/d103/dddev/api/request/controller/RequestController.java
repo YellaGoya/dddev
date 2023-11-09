@@ -1,13 +1,11 @@
 package com.d103.dddev.api.request.controller;
 
-import com.d103.dddev.api.common.ResponseVO;
-import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.request.collection.Comment;
 import com.d103.dddev.api.request.collection.Request;
 import com.d103.dddev.api.request.repository.dto.requestDto.*;
 import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
 import com.d103.dddev.api.request.service.RequestServiceImpl;
-import com.d103.dddev.api.user.repository.dto.UserDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -17,9 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -37,22 +33,22 @@ public class RequestController {
                                                    "title -> not required 없으면 빈 문자열 \"\"로 생성")@RequestBody RequestInsertOneDto requestInsertOneDto,
                                            @RequestHeader String Authorization,
                                            @AuthenticationPrincipal UserDetails userDetails){
-        ResponseVO<Request> responseVo;
+        ResponseDto<Request> responseDto;
 
         try{
             Request request = requestService.insertRequest(groundId, requestInsertOneDto, userDetails);
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("요청 문서가 생성되었습니다.")
                     .data(request)
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -62,22 +58,22 @@ public class RequestController {
                                                       @RequestBody RequestInsertManyDto requestInsertManyDto,
                                                       @RequestHeader String Authorization,
                                                       @AuthenticationPrincipal UserDetails userDetails){
-        ResponseVO<List<Request>> responseVo;
+        ResponseDto<List<Request>> responseDto;
 
         try{
             List<Request> requestList = requestService.insertRequestsWithTitles(groundId, requestInsertManyDto, userDetails);
-            responseVo = ResponseVO.<List<Request>>builder()
+            responseDto = ResponseDto.<List<Request>>builder()
                     .code(HttpStatus.OK.value())
                     .message("요청 문서들이 생성되었습니다.")
                     .data(requestList)
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<List<Request>>builder()
+            responseDto = ResponseDto.<List<Request>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -85,66 +81,66 @@ public class RequestController {
     @ApiOperation(value="요청 문서 상세 조회")
     public ResponseEntity<?> getRequest(@PathVariable("groundId") int groundId, @PathVariable("requestId") String RequestId,
                                         @RequestHeader String Authorization){
-        ResponseVO<Request> responseVo;
+        ResponseDto<Request> responseDto;
 
         try{
             Request Request = requestService.getRequest(groundId, RequestId);
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("요청 문서를 불러왔습니다.")
                     .data(Request)
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @GetMapping("/total")
     @ApiOperation(value="step1 문서들 불러오기")
     public ResponseEntity<?> getStep1Requests(@PathVariable("groundId") int groundId,
     @RequestHeader String Authorization){
-        ResponseVO<List<RequestResponseDto>> responseVo;
+        ResponseDto<List<RequestResponseDto>> responseDto;
 
         try{
             List<RequestResponseDto> requests = requestService.getStep1Requests(groundId);
-            responseVo = ResponseVO.<List<RequestResponseDto>>builder()
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("step1 문서들을 불러왔습니다.")
                     .data(requests)
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<List<RequestResponseDto>>builder()
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @GetMapping("/step2")
     @ApiOperation(value="step2 문서들 불러오기")
     public ResponseEntity<?> getStep2Requests(@PathVariable("groundId") int groundId,
                                               @RequestHeader String Authorization){
-        ResponseVO<List<Request>> responseVo;
+        ResponseDto<List<Request>> responseDto;
 
         try{
             List<Request> Requests = requestService.getStep2Requests(groundId);
-            responseVo = ResponseVO.<List<Request>>builder()
+            responseDto = ResponseDto.<List<Request>>builder()
                     .code(HttpStatus.OK.value())
                     .message("step2 문서들을 불러왔습니다.")
                     .data(Requests)
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<List<Request>>builder()
+            responseDto = ResponseDto.<List<Request>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -155,22 +151,22 @@ public class RequestController {
                                            @RequestBody RequestUpdateDto requestUpdateDto,
                                            @RequestHeader String Authorization,
                                            @AuthenticationPrincipal UserDetails userDetails) {
-        ResponseVO<Request> responseVo;
+        ResponseDto<Request> responseDto;
 
         try{
             Request Request = requestService.updateRequest(groundId, requestId, requestUpdateDto, userDetails);
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 수정했습니다.")
                     .data(Request)
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @PutMapping("/send/{requestId}")
@@ -180,21 +176,21 @@ public class RequestController {
                                          @RequestBody RequestUpdateDto requestUpdateDto,
                                          @RequestHeader String Authorization,
                                          @AuthenticationPrincipal UserDetails userDetails) {
-        ResponseVO<Request> responseVo;
+        ResponseDto<Request> responseDto;
 
         try{
             requestService.sendRequest(groundId, requestId, requestUpdateDto, userDetails);
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("요청을 보냈습니다.")
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @PutMapping("/{requestId}/createComment")
@@ -204,22 +200,22 @@ public class RequestController {
                                          @RequestBody String comment,
                                          @RequestHeader String Authorization,
                                          @AuthenticationPrincipal UserDetails userDetails) {
-        ResponseVO<Comment> responseVo;
+        ResponseDto<Comment> responseDto;
 
         try{
             Comment saveComment = requestService.createComment(groundId, requestId, comment, userDetails);
-            responseVo = ResponseVO.<Comment>builder()
+            responseDto = ResponseDto.<Comment>builder()
                     .code(HttpStatus.OK.value())
                     .message("댓글을 달았습니다.")
                     .data(saveComment)
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<Comment>builder()
+            responseDto = ResponseDto.<Comment>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @PutMapping("/move/{requestId}")
@@ -228,22 +224,22 @@ public class RequestController {
                                          @PathVariable("requestId") String requestId,
                                          @ApiParam(value= "parentId -> 목적지 부모의 아이디") @RequestBody RequestMoveDto requestMoveDto,
                                          @RequestHeader String Authorization) {
-        ResponseVO<Request> responseVo;
+        ResponseDto<Request> responseDto;
 
         try{
             Request Request = requestService.moveRequest(groundId, requestId, requestMoveDto);
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 이동했습니다.")
                     .data(Request)
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -251,21 +247,21 @@ public class RequestController {
     @ApiOperation(value="요청 문서 삭제")
     public ResponseEntity<?> deleteRequest(@PathVariable("groundId") int groundId, @PathVariable("requestId") String requestId,@RequestHeader String Authorization){
 
-        ResponseVO<Request> responseVo;
+        ResponseDto<Request> responseDto;
 
         try{
             requestService.deleteRequest(groundId, requestId);
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 삭제했습니다.")
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -276,22 +272,22 @@ public class RequestController {
                                            @RequestBody RequestTitleDto requestTitleDto,
                                            @RequestHeader String Authorization,
                                            @AuthenticationPrincipal UserDetails userDetails) {
-        ResponseVO<Request> responseVo;
+        ResponseDto<Request> responseDto;
 
         try{
             Request Request = requestService.titleRequest(groundId, requestId, requestTitleDto, userDetails);
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서의 제목을 수정했습니다.")
                     .data(Request)
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.OK);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseVo = ResponseVO.<Request>builder()
+            responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
-            return new ResponseEntity<>(responseVo, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -4,9 +4,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.d103.dddev.api.repository.repository.dto.RepositoryDto;
+import com.d103.dddev.api.repository.repository.entity.Repository;
 
-public interface RepositoryRepository extends JpaRepository<RepositoryDto, Integer> {
+public interface RepositoryRepository extends JpaRepository<Repository, Integer> {
 
-	Optional<RepositoryDto> findByRepoId(Integer repoId);
+	Optional<Repository> findByRepoId(Integer repoId);
 }

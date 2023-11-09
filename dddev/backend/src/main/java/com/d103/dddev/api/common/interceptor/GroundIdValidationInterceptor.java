@@ -1,20 +1,18 @@
 package com.d103.dddev.api.common.interceptor;
 
-import com.d103.dddev.api.common.ResponseVO;
+import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.GroundUserRepository;
-import com.d103.dddev.api.ground.repository.dto.GroundDto;
-import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
-import com.d103.dddev.api.user.repository.UserRepository;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.ground.repository.entity.Ground;
+import com.d103.dddev.api.ground.repository.entity.GroundUser;
+import com.d103.dddev.api.user.repository.entity.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -44,7 +42,7 @@ public class GroundIdValidationInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 		throws Exception {
 
-		ResponseVO<Object> responseVO;
+		ResponseDto<Object> responseDto;
 
 		// groundId를 파라미터에서 추출합니다.
 		String requestURI = request.getRequestURI();
@@ -52,15 +50,15 @@ public class GroundIdValidationInterceptor implements HandlerInterceptor {
 		int groundId = Integer.parseInt(parts[2].trim());
 
 		// 그라운드 조회
-		Optional<GroundDto> groundDtoOptional = groundRepository.findById(groundId);
+		Optional<Ground> groundDtoOptional = groundRepository.findById(groundId);
 
 		if (groundDtoOptional.isEmpty()) {
-			responseVO = ResponseVO.builder()
+			responseDto = ResponseDto.builder()
 				.code(HttpStatus.NOT_ACCEPTABLE.value())
 				.message("잘못된 그라운드 아이디입니다.")
 				.build();
 			response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-			String result = mapper.writeValueAsString(responseVO);
+			String result = mapper.writeValueAsString(responseDto);
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType("application/json;charset=utf-8");
 			response.getWriter().write(result);
@@ -69,29 +67,29 @@ public class GroundIdValidationInterceptor implements HandlerInterceptor {
 
 
 		ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
-		UserDto userDto = (UserDto)mav.getModel().get("userDto");
+		User user = (User)mav.getModel().get("user");
 
 		// 해당 그라운드의 멤버인지 검증
-		Optional<GroundUserDto> groundUserDtoOptional = groundUserRepository.findByGroundDto_IdAndUserDto_Id(
-			groundId, userDto.getId());
+		Optional<GroundUser> groundUserDtoOptional = groundUserRepository.findByGround_IdAndUser_Id(
+			groundId, user.getId());
 
 		if (groundUserDtoOptional.isEmpty()) {
-			responseVO = ResponseVO.builder()
+			responseDto = ResponseDto.builder()
 				.code(HttpStatus.BAD_REQUEST.value())
 				.message("사용자가 해당 그라운드의 멤버가 아닙니다.")
 				.build();
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			String result = mapper.writeValueAsString(responseVO);
+			String result = mapper.writeValueAsString(responseDto);
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType("application/json;charset=utf-8");
 			response.getWriter().write(result);
 			return false;
 		}
 
-		GroundDto ground = groundDtoOptional.get();
+		Ground ground = groundDtoOptional.get();
 
 		// ModelAndView modelAndView = new ModelAndView();
-		mav.addObject("groundDto", ground);
+		mav.addObject("ground", ground);
 		request.setAttribute("modelAndView", mav);
 		return true; // 처리 방법에 따라 true 또는 false를 반환합니다.
 	}
