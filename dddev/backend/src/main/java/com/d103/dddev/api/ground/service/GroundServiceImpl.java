@@ -123,9 +123,17 @@ public class GroundServiceImpl implements GroundService {
 	public Ground updateGroundInfo(Ground newGround, Ground ground) throws Exception {
 		log.info("service - updateGroundInfo :: 그라운드 이름 수정 진입");
 		// dto 업데이트하기
-		ground.setName(newGround.getName());
-		ground.setFocusTime(newGround.getFocusTime());
-		ground.setActiveTime(newGround.getActiveTime());
+		if(newGround.getName() != null) {
+			ground.setName(newGround.getName());
+		}
+
+		if(newGround.getFocusTime() != null) {
+			ground.setFocusTime(newGround.getFocusTime());
+		}
+
+		if(newGround.getActiveTime() != null) {
+			ground.setActiveTime(newGround.getActiveTime());
+		}
 
 		return groundRepository.saveAndFlush(ground);
 	}

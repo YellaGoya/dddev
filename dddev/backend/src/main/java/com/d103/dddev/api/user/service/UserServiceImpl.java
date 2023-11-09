@@ -89,8 +89,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto updateUserInfo(UserDto newUserDto, User user) throws Exception {
 		log.info("service - updateNickname :: 사용자 정보 수정 진입");
-		user.setNickname(newUserDto.getNickname());
-		user.setStatusMsg(newUserDto.getStatusMsg());
+
+		if(newUserDto.getNickname() != null) {
+			user.setNickname(newUserDto.getNickname());
+		}
+
+		if(newUserDto.getStatusMsg() != null){
+			user.setStatusMsg(newUserDto.getStatusMsg());
+		}
+
 		return userRepository.saveAndFlush(user).convertToDto();
 	}
 
