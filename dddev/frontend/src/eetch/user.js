@@ -28,6 +28,7 @@ export const githubSync = async ({ code }) => {
     role: res.headers.get('role'),
     lastGround: res.headers.get('Lastgroundid'),
     message,
+    githubId: res.headers.get('githubId'),
   };
 };
 

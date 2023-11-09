@@ -8,6 +8,7 @@ const initialState = {
   lastGround: null,
   groundsList: [],
   groundsMap: [],
+  githubId: null,
 };
 
 const userReducer = (state = initialState, action) => {
@@ -22,6 +23,7 @@ const userReducer = (state = initialState, action) => {
         lastGround: action.payload.lastGround,
         groundsList: action.payload.groundsList,
         groundsMap: action.payload.groundsMap,
+        githubId: action.payload.githubId,
       };
 
     case LOGOUT_USER:
@@ -36,6 +38,7 @@ const userReducer = (state = initialState, action) => {
         lastGround: action.payload.lastGround || state.lastGround,
         groundsList: action.payload.groundsList || state.groundsList,
         groundsMap: action.payload.groundsMap || state.groundsMap,
+        githubId: action.payload.githubId || state.githubId,
       };
 
     default:
