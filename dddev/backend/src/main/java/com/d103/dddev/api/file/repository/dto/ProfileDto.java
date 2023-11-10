@@ -32,6 +32,9 @@ public class ProfileDto {
 	@Column(name = "file_path")
 	private String filePath;
 
+	@Column(name = "file_name")
+	private String fileName;
+
 	@Column(name = "content_type")
 	private String contentType;
 }

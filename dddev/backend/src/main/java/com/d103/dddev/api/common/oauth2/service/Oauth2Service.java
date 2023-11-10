@@ -20,7 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import com.d103.dddev.api.common.oauth2.Role;
 import com.d103.dddev.api.common.oauth2.utils.JwtService;
 import com.d103.dddev.api.user.repository.UserRepository;
-import com.d103.dddev.api.user.repository.dto.UserDto;
+import com.d103.dddev.api.user.repository.entity.User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,12 +33,12 @@ public class Oauth2Service {
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
 
-	private String ACCESS_TOKEN_REQUEST_URL = "https://github.com/login/oauth/access_token";
+	private final String ACCESS_TOKEN_REQUEST_URL = "https://github.com/login/oauth/access_token";
 
-	private String API_URL = "https://api.github.com";
-	private String USER_INFO_REQUEST_TOKEN = "token ";
+	private final String API_URL = "https://api.github.com";
+	private final String USER_INFO_REQUEST_TOKEN = "token ";
 
-	private String BEARER = "Bearer ";
+	private final String BEARER = "Bearer ";
 
 	@Value("${spring.security.oauth2.client.registration.github.client-id}")
 	private String CLIENT_ID;
@@ -63,20 +63,20 @@ public class Oauth2Service {
 		Integer githubId = (Integer)userInfo.get("id");
 
 		// jwt로 자체 access, refresh token 만들기
-		String accessToken = BEARER + jwtService.createAccessToken(githubId);
-		String refreshToken = BEARER + jwtService.createRefreshToken();
+		String accessToken = jwtService.createAccessToken(githubId);
+		String refreshToken = jwtService.createRefreshToken(githubId);
 
-		UserDto userDto = getUser(githubId).orElseGet(() -> saveUser(userInfo));
-
-		// refresh token db 저장
-		updateRefreshToken(userDto, refreshToken);
+		User user = getUser(githubId, name).orElseGet(() -> saveUser(userInfo));
 
 		// access, refresh token, 이름
 		Map<String, String> map = new HashMap<>();
 		map.put("Authorization", accessToken);
 		map.put("Authorization-refresh", refreshToken);
-		map.put("nickname", name);
-		map.put("role", String.valueOf(userDto.getRole()));
+		map.put("nickname", user.getNickname());
+		map.put("role", String.valueOf(user.getRole()));
+		map.put("lastGroundId", String.valueOf(user.getLastGroundId()));
+		map.put("githubId", String.valueOf(user.getGithubId()));
+
 
 		log.info("login :: github api login 성공");
 
@@ -168,17 +168,24 @@ public class Oauth2Service {
 		return response.getStatusCode().is2xxSuccessful();
 	}
 
-	public Optional<UserDto> getUser(Integer githubId) throws Exception {
+	public Optional<User> getUser(Integer githubId, String name) throws Exception {
 		log.info("getUser :: DB에서 사용자 정보 가져오기");
-		return userRepository.findByGithubId(githubId);
+		Optional<User> byGithubId = userRepository.findByGithubId(githubId);
+		if(byGithubId.isPresent()) {
+			User user = byGithubId.get();
+			user.setGithubName(name);
+			user = userRepository.saveAndFlush(user);
+			byGithubId = Optional.of(user);
+		}
+		return byGithubId;
 	}
 
-	public UserDto saveUser(Map<String, Object> userInfo) {
+	public User saveUser(Map<String, Object> userInfo) {
 		log.info("saveUser :: DB에 사용자 정보 저장");
 		String name = (String)userInfo.get("login");
 		Integer githubId = (Integer)userInfo.get("id");
 
-		UserDto user = UserDto.builder()
+		User user = User.builder()
 			.nickname(name)
 			.githubName(name)
 			.githubId(githubId)
@@ -187,11 +194,6 @@ public class Oauth2Service {
 			.build();
 
 		return userRepository.save(user);
-	}
-
-	public void updateRefreshToken(UserDto user, String refreshToken) {
-		user.updateRefreshToken(refreshToken);
-		userRepository.saveAndFlush(user);
 	}
 
 }
