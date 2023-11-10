@@ -12,18 +12,34 @@ export const GroundWrapper = styled.div`
 
 export const Title = styled.h1`
   text-align: center;
+  margin-bottom: 10px;
 `;
 
 export const TextButton = styled.button`
   display: block;
   margin: 0 auto;
+  height: 40px;
+  padding: 0 15px;
 
   border: none;
+  border-radius: 0.75rem;
   background-color: transparent;
   color: var(--font-rev);
   font-size: 1rem;
 
+  display: flex;
+  align-items: center;
+
   cursor: pointer;
+
+  &:hover {
+    background-color: var(--button-basic);
+  }
+
+  & > svg {
+    width: 21px;
+    height: 21px;
+  }
 `;
 
 export const TextLink = styled.a`

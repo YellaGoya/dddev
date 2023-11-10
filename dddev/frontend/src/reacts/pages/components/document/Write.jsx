@@ -8,6 +8,7 @@ import { QuillBinding } from 'y-quill';
 import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
 
+import { setDoc } from 'redux/actions/doc';
 import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
@@ -25,8 +26,10 @@ const Write = () => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const quillRef = useRef(null);
+  const innerHtmlRef = useRef('');
+  const lastEditorRef = useRef(null);
+  const notInitiatedRef = useRef(true);
   const params = useParams();
-  const [lastEditor, setLastEditor] = useState(null);
   const [title, setTitle] = useState('');
 
   const getRandomPastelColor = () => {
@@ -37,20 +40,15 @@ const Write = () => {
   };
 
   const editDocument = () => {
-    console.log(title);
-    eetch
-      .editDocument({
-        accessToken: user.accessToken,
-        refreshToken: user.refreshToken,
-        groundId: params.groundId,
-        type: params.type,
-        id: params.docId,
-        title,
-        content: quillRef.current.getEditor().root.innerHTML,
-      })
-      .then((res) => {
-        console.log(res);
-      });
+    eetch.editDocument({
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,
+      groundId: params.groundId,
+      type: params.type,
+      id: params.docId,
+      title,
+      content: innerHtmlRef.current,
+    });
   };
 
   const modules = useMemo(() => {
@@ -81,14 +79,6 @@ const Write = () => {
   };
 
   useEffect(() => {
-    console.log(lastEditor);
-  }, [lastEditor]);
-
-  useEffect(() => {
-    console.log(quillRef.current);
-  }, [quillRef.current]);
-
-  useEffect(() => {
     const roomName = `${params.docId || 'test'}`;
     const doc = new Y.Doc();
     const type = doc.getText('quill');
@@ -104,6 +94,12 @@ const Write = () => {
         noise,
       });
     };
+
+    const intervalId = setInterval(() => {
+      if (lastEditorRef.current === wsProvider.awareness.clientID) {
+        editDocument();
+      }
+    }, 10000); // 10초마다 실행
 
     const updateCursor = (react) => {
       const range = editor.getSelection();
@@ -149,7 +145,7 @@ const Write = () => {
       return false;
     };
 
-    const initRoom = () => {
+    const initRoom = (needData) => {
       eetch
         .detailDocument({
           accessToken: user.accessToken,
@@ -160,8 +156,8 @@ const Write = () => {
         })
         .then((res) => {
           setTitle(res.data.title);
-          quillRef.current.getEditor().root.innerHTML = res.data.content;
-          setTitle('test');
+          dispatch(setDoc({ docTitle: res.data.title }));
+          if (needData) quillRef.current.getEditor().root.innerHTML = res.data.content;
         })
         .catch((err) => {
           if (err.message === 'RefreshTokenExpired') {
@@ -175,12 +171,14 @@ const Write = () => {
 
     editor.on('selection-change', () => {
       updateCursor();
-      setLastEditor(wsProvider.awareness.clientID);
+      lastEditorRef.current = wsProvider.awareness.clientID;
     });
+
     editor.on('text-change', (delta, olddelta, source) => {
+      innerHtmlRef.current = quillRef.current.getEditor().root.innerHTML;
       if (source === 'user') {
         updateCursor();
-        setLastEditor(wsProvider.awareness.clientID);
+        lastEditorRef.current = wsProvider.awareness.clientID;
       }
     });
 
@@ -189,7 +187,7 @@ const Write = () => {
     };
 
     wsProvider.on('status', (event) => {
-      if (event.status === 'connected') {
+      if (event.status === 'connected' && notInitiatedRef.current) {
         ping(0);
       }
     });
@@ -208,7 +206,12 @@ const Write = () => {
               const { user } = userState;
               if (user.ping) {
                 if (user.noise < 3) ping(user.noise + 1);
-                if (user.noise === 3 && [...users.keys()].length === 1) initRoom();
+                if (user.noise === 3 && notInitiatedRef.current) {
+                  ping(4);
+                  initRoom([...users.keys()].length === 1);
+                  notInitiatedRef.current = false;
+                }
+
                 return;
               }
 
@@ -234,7 +237,7 @@ const Write = () => {
               const cursorPosition = editor.getBounds(user.cursor);
               if (!user.react) {
                 cursorElement.style.left = cursorPosition.left + 'px';
-                setLastEditor(id);
+                lastEditorRef.current = id;
               }
 
               cursorElement.style.top = cursorPosition.top + 'px';
@@ -256,6 +259,8 @@ const Write = () => {
     const binding = new QuillBinding(type, editor, wsProvider.awareness);
 
     return () => {
+      editDocument();
+      clearInterval(intervalId);
       binding.destroy();
       wsProvider.disconnect();
     };
@@ -263,17 +268,6 @@ const Write = () => {
 
   return (
     <>
-      {/* <h1>docType : {docType}</h1>
-      <button type="button" onClick={() => setDocType(0)}>
-        이슈
-      </button>
-      <button type="button" onClick={() => setDocType(1)}>
-        요청
-      </button>
-      <button type="button" onClick={() => setDocType(2)}>
-        일반
-      </button> */}
-
       <s.EditorWrapper>
         <ReactQuill ref={quillRef} modules={modules} placeholder="내용을 입력해주세요." />
       </s.EditorWrapper>
@@ -281,15 +275,6 @@ const Write = () => {
       <s.InsertBottom onClick={insertBottom}>
         <AddIcon />
       </s.InsertBottom>
-
-      <div
-        onClick={() => {
-          // quillRef.current.getEditor().root.innerHTML = '<p>초기화된텍스트</p>';
-          editDocument();
-        }}
-      >
-        button?
-      </div>
     </>
   );
 };

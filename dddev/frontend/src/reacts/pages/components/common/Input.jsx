@@ -2,18 +2,29 @@ import { useState, useEffect } from 'react';
 
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 import * as s from 'reacts/styles/components/common/Input';
-// label = 이름, data='텍스트용 데이터', array='배열용 데이터', message= '하단 메시지'
-const Input = ({ label, data = '', holder, setData, array, fixed, click, enter, message, debounce }) => {
-  const [value, setValue] = useState(data === null ? '' : data);
-  const [isData, setIsData] = useState(true); // [TODO] [REFACTORING
+const Input = ({ label, holder, dataRef, array, fixed, click, enter, message, debounce }) => {
+  const [value, setValue] = useState(dataRef.current ? dataRef.current : '');
   const [placeholder, setPlaceholder] = useState(holder || '');
   const [isActive, setIsActive] = useState(false);
   const [timer, setTimer] = useState(null);
 
+  useEffect(() => {
+    setValue(dataRef.current ? dataRef.current : '');
+  }, [dataRef.current]);
+
   const onChangeHandler = (e) => {
-    if (debounce) clearTimeout(timer);
     setValue(e.target.value);
-    if (setData) setData(e.target.value);
+    if (dataRef) dataRef.current = e.target.value;
+
+    if (debounce) {
+      setTimer(
+        setTimeout(() => {
+          debounce();
+        }, 500),
+      );
+    }
+
+    if (debounce) clearTimeout(timer);
   };
 
   const keyDownHandler = (e) => {
@@ -29,23 +40,6 @@ const Input = ({ label, data = '', holder, setData, array, fixed, click, enter, 
   const removeCategory = (i) => {
     return array.filter((item) => item !== i);
   };
-
-  useEffect(() => {
-    if (isData && data) {
-      setValue(data);
-      setIsData(false);
-    }
-  }, [data, isData]);
-
-  useEffect(() => {
-    if (debounce && value !== '') {
-      setTimer(
-        setTimeout(() => {
-          debounce();
-        }, 2000),
-      );
-    }
-  }, [value]);
 
   const handleFocus = () => {
     setIsActive(true);

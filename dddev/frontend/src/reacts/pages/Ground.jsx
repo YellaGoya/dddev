@@ -7,7 +7,7 @@ import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 import { updateUser } from 'redux/actions/user';
 
-import Select from 'reacts/pages/components/common/Select';
+import SelectTransparent from 'reacts/pages/components/common/SelectTransparent';
 
 import AddHomeIcon from '@mui/icons-material/AddHome';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -59,7 +59,7 @@ const GroundInit = () => {
       {repositories.length > 0 ? (
         <>
           <s.Title>새로운 그라운드 생성</s.Title>
-          <Select label="리포지터리" list={repositories} select={setRepository} />
+          <SelectTransparent label="리포터리" list={repositories} select={setRepository} />
           <s.TextButton onClick={createGround}>
             시작하기
             <AddHomeIcon />
