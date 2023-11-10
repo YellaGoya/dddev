@@ -36,8 +36,8 @@ public class ChatService {
     private final ElasticsearchOperations elasticsearchOperations;
     
     //CHAT GPT에 일반 질문
-    public String chatGpt(String group_id, String prompt){
-        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(group_id));
+    public String chatGpt(String ground_id, String prompt){
+        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(ground_id));
         if (!indexOperations.exists()) {
             throw new ElasticSearchException.NoIndexException("해당 인덱스가 없습니다.");
         }
@@ -53,8 +53,8 @@ public class ChatService {
     }
 
     //CHAT GPT에 로그 관련 질문
-    public String chatGptLog(String group_id, String prompt){
-        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(group_id));
+    public String chatGptLog(String ground_id, String prompt){
+        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(ground_id));
         if (!indexOperations.exists()) {
             throw new ElasticSearchException.NoIndexException("해당 인덱스가 없습니다.");
         }

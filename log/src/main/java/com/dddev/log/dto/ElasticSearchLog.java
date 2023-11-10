@@ -9,7 +9,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
 
-@Document(indexName = "group_id")
+@Document(indexName = "ground_id")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

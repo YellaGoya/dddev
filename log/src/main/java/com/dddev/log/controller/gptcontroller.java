@@ -32,13 +32,13 @@ public class gptcontroller {
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("")
-    public ResponseEntity<?> chat(@RequestHeader String group_id, @RequestBody ChatGptReq chatGptReq) {
+    public ResponseEntity<?> chat(@RequestHeader String ground_id, @RequestBody ChatGptReq chatGptReq) {
             if (chatGptReq.getQuestion().equals("")) {
                 throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
             }
             try {
                 String result = "일반 질문 분석 완료!";
-                String response = chatService.chatGpt(group_id, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
+                String response = chatService.chatGpt(ground_id, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
                 return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                         result, response));
             }catch (ElasticSearchException e){
@@ -56,17 +56,17 @@ public class gptcontroller {
     //사용자가 로그를 입력해서 chat gpt가 자동으로 분석하는 API
     @ApiOperation(value = "사용자가 로그를 입력해서 chat gpt가 자동으로 분석하는 API // 로그 프롬프터 적용")
     @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
+            value = {@ApiResponse(code = 401, message = "header의 ground_id가 존재하지 않을 때"),
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("/analyze")
-    public ResponseEntity<?> analzeLog(@RequestHeader String group_id, @RequestBody ChatGptReq chatGptReq) {
+    public ResponseEntity<?> analzeLog(@RequestHeader String ground_id, @RequestBody ChatGptReq chatGptReq) {
         if (chatGptReq.getQuestion().equals("")) {
             throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
         }
         try{
             String result = "사용자 로그 분석 완료!";
-            String response = chatService.chatGptLog(group_id, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
+            String response = chatService.chatGptLog(ground_id, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (ElasticSearchException e){
@@ -88,10 +88,10 @@ public class gptcontroller {
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/analyze")
-    public ResponseEntity<?> analyzeLogAuto(@RequestHeader String group_id) {
+    public ResponseEntity<?> analyzeLogAuto(@RequestHeader String ground_id) {
         try{
             String result = "최근 로그를 불러 분석 완료";
-            String response = chatService.chatGptLogAuto(group_id).trim().replaceAll("\n", "");
+            String response = chatService.chatGptLogAuto(ground_id).trim().replaceAll("\n", "");
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (ElasticSearchException e){

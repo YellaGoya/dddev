@@ -120,12 +120,12 @@ public class ElasticSearchLogService {
     }
 
     //인덱스 삭제
-    public void deleteIndex(String group_id) {
-        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(group_id));
+    public void deleteIndex(String ground_id) {
+        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(ground_id));
         if (!indexOperations.exists()) {
             throw new ElasticSearchException.NoIndexException("해당 인덱스가 없습니다.");
         }
-        elasticsearchOperations.indexOps(IndexCoordinates.of(group_id)).delete();
+        elasticsearchOperations.indexOps(IndexCoordinates.of(ground_id)).delete();
     }
 
     //시간대별로 가져오기
