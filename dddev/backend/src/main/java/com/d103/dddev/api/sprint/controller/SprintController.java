@@ -1,7 +1,7 @@
 package com.d103.dddev.api.sprint.controller;
 
+
 import com.d103.dddev.api.common.ResponseDto;
-import com.d103.dddev.api.sprint.controller.error.ErrorResponse;
 import com.d103.dddev.api.sprint.repository.dto.SprintUpdateDto;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.service.SprintService;
@@ -21,13 +21,8 @@ public class SprintController {
     private final SprintService sprintService;
 
     @PostMapping
-    @ApiOperation(value = "스프린트 생성", notes = "스프린트 생성하는 API", response = ResponseDto.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 4000, message = "메시지", response = ErrorResponse.class, examples = @Example(value = {
-                    @ExampleProperty(mediaType = "application/json", value = "{\"status\":\"200\", \"message\":\"나와라\"}")
-            }))
-    })
-    public ResponseEntity<?> createSprint(@PathVariable("groundId") int groundId,
+    @ApiOperation(value = "스프린트 생성", notes = "스프린트 생성하는 API")
+    public ResponseEntity<ResponseDto<SprintEntity>> createSprint(@PathVariable("groundId") int groundId,
                                           @RequestHeader String Authorization){
         ResponseDto<SprintEntity> responseDto;
         try{
@@ -50,13 +45,13 @@ public class SprintController {
     // groundId로 거기에 속하는 sprint들 다 들고오기
     @GetMapping
     @ApiOperation(value = "그라운드 소속 모든 sprint 불러오기")
-    public ResponseEntity<?> loadSprintList(@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<List<SprintEntity>>> loadSprintList(@PathVariable("groundId") int groundId,
                                             @RequestHeader String Authorization){
-        ResponseDto<List> responseDto;
+        ResponseDto<List<SprintEntity>> responseDto;
 
         try{
             List<SprintEntity> sprintList = sprintService.loadSprintList(groundId);
-            responseDto = ResponseDto.<List>builder()
+            responseDto = ResponseDto.<List<SprintEntity>>builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트를 불러왔습니다.")
                     .data(sprintList)
@@ -64,7 +59,7 @@ public class SprintController {
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }
         catch(Exception e){
-            responseDto = ResponseDto.<List>builder()
+            responseDto = ResponseDto.<List<SprintEntity>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -73,20 +68,20 @@ public class SprintController {
     }
     @DeleteMapping("/{sprintId}")
     @ApiOperation(value = "스프린트 삭제하기")
-    public ResponseEntity<?> deleteSprint(@PathVariable("sprintId") int sprintId,
+    public ResponseEntity<ResponseDto<Void>> deleteSprint(@PathVariable("sprintId") int sprintId,
                                           @RequestHeader String Authorization){
-        ResponseDto<Object> responseDto;
+        ResponseDto<Void> responseDto;
 
         try{
             sprintService.deleteSprint(sprintId);
-            responseDto = ResponseDto.builder()
+            responseDto = ResponseDto.<Void>builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트를 삭제했습니다.")
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }
         catch(Exception e){
-            responseDto = ResponseDto.builder()
+            responseDto = ResponseDto.<Void>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -95,7 +90,7 @@ public class SprintController {
     }
     @PutMapping("/{sprintId}")
     @ApiOperation(value = "스프린트 수정하기")
-    public ResponseEntity<?> updateSprint(@PathVariable("sprintId") int sprintId, @RequestBody SprintUpdateDto sprintUpdateDto,
+    public ResponseEntity<ResponseDto<SprintEntity>> updateSprint(@PathVariable("sprintId") int sprintId, @RequestBody SprintUpdateDto sprintUpdateDto,
                                           @RequestHeader String Authorization){
         ResponseDto<SprintEntity> responseDto;
 
@@ -119,20 +114,20 @@ public class SprintController {
     // 스프린트 시작버튼을 눌렀을 때
     @PutMapping("/{sprintId}/start")
     @ApiOperation(value = "스프린트 시작하기")
-    public ResponseEntity<?> startSprint(@PathVariable("sprintId") int sprintId,
+    public ResponseEntity<ResponseDto<Void>> startSprint(@PathVariable("sprintId") int sprintId,
                                          @RequestHeader String Authorization){
-        ResponseDto<Object> responseDto;
+        ResponseDto<Void> responseDto;
 
         try{
             sprintService.startSprint(sprintId);
-            responseDto = ResponseDto.builder()
+            responseDto = ResponseDto.<Void>builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트를 시작했습니다.")
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }
         catch(Exception e){
-            responseDto = ResponseDto.builder()
+            responseDto = ResponseDto.<Void>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -143,20 +138,20 @@ public class SprintController {
     // 스프린트 완료버튼을 눌렀을 때
     @PutMapping("/{sprintId}/complete")
     @ApiOperation(value = "스프린트 완료하기")
-    public ResponseEntity<?> completeSprint(@PathVariable("sprintId") int sprintId,
+    public ResponseEntity<ResponseDto<Void>> completeSprint(@PathVariable("sprintId") int sprintId,
                                             @RequestHeader String Authorization){
-        ResponseDto<Object> responseDto;
+        ResponseDto<Void> responseDto;
 
         try{
             sprintService.completeSprint(sprintId);
-            responseDto = ResponseDto.builder()
+            responseDto = ResponseDto.<Void>builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트를 완료헀습니다.")
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }
         catch(Exception e){
-            responseDto = ResponseDto.builder()
+            responseDto = ResponseDto.<Void>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();

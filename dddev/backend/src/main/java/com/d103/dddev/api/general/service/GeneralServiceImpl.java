@@ -7,6 +7,7 @@ import com.d103.dddev.api.general.repository.dto.requestDto.*;
 import com.d103.dddev.api.general.repository.dto.responseDto.GeneralResponseDto;
 import com.d103.dddev.api.request.collection.Request;
 import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
+import com.d103.dddev.common.exception.document.DocumentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,7 +30,7 @@ public class GeneralServiceImpl implements GeneralService{
     private final DocumentServiceImpl documentService;
 
     @Override
-    public General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException{
+    public General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto, UserDetails userDetails) throws Exception{
         General insertGeneral = new General(); // DB에 저장될 문서
         General parent; // 저장될 문서의 부모
 
@@ -61,7 +62,7 @@ public class GeneralServiceImpl implements GeneralService{
                 throw new TransactionException("문서 저장에 실패했습니다.");
             }
 
-            parent = generalRepository.findById(generalInsertOneDto.getParentId()).orElseThrow(()->new NoSuchElementException("부모 문서를 찾을 수 없습니다."));
+            parent = generalRepository.findById(generalInsertOneDto.getParentId()).orElseThrow(()->new DocumentNotFoundException("부모 문서를 찾을 수 없습니다."));
             List<General> children = parent.getChildren();
             if(children == null){
                 children = new ArrayList<>();
@@ -101,8 +102,8 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General getGeneral(int groundId, String generalId) {
-        return generalRepository.findById(generalId).orElseThrow(()-> new NoSuchElementException("해당 문서가 존재하지 않습니다."));
+    public General getGeneral(int groundId, String generalId) throws Exception{
+        return generalRepository.findById(generalId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다."));
     }
 
     @Override
@@ -122,8 +123,8 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails) {
-        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("해당 문서를 불러오는데 실패했습니다."));
+    public General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails) throws Exception{
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
         loadGeneral.setTitle(generalUpdateDto.getTitle());
         loadGeneral.setContent(generalUpdateDto.getContent());
@@ -137,7 +138,7 @@ public class GeneralServiceImpl implements GeneralService{
         // step1 문서가 아니라면 부모를 찾아서 업데이트해줘야한다.
         if(step != 1){
             String parentId = loadGeneral.getParentId();
-            General parent = generalRepository.findById(parentId).orElseThrow(()->new NoSuchElementException("부모 문서를 불러오는데 실패했습니다."));
+            General parent = generalRepository.findById(parentId).orElseThrow(()->new DocumentNotFoundException("부모 문서를 불러오는데 실패했습니다."));
             List<General> children = parent.getChildren();
             ListIterator<General> iterator = children.listIterator();
             while (iterator.hasNext()) {
@@ -158,15 +159,15 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws InvalidAttributeValueException{
-        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
+    public General moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws Exception{
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
         if(loadGeneral.getStep() == 1){
             throw new InvalidAttributeValueException("움직일 수 없는 문서입니다.");
         }
         String originParentId = loadGeneral.getParentId();
-        General originParent = generalRepository.findById(originParentId).orElseThrow(()->new NoSuchElementException("잘못된 부모 아이디입니다."));
+        General originParent = generalRepository.findById(originParentId).orElseThrow(()->new DocumentNotFoundException("잘못된 부모 아이디입니다."));
         String newParentId = GeneralMoveDto.getParentId();
-        General newParent = generalRepository.findById(newParentId).orElseThrow(()->new NoSuchElementException("잘못된 부모 아이디입니다."));
+        General newParent = generalRepository.findById(newParentId).orElseThrow(()->new DocumentNotFoundException("잘못된 부모 아이디입니다."));
 
         // 원래 부모문서에서 자기 지우기
         List<General> originChildren = originParent.getChildren();
@@ -193,35 +194,39 @@ public class GeneralServiceImpl implements GeneralService{
 
 
     @Override
-    public void deleteGeneral(int groundId, String generalId) throws InvalidAttributeValueException, TransactionException{
-        General unclassifiedGeneral = generalRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()->new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
-        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("해당 문서를 가지고 오는데 실패했습니다."));
+    public void deleteGeneral(int groundId, String generalId) throws Exception{
+        General unclassifiedGeneral = generalRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()->new DocumentNotFoundException("미분류 문서를 찾을 수 없습니다."));
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 가지고 오는데 실패했습니다."));
         if(unclassifiedGeneral.getId().equals(loadGeneral.getId())) throw new InvalidAttributeValueException("미분류 문서를 삭제할 수 없습니다.");
         int step = loadGeneral.getStep();
         // step1인 문서가 삭제되었을 때
         if(step == 1){
+            // 자식문서들의 parent를 미분류 문서로 바꾼다.
             List<General> children = generalRepository.findByParentId(generalId).orElseThrow(()->new TransactionException("자식문서들을 들고 오는데 실패했습니다."));
             ListIterator<General> iterator = children.listIterator();
             while(iterator.hasNext()){
                 General child = iterator.next();
                 child.setParentId(unclassifiedGeneral.getId());
             }
+            // 미분류 문서에 자식들을 넣는다.
+            unclassifiedGeneral.setChildren(children);
             try{
                 generalRepository.saveAll(children);
+                generalRepository.save(unclassifiedGeneral);
             }catch(Exception e){
                 throw new TransactionException("문서들을 저장하는데 실패했습니다.");
             }
         }
         else{
-            // 부모를 업데이트한다.
+            // 부모문서에서 자식문서를 제거한다.
             String parentId = loadGeneral.getParentId();
-            General parent = generalRepository.findById(parentId).orElseThrow(()-> new TransactionException("문서를 불러오는데 실패했습니다."));
+            General parent = generalRepository.findById(parentId).orElseThrow(()-> new DocumentNotFoundException("부모 문서를 찾을 수 없습니다."));
             List<General> children = parent.getChildren();
             children.removeIf((child) -> (child.getId().equals(generalId)));
             parent.setChildren(children);
             try{
                 generalRepository.save(parent);
-            }catch(Exception e){
+            }catch(Exception e) {
                 throw new TransactionException("부모를 저장하는데 실패했습니다.");
             }
         }
@@ -236,8 +241,8 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) {
-        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new NoSuchElementException("해당 문서를 불러오는데 실패했습니다."));
+    public General titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) throws Exception{
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
         loadGeneral.setTitle(generalTitleDto.getTitle());
         try{
@@ -248,7 +253,7 @@ public class GeneralServiceImpl implements GeneralService{
         // step1 문서가 아니라면 부모를 찾아서 업데이트해줘야한다.
         if(step != 1){
             String parentId = loadGeneral.getParentId();
-            General parent = generalRepository.findById(parentId).orElseThrow(()->new NoSuchElementException("부모 문서를 불러오는데 실패했습니다."));
+            General parent = generalRepository.findById(parentId).orElseThrow(()->new DocumentNotFoundException("부모 문서를 불러오는데 실패했습니다."));
             List<General> children = parent.getChildren();
             ListIterator<General> iterator = children.listIterator();
             while (iterator.hasNext()) {
