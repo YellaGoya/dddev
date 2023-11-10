@@ -46,6 +46,7 @@ eetch.createAlert = (values) => test.createAlert(values);
 eetch.updateAlert = (values) => test.updateAlert(values);
 eetch.deleteAlert = (values) => test.deleteAlert(values);
 eetch.userGroundsExample = (values) => test.userGroundsExample(values);
+eetch.groundUsersExample = (values) => test.groundUsersExample(values);
 
 eetch.githubSync = (values) => user.githubSync(values);
 eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);

@@ -3,77 +3,52 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import requestPermission from 'fcm/firebase-messaging.js';
 import { db } from 'fcm/firebaseConfig';
+// import eetch from 'eetch/eetch';
 
 const AlertData = () => {
   const user = useSelector((state) => state.user);
+  // const ground = useSelector((state) => state.ground);
   const [docs, setDocs] = useState([{}]);
-
-  // const messages = [
-  //   { id: 3, content: 'test', title: 'test', show: true },
-  //   { id: 4, content: 'test', title: 'test', show: false },
-  //   { id: 5, content: 'test', title: 'test', show: true },
-  //   { id: 6, content: 'test', title: 'test', show: false },
-  // ];
+  // const [groundUsers, setGroundUsers] = useState([{}]);
 
   useEffect(() => {
     if (user.isLoggedIn) requestPermission({ accessToken: user.accessToken, refreshToken: user.refreshToken });
 
-    // collection.get().then((res) => {
-    //   // console.log('firestore res :: ', res);
-    //   const arr = [];
-    //   res.forEach((doc) => {
-    //     arr.push(doc.data());
-    //   });
-    //   setDocs(arr);
-    // });
+    // firebase 알림 내역 조회
+    // where은 조건
+    // const collection = db.collection('AlertData').where('receiverId', '==', `${user.githubId}`);
+    const collection = db.collection('AlertData');
 
-    const collection = db.collection('AlertData').where('alertType', '==', 'pull_request');
-
+    // firestore 실시간 동기화, collection에 문서 변경 발생 시 실행
     collection.onSnapshot(
       (snapshot) => {
         const arr = [];
-        // console.log(`new alert data!! ${snapshot.docs}`);
-        console.log(`Received query snapshot of size ${snapshot.size}`);
+        // console.log(`Received query snapshot of size ${snapshot.size}`);
         snapshot.forEach((doc) => {
-          // console.log(doc.data());
           arr.push(doc.data());
         });
         setDocs(arr);
-        // console.log(docs);
       },
       (err) => {
         console.log(`snapshot error: ${err}`);
       },
     );
-  }, []);
 
-  // useEffect(() => {
-  //   eetch
-  //     .gayeonTest({ accessToken: user.accessToken, refreshToken: user.refreshToken, value: messages })
-  //     .then((res) => {
-  //       console.log(res.data);
-  //     })
-  //     .catch((err) => {
-  //       if (err.message === 'gayeonNotGood') console.log(err);
-  //     });
-  // }, []);
+    console.log(`github id :: ${user.githubId}`);
+  }, []);
 
   return (
     <>
-      {/* <div>{messages[0].id}</div> */}
-      {/* {messages.map((message) => {
-        return message.show ? <div key={message.id}>{message.id}</div> : null;
-      })} */}
       {docs.map((doc) => {
         return (
           <div key={doc.id}>
-            {doc.alertType}
+            {/* {doc.alertType}
             {doc.title}
             {doc.content}
-            {doc.creatorId}
-            {doc.receiverId}
             {doc.sendingDate}
             {doc.isSuccess}
+            {doc.url} */}
+            {doc.name}
           </div>
         );
       })}

@@ -109,3 +109,18 @@ export const userGroundsExample = async ({ accessToken, refreshToken }) => {
 
   return res.json();
 };
+
+export const groundUsersExample = async ({ accessToken, refreshToken, groundId }) => {
+  const url = base + `/ground/${groundId}/users`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};

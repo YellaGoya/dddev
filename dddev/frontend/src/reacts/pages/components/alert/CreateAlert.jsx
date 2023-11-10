@@ -7,28 +7,24 @@ import eetch from 'eetch/eetch';
 
 const CreateAlert = () => {
   const user = useSelector((state) => state.user);
-  // const [keywordMessage, setKeywordMessage] = useState({fail: false, text: ''});
+  const groundsMap = useSelector((state) => state.user.groundsMap);
   const [type, setType] = useState(null);
-  const [grounds, setGrounds] = useState([]);
   const [ground, setGround] = useState(null);
   const [keywords, setKeywords] = useState([]);
+  const [types, setTypes] = useState([{}]);
+
+  useEffect(() => {}, [user.accessToken, user.refreshToken]);
 
   useEffect(() => {
-    eetch
-      .userGroundsExample({ accessToken: user.accessToken, refreshToken: user.refreshToken })
-      .then((res) => {
-        // console.log(res.data);
-        setGrounds(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [user.accessToken, user.refreshToken]);
-
-  useEffect(() => {
+    const list = [
+      { id: 0, name: 'push' },
+      { id: 1, name: 'pull_request' },
+    ];
+    setTypes(list);
     console.log(keywords);
   }, [keywords]);
 
+  // 알림 생성 api 호출
   const submitAlert = () => {
     console.log(ground);
     eetch.createAlert({ accessToken: user.accessToken, refreshToken: user.refreshToken, repoId: 0, keyword: keywords, type }).catch((err) => {
@@ -38,12 +34,12 @@ const CreateAlert = () => {
 
   return (
     <div>
-      <Select label="ground" list={grounds} select={setGround} />
-      <Select label="type" list={['push', 'pull_request']} select={setType} />
+      <Select label="ground" list={groundsMap} data="ground" select={setGround} />
+      <Select label="type" list={types} data="type" select={setType} />
+      <Input label="키워드" array={keywords} enter={setKeywords} />
       <div type="button" onClick={submitAlert}>
         추가
       </div>
-      <Input label="테스트용" array={keywords} enter={setKeywords} />
     </div>
   );
 };
