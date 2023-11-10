@@ -19,7 +19,7 @@ import { messaging } from './firebaseConfig';
 // const app = firebaseAppEx;
 // const messaging = getMessaging(app);
 
-// const url = `https://k9d103.p.ssafy.io/user/device-token`;
+// const url = `https://k9d103.p.ssafy.io:8000/user/device-token`;
 //   const options = {
 //     method: 'POST',
 //     headers: {

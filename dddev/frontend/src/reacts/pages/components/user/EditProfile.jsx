@@ -174,7 +174,7 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
             <s.EditImageWrapper ref={sizeRef}>
               <s.ProfileImage
                 ref={imageRef}
-                src={userInfo.profileDto ? `https://k9d103.p.ssafy.io/img/user/${userInfo.profileDto.fileName}` : userStockImage}
+                src={userInfo.profileDto ? `https://k9d103.p.ssafy.io:8000/img/user/${userInfo.profileDto.fileName}` : userStockImage}
               />
               <s.ImageButton onClick={handleFileSelect}>
                 <PhotoFilterIcon />

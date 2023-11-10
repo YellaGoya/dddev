@@ -130,7 +130,7 @@ const Topbar = () => {
         ) : null}
       </s.PositionWrapper>
       <s.PorfileButtonWrapper onClick={() => dispatch(setMessage(!messageToggle))}>
-        <s.ProfileImage src={userInfo.profileDto ? `https://k9d103.p.ssafy.io/img/user/${userInfo.profileDto.fileName}` : userStockImage} />
+        <s.ProfileImage src={userInfo.profileDto ? `https://k9d103.p.ssafy.io:8000/img/user/${userInfo.profileDto.fileName}` : userStockImage} />
         <ReviewsRoundedIcon />
       </s.PorfileButtonWrapper>
       <Message messageToggle={messageToggle} editToggle={editToggle} setEditToggle={setEditToggle} userInfo={userInfo} setUserInfo={setUserInfo} />
