@@ -23,33 +23,36 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  const patRef = useRef('');
-  const nicknameRef = useRef(userInfo.nickname);
-  const statusRef = useRef(userInfo.statusMsg);
+  const [pat, setPat] = useState('');
+  const [nickname, setNickname] = useState(userInfo.nickname);
+  const [statusMsg, setStatusMsg] = useState(userInfo.statusMsg);
   const [imgMessage, setImgMessage] = useState('');
   const [patMessage, setPatMessage] = useState({ fail: false, text: '' });
-  const [nicknameMessage, setNicknameMessage] = useState({ fail: false, text: '' });
   const hiddenFileInput = useRef(null);
 
   const imageRef = useRef(null);
   const sizeRef = useRef(null);
 
-  const nicknameCheck = () => {
-    if (nicknameRef.current.length < 2 || nicknameRef.current.length > 10) {
-      setNicknameMessage({ fail: true, text: '* 2자 이상 10자 이하로 입력해주세요.' });
-    } else if (nicknameRef.current.match(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/)) {
-      setNicknameMessage({ fail: true, text: '* 한글, 영문, 숫자만 입력 가능합니다.' });
-    } else {
-      eetch
-        .userNickname({ accessToken: user.accessToken, refreshToken: user.refreshToken, nickname: nicknameRef.current })
-        .then((res) => {
-          if (res.data) setNicknameMessage({ fail: false, text: '* 사용 가능한 닉네임입니다.' });
-          else setNicknameMessage({ fail: true, text: '* 이미 존재하는 닉네임입니다.' });
-        })
-        .catch(() => {
-          setNicknameMessage({ fail: true, text: '* 사용 불가능한 닉네임입니다.' });
-        });
+  const nicknameValid = (data, set) => {
+    if (data.length < 2 || data.length > 10) {
+      set({ fail: true, text: '* 2자 이상 10자 이하로 입력해주세요.' });
+      return;
     }
+
+    if (data.match(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/)) {
+      set({ fail: true, text: '* 한글, 영문, 숫자만 입력 가능합니다.' });
+      return;
+    }
+
+    eetch
+      .userNickname({ accessToken: user.accessToken, refreshToken: user.refreshToken, nickname: data })
+      .then((res) => {
+        if (res.data) set({ fail: false, text: '* 사용 가능한 닉네임입니다.' });
+        else set({ fail: true, text: '* 이미 존재하는 닉네임입니다.' });
+      })
+      .catch(() => {
+        set({ fail: true, text: '* 사용 불가능한 닉네임입니다.' });
+      });
   };
 
   const handleFileSelect = () => {
@@ -91,29 +94,31 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
     }
   };
 
+  useEffect(() => {
+    console.log(patMessage);
+  }, [patMessage]);
+
   const submitPat = () => {
     eetch
-      .githubTokenRegist({ accessToken: user.accessToken, refreshToken: user.refreshToken, personalAccessToken: patRef.current })
+      .githubTokenRegist({ accessToken: user.accessToken, refreshToken: user.refreshToken, personalAccessToken: pat })
       .then(() => {
-        setPatMessage('통과');
+        setPatMessage({ fail: false, text: '* 등록 완료' });
       })
       .catch(() => {
-        setPatMessage('틀려먹음');
+        setPatMessage({ fail: true, text: '* 등록 실패' });
       });
   };
 
   const submitChange = () => {
-    eetch
-      .userEdit({ accessToken: user.accessToken, refreshToken: user.refreshToken, nickname: nicknameRef.current, statusMsg: statusRef.current })
-      .catch((err) => {
-        deleteImage();
-        if (err.message === 'RefreshTokenExpired') {
-          dispatch(logoutUser());
-          dispatch(setMenu(false));
-          dispatch(setMessage(false));
-          navigate(`/login`);
-        }
-      });
+    eetch.userEdit({ accessToken: user.accessToken, refreshToken: user.refreshToken, nickname, statusMsg }).catch((err) => {
+      deleteImage();
+      if (err.message === 'RefreshTokenExpired') {
+        dispatch(logoutUser());
+        dispatch(setMenu(false));
+        dispatch(setMessage(false));
+        navigate(`/login`);
+      }
+    });
   };
 
   const deleteImage = () => {
@@ -174,7 +179,7 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
             <s.EditImageWrapper ref={sizeRef}>
               <s.ProfileImage
                 ref={imageRef}
-                src={userInfo.profileDto ? `https://k9d103.p.ssafy.io:8000/img/user/${userInfo.profileDto.fileName}` : userStockImage}
+                src={userInfo.profileDto ? `https://k9d103.p.ssafy.io/img/user/${userInfo.profileDto.fileName}` : userStockImage}
               />
               <s.ImageButton onClick={handleFileSelect}>
                 <PhotoFilterIcon />
@@ -189,16 +194,17 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
           <Input
             label="깃헙 엑세스 토큰 변경"
             holder={userInfo.personalAccessToken && userInfo.personalAccessToken.substr(0, 10).concat(' ···')}
-            dataRef={patRef}
+            data={pat}
+            setData={setPat}
             enter={submitPat}
             click={submitPat}
             message={patMessage}
           />
-          <Input label="닉네임" dataRef={nicknameRef} message={nicknameMessage} debounce={nicknameCheck} />
-          <Input label="상태 메시지" dataRef={statusRef} />
+          <Input label="닉네임" data={nickname} setData={setNickname} valid={nicknameValid} />
+          <Input label="상태 메시지" data={statusMsg} setData={setStatusMsg} />
           <s.DivLine />
           <Select label="알림 대상" list={testDummy} />
-          <Input label="상태 메시지" dataRef={statusRef} />
+          {/* <Input label="상태 메시지" dataRef={statusRef} /> */}
 
           <s.ButtonWrapper>
             <s.ProfileEditButton type="button" onClick={submitChange}>

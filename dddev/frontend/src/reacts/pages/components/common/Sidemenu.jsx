@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import eetch from 'eetch/eetch';
 
 import { updateUser } from 'redux/actions/user';
 import { setMenu } from 'redux/actions/menu';
@@ -25,11 +24,9 @@ import * as s from 'reacts/styles/components/common/Sidemenu';
 const Sidemenu = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.user);
   const menuToggle = useSelector((state) => state.menu.menuToggle);
   const groundId = useSelector((state) => state.user.lastGround);
   const groundsMap = useSelector((state) => state.user.groundsMap);
-  const [groundInfo, setGroundInfo] = useState({});
   const [groundListToggle, setGroundListToggle] = useState(false);
   const [settingToggle, setSettingToggle] = useState(false);
 
@@ -52,23 +49,6 @@ const Sidemenu = () => {
   useEffect(() => {
     if (!menuToggle) setGroundListToggle(false);
   }, [menuToggle]);
-
-  useEffect(() => {
-    if (user.isLoggedIn && user.lastGround)
-      eetch
-        .getGround({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: user.lastGround })
-        .then((res) => {
-          setGroundInfo({ name: res.data.name, focusTime: res.data.focusTime, activeTime: res.data.activeTime });
-        })
-        .catch((err) => {
-          if (err.message === 'RefreshTokenExpired') {
-            dispatch(logoutUser());
-            dispatch(setMenu(false));
-            dispatch(setMessage(false));
-            navigate(`/login`);
-          }
-        });
-  }, [user.accessToken, groundListToggle]);
 
   return (
     <s.SidemenuWrapper $menuToggle={menuToggle}>
@@ -129,7 +109,7 @@ const Sidemenu = () => {
             로그아웃
           </s.MenuButton>
         </s.BottomWrapper>
-        <EditSettings toggle={settingToggle} setToggle={setSettingToggle} groundInfo={groundInfo} setGroundInfo={setGroundInfo} />
+        <EditSettings toggle={settingToggle} setToggle={setSettingToggle} />
       </s.PositionWrapper>
     </s.SidemenuWrapper>
   );

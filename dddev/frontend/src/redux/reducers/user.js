@@ -8,6 +8,7 @@ const initialState = {
   lastGround: null,
   groundsList: [],
   groundsMap: [],
+  groundsMine: [],
   githubId: null,
 };
 
@@ -23,6 +24,7 @@ const userReducer = (state = initialState, action) => {
         lastGround: action.payload.lastGround,
         groundsList: action.payload.groundsList,
         groundsMap: action.payload.groundsMap,
+        groundsMine: action.payload.groundsMine,
         githubId: action.payload.githubId,
       };
 
@@ -38,6 +40,7 @@ const userReducer = (state = initialState, action) => {
         lastGround: action.payload.lastGround || state.lastGround,
         groundsList: action.payload.groundsList || state.groundsList,
         groundsMap: action.payload.groundsMap || state.groundsMap,
+        groundsMine: action.payload.groundsMine || state.groundsMine,
         githubId: action.payload.githubId || state.githubId,
       };
 

@@ -16,7 +16,7 @@ import * as test from 'eetch/test';
 const eetch = async (url, options, refreshToken) => {
   const res = await fetch(url, options);
   if (res.status === 403) {
-    const newAccessToken = await fetch(`https://k9d103.p.ssafy.io:8000/oauth/re-issue`, {
+    const newAccessToken = await fetch(`https://k9d103.p.ssafy.io/oauth/re-issue`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -72,6 +72,11 @@ eetch.detailDocument = (values) => ground.detailDocument(values);
 eetch.editDocument = (values) => ground.editDocument(values);
 eetch.titleDocument = (values) => ground.titleDocument(values);
 eetch.deleteDocument = (values) => ground.deleteDocument(values);
+eetch.groundUsers = (values) => ground.groundUsers(values);
+eetch.groundUser = (values) => ground.groundUser(values);
+eetch.groundOwn = (values) => ground.groundOwn(values);
+eetch.groundInvite = (values) => ground.groundInvite(values);
+eetch.groundOut = (values) => ground.groundOut(values);
 
 // eetch.valid = (values) => user.valid(values);
 // eetch.refresh = (values) => user.refresh(values);

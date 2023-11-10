@@ -48,7 +48,7 @@ export const EditModalWrapper = styled.div`
   }
 
   & > :first-child {
-    margin: 30px 25px 10px 25px;
+    margin-top: 30px;
   }
 
   overflow-x: hidden;
