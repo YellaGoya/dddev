@@ -10,6 +10,7 @@ import View from 'layouts/View';
 import Login from 'reacts/pages/Login';
 import Ground from 'reacts/pages/Ground';
 import GroundCheck from 'layouts/GroundCheck';
+import Redirect from 'reacts/pages/Redirect';
 
 import Template from 'reacts/pages/Template';
 
@@ -24,7 +25,7 @@ const Routing = memo(() => {
       element: <Login />,
     },
     {
-      path: '/temp',
+      path: '/temp/*',
       element: <Template />,
     },
     {
@@ -36,6 +37,7 @@ const Routing = memo(() => {
       element: <GroundCheck />,
     },
     { path: '/newground', element: <Ground /> },
+    { path: '/redirect/:notiId', element: <Redirect /> },
   ]);
 
   const nocheck = ['/login', '/login/github'];

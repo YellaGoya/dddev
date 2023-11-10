@@ -21,12 +21,12 @@ const CreateAlert = () => {
       { id: 1, name: 'pull_request' },
     ];
     setTypes(list);
-    console.log(keywords);
+    // console.log(keywords);
   }, [keywords]);
 
   // 알림 생성 api 호출
   const submitAlert = () => {
-    console.log(ground);
+    // console.log(ground);
     eetch.createAlert({ accessToken: user.accessToken, refreshToken: user.refreshToken, repoId: 0, keyword: keywords, type }).catch((err) => {
       console.log(err);
     });

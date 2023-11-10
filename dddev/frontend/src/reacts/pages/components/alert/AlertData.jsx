@@ -34,21 +34,23 @@ const AlertData = () => {
       },
     );
 
-    console.log(`github id :: ${user.githubId}`);
+    // console.log(`github id :: ${user.githubId}`);
   }, []);
 
   return (
     <>
       {docs.map((doc) => {
         return (
-          <div key={doc.id}>
-            {/* {doc.alertType}
-            {doc.title}
-            {doc.content}
-            {doc.sendingDate}
-            {doc.isSuccess}
-            {doc.url} */}
-            {doc.name}
+          <div key={doc.sendingDate}>
+            <div>
+              {doc.alertType}
+              {doc.title}
+              {doc.content}
+              {doc.sendingDate}
+              {doc.isSuccess}
+              {doc.url}
+            </div>
+            <div>{doc.isRead}</div>
           </div>
         );
       })}
