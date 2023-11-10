@@ -37,17 +37,21 @@ public class GroundUserServiceImpl implements GroundUserService {
 	@Override
 	public List<GroundUserDto> inviteMemberToGround(Ground ground, User newMember) throws Exception {
 		log.info("service - inviteMemberToGround :: 그라운드에 사용자 초대하기 진입");
+		// 그라운드 유저 엔티티
 		GroundUser newGroundUser = GroundUser.builder()
 			.user(newMember)
 			.ground(ground)
 			.isOwner(false)
 			.build();
 
+		// 저장
 		groundUserRepository.saveAndFlush(newGroundUser);
 
+		// 그라운드 유저 리스트 조회
 		List<GroundUser> groundUserList = groundUserRepository.findByGround_Id(ground.getId());
 		List<GroundUserDto> groundUserDtoList = new ArrayList<>();
 
+		// dto로 변환
 		for(GroundUser g : groundUserList) {
 			groundUserDtoList.add(g.convertToGroundUserDto());
 		}

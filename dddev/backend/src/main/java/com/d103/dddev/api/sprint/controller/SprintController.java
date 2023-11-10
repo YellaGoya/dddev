@@ -119,7 +119,7 @@ public class SprintController {
     // 스프린트 시작버튼을 눌렀을 때
     @PutMapping("/{sprintId}/start")
     @ApiOperation(value = "스프린트 시작하기")
-    public ResponseEntity<?> startSprint(@PathVariable("sprintId") int sprintId,
+    public ResponseEntity<?> startSprint(@PathVariable("groundId") int groundId, @PathVariable("sprintId") int sprintId,
                                          @RequestHeader String Authorization){
         ResponseDto<Object> responseDto;
 

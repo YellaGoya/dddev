@@ -28,4 +28,6 @@ public class SprintEntity {
     @ManyToOne
     @JoinColumn(name="ground_id")
     private Ground ground;
+    @Column(name = "total_focus_time")
+    private Integer totalFocusTime;
 }

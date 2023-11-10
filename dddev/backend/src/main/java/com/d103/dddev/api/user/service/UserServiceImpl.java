@@ -134,7 +134,7 @@ public class UserServiceImpl implements UserService {
 		log.info("service - savePersonalAccessToken :: 사용자 personal access token 저장 진입");
 		String encrypted = encryptPersonalAccessToken(newPersonalAccessToken);
 
-		// 사용자 이메일이 저장되어 있지 않으면 pat로 email 조회해서 저장한다.
+		// pat로 email 조회해서 저장한다.
 
 		RestTemplate restTemplate = new RestTemplate();
 

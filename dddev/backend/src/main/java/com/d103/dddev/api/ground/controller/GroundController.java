@@ -1,5 +1,6 @@
 package com.d103.dddev.api.ground.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -31,6 +32,7 @@ import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.entity.User;
 import com.d103.dddev.api.user.service.UserService;
+import com.google.type.DateTime;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -349,7 +351,7 @@ public class GroundController {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
 				.message("그라운드 완료/미완료 집중시간 조회 완료!")
-				.data(groundService.getGroundFocusTime(groundId, sprintId))
+				.data(groundService.getSprintFocusTime(sprintId))
 				.build();
 
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -378,7 +380,7 @@ public class GroundController {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
 				.message("그라운드 완료/미완료 연구시간 조회 성공!")
-				.data(groundService.getGroundActiveTime(groundId, sprintId))
+				.data(groundService.getSprintActiveTime(sprintId))
 				.build();
 
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -406,7 +408,7 @@ public class GroundController {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
 				.message("그라운드 전체 완료/미완료 연구시간 조회 성공!")
-				.data(groundService.getGroundTotalTime(groundId, sprintId))
+				.data(groundService.getSprintTotalTime(sprintId))
 				.build();
 
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -435,7 +437,7 @@ public class GroundController {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
 				.message("집중시간 완료/미완료 개수 조회 성공!")
-				.data(groundService.getGroundFocusTimeCount(groundId, sprintId))
+				.data(groundService.getSprintFocusTimeCount(sprintId))
 				.build();
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
@@ -462,7 +464,7 @@ public class GroundController {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
 				.message("집중시간 완료/미완료 개수 조회 성공!")
-				.data(groundService.getGroundActiveTimeCount(groundId, sprintId))
+				.data(groundService.getSprintActiveTimeCount(sprintId))
 				.build();
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
@@ -490,7 +492,7 @@ public class GroundController {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
 				.message("집중시간 완료/미완료 개수 조회 성공!")
-				.data(groundService.getGroundTotalTimeCount(groundId, sprintId))
+				.data(groundService.getSprintTotalTimeCount(sprintId))
 				.build();
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
@@ -502,6 +504,34 @@ public class GroundController {
 			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	@GetMapping("/{groundId}/chart/burn-down/{sprintId}")
+	@ApiOperation(value = "그라운드 차트 - 번다운차트 조회", notes = "그라운드 차트 - 번다운차트를 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseDto<Map<LocalDateTime, Integer>>> getBurnDownChart(
+		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
+		HttpServletRequest request) {
+		log.info("controller - getBurnDownChart :: 번다운 차트 데이터 조회 진입");
+		ResponseDto<Map<LocalDateTime, Integer>> responseDto;
+		try {
+			responseDto = ResponseDto.<Map<LocalDateTime, Integer>>builder()
+				.code(HttpStatus.OK.value())
+				.message("번다운 차트 데이터 조회 성공!")
+				.data(groundService.getSprintBurnDownChart(sprintId))
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<Map<LocalDateTime, Integer>>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 
 	@PutMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 정보 수정", notes = "그라운드 정보를 수정하는 API")
