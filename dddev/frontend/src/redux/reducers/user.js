@@ -1,10 +1,14 @@
-import { LOGIN_USER, LOGOUT_USER, UPDATE_TOKENS } from 'redux/actions/user';
+import { LOGIN_USER, LOGOUT_USER, UPDATE_USER } from 'redux/actions/user';
 
 const initialState = {
-  isLoggedIn: true,
-  accessToken: 'test',
-  refreshToken: 'test',
-  lastGround: 'test1',
+  isLoggedIn: false,
+  accessToken: null,
+  accessExp: null,
+  refreshToken: null,
+  lastGround: null,
+  groundsList: [],
+  groundsMap: [],
+  githubId: null,
 };
 
 const userReducer = (state = initialState, action) => {
@@ -14,19 +18,27 @@ const userReducer = (state = initialState, action) => {
         ...state,
         isLoggedIn: true,
         accessToken: action.payload.accessToken,
+        accessExp: action.payload.accessExp,
         refreshToken: action.payload.refreshToken,
         lastGround: action.payload.lastGround,
+        groundsList: action.payload.groundsList,
+        groundsMap: action.payload.groundsMap,
+        githubId: action.payload.githubId,
       };
 
     case LOGOUT_USER:
       return initialState;
 
-    case UPDATE_TOKENS:
+    case UPDATE_USER:
       return {
         ...state,
         accessToken: action.payload.accessToken || state.accessToken,
+        accessExp: action.payload.accessExp || state.accessExp,
         refreshToken: action.payload.refreshToken || state.refreshToken,
         lastGround: action.payload.lastGround || state.lastGround,
+        groundsList: action.payload.groundsList || state.groundsList,
+        groundsMap: action.payload.groundsMap || state.groundsMap,
+        githubId: action.payload.githubId || state.githubId,
       };
 
     default:
