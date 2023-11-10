@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-// @Entity(name = "alert_data")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,21 +28,20 @@ import lombok.ToString;
 @ToString
 public class AlertDataEntity {
 
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private String id;
+	// @Id
+	// @GeneratedValue(strategy = GenerationType.IDENTITY)
+	// private String id;
 
 	private String title;
 	private String content;
 
-	private Set<String> keywordList;
+	private List<String> keywordList;
 
 	private List<String> changedFileList;
 
 	private List<String> commitMessageList;
 
-	private String compareUrl;	// commit compare url
-
-	private String url;	// pull request url
+	private String url;	// notification click event url
 
 	private String branch;
 
@@ -56,6 +54,10 @@ public class AlertDataEntity {
 
 	private String alertType;
 
-	private Boolean isSuccess;
+	private Boolean isRead;
+
+	// private Integer success;
+	//
+	// private Integer failure;
 
 }

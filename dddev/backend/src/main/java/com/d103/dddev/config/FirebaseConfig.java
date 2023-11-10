@@ -19,22 +19,23 @@ import com.google.firebase.FirebaseOptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-// @Configuration
+@Configuration
 @Slf4j
 @RequiredArgsConstructor
 public class FirebaseConfig {
 	// @Value("${firebase-sdk-path}")
 	// private String firebaseSdkPath = "src/main/resources/firebase-adminsdk.json";
-	// private String firebaseSdkPath = "firebase-adminsdk.json";
+	private String firebaseSdkPath = "firebase-adminsdk.json";
 
 	private final AlertDataRepo alertDataRepo;
 
 	@PostConstruct
 	public void initialize() {
 		try {
-			// ClassPathResource resource = new ClassPathResource(firebaseSdkPath);
-			// InputStream serviceAccount = resource.getInputStream();
-			FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-adminsdk.json");
+			ClassPathResource resource = new ClassPathResource(firebaseSdkPath);
+			InputStream serviceAccount = resource.getInputStream();
+			// FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-adminsdk.json");
+			// FileInputStream serviceAccount = new FileInputStream("/firebase-adminsdk.json");
 			FirebaseOptions options = FirebaseOptions.builder()
 				.setCredentials(GoogleCredentials.fromStream(serviceAccount))
 				.build();
@@ -42,11 +43,14 @@ public class FirebaseConfig {
 				FirebaseApp.initializeApp(options);
 			}
 			alertDataRepo.getFirestore();
+			log.info("Firebase :: getFirestore() success!");
 
 		} catch (FileNotFoundException e) {
 			log.error("Firebase ServiceAccountKey FileNotFoundException" + e.getMessage());
 		} catch (IOException e) {
 			log.error("FirebaseOptions IOException" + e.getMessage());
+		} catch (Exception e) {
+			log.error("Firebase PostConstruct Exception {}", e.getMessage());
 		}
 	}
 }

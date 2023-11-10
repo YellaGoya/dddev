@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.d103.dddev.api.alert.dto.AlertUserDto;
+import com.d103.dddev.api.alert.dto.AlertUserKeyword;
 import com.d103.dddev.api.alert.entity.AlertEntity;
 
 @Repository
@@ -18,7 +18,7 @@ public interface AlertRepository extends JpaRepository<AlertEntity, Integer> {
 
 
 	// 알림 구독 중인 사용자, 키워드 조회
-	List<AlertUserDto> findByRepositoryIdAndType(Integer repositoryId, String type);
+	List<AlertUserKeyword> findByRepositoryIdAndType(Integer repositoryId, String type);
 
 	List<AlertEntity> findByUser_Id(Integer id);
 
