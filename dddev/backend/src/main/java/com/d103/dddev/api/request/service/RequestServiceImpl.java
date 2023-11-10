@@ -8,6 +8,8 @@ import com.d103.dddev.api.request.repository.dto.requestDto.*;
 import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
 import com.d103.dddev.api.user.repository.UserRepository;
 import com.d103.dddev.api.user.repository.entity.User;
+import com.d103.dddev.common.exception.document.DocumentNotFoundException;
+import com.d103.dddev.common.exception.user.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +33,7 @@ public class RequestServiceImpl implements RequestService{
     private final DocumentServiceImpl documentService;
 
     @Override
-    public Request insertRequest(int groundId, RequestInsertOneDto requestInsertOneDto, UserDetails userDetails) throws InvalidAttributeValueException{
+    public Request insertRequest(int groundId, RequestInsertOneDto requestInsertOneDto, UserDetails userDetails) throws Exception{
         Request insertRequest = new Request(); // DB에 저장될 문서
         Request parent; // 저장될 문서의 부모
 
@@ -62,7 +64,7 @@ public class RequestServiceImpl implements RequestService{
                 throw new TransactionException("문서 저장에 실패했습니다.");
             }
 
-            parent = requestRepository.findById(requestInsertOneDto.getParentId()).orElseThrow(()->new NoSuchElementException("부모 문서를 찾을 수 없습니다."));
+            parent = requestRepository.findById(requestInsertOneDto.getParentId()).orElseThrow(()->new DocumentNotFoundException("부모 문서를 찾을 수 없습니다."));
             List<Request> children = parent.getChildren();
             if(children == null){
                 children = new ArrayList<>();
@@ -102,8 +104,8 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Request getRequest(int groundId, String requestId) {
-        return requestRepository.findById(requestId).orElseThrow(()-> new NoSuchElementException("해당 문서가 존재하지 않습니다."));
+    public Request getRequest(int groundId, String requestId) throws Exception{
+        return requestRepository.findById(requestId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다."));
     }
 
     @Override
@@ -127,15 +129,15 @@ public class RequestServiceImpl implements RequestService{
     public Request updateRequest(int groundId, String requestId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception{
         int sendUserId = requestUpdateDto.getSendUserId();
         int receiveUserId = requestUpdateDto.getReceiveUserId();
-        User sendUser = userRepository.findById(sendUserId).orElseThrow(()->new NoSuchElementException("유저를 불러오는데 실패했습니다."));
-        User receiveUser = userRepository.findById(receiveUserId).orElseThrow(()->new NoSuchElementException("유저를 불러오는데 실패했습니다."));
+        User sendUser = userRepository.findById(sendUserId).orElseThrow(()->new UserNotFoundException("유저를 불러오는데 실패했습니다."));
+        User receiveUser = userRepository.findById(receiveUserId).orElseThrow(()->new UserNotFoundException("유저를 불러오는데 실패했습니다."));
         if(sendUser == null){
             throw new InvalidAttributeValueException("잘못된 보내는 유저 아이디입니다.");
         }
         if(receiveUser == null){
             throw new InvalidAttributeValueException("잘못된 받는 유저 아이디입니다.");
         }
-        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new NoSuchElementException("해당 문서를 불러오는데 실패했습니다."));
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         // 이미 보낸 요청이라면 수정할 수 없다.
         if(loadRequest.getStatus() == 1){
             throw new InvalidAttributeValueException("수정할 수 없습니다.");
@@ -155,7 +157,7 @@ public class RequestServiceImpl implements RequestService{
         // step1 문서가 아니라면 부모를 찾아서 업데이트해줘야한다.
         if(step != 1){
             String parentId = loadRequest.getParentId();
-            Request parent = requestRepository.findById(parentId).orElseThrow(()->new NoSuchElementException("부모 문서를 불러오는데 실패했습니다."));
+            Request parent = requestRepository.findById(parentId).orElseThrow(()->new DocumentNotFoundException("부모 문서를 불러오는데 실패했습니다."));
             List<Request> children = parent.getChildren();
             ListIterator<Request> iterator = children.listIterator();
             while (iterator.hasNext()) {
@@ -176,15 +178,15 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Request moveRequest(int groundId, String requestId, RequestMoveDto requestMoveDto) throws InvalidAttributeValueException {
-        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new NoSuchElementException("잘못된 문서 아이디입니다."));
+    public Request moveRequest(int groundId, String requestId, RequestMoveDto requestMoveDto) throws Exception {
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
         if(loadRequest.getStep() == 1){
             throw new InvalidAttributeValueException("움직일 수 없는 문서입니다.");
         }
         String originParentId = loadRequest.getParentId();
-        Request originParent = requestRepository.findById(originParentId).orElseThrow(()->new NoSuchElementException("잘못된 부모 아이디입니다."));
+        Request originParent = requestRepository.findById(originParentId).orElseThrow(()->new DocumentNotFoundException("잘못된 부모 아이디입니다."));
         String newParentId = requestMoveDto.getParentId();
-        Request newParent = requestRepository.findById(newParentId).orElseThrow(()->new NoSuchElementException("잘못된 부모 아이디입니다."));
+        Request newParent = requestRepository.findById(newParentId).orElseThrow(()->new DocumentNotFoundException("잘못된 부모 아이디입니다."));
 
         // 원래 부모문서에서 자기 지우기
         List<Request> originChildren = originParent.getChildren();
@@ -227,8 +229,8 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Comment createComment(int groundId, String requestId, String comment, UserDetails userDetails) {
-        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()-> new NoSuchElementException("요청 문서를 찾을 수 없습니다."));
+    public Comment createComment(int groundId, String requestId, String comment, UserDetails userDetails) throws Exception{
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()-> new DocumentNotFoundException("요청 문서를 찾을 수 없습니다."));
         List<Comment> comments = loadRequest.getComments();
         if(comments == null){
             comments = new ArrayList<>();
@@ -248,29 +250,33 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public void deleteRequest(int groundId, String requestId) throws InvalidAttributeValueException, TransactionException{
-        Request unclassifiedRequest = requestRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()->new NoSuchElementException("미분류 문서를 찾을 수 없습니다."));
+    public void deleteRequest(int groundId, String requestId) throws Exception{
+        Request unclassifiedRequest = requestRepository.findByGroundIdAndUnclassified(groundId, true).orElseThrow(()->new DocumentNotFoundException("미분류 문서를 찾을 수 없습니다."));
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new TransactionException("해당 문서를 가지고 오는데 실패했습니다."));
         if(unclassifiedRequest.getId().equals(loadRequest.getId())) throw new InvalidAttributeValueException("미분류 문서를 삭제할 수 없습니다.");
         int step = loadRequest.getStep();
         // step1인 문서가 삭제되었을 때
         if(step == 1){
+            // 자식문서들의 parent를 미분류 문서로 바꾼다.
             List<Request> children = requestRepository.findByParentId(requestId).orElseThrow(()->new TransactionException("자식문서들을 들고 오는데 실패했습니다."));
             ListIterator<Request> iterator = children.listIterator();
             while(iterator.hasNext()){
                 Request child = iterator.next();
                 child.setParentId(unclassifiedRequest.getId());
             }
+            // 미분류 문서에 자식들을 넣는다.
+            unclassifiedRequest.setChildren(children);
             try{
                 requestRepository.saveAll(children);
+                requestRepository.save(unclassifiedRequest);
             }catch(Exception e){
                 throw new TransactionException("문서들을 저장하는데 실패했습니다.");
             }
         }
         else{
-            // 부모를 업데이트한다.
+            // 부모문서에서 자식문서를 제거한다.
             String parentId = loadRequest.getParentId();
-            Request parent = requestRepository.findById(parentId).orElseThrow(()-> new TransactionException("문서를 불러오는데 실패했습니다."));
+            Request parent = requestRepository.findById(parentId).orElseThrow(()-> new DocumentNotFoundException("부모 문서를 찾을 수 없습니다."));
             List<Request> children = parent.getChildren();
             children.removeIf((child) -> (child.getId().equals(requestId)));
             parent.setChildren(children);
@@ -293,7 +299,7 @@ public class RequestServiceImpl implements RequestService{
 
     @Override
     public Request titleRequest(int groundId, String requestId, RequestTitleDto requestTitleDto, UserDetails userDetails) throws Exception{
-        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new NoSuchElementException("해당 문서를 불러오는데 실패했습니다."));
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         // 이미 보낸 요청이라면 수정할 수 없다.
         if(loadRequest.getStatus() == 1){
             throw new InvalidAttributeValueException("수정할 수 없습니다.");
@@ -308,7 +314,7 @@ public class RequestServiceImpl implements RequestService{
         // step1 문서가 아니라면 부모를 찾아서 업데이트해줘야한다.
         if(step != 1){
             String parentId = loadRequest.getParentId();
-            Request parent = requestRepository.findById(parentId).orElseThrow(()->new NoSuchElementException("부모 문서를 불러오는데 실패했습니다."));
+            Request parent = requestRepository.findById(parentId).orElseThrow(()->new DocumentNotFoundException("부모 문서를 불러오는데 실패했습니다."));
             List<Request> children = parent.getChildren();
             ListIterator<Request> iterator = children.listIterator();
             while (iterator.hasNext()) {
