@@ -32,25 +32,27 @@ export const EditWrapper = styled.div`
 
 export const EditModalWrapper = styled.div`
   position: fixed;
+  top: 50px;
   left: 50%;
   width: calc(100% - 20px);
   max-width: 500px;
   min-width: 355px;
-  height: 330px;
+  height: calc(100% - 100px);
+  max-height: 800px;
+  min-height: 366px;
+  aspect-ratio: 3 / 4;
+  transform: translateX(-50%);
+
+  & > div {
+    width: calc(100% + 9px);
+  }
 
   & > :first-child {
-    margin-top: 30px;
+    margin: 30px 25px 10px 25px;
   }
 
-  @media (max-height: 500px) {
-    top: 68px;
-    transform: translateX(-50%);
-  }
-
-  @media (min-height: 500px) {
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
+  overflow-x: hidden;
+  overflow-y: scroll;
 
   border-radius: 0.75rem;
   border: 1px solid var(--border-basic);

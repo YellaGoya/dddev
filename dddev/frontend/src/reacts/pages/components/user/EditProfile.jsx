@@ -194,7 +194,7 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
             click={submitPat}
             message={patMessage}
           />
-          <Input label="닉네임" data={nicknameRef.current} dataRef={nicknameRef} message={nicknameMessage} debounce={nicknameCheck} />
+          <Input label="닉네임" dataRef={nicknameRef} message={nicknameMessage} debounce={nicknameCheck} />
           <Input label="상태 메시지" dataRef={statusRef} />
           <s.DivLine />
           <Select label="알림 대상" list={testDummy} />

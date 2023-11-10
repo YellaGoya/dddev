@@ -129,7 +129,7 @@ const Sidemenu = () => {
             로그아웃
           </s.MenuButton>
         </s.BottomWrapper>
-        <EditSettings toggle={settingToggle} setToggle={setSettingToggle} groundInfo={groundInfo} />
+        <EditSettings toggle={settingToggle} setToggle={setSettingToggle} groundInfo={groundInfo} setGroundInfo={setGroundInfo} />
       </s.PositionWrapper>
     </s.SidemenuWrapper>
   );

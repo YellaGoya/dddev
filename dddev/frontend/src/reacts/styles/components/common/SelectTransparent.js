@@ -7,7 +7,7 @@ export const SelectWrapper = styled.div`
 
 export const Label = styled.div`
   position: absolute;
-  left: 35px;
+  left: 40px;
   top: 12px;
   padding: 0 5px;
   color: var(--font-border);
@@ -41,7 +41,7 @@ export const Selected = styled.div`
   display: flex;
   align-items: center;
 
-  padding: 0 40px 0 80px;
+  padding: 0 47px 0 80px;
   &:focus {
     outline: none;
   }
@@ -52,7 +52,7 @@ export const Selected = styled.div`
 
   & > svg {
     position: absolute;
-    right: 33px;
+    right: 40px;
     fill: var(--font-rev);
 
     transform: ${({ $toggle }) => ($toggle ? 'rotate(180deg)' : 'rotate(360deg)')};
@@ -68,15 +68,14 @@ export const Selected = styled.div`
 export const SelectList = styled.ul`
   position: relative;
   width: calc(100% - 50px);
-  margin: 8px 25px 0 25px;
-  padding: ${({ $toggle }) => ($toggle ? '8px 10px 8px 20px' : '8px 10px 8px 20px')};
+  margin: 16px 25px 8px 25px;
+  padding: 0 10px 0 20px;
 
   max-height: ${({ $toggle }) => ($toggle ? '200px' : '0px')};
 
   overflow-y: scroll;
 
   border-radius: 0.75rem;
-  background-color: var(--bg-basic);
 
   list-style: none;
 

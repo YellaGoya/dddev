@@ -48,7 +48,6 @@ const GitResult = () => {
         eetch
           .userGrounds({ accessToken: res.accessToken })
           .then((grounds) => {
-            console.log(grounds.data);
             const groundsList = grounds.data.map((ground) => {
               return ground.ground.id;
             });

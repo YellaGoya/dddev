@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,21 +8,33 @@ import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 
 import Input from 'reacts/pages/components/common/Input';
+import SelectTransparent from 'reacts/pages/components/common/SelectTransparent';
 
 import * as s from 'reacts/styles/components/user/EditSettings';
 const EditSettings = ({ toggle, setToggle, groundInfo }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  const [groundName, setGroundName] = useState(groundInfo.name);
-  const [focusTime, setFocusTime] = useState(groundInfo.focusTime);
-  const [activeTime, setActiveTime] = useState(groundInfo.activeTime);
+  const groundsMap = useSelector((state) => state.user.groundsMap);
+  const groundNameRef = useRef(groundInfo ? groundInfo.name : '');
+  const focusTimeRef = useRef(groundInfo ? groundInfo.focusTime : '');
+  const activeTimeRef = useRef(groundInfo ? groundInfo.activeTime : '');
+  const [selected, setSelected] = useState(groundInfo);
 
   useEffect(() => {
-    setGroundName(groundInfo.name);
-    setFocusTime(groundInfo.focusTime);
-    setActiveTime(groundInfo.activeTime);
+    if (groundInfo) {
+      groundNameRef.current = groundInfo.name;
+      focusTimeRef.current = groundInfo.focusTime;
+      activeTimeRef.current = groundInfo.activeTime;
+    }
   }, [groundInfo]);
+
+  useEffect(() => {
+    console.log(selected);
+    groundNameRef.current = selected.name;
+    focusTimeRef.current = selected.focusTime;
+    activeTimeRef.current = selected.activeTime;
+  }, [selected]);
 
   const submitChange = () => {
     eetch
@@ -30,9 +42,9 @@ const EditSettings = ({ toggle, setToggle, groundInfo }) => {
         accessToken: user.accessToken,
         refreshToken: user.refreshToken,
         groundId: user.lastGround,
-        name: groundName,
-        focusTime,
-        activeTime,
+        name: groundNameRef.current,
+        focusTime: focusTimeRef.current,
+        activeTime: activeTimeRef.current,
       })
       .catch((err) => {
         if (err.message === 'RefreshTokenExpired') {
@@ -49,9 +61,10 @@ const EditSettings = ({ toggle, setToggle, groundInfo }) => {
       <s.OutWrapper $toggle={toggle} onClick={() => setToggle(false)} />
       <s.EditWrapper $toggle={toggle} onClick={() => setToggle(false)}>
         <s.EditModalWrapper onClick={(event) => event.stopPropagation()}>
-          <Input label="그라운드 명" data={groundName} setData={setGroundName} />
-          <Input label="집중시간" data={focusTime} setData={setFocusTime} />
-          <Input label="활동시간" data={activeTime} setData={setActiveTime} />
+          <SelectTransparent label="그라운드" list={groundsMap} selected={groundNameRef.current} select={setSelected} />
+          <Input label="그라운드 명" dataRef={groundNameRef} />
+          <Input label="집중시간" dataRef={focusTimeRef} />
+          <Input label="활동시간" dataRef={activeTimeRef} />
           <s.ButtonWrapper>
             <s.ProfileEditButton type="button" onClick={submitChange}>
               적용

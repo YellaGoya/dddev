@@ -170,7 +170,6 @@ const Index = () => {
             onBlur={(event) => {
               if (event.target.value === '') setTitle(doc.title === '' ? '새 문서' : doc.title);
               else titleDocument(type, doc.id, doc.step, event.target.value);
-              console.log('hey');
               editRef.current.style.display = 'none';
               setOnEdit(false);
             }}

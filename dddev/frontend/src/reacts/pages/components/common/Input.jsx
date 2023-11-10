@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 
 import * as s from 'reacts/styles/components/common/Input';
 const Input = ({ label, holder, dataRef, array, fixed, click, enter, message, debounce }) => {
-  const [value, setValue] = useState(dataRef ? dataRef.current : '');
+  const [value, setValue] = useState(dataRef.current ? dataRef.current : '');
   const [placeholder, setPlaceholder] = useState(holder || '');
   const [isActive, setIsActive] = useState(false);
   const [timer, setTimer] = useState(null);
+
+  useEffect(() => {
+    setValue(dataRef.current ? dataRef.current : '');
+  }, [dataRef.current]);
 
   const onChangeHandler = (e) => {
     setValue(e.target.value);
