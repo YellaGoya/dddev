@@ -1,8 +1,8 @@
 import { SET_GROUND } from 'redux/actions/ground';
 
 const initialState = {
-  groundId: 'web-rtc-test',
-  groundName: 'test',
+  groundId: null,
+  groundName: null,
 };
 
 const groundReducer = (state = initialState, action) => {
