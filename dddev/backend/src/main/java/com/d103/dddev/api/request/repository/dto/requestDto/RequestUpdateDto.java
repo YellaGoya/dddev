@@ -11,6 +11,6 @@ import lombok.*;
 public class RequestUpdateDto {
     private String title;
     private String content;
-    private int sendUserId;
-    private int receiveUserId;
+    private Integer sendUserId;
+    private Integer receiveUserId;
 }
