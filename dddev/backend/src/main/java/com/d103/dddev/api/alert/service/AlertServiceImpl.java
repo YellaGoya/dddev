@@ -107,8 +107,6 @@ public class AlertServiceImpl implements AlertService {
 		// 이미 alertdto가 있는 경우 - repo id, type 비교
 		List<AlertEntity> alertEntityOptional = alertRepository.findAllByRepositoryIdAndType(repoId, type);
 
-		log.info("repoId, type: {}, {}", repoId, type);
-
 		Optional<AlertEntity> userAlertDto = alertRepository.findByUser_IdAndRepositoryIdAndType(user.getId(),
 			repoId, type);
 		if (userAlertDto.isPresent()) {

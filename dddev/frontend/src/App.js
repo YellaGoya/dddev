@@ -1,4 +1,5 @@
-import { BrowserRouter, useRoutes, Navigate } from 'react-router-dom';
+import { memo } from 'react';
+import { BrowserRouter, useRoutes, useLocation, Navigate } from 'react-router-dom';
 // import { Provider } from 'react-redux';
 import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -6,51 +7,52 @@ import { store, persistor } from 'redux/store';
 
 import View from 'layouts/View';
 
-import Home from 'markup/pages/Home';
-import Login from 'markup/pages/Login';
-import Project from 'markup/pages/Project';
-import Document from 'markup/pages/Document';
+import Login from 'reacts/pages/Login';
+import Ground from 'reacts/pages/Ground';
+import GroundCheck from 'layouts/GroundCheck';
+import Redirect from 'reacts/pages/Redirect';
 
-import { Global } from 'markup/styles/Global';
+import Template from 'reacts/pages/Template';
 
-const Routing = () => {
+import { Global } from 'reacts/styles/Global';
+
+const Routing = memo(() => {
+  const location = useLocation();
   const user = useSelector((state) => state.user);
-
-  return useRoutes([
-    {
-      path: '/',
-      element: user.isLoggedIn ? (
-        user.lastGround === null || user.lastGround === undefined ? (
-          <Navigate to="/login/groundinit" />
-        ) : (
-          <Navigate to={`/${user.lastGround}`} />
-        )
-      ) : (
-        <Navigate to="/login" />
-      ),
-      // element: <Navigate to="/101" />,
-    },
-    {
-      path: '/:groundId',
-      element: <Home />,
-      // element: user.isLoggedIn ? <Home /> : <Navigate to="/login" />,
-    },
+  const routes = useRoutes([
     {
       path: '/login/*',
       element: <Login />,
     },
     {
-      path: '/:groundId/project/*',
-      element: <Project />,
-      // element: user.isLoggedIn ? <Project /> : <Navigate to="/login" />,
+      path: '/temp/*',
+      element: <Template />,
     },
     {
-      path: '/:groundId/document/*',
-      element: <Document />,
-      // element: user.isLoggedIn ? <Document /> : <Navigate to="/login" />,
+      path: '/',
+      element: user.lastGround === null || user.lastGround === 'null' ? <Navigate to="/login/groundinit" /> : <Navigate to={`/${user.lastGround}`} />,
     },
+    {
+      path: '/:groundId/*',
+      element: <GroundCheck />,
+    },
+    { path: '/newground', element: <Ground /> },
+    { path: '/redirect/:notiId', element: <Redirect /> },
   ]);
-};
+
+  const nocheck = ['/login', '/login/github'];
+  return user.isLoggedIn ? (
+    location.pathname === '/login' ? (
+      <Navigate to={`/${user.lastGround}`} />
+    ) : (
+      routes
+    )
+  ) : nocheck.includes(location.pathname) ? (
+    routes
+  ) : (
+    <Navigate to="/login" />
+  );
+});
 
 const App = () => {
   return (
