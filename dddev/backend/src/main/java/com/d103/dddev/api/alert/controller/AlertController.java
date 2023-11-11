@@ -157,7 +157,7 @@ public class AlertController {
 	@ApiResponses(value = {
 		@ApiResponse(code = 406, message = "알림 id 오류")
 	})
-	public ResponseEntity<ResponseDto<String>> updateAlert(@RequestBody UpdateAlertDto updateAlertDto,
+	public ResponseEntity<ResponseDto<String>> updateAlert(@RequestHeader String Authorization, @RequestBody UpdateAlertDto updateAlertDto,
 		@PathVariable(name = "alertId") Integer alertId, HttpServletRequest request) {
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
@@ -190,7 +190,7 @@ public class AlertController {
 	@ApiResponses(value = {
 		@ApiResponse(code = 406, message = "사용자 accessToken 오류")
 	})
-	public ResponseEntity<ResponseDto<List<AlertResponseDto>>> alertList(HttpServletRequest request) {
+	public ResponseEntity<ResponseDto<List<AlertResponseDto>>> alertList(@RequestHeader String Authorization, HttpServletRequest request) {
 		try {
 			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
 			User user = (User)mav.getModel().get("user");
