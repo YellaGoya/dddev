@@ -1,5 +1,8 @@
 package com.d103.dddev.api.ground.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -10,17 +13,21 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.d103.dddev.api.alert.service.AlertService;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.repository.entity.GroundUser;
-import com.d103.dddev.api.issue.service.IssueService;
+import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.util.UndefinedUtil;
 import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
+import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
+import com.d103.dddev.api.sprint.service.SprintService;
 import com.d103.dddev.api.user.repository.entity.User;
 import com.d103.dddev.api.user.service.UserService;
+import com.google.type.DateTime;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +42,14 @@ public class GroundServiceImpl implements GroundService {
 	private final UserService userService;
 	private final ProfileService profileService;
 	private final RepositoryService repositoryService;
-	private final IssueService issueService;
+	private final AlertService alertService;
+	private final SprintService sprintService;
 	private final UndefinedUtil undefinedUtil;
 	private final Integer DEFAULT_GROUND_FOCUS_TIME = 5;
 	private final Integer DEFAULT_GROUND_ACTIVE_TIME = 3;
+
+	private final static String PUSH_WEBHOOK_URL = "https://k9d103.p.ssafy.io/alert-service/push-webhook";
+	private final static String PULL_REQUEST_WEBHOOK_URL = "https://k9d103.p.ssafy.io/alert-service/pull-request-webhook";
 
 	/**
 	 * 그라운드 생성
@@ -70,6 +81,14 @@ public class GroundServiceImpl implements GroundService {
 		 *
 		 * */
 
+		// 그라운드 생성 시 웹훅 바로 생성
+		try {
+			alertService.initAlert(user, repository, "push");
+			alertService.initAlert(user, repository, "pull_request");
+		} catch (Exception e) {
+			log.error("createGround :: createWebhook :: {}", e.getMessage());
+		}
+
 		undefinedUtil.createUndefined(ground);
 
 		return ground;
@@ -88,35 +107,40 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
-	public Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws
+	public Map<String, Integer> getSprintFocusTime(Integer sprintId) throws
 		Exception {
-		return issueService.getGroundFocusTime(groundId, sprintId);
+		return sprintService.getSprintFocusTime(sprintId);
 	}
 
 	@Override
-	public Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws
+	public Map<String, Integer> getSprintActiveTime(Integer sprintId) throws
 		Exception {
-		return issueService.getGroundActiveTime(groundId, sprintId);
+		return sprintService.getSprintActiveTime(sprintId);
 	}
 
 	@Override
-	public Map<String, Integer> getGroundTotalTime(Integer groundId, Integer sprintId) throws Exception {
-		return issueService.getGroundTotalTime(groundId, sprintId);
+	public Map<String, Integer> getSprintTotalTime(Integer sprintId) throws Exception {
+		return sprintService.getSprintTotalTime(sprintId);
 	}
 
 	@Override
-	public Map<String, Integer> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception {
-		return issueService.getGroundFocusTimeCount(groundId, sprintId);
+	public Map<String, Integer> getSprintFocusTimeCount(Integer sprintId) throws Exception {
+		return sprintService.getSprintFocusTimeCount(sprintId);
 	}
 
 	@Override
-	public Map<String, Integer> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception {
-		return issueService.getGroundActiveTimeCount(groundId, sprintId);
+	public Map<String, Integer> getSprintActiveTimeCount(Integer sprintId) throws Exception {
+		return sprintService.getSprintActiveTimeCount(sprintId);
 	}
 
 	@Override
-	public Map<String, Integer> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception {
-		return issueService.getGroundTotalTimeCount(groundId, sprintId);
+	public Map<String, Integer> getSprintTotalTimeCount(Integer sprintId) throws Exception {
+		return sprintService.getSprintTotalTimeCount(sprintId);
+	}
+
+	@Override
+	public Map<LocalDateTime, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception {
+		return sprintService.getSprintBurnDownChart(sprintId);
 	}
 
 	@Override
@@ -190,7 +214,7 @@ public class GroundServiceImpl implements GroundService {
 
 	// TODO :: ground에 속한 이슈, 문서, 리퀘스트 모두 삭제하기
 	@Override
-	public void deleteGround(Ground ground) throws Exception {
+	public void deleteGround(User user, Ground ground) throws Exception {
 		log.info("service - deleteGround :: 그라운드 삭제 진입");
 
 		// 프로필 사진 받아오기
@@ -237,6 +261,13 @@ public class GroundServiceImpl implements GroundService {
 		// 스프린트 삭제
 
 		// 차트 데이터 삭제하기
+
+		// 그라운드 삭제 시 웹훅 모두 삭제
+		try {
+			alertService.deleteWebhook(user, repository);
+		} catch (Exception e) {
+			log.error("deleteGround :: deleteWebhook :: {}", e.getMessage());
+		}
 
 	}
 }

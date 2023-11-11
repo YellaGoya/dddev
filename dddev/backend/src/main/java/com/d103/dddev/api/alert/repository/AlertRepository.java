@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.d103.dddev.api.alert.dto.AlertListDto;
 import com.d103.dddev.api.alert.dto.AlertUserKeyword;
 import com.d103.dddev.api.alert.entity.AlertEntity;
 
@@ -25,4 +27,11 @@ public interface AlertRepository extends JpaRepository<AlertEntity, Integer> {
 	List<AlertEntity> findByWebhookId(Integer webhookId);
 
 	Optional<AlertEntity> findByIdAndUser_Id(Integer alertId, Integer userId);
+
+	List<AlertEntity> findByRepositoryId(Integer repositoryId);
+
+	void deleteByRepositoryId(Integer repositoryId);
+
+	@Query(value = "select a.id as id, a.type as type, a.user_id as userId, gr.name as groundName from dddev.alert a join (select g.name, r.repo_id from dddev.ground g join dddev.repository r on g.repository_id = r.id) gr on a.repository_id = gr.repo_id where a.user_id=?", nativeQuery = true)
+	List<AlertListDto> findAlertEntityAndGroundName(Integer userId);
 }

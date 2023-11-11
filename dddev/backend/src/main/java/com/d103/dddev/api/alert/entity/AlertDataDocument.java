@@ -1,15 +1,6 @@
 package com.d103.dddev.api.alert.entity;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -26,7 +17,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class AlertDataEntity {
+public class AlertDataDocument {
 
 	// @Id
 	// @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,10 +26,14 @@ public class AlertDataEntity {
 	private String title;
 	private String content;
 
+
+	// 찾아낸 키워드 리스트
 	private List<String> keywordList;
 
+	// 키워드 포함된 파일 리스트
 	private List<String> changedFileList;
 
+	// 키워드 포함된 커밋 메시지 리스트
 	private List<String> commitMessageList;
 
 	private String url;	// notification click event url
@@ -56,8 +51,8 @@ public class AlertDataEntity {
 
 	private Boolean isRead;
 
-	// private Integer success;
-	//
-	// private Integer failure;
+	private String gitRepoName;
+
+	private Integer gitRepoId;
 
 }

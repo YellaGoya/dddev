@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import com.d103.dddev.api.file.service.DocumentService;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -293,9 +295,25 @@ public class IssueServiceImpl implements IssueService {
 	}
 
 	@Override
-	public Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws Exception {
-		List<Issue> focusTimeDoneList = issueRepository.findFocusTimeDone(groundId, sprintId);
-		List<Issue> focusTimeUndoneList = issueRepository.findFocusTimeUndone(groundId, sprintId);
+	public Integer getSprintTotalFocusTime(Integer sprintId) throws Exception {
+		List<Issue> totalFocusTimeList = issueRepository.getSprintIssueList(sprintId);
+		Integer totalTime = 0;
+		for(Issue i : totalFocusTimeList) {
+			totalTime += i.getFocusTime();
+		}
+		return totalTime;
+	}
+
+	@Override
+	public List<Issue> getSprintFocusIssueDoneAsc(Integer sprintId) throws Exception {
+		Sort sort = Sort.by(Sort.Direction.ASC, "endDate");
+		return issueRepository.findFocusTimeDone(sprintId, sort);
+	}
+
+	@Override
+	public Map<String, Integer> getSprintFocusTime(Integer sprintId) throws Exception {
+		List<Issue> focusTimeDoneList = issueRepository.findFocusTimeDone(sprintId);
+		List<Issue> focusTimeUndoneList = issueRepository.findFocusTimeUndone(sprintId);
 
 		Integer focusTimeDone = 0;
 		for (Issue i : focusTimeDoneList) {
@@ -315,9 +333,9 @@ public class IssueServiceImpl implements IssueService {
 	}
 
 	@Override
-	public Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws Exception {
-		List<Issue> activeTimeDoneList = issueRepository.findActiveTimeDone(groundId, sprintId);
-		List<Issue> activeTimeUndoneList = issueRepository.findActiveTimeUndone(groundId, sprintId);
+	public Map<String, Integer> getSprintActiveTime(Integer sprintId) throws Exception {
+		List<Issue> activeTimeDoneList = issueRepository.findActiveTimeDone(sprintId);
+		List<Issue> activeTimeUndoneList = issueRepository.findActiveTimeUndone(sprintId);
 
 		Integer activeTimeDone = 0;
 		for (Issue i : activeTimeDoneList) {
@@ -337,9 +355,9 @@ public class IssueServiceImpl implements IssueService {
 	}
 
 	@Override
-	public Map<String, Integer> getGroundTotalTime(Integer groundId, Integer sprintId) throws Exception {
-		Map<String, Integer> groundFocusTime = getGroundFocusTime(groundId, sprintId);
-		Map<String, Integer> groundActiveTime = getGroundActiveTime(groundId, sprintId);
+	public Map<String, Integer> getSprintTotalTime(Integer sprintId) throws Exception {
+		Map<String, Integer> groundFocusTime = getSprintFocusTime(sprintId);
+		Map<String, Integer> groundActiveTime = getSprintActiveTime(sprintId);
 		Map<String, Integer> result = new HashMap<>();
 		result.put("done", groundFocusTime.get("done") + groundActiveTime.get("done"));
 		result.put("undone", groundFocusTime.get("undone") + groundActiveTime.get("undone"));
@@ -347,9 +365,9 @@ public class IssueServiceImpl implements IssueService {
 	}
 
 	@Override
-	public Map<String, Integer> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception {
-		Integer focusTimeDoneCount = issueRepository.findFocusTimeDoneCount(groundId, sprintId);
-		Integer focusTimeUndoneCount = issueRepository.findFocusTimeUndoneCount(groundId, sprintId);
+	public Map<String, Integer> getSprintFocusTimeCount(Integer sprintId) throws Exception {
+		Integer focusTimeDoneCount = issueRepository.findFocusTimeDoneCount(sprintId);
+		Integer focusTimeUndoneCount = issueRepository.findFocusTimeUndoneCount(sprintId);
 
 		Map<String, Integer> result = new HashMap<>();
 		result.put("done", focusTimeDoneCount);
@@ -358,9 +376,9 @@ public class IssueServiceImpl implements IssueService {
 	}
 
 	@Override
-	public Map<String, Integer> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception {
-		Integer focusTimeDoneCount = issueRepository.findActiveTimeDoneCount(groundId, sprintId);
-		Integer focusTimeUndoneCount = issueRepository.findActiveTimeUndoneCount(groundId, sprintId);
+	public Map<String, Integer> getSprintActiveTimeCount(Integer sprintId) throws Exception {
+		Integer focusTimeDoneCount = issueRepository.findActiveTimeDoneCount(sprintId);
+		Integer focusTimeUndoneCount = issueRepository.findActiveTimeUndoneCount(sprintId);
 
 		Map<String, Integer> result = new HashMap<>();
 		result.put("done", focusTimeDoneCount);
@@ -369,9 +387,9 @@ public class IssueServiceImpl implements IssueService {
 	}
 
 	@Override
-	public Map<String, Integer> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception {
-		Map<String, Integer> groundFocusTimeCount = getGroundFocusTimeCount(groundId, sprintId);
-		Map<String, Integer> groundActiveTimeCount = getGroundActiveTimeCount(groundId, sprintId);
+	public Map<String, Integer> getSprintTotalTimeCount(Integer sprintId) throws Exception {
+		Map<String, Integer> groundFocusTimeCount = getSprintFocusTimeCount(sprintId);
+		Map<String, Integer> groundActiveTimeCount = getSprintActiveTimeCount(sprintId);
 		Map<String, Integer> groundTotalTimeCount = new HashMap<>();
 		groundTotalTimeCount.put("done", groundFocusTimeCount.get("done") + groundActiveTimeCount.get("done"));
 		groundFocusTimeCount.put("undone", groundFocusTimeCount.get("undone") + groundActiveTimeCount.get("undone"));

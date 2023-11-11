@@ -3,6 +3,7 @@ package com.d103.dddev.api.issue.service;
 import java.util.List;
 import java.util.Map;
 
+import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.model.dto.IssueDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -28,13 +29,16 @@ public interface IssueService  {
 
     IssueDto.Sprint.Response issueSprint(IssueDto.Sprint.Request request, String issueId, UserDetails userDetails);
 
-    Map<String, Integer> getGroundFocusTime(Integer groundId, Integer sprintId) throws Exception;
-    Map<String, Integer> getGroundActiveTime(Integer groundId, Integer sprintId) throws Exception;
-    Map<String, Integer> getGroundTotalTime(Integer groundId, Integer sprintId) throws Exception;
+    Integer getSprintTotalFocusTime(Integer sprintId) throws Exception;
 
-    Map<String, Integer> getGroundFocusTimeCount(Integer groundId, Integer sprintId) throws Exception;
-    Map<String, Integer> getGroundActiveTimeCount(Integer groundId, Integer sprintId) throws Exception;
-    Map<String, Integer> getGroundTotalTimeCount(Integer groundId, Integer sprintId) throws Exception;
+    List<Issue> getSprintFocusIssueDoneAsc(Integer sprintId) throws Exception;
+    Map<String, Integer> getSprintFocusTime(Integer sprintId) throws Exception;
+    Map<String, Integer> getSprintActiveTime(Integer sprintId) throws Exception;
+    Map<String, Integer> getSprintTotalTime(Integer sprintId) throws Exception;
+
+    Map<String, Integer> getSprintFocusTimeCount(Integer sprintId) throws Exception;
+    Map<String, Integer> getSprintActiveTimeCount(Integer sprintId) throws Exception;
+    Map<String, Integer> getSprintTotalTimeCount(Integer sprintId) throws Exception;
 
     IssueDto.Title.Response issueTitle(IssueDto.Title.Request request, String issueId, UserDetails userDetails);
 }

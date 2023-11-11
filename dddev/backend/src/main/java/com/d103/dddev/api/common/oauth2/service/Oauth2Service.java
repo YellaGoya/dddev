@@ -150,15 +150,18 @@ public class Oauth2Service {
 
 		String deleteUrl = API_URL + "/applications/" + CLIENT_ID + "/grant";
 
+		// 헤더
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(CLIENT_ID, CLIENT_SECRET);
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
+		// 바디
 		JSONObject requestBody = new JSONObject();
 		requestBody.put("access_token", oauthAccessToken);
 
 		HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
 
+		// api 요청 보내기
 		ResponseEntity<Object> response = restTemplate.exchange(
 			deleteUrl,
 			HttpMethod.DELETE,

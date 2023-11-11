@@ -9,8 +9,8 @@ import lombok.ToString;
 
 @Data
 @Getter @Setter @ToString
-public class CreateWebhookRequestDto {
-	private Integer repoId;
+public class CreateAlertRequestDto {
+	private Integer groundId;
 	private List<String> keyword;
 	private String type;
 }
