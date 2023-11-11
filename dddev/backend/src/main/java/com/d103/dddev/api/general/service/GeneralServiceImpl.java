@@ -126,8 +126,13 @@ public class GeneralServiceImpl implements GeneralService{
     public General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails) throws Exception{
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
-        loadGeneral.setTitle(generalUpdateDto.getTitle());
-        loadGeneral.setContent(generalUpdateDto.getContent());
+        String title = generalUpdateDto.getTitle();
+        String content = generalUpdateDto.getContent();
+
+
+        if(title == null && content == null) return loadGeneral;
+        if(title != null) loadGeneral.setTitle(title);
+        if(content != null) loadGeneral.setContent(content);
         loadGeneral.setUpdatedAt(LocalDateTime.now());
         loadGeneral.setModifier(userDetails.getUsername());
         try{
