@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.persistence.EntityExistsException;
+
 import org.springframework.stereotype.Service;
 
 import com.d103.dddev.api.ground.repository.GroundUserRepository;
@@ -37,6 +39,11 @@ public class GroundUserServiceImpl implements GroundUserService {
 	@Override
 	public List<GroundUserDto> inviteMemberToGround(Ground ground, User newMember) throws Exception {
 		log.info("service - inviteMemberToGround :: 그라운드에 사용자 초대하기 진입");
+		// 이미 초대된 멤버인지 확인하기
+		if(checkIsGroundMember(ground.getId(), newMember.getId())){
+			throw new EntityExistsException("이미 존재하는 회원입니다.");
+		}
+
 		// 그라운드 유저 엔티티
 		GroundUser newGroundUser = GroundUser.builder()
 			.user(newMember)

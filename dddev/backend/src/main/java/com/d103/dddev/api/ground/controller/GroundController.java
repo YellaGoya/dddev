@@ -119,7 +119,9 @@ public class GroundController {
 	@PostMapping("/{groundId}/invite/{githubId}")
 	@ApiOperation(value = "그라운드에 멤버 추가하기", notes = "그라운드에 멤버 추가하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 403, message = "access token 오류"),
-		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"), @ApiResponse(code = 500, message = "내부 오류")})
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 또는 그라운드의 오너가 아님"),
+		@ApiResponse(code = 409, message = "이미 그라운드에 존재하는 회원"),
+		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseDto<List<GroundUserDto>>> inviteMemberToGround(@RequestHeader String Authorization,
 		@ApiParam(value = "groundId") @PathVariable Integer groundId,
 		@ApiParam(value = "githubId") @PathVariable Integer githubId, HttpServletRequest request) {
@@ -154,6 +156,13 @@ public class GroundController {
 				.message(e.getMessage())
 				.build();
 			return new ResponseEntity<>(responseDto, HttpStatus.NOT_ACCEPTABLE);
+		} catch (EntityExistsException e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<List<GroundUserDto>>builder()
+				.code(HttpStatus.CONFLICT.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.CONFLICT);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseDto = ResponseDto.<List<GroundUserDto>>builder()
