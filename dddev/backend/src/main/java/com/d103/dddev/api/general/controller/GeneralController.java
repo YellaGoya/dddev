@@ -3,7 +3,8 @@ package com.d103.dddev.api.general.controller;
 import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.general.collection.General;
 import com.d103.dddev.api.general.repository.dto.requestDto.*;
-import com.d103.dddev.api.general.repository.dto.responseDto.GeneralResponseDto;
+import com.d103.dddev.api.general.repository.dto.responseDto.GeneralStepResponseDto;
+import com.d103.dddev.api.general.repository.dto.responseDto.GeneralTreeResponseDto;
 import com.d103.dddev.api.general.service.GeneralServiceImpl;
 import com.d103.dddev.common.exception.document.DocumentNotFoundException;
 import io.swagger.annotations.*;
@@ -132,26 +133,53 @@ public class GeneralController {
         }
     }
     @GetMapping("/total")
+    @ApiOperation(value="문서트릐 구조로 불러오기")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "문서 존재하지 않음"),
+            @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
+            @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
+    })
+    public ResponseEntity<ResponseDto<List<GeneralTreeResponseDto>>> getTreeGenerals(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
+                                                                                      @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<GeneralTreeResponseDto>> responseDto;
+
+        try{
+            List<GeneralTreeResponseDto> generals = generalService.getTreeGenerals(groundId);
+            responseDto = ResponseDto.<List<GeneralTreeResponseDto>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("문서 트리를 불러왔습니다.")
+                    .data(generals)
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }catch(Exception e){
+            responseDto = ResponseDto.<List<GeneralTreeResponseDto>>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/list")
     @ApiOperation(value="step1 문서들 불러오기")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "문서 존재하지 않음"),
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<GeneralResponseDto>>> getStep1Generals(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
-                                                                                  @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<List<GeneralResponseDto>> responseDto;
+    public ResponseEntity<ResponseDto<List<GeneralStepResponseDto>>> getStep1Generals(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
+                                                                                      @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<GeneralStepResponseDto>> responseDto;
 
         try{
-            List<GeneralResponseDto> generals = generalService.getStep1Generals(groundId);
-            responseDto = ResponseDto.<List<GeneralResponseDto>>builder()
+            List<GeneralStepResponseDto> generals = generalService.getStep1Generals(groundId);
+            responseDto = ResponseDto.<List<GeneralStepResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("step1 문서들을 불러왔습니다.")
                     .data(generals)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<GeneralResponseDto>>builder()
+            responseDto = ResponseDto.<List<GeneralStepResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -229,8 +257,8 @@ public class GeneralController {
     }
 
     
-    @PutMapping("/move/{generalId}")
-    @ApiOperation(value="일반 문서 위치이동")
+    @PutMapping("/{generalId}/connect")
+    @ApiOperation(value="일반 문서 카테고리 이동")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "문서 존재하지 않음"),
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),

@@ -4,9 +4,8 @@ import com.d103.dddev.api.file.service.DocumentServiceImpl;
 import com.d103.dddev.api.general.collection.General;
 import com.d103.dddev.api.general.repository.GeneralRepository;
 import com.d103.dddev.api.general.repository.dto.requestDto.*;
-import com.d103.dddev.api.general.repository.dto.responseDto.GeneralResponseDto;
-import com.d103.dddev.api.request.collection.Request;
-import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
+import com.d103.dddev.api.general.repository.dto.responseDto.GeneralStepResponseDto;
+import com.d103.dddev.api.general.repository.dto.responseDto.GeneralTreeResponseDto;
 import com.d103.dddev.common.exception.document.DocumentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
@@ -19,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -106,12 +104,28 @@ public class GeneralServiceImpl implements GeneralService{
         return generalRepository.findById(generalId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다."));
     }
 
+    /**
+     * 문서 구조를 트리로 보내주는 함수
+     * @param groundId
+     * @return
+     */
     @Override
-    public List<GeneralResponseDto> getStep1Generals(int groundId){
+    public List<GeneralTreeResponseDto> getTreeGenerals(int groundId){
         List<General> generalList = generalRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
-        List<GeneralResponseDto> generalResponseDtoList = new ArrayList<>();
+        List<GeneralTreeResponseDto> generalResponseDtoList = new ArrayList<>();
         for (General general : generalList) {
-            GeneralResponseDto generalResponseDto = convertToDto(general);
+            GeneralTreeResponseDto generalResponseDto = convertToGeneralTreeResponseDto(general);
+            generalResponseDtoList.add(generalResponseDto);
+        }
+        return generalResponseDtoList;
+    }
+
+    @Override
+    public List<GeneralStepResponseDto> getStep1Generals(int groundId){
+        List<General> generalList = generalRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<GeneralStepResponseDto> generalResponseDtoList = new ArrayList<>();
+        for (General general : generalList) {
+            GeneralStepResponseDto generalResponseDto = convertToGeneralStepResponseDto(general);
             generalResponseDtoList.add(generalResponseDto);
         }
         return generalResponseDtoList;
@@ -281,8 +295,8 @@ public class GeneralServiceImpl implements GeneralService{
     public boolean stepIsRange(int step){
         return step>=1 && step<=2;
     }
-    public GeneralResponseDto convertToDto(General general) {
-        GeneralResponseDto generalResponseDto = new GeneralResponseDto();
+    public GeneralTreeResponseDto convertToGeneralTreeResponseDto(General general) {
+        GeneralTreeResponseDto generalResponseDto = new GeneralTreeResponseDto();
         generalResponseDto.setId(general.getId());
         generalResponseDto.setStep(general.getStep());
         if(general.getTitle() == null){
@@ -292,15 +306,29 @@ public class GeneralServiceImpl implements GeneralService{
             generalResponseDto.setTitle(general.getTitle());
         }
 
-        List<GeneralResponseDto> children = new ArrayList<>();
+        List<GeneralTreeResponseDto> children = new ArrayList<>();
         if (general.getChildren() != null) {
             for (General child : general.getChildren()) {
-                children.add(convertToDto(child));
+                children.add(convertToGeneralTreeResponseDto(child));
             }
         }
         generalResponseDto.setChildren(children);
 
         return generalResponseDto;
+    }
+
+    public GeneralStepResponseDto convertToGeneralStepResponseDto(General general) {
+        GeneralStepResponseDto generalStepResponseDto = new GeneralStepResponseDto();
+        generalStepResponseDto.setId(general.getId());
+
+        if(general.getTitle() == null){
+            generalStepResponseDto.setTitle("");
+        }
+        else{
+            generalStepResponseDto.setTitle(general.getTitle());
+        }
+
+        return generalStepResponseDto;
     }
 
 

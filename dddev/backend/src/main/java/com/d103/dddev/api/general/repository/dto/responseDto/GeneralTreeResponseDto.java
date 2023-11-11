@@ -10,9 +10,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GeneralResponseDto {
+// tree 문서 구조로 보낼 때 사용하는 Dto
+public class GeneralTreeResponseDto {
     private String id;
     private int step;
     private String title;
-    private List<GeneralResponseDto> children;
+    private List<GeneralTreeResponseDto> children;
 }

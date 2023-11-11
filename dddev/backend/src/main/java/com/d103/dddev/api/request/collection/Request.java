@@ -43,7 +43,7 @@ public class Request {
     // 마지막으로 수정한 사람
     private String modifier;
     // status 0이면 요청 보내기전, 1이면 요청 보낸후 수정 불가
-    private int status;
+    private int status; // 0: 해야 할 일, 1: 진행 중, 2 완료
     private List<Comment> comments;
     private boolean unclassified;
 }
