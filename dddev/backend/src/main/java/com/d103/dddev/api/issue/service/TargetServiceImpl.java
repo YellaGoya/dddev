@@ -131,7 +131,10 @@ public class TargetServiceImpl implements TargetService {
         Issue target = issueRepository.findById(targetId)
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
-        target.setTitle(request.getTitle());
+        String title = request.getTitle();
+        if(title != null){
+            target.setTitle(request.getTitle());
+        }
         target.setContent(request.getContent());
         target.setModifier(userDetails.getUsername());
 
