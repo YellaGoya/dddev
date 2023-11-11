@@ -234,7 +234,7 @@ public class RequestServiceImpl implements RequestService{
     @Override
     public void changeSender(int groundId, String requestId, RequestSenderDto requestSenderDto) throws Exception{
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
-        User sendUser = userRepository.findById(requestSenderDto.getSendUserId()).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
+        User sendUser = userRepository.findByGithubId(requestSenderDto.getSendUserId()).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
         loadRequest.setSendUser(sendUser);
 
         try{
@@ -247,7 +247,7 @@ public class RequestServiceImpl implements RequestService{
     @Override
     public void changeReceiver(int groundId, String requestId, RequestReceiverDto requestReceiverDto) throws Exception{
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
-        User receiveUser = userRepository.findById(requestReceiverDto.getReceiveUserId()).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
+        User receiveUser = userRepository.findByGithubId(requestReceiverDto.getReceiveUserId()).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
         loadRequest.setSendUser(receiveUser);
 
         try{
