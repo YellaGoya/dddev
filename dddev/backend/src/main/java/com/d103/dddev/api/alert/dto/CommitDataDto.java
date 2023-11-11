@@ -22,7 +22,7 @@ public class CommitDataDto {
 	* push 웹훅 안에 commits list dto 형식
 	*/
 
-	// String id;
+	String id;
 	// String treeId;
 	// String distinct;
 	/*
