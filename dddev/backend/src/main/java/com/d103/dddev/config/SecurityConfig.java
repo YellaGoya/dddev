@@ -64,7 +64,10 @@ public class SecurityConfig {
 		corsConfiguration.setExposedHeaders(List.of("*")); // 헤더 값 접근
 
 		corsConfiguration.addAllowedOriginPattern("http://localhost:3000");
+		corsConfiguration.addAllowedOriginPattern("http://localhost:8000");
+		corsConfiguration.addAllowedOriginPattern("http://localhost:8001");
 		corsConfiguration.addAllowedOriginPattern("https://k9d103.p.ssafy.io");
+		corsConfiguration.addAllowedOriginPattern("https://k9d103.p.ssafy.io:8000");
 		corsConfiguration.addAllowedOriginPattern("https://k9d103.p.ssafy.io:8001");
 		corsConfiguration.addAllowedMethod("*");
 		corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
