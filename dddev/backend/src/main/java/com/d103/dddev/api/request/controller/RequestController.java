@@ -317,7 +317,7 @@ public class RequestController {
     })
     public ResponseEntity<ResponseDto<Void>> changeSender(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                           @ApiParam(value = "문서 아이디")@PathVariable("requestId") String requestId,
-                                                          @ApiParam(value = "보내는 사람의 Id")@RequestBody RequestSenderDto requestSenderDto,
+                                                          @ApiParam(value = "보내는 사람의 githubId")@RequestBody RequestSenderDto requestSenderDto,
                                                           @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
         ResponseDto<Void> responseDto;
 
@@ -365,7 +365,7 @@ public class RequestController {
     })
     public ResponseEntity<ResponseDto<Void>> changeReceiver(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                             @ApiParam(value = "문서 아이디")@PathVariable("requestId") String requestId,
-                                                            @ApiParam(value = "받는 사람의 Id")@RequestBody RequestReceiverDto requestReceiverDto,
+                                                            @ApiParam(value = "받는 사람의 githubId")@RequestBody RequestReceiverDto requestReceiverDto,
                                                             @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
         ResponseDto<Void> responseDto;
 
