@@ -13,5 +13,5 @@ import lombok.ToString;
 @ToString
 public class UpdateAlertDto {
 	private List<String> keyword;
-	private String type;
+	// private String type;
 }

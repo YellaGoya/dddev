@@ -28,5 +28,5 @@ public interface GroundService {
 
 	Ground deleteGroundProfile(Ground ground) throws Exception;
 	void deleteMemberFromGround(Ground ground, User user) throws Exception;
-	void deleteGround(Ground ground) throws Exception;
+	void deleteGround(User user, Ground ground) throws Exception;
 }

@@ -10,6 +10,7 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.d103.dddev.api.alert.service.AlertService;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
@@ -35,10 +36,14 @@ public class GroundServiceImpl implements GroundService {
 	private final UserService userService;
 	private final ProfileService profileService;
 	private final RepositoryService repositoryService;
+	private final AlertService alertService;
 	private final IssueService issueService;
 	private final UndefinedUtil undefinedUtil;
 	private final Integer DEFAULT_GROUND_FOCUS_TIME = 5;
 	private final Integer DEFAULT_GROUND_ACTIVE_TIME = 3;
+
+	private final static String PUSH_WEBHOOK_URL = "https://k9d103.p.ssafy.io/alert-service/push-webhook";
+	private final static String PULL_REQUEST_WEBHOOK_URL = "https://k9d103.p.ssafy.io/alert-service/pull-request-webhook";
 
 	/**
 	 * 그라운드 생성
@@ -69,6 +74,14 @@ public class GroundServiceImpl implements GroundService {
 		 * 그라운드 생성 시 미분류 문서 생성(목표, 체크 포인트)
 		 *
 		 * */
+
+		// 그라운드 생성 시 웹훅 바로 생성
+		try {
+			alertService.initAlert(user, repository, "push");
+			alertService.initAlert(user, repository, "pull_request");
+		} catch (Exception e) {
+			log.error("createGround :: createWebhook :: {}", e.getMessage());
+		}
 
 		undefinedUtil.createUndefined(ground);
 
@@ -190,7 +203,7 @@ public class GroundServiceImpl implements GroundService {
 
 	// TODO :: ground에 속한 이슈, 문서, 리퀘스트 모두 삭제하기
 	@Override
-	public void deleteGround(Ground ground) throws Exception {
+	public void deleteGround(User user, Ground ground) throws Exception {
 		log.info("service - deleteGround :: 그라운드 삭제 진입");
 
 		// 프로필 사진 받아오기
@@ -237,6 +250,13 @@ public class GroundServiceImpl implements GroundService {
 		// 스프린트 삭제
 
 		// 차트 데이터 삭제하기
+
+		// 그라운드 삭제 시 웹훅 모두 삭제
+		try {
+			alertService.deleteWebhook(user, repository);
+		} catch (Exception e) {
+			log.error("deleteGround :: deleteWebhook :: {}", e.getMessage());
+		}
 
 	}
 }

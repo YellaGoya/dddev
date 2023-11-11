@@ -22,9 +22,9 @@ public class CommitDataDto {
 	* push 웹훅 안에 commits list dto 형식
 	*/
 
-	String id;
+	// String id;
 	// String treeId;
-	String distinct;
+	// String distinct;
 	/*
 	* commit message
 	* "Update README.md"
@@ -46,7 +46,16 @@ public class CommitDataDto {
         "username": "gayun0303"
       },
 	* */
-	Map<String, Object> author;
+	Map<String, String> author;
+
+	/*
+	* "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "username": "web-flow"
+      },
+    * */
+	Map<String, String> committer;
 
 	/*
 	* changed file list

@@ -733,7 +733,7 @@ public class GroundController {
 				throw new NoSuchElementException("해당 그라운드의 owner가 아닙니다");
 			}
 
-			groundService.deleteGround(ground);
+			groundService.deleteGround(user, ground);
 
 			responseDto = ResponseDto.<String>builder().code(HttpStatus.OK.value()).message("그라운드 삭제 성공!").build();
 

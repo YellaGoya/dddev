@@ -44,6 +44,8 @@ public class AlertEntity {
 
 	private Integer repositoryId;
 
+	// private Integer groundId;
+
 	private String type;
 
 	@JsonIgnore

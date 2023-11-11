@@ -1,16 +1,10 @@
 package com.d103.dddev.api.alert.repository;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.stereotype.Repository;
 
-import com.d103.dddev.api.alert.entity.AlertDataEntity;
-import com.google.api.core.ApiFuture;
+import com.d103.dddev.api.alert.entity.AlertDataDocument;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.cloud.FirestoreClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +30,10 @@ public class AlertDataRepo {
 		FIRE_STORE = FirestoreClient.getFirestore();
 	}
 
-	public String addAlertData(AlertDataEntity alertDataEntity) throws Exception{
+	public String addAlertData(AlertDataDocument alertDataDocument) throws Exception{
 		// Firestore FIRE_STORE = FirestoreClient.getFirestore();
 		DocumentReference document = FIRE_STORE.collection(COLLECTION_NAME).document();
-		document.set(alertDataEntity);
+		document.set(alertDataDocument);
 		log.info("새로운 문서 - 알림 데이터 - 가 추가되었습니다. document id: {}", document.getId()	);
 		return document.getId();
 	}
