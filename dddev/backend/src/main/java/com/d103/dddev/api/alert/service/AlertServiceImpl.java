@@ -396,10 +396,7 @@ public class AlertServiceImpl implements AlertService {
 	public List<AlertResponseDto> alertList(User user) throws Exception {
 		List<AlertResponseDto> alertListResponseDto = new ArrayList<>();
 
-		// List<AlertEntity> alertEntityList = alertRepository.get(user.getId());
 		List<AlertListDto> list = alertRepository.findAlertEntityAndGroundName(user.getId());
-
-		log.info("list : {}", list.get(0).getGroundName());
 
 		for (AlertListDto alert : list) {
 			List<String> keyword = alertRepository.findById(alert.getId())
