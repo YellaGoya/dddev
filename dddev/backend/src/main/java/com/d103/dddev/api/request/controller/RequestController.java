@@ -373,7 +373,7 @@ public class RequestController {
             requestService.changeReceiver(groundId, requestId, requestReceiverDto);
             responseDto = ResponseDto.<Void>builder()
                     .code(HttpStatus.OK.value())
-                    .message("요청을 보냈습니다.")
+                    .message("받는 사람을 변경했습니다.")
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
@@ -420,7 +420,7 @@ public class RequestController {
             Comment saveComment = requestService.createComment(groundId, requestId, comment, userDetails);
             responseDto = ResponseDto.<Comment>builder()
                     .code(HttpStatus.OK.value())
-                    .message("댓글을 달았습니다.")
+                    .message("댓글을 생성했습니다.")
                     .data(saveComment)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);

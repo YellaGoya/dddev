@@ -133,7 +133,7 @@ public class GeneralController {
         }
     }
     @GetMapping("/total")
-    @ApiOperation(value="문서트릐 구조로 불러오기")
+    @ApiOperation(value="문서트리 구조로 불러오기")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "문서 존재하지 않음"),
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
