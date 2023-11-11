@@ -164,7 +164,10 @@ public class CheckServiceImpl implements CheckService{
                 .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 저장 체크포인트 문서 조회
 
         // 필요시 현재 상태와 다른지 검증 코드 구현
-        check.setTitle(request.getTitle());
+        String title = request.getTitle();
+        if(title != null){
+            check.setTitle(request.getTitle());
+        }
         check.setContent(request.getContent());
         check.setModifier(userDetails.getUsername());
 

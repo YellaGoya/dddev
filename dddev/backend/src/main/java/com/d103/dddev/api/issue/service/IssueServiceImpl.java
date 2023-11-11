@@ -165,7 +165,10 @@ public class IssueServiceImpl implements IssueService {
 		Issue issue = issueRepository.findById(issueId)
 			.orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
 
-		issue.setTitle(request.getTitle());
+		String title = request.getTitle();
+		if(title != null){
+			issue.setTitle(request.getTitle());
+		}
 		issue.setContent(request.getContent());
 		issue.setModifier(userDetails.getUsername());
 
