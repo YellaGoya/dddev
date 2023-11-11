@@ -94,7 +94,7 @@ const Index = () => {
 
   const RenderDocsTree = ({ doc, type }) => {
     const toggle = toggleDocs[doc.id] ?? true;
-    const [title, setTitle] = useState(doc.title === '' ? '새 문서' : doc.title);
+    const [title, setTitle] = useState(doc.title === '' ? '새 문서' : doc.title || '');
     const [onEdit, setOnEdit] = useState(false);
     const editRef = useRef(null);
 

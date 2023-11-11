@@ -113,7 +113,7 @@ const GroundUsers = ({ selected }) => {
           {users &&
             users.map((user) => (
               <s.User key={user.userId}>
-                <s.ProfileImage src={user.profileDto ? `https://k9d103.p.ssafy.io:8001/img/user/${user.profileDto.fileName}` : userStockImage} />
+                <s.ProfileImage src={user.profileDto ? `https://k9d103.p.ssafy.io/img/user/${user.profileDto.fileName}` : userStockImage} />
                 {user.nickname}{' '}
                 {user.isOwner ? (
                   <>

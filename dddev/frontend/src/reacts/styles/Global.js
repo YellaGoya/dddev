@@ -89,7 +89,17 @@ export const Main = styled.main`
 
   overflow-x: hidden;
 
-  background-color: var(--bg-basic);
+  background-color: transparent;
+
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--thumb-hover);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: var(--font-rev);
+    }
+  }
 `;
 
 export const ContentWrapper = styled.section`

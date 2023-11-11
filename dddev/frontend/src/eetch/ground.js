@@ -93,6 +93,21 @@ export const treeDocument = async ({ accessToken, refreshToken, type, groundId }
   return res.json();
 };
 
+export const parentsList = async ({ accessToken, refreshToken, type, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/total`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
 export const detailDocument = async ({ accessToken, refreshToken, groundId, type, id }) => {
   const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}`;
   const options = {

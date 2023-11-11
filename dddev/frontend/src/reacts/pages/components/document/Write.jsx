@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
@@ -18,6 +18,9 @@ import eetch from 'eetch/eetch';
 import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import hljs from 'highlight.js';
 
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import DoneOutlineRoundedIcon from '@mui/icons-material/DoneOutlineRounded';
+import SettingsEthernetRoundedIcon from '@mui/icons-material/SettingsEthernetRounded';
 import AddIcon from '@mui/icons-material/Add';
 import 'quill/dist/quill.snow.css';
 import 'highlight.js/styles/github-dark.css';
@@ -26,11 +29,78 @@ const Write = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
+  const [originalTitle, setOriginalTitle] = useState('');
+  const [settingToggle, setSettingToggle] = useState(false);
+  const [title, setTitle] = useState('');
+  const [step, setStep] = useState(1);
+  const titleRef = useRef(null);
+  const settingTitleRef = useRef(null);
   const quillRef = useRef(null);
   const innerHtmlRef = useRef('');
   const lastEditorRef = useRef(null);
   const notInitiatedRef = useRef(true);
+  const notDeleteRef = useRef(true);
   const params = useParams();
+
+  const titleResizeHandler = () => {
+    titleRef.current.style.height = 'auto';
+    titleRef.current.style.height = Math.round(titleRef.current.scrollHeight / 43) * 43 + 10 + 'px';
+    settingTitleRef.current.style.height = 'auto';
+    settingTitleRef.current.style.height = titleRef.current.style.height;
+  };
+
+  useEffect(() => {
+    titleResizeHandler();
+  }, [title]);
+
+  useEffect(() => {
+    console.log(step);
+  }, [step]);
+
+  const titleDocument = () => {
+    if (title === '') setTitle(originalTitle === '' ? '새 문서' : originalTitle);
+    else
+      eetch
+        .titleDocument({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId: params.groundId,
+          type: params.type,
+          id: params.docId,
+          title,
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+  };
+
+  const deleteDocument = () => {
+    notDeleteRef.current = false;
+    eetch
+      .deleteDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+      })
+      .then(() => {
+        navigate(-1);
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
 
   const initRoom = (needData) => {
     eetch
@@ -42,7 +112,10 @@ const Write = () => {
         id: params.docId,
       })
       .then((res) => {
+        setStep(res.data.step);
         dispatch(setDoc({ docTitle: res.data.title }));
+        setTitle(res.data.title === '' ? '새 문서' : res.data.title);
+        setOriginalTitle(res.data.title === '' ? '새 문서' : res.data.title);
         if (needData) quillRef.current.getEditor().root.innerHTML = res.data.content;
       })
       .catch((err) => {
@@ -56,14 +129,24 @@ const Write = () => {
   };
 
   const editDocument = () => {
-    eetch.editDocument({
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      groundId: params.groundId,
-      type: params.type,
-      id: params.docId,
-      content: innerHtmlRef.current,
-    });
+    if (notDeleteRef.current)
+      eetch
+        .editDocument({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId: params.groundId,
+          type: params.type,
+          id: params.docId,
+          content: innerHtmlRef.current,
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
   };
 
   const getRandomPastelColor = () => {
@@ -111,10 +194,12 @@ const Write = () => {
     const { container } = editor;
 
     const intervalId = setInterval(() => {
+      if (document.activeElement !== titleRef.current && document.activeElement !== settingTitleRef.current) initRoom(false);
+
       if (lastEditorRef.current === wsProvider.awareness.clientID) {
         editDocument();
       }
-    }, 10000); // 10초마다 실행
+    }, 10000);
 
     const ping = (noise) => {
       wsProvider.awareness.setLocalStateField('pinged', {
@@ -265,7 +350,45 @@ const Write = () => {
   return (
     <>
       <s.EditorWrapper>
+        <textarea
+          ref={titleRef}
+          value={title}
+          rows={1}
+          onChange={(event) => {
+            setTitle(event.target.value);
+          }}
+          onBlur={titleDocument}
+        />
         <ReactQuill ref={quillRef} modules={modules} placeholder="내용을 입력해주세요." />
+        {step === 1 ? (
+          <s.SettingButton className="only-delete-button" onClick={() => deleteDocument()}>
+            <RemoveCircleIcon />
+          </s.SettingButton>
+        ) : (
+          <>
+            <s.SettingButton onClick={() => setSettingToggle(true)}>
+              <SettingsEthernetRoundedIcon />
+            </s.SettingButton>
+            <s.SettingButton className="delete-button" onClick={() => deleteDocument()}>
+              <RemoveCircleIcon />
+            </s.SettingButton>
+          </>
+        )}
+        <s.SettingWrapper $toggle={settingToggle}>
+          <s.SettingLabel>제목</s.SettingLabel>
+          <s.SettingButton className="close-button" onClick={() => setSettingToggle(false)}>
+            <DoneOutlineRoundedIcon />
+          </s.SettingButton>
+          <textarea
+            ref={settingTitleRef}
+            value={title}
+            rows={1}
+            onChange={(event) => {
+              setTitle(event.target.value);
+            }}
+            onBlur={titleDocument}
+          />
+        </s.SettingWrapper>
       </s.EditorWrapper>
 
       <s.InsertBottom onClick={insertBottom}>

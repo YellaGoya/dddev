@@ -21,6 +21,8 @@
   --border-dark:#14181b;
   --border-lite-hover: #242d39;
   --button-basic: #21262c;
+  --button-dark: #161b22;
+  --button-darker: #151b25;
   --button-lite: #3d4752;
   --button-activated : #000;
   --selection-bg: #6194c8;
@@ -29,5 +31,5 @@
   --code-highlight-font: #fff;
   --blockquote-bg: #161b22;
   --blockquote-hover: #2e3948;
-  --thumb-hover: #161b22;
+  --thumb-hover: #48576d;
 }
