@@ -7,6 +7,7 @@ import com.d103.dddev.api.request.repository.dto.requestDto.*;
 import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
 import com.d103.dddev.api.request.service.RequestServiceImpl;
 import com.d103.dddev.common.exception.document.DocumentNotFoundException;
+import com.d103.dddev.common.exception.user.UserNotFoundException;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -77,9 +78,9 @@ public class RequestController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<List<Request>>> insertRequestsWithTitles(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                      @RequestBody RequestInsertManyDto requestInsertManyDto,
-                                                      @RequestHeader String Authorization,
-                                                      @AuthenticationPrincipal UserDetails userDetails){
+                                                                               @RequestBody RequestInsertManyDto requestInsertManyDto,
+                                                                               @RequestHeader String Authorization,
+                                                                               @AuthenticationPrincipal UserDetails userDetails){
         ResponseDto<List<Request>> responseDto;
 
         try{
@@ -203,7 +204,7 @@ public class RequestController {
     })
     public ResponseEntity<ResponseDto<Request>> updateRequest(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                               @ApiParam(value = "문서아이디") @PathVariable("requestId") String requestId,
-                                                              @RequestBody RequestUpdateDto requestUpdateDto,
+                                                              @ApiParam(value = "title(필수 x), content(필수 x)")@RequestBody RequestUpdateDto requestUpdateDto,
                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
                                                               @AuthenticationPrincipal UserDetails userDetails) {
         ResponseDto<Request> responseDto;
@@ -222,7 +223,7 @@ public class RequestController {
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
-        }catch(InvalidAttributeValueException e){
+        }catch(InvalidAttributeValueException | UserNotFoundException e){
             responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())

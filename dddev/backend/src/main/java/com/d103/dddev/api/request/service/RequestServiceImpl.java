@@ -127,28 +127,35 @@ public class RequestServiceImpl implements RequestService{
 
     @Override
     public Request updateRequest(int groundId, String requestId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception{
-        int sendUserId = requestUpdateDto.getSendUserId();
-        int receiveUserId = requestUpdateDto.getReceiveUserId();
-        User sendUser = userRepository.findById(sendUserId).orElseThrow(()->new UserNotFoundException("유저를 불러오는데 실패했습니다."));
-        User receiveUser = userRepository.findById(receiveUserId).orElseThrow(()->new UserNotFoundException("유저를 불러오는데 실패했습니다."));
-        if(sendUser == null){
-            throw new InvalidAttributeValueException("잘못된 보내는 유저 아이디입니다.");
-        }
-        if(receiveUser == null){
-            throw new InvalidAttributeValueException("잘못된 받는 유저 아이디입니다.");
-        }
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         // 이미 보낸 요청이라면 수정할 수 없다.
         if(loadRequest.getStatus() == 1){
             throw new InvalidAttributeValueException("수정할 수 없습니다.");
         }
+        String title = requestUpdateDto.getTitle();
+        String content = requestUpdateDto.getContent();
+        Integer sendUserId = requestUpdateDto.getSendUserId();
+        Integer receiveUserId = requestUpdateDto.getReceiveUserId();
+        if(title==null && content==null && sendUserId==null && receiveUserId==null) return loadRequest;
+        if(title != null){
+            loadRequest.setTitle(title);
+        }
+        if(content != null){
+            loadRequest.setContent(content);
+        }
+        if(sendUserId != null){
+            User sendUser = userRepository.findById(sendUserId).orElseThrow(()->new UserNotFoundException("유저를 불러오는데 실패했습니다."));
+            loadRequest.setSendUser(sendUser);
+        }
+        if(receiveUserId != null){
+            User receiveUser = userRepository.findById(receiveUserId).orElseThrow(()->new UserNotFoundException("유저를 불러오는데 실패했습니다."));
+            loadRequest.setReceiveUser(receiveUser);
+        }
         int step = loadRequest.getStep();
-        loadRequest.setTitle(requestUpdateDto.getTitle());
-        loadRequest.setContent(requestUpdateDto.getContent());
+
         loadRequest.setUpdatedAt(LocalDateTime.now());
-        loadRequest.setSendUser(sendUser);
-        loadRequest.setReceiveUser(receiveUser);
         loadRequest.setModifier(userDetails.getUsername());
+
         try{
             requestRepository.save(loadRequest);
         }catch(Exception e){
