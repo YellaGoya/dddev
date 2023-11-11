@@ -16,7 +16,7 @@ import * as test from 'eetch/test';
 const eetch = async (url, options, refreshToken) => {
   const res = await fetch(url, options);
   if (res.status === 403) {
-    const newAccessToken = await fetch(`https://k9d103.p.ssafy.io/oauth/re-issue`, {
+    const newAccessToken = await fetch(`https://k9d103.p.ssafy.io:8001/oauth/re-issue`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

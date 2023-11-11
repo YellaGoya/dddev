@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
@@ -7,6 +7,7 @@ import * as Y from 'yjs';
 import { QuillBinding } from 'y-quill';
 import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
+// import WriteOptions from 'reacts/pages/components/document/WriteOptions';
 
 import { setDoc } from 'redux/actions/doc';
 import { setMenu } from 'redux/actions/menu';
@@ -30,13 +31,28 @@ const Write = () => {
   const lastEditorRef = useRef(null);
   const notInitiatedRef = useRef(true);
   const params = useParams();
-  const [title, setTitle] = useState('');
 
-  const getRandomPastelColor = () => {
-    const r = Math.floor(Math.random() * 127 + 128);
-    const g = Math.floor(Math.random() * 127 + 128);
-    const b = Math.floor(Math.random() * 127 + 128);
-    return `rgb(${r}, ${g}, ${b})`;
+  const initRoom = (needData) => {
+    eetch
+      .detailDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+      })
+      .then((res) => {
+        dispatch(setDoc({ docTitle: res.data.title }));
+        if (needData) quillRef.current.getEditor().root.innerHTML = res.data.content;
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
   };
 
   const editDocument = () => {
@@ -46,9 +62,15 @@ const Write = () => {
       groundId: params.groundId,
       type: params.type,
       id: params.docId,
-      title,
       content: innerHtmlRef.current,
     });
+  };
+
+  const getRandomPastelColor = () => {
+    const r = Math.floor(Math.random() * 127 + 128);
+    const g = Math.floor(Math.random() * 127 + 128);
+    const b = Math.floor(Math.random() * 127 + 128);
+    return `rgb(${r}, ${g}, ${b})`;
   };
 
   const modules = useMemo(() => {
@@ -88,18 +110,17 @@ const Write = () => {
     editor.format('font', 'Pretendard');
     const { container } = editor;
 
-    const ping = (noise) => {
-      wsProvider.awareness.setLocalStateField('user', {
-        ping: true,
-        noise,
-      });
-    };
-
     const intervalId = setInterval(() => {
       if (lastEditorRef.current === wsProvider.awareness.clientID) {
         editDocument();
       }
     }, 10000); // 10초마다 실행
+
+    const ping = (noise) => {
+      wsProvider.awareness.setLocalStateField('pinged', {
+        noise,
+      });
+    };
 
     const updateCursor = (react) => {
       const range = editor.getSelection();
@@ -145,30 +166,6 @@ const Write = () => {
       return false;
     };
 
-    const initRoom = (needData) => {
-      eetch
-        .detailDocument({
-          accessToken: user.accessToken,
-          refreshToken: user.refreshToken,
-          groundId: params.groundId,
-          type: params.type,
-          id: params.docId,
-        })
-        .then((res) => {
-          setTitle(res.data.title);
-          dispatch(setDoc({ docTitle: res.data.title }));
-          if (needData) quillRef.current.getEditor().root.innerHTML = res.data.content;
-        })
-        .catch((err) => {
-          if (err.message === 'RefreshTokenExpired') {
-            dispatch(logoutUser());
-            dispatch(setMenu(false));
-            dispatch(setMessage(false));
-            navigate(`/login`);
-          }
-        });
-    };
-
     editor.on('selection-change', () => {
       updateCursor();
       lastEditorRef.current = wsProvider.awareness.clientID;
@@ -189,31 +186,30 @@ const Write = () => {
     wsProvider.on('status', (event) => {
       if (event.status === 'connected' && notInitiatedRef.current) {
         ping(0);
+        initRoom(false);
       }
     });
 
     wsProvider.awareness.on('update', ({ added, updated, removed }) => {
       const users = wsProvider.awareness.getStates();
 
-      const intervalId = setInterval(() => {
-        const editorClassName = editor.container.firstChild.className;
+      added.concat(updated).forEach((id) => {
+        const userState = users.get(id);
+        if (userState && userState.pinged && notInitiatedRef.current) {
+          const { pinged } = userState;
+          if (pinged.noise < 3) ping(pinged.noise + 1);
+          if (pinged.noise === 3) {
+            ping(4);
+            initRoom([...users.keys()].length === 1);
+            notInitiatedRef.current = false;
+          }
+        }
 
-        if (editorClassName !== 'ql-editor ql-blank') {
-          added.concat(updated).forEach((id) => {
-            const userState = users.get(id);
-
+        const wsCycle = setInterval(() => {
+          const editorClassName = editor.container.firstChild.className;
+          if (editorClassName !== 'ql-editor ql-blank') {
             if (userState && userState.user && userState.user.cursor !== null) {
               const { user } = userState;
-              if (user.ping) {
-                if (user.noise < 3) ping(user.noise + 1);
-                if (user.noise === 3 && notInitiatedRef.current) {
-                  ping(4);
-                  initRoom([...users.keys()].length === 1);
-                  notInitiatedRef.current = false;
-                }
-
-                return;
-              }
 
               if (id === wsProvider.awareness.clientID) return;
 
@@ -242,18 +238,18 @@ const Write = () => {
 
               cursorElement.style.top = cursorPosition.top + 'px';
             }
-          });
 
-          removed.forEach((id) => {
-            const cursorElement = document.getElementById(`cursor-${id}`);
-            if (cursorElement !== null) {
-              cursorElement.remove();
-            }
-          });
+            clearInterval(wsCycle);
+          }
+        }, 100);
+      });
 
-          clearInterval(intervalId);
+      removed.forEach((id) => {
+        const cursorElement = document.getElementById(`cursor-${id}`);
+        if (cursorElement !== null) {
+          cursorElement.remove();
         }
-      }, 100);
+      });
     });
 
     const binding = new QuillBinding(type, editor, wsProvider.awareness);

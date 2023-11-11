@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 import * as s from 'reacts/styles/components/common/Input';
-const Input = ({ label, holder, data, setData, array, fixed, click, enter, message, valid }) => {
+const Input = ({ label, holder, data, setData, array, fixed, click, enter, message, valid, display = true }) => {
   const [value, setValue] = useState('');
   const [placeholder, setPlaceholder] = useState(holder || '');
   const [isActive, setIsActive] = useState(false);
@@ -30,7 +30,7 @@ const Input = ({ label, holder, data, setData, array, fixed, click, enter, messa
         if (!array.includes(e.target.value)) enter([...array, e.target.value]);
         setPlaceholder(e.target.value);
         setValue('');
-      } else if (enter) enter(e.target.value);
+      } else if (enter) enter({ data: e.target.value, setMessage: setValidMessage, setHolder: setPlaceholder });
     }
   };
 
@@ -47,7 +47,7 @@ const Input = ({ label, holder, data, setData, array, fixed, click, enter, messa
   };
 
   return (
-    <s.InputWrapper>
+    <s.InputWrapper $display={display}>
       {label && <s.Label $isActive={isActive}>{label}</s.Label>}
       <s.Input
         value={array ? value : data}
@@ -60,7 +60,7 @@ const Input = ({ label, holder, data, setData, array, fixed, click, enter, messa
         onBlur={handleBlur}
       />
       {click && (
-        <s.Button type="button" onClick={() => click(array ? value : data)}>
+        <s.Button type="button" onClick={() => click(array ? value : { data, setMessage: setValidMessage, setHolder: setPlaceholder })}>
           <s.DivLine />
           <ExitToAppRoundedIcon />
         </s.Button>

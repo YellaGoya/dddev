@@ -12,6 +12,7 @@ import { logoutUser } from 'redux/actions/user';
 import userStockImage from 'assets/userStockImage.webp';
 import DisabledByDefaultRoundedIcon from '@mui/icons-material/DisabledByDefaultRounded';
 import PhotoFilterIcon from '@mui/icons-material/PhotoFilter';
+import MeetingRoomRoundedIcon from '@mui/icons-material/MeetingRoomRounded';
 
 import * as s from 'reacts/styles/components/user/EditProfile';
 
@@ -33,25 +34,32 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
   const imageRef = useRef(null);
   const sizeRef = useRef(null);
 
-  const nicknameValid = (data, set) => {
+  const logoutHandler = () => {
+    dispatch(logoutUser());
+    dispatch(setMenu(false));
+    dispatch(setMessage(false));
+    navigate(`/login`);
+  };
+
+  const nicknameValid = (data, setMessage) => {
     if (data.length < 2 || data.length > 10) {
-      set({ fail: true, text: '* 2자 이상 10자 이하로 입력해주세요.' });
+      setMessage({ fail: true, text: '* 2자 이상 10자 이하로 입력해주세요.' });
       return;
     }
 
     if (data.match(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/)) {
-      set({ fail: true, text: '* 한글, 영문, 숫자만 입력 가능합니다.' });
+      setMessage({ fail: true, text: '* 한글, 영문, 숫자만 입력 가능합니다.' });
       return;
     }
 
     eetch
       .userNickname({ accessToken: user.accessToken, refreshToken: user.refreshToken, nickname: data })
       .then((res) => {
-        if (res.data) set({ fail: false, text: '* 사용 가능한 닉네임입니다.' });
-        else set({ fail: true, text: '* 이미 존재하는 닉네임입니다.' });
+        if (res.data) setMessage({ fail: false, text: '* 사용 가능한 닉네임입니다.' });
+        else setMessage({ fail: true, text: '* 이미 존재하는 닉네임입니다.' });
       })
       .catch(() => {
-        set({ fail: true, text: '* 사용 불가능한 닉네임입니다.' });
+        setMessage({ fail: true, text: '* 사용 불가능한 닉네임입니다.' });
       });
   };
 
@@ -93,10 +101,6 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
       setImgMessage('* 이미지 파일만 업로드 가능합니다.');
     }
   };
-
-  useEffect(() => {
-    console.log(patMessage);
-  }, [patMessage]);
 
   const submitPat = () => {
     eetch
@@ -169,52 +173,58 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
       <s.OutWrapper $toggle={toggle} onClick={() => setToggle(false)} />
       <s.EditWrapper $toggle={toggle} onClick={() => setToggle(false)}>
         <s.EditModalWrapper onClick={(event) => event.stopPropagation()}>
-          <s.ButtonWrapper>
-            <s.ProfileEditButton type="button" onClick={submitChange}>
-              적용
-            </s.ProfileEditButton>
-            <s.CloseButton onClick={() => setToggle(false)}>닫기</s.CloseButton>
-          </s.ButtonWrapper>
-          <s.MessageWrapper>
-            <s.EditImageWrapper ref={sizeRef}>
-              <s.ProfileImage
-                ref={imageRef}
-                src={userInfo.profileDto ? `https://k9d103.p.ssafy.io/img/user/${userInfo.profileDto.fileName}` : userStockImage}
-              />
-              <s.ImageButton onClick={handleFileSelect}>
-                <PhotoFilterIcon />
-              </s.ImageButton>
-              <s.ImageButton onClick={deleteImage}>
-                <DisabledByDefaultRoundedIcon />
-              </s.ImageButton>
-              <input ref={hiddenFileInput} type="file" style={{ display: 'none' }} onChange={handleChange} />
-            </s.EditImageWrapper>
-            <s.descriptionMessage>{imgMessage}</s.descriptionMessage>
-          </s.MessageWrapper>
-          <Input
-            label="깃헙 엑세스 토큰 변경"
-            holder={userInfo.personalAccessToken && userInfo.personalAccessToken.substr(0, 10).concat(' ···')}
-            data={pat}
-            setData={setPat}
-            enter={submitPat}
-            click={submitPat}
-            message={patMessage}
-          />
-          <Input label="닉네임" data={nickname} setData={setNickname} valid={nicknameValid} />
-          <Input label="상태 메시지" data={statusMsg} setData={setStatusMsg} />
-          <s.DivLine />
-          <Select label="알림 대상" list={testDummy} />
-          {/* <Input label="상태 메시지" dataRef={statusRef} /> */}
+          <s.GradBoxWrapper>
+            <s.ButtonWrapper>
+              <s.ProfileEditButton type="button" onClick={submitChange}>
+                적용
+              </s.ProfileEditButton>
+              <s.CloseButton onClick={() => setToggle(false)}>닫기</s.CloseButton>
+            </s.ButtonWrapper>
+            <s.MessageWrapper>
+              <s.EditImageWrapper ref={sizeRef}>
+                <s.ProfileImage
+                  ref={imageRef}
+                  src={userInfo.profileDto ? `https://k9d103.p.ssafy.io:8001/img/user/${userInfo.profileDto.fileName}` : userStockImage}
+                />
+                <s.ImageButton onClick={handleFileSelect}>
+                  <PhotoFilterIcon />
+                </s.ImageButton>
+                <s.ImageButton onClick={deleteImage}>
+                  <DisabledByDefaultRoundedIcon />
+                </s.ImageButton>
+                <input ref={hiddenFileInput} type="file" style={{ display: 'none' }} onChange={handleChange} />
+              </s.EditImageWrapper>
+              <s.descriptionMessage>{imgMessage}</s.descriptionMessage>
+            </s.MessageWrapper>
+            <Input
+              label="깃헙 엑세스 토큰 변경"
+              holder={userInfo.personalAccessToken && userInfo.personalAccessToken.substr(0, 10).concat(' ···')}
+              data={pat}
+              setData={setPat}
+              enter={submitPat}
+              click={submitPat}
+              message={patMessage}
+            />
+            <Input label="닉네임" data={nickname} setData={setNickname} valid={nicknameValid} />
+            <Input label="상태 메시지" data={statusMsg} setData={setStatusMsg} />
+            <s.DivLine />
+            <Select label="알림 대상" list={testDummy} />
+            {/* <Input label="상태 메시지" dataRef={statusRef} /> */}
 
-          <s.ButtonWrapper>
-            <s.ProfileEditButton type="button" onClick={submitChange}>
-              적용
-            </s.ProfileEditButton>
-            <s.CloseButton onClick={() => setToggle(false)}>닫기</s.CloseButton>
-          </s.ButtonWrapper>
+            <s.ButtonWrapper>
+              <s.ProfileEditButton type="button" onClick={submitChange}>
+                적용
+              </s.ProfileEditButton>
+              <s.CloseButton onClick={() => setToggle(false)}>닫기</s.CloseButton>
+              <s.LogoutButton onClick={logoutHandler}>
+                <MeetingRoomRoundedIcon />
+                로그아웃
+              </s.LogoutButton>
+            </s.ButtonWrapper>
+          </s.GradBoxWrapper>
+          <s.GradBoxTop />
+          <s.GradBoxBottom />
         </s.EditModalWrapper>
-        <s.GradBoxTop />
-        <s.GradBoxBottom />
       </s.EditWrapper>
     </>
   );

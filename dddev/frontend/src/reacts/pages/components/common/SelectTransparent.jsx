@@ -24,8 +24,8 @@ const Select = ({ label, list, select, selected }) => {
 
   return (
     <s.SelectWrapper>
-      {label && <s.Label>{label}</s.Label>}
       <s.Selected ref={selRef} $toggle={toggle} onClick={() => setToggle(!toggle)}>
+        {label && <s.Label>{label}</s.Label>}
         <p>{value}</p>
         <KeyboardArrowDownIcon />
       </s.Selected>
