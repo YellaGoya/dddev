@@ -4,7 +4,8 @@ import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.request.collection.Comment;
 import com.d103.dddev.api.request.collection.Request;
 import com.d103.dddev.api.request.repository.dto.requestDto.*;
-import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
+import com.d103.dddev.api.request.repository.dto.responseDto.RequestStepResponseDto;
+import com.d103.dddev.api.request.repository.dto.responseDto.RequestTreeResponseDto;
 import com.d103.dddev.api.request.service.RequestServiceImpl;
 import com.d103.dddev.common.exception.document.DocumentNotFoundException;
 import com.d103.dddev.common.exception.user.UserNotFoundException;
@@ -141,26 +142,53 @@ public class RequestController {
         }
     }
     @GetMapping("/total")
+    @ApiOperation(value="문서트리 구조로 불러오기")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "문서 존재하지 않음"),
+            @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
+            @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
+    })
+    public ResponseEntity<ResponseDto<List<RequestTreeResponseDto>>> getTreeRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                                      @RequestHeader String Authorization){
+        ResponseDto<List<RequestTreeResponseDto>> responseDto;
+
+        try{
+            List<RequestTreeResponseDto> requests = requestService.getTreeRequests(groundId);
+            responseDto = ResponseDto.<List<RequestTreeResponseDto>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("문서 트리를 불러왔습니다.")
+                    .data(requests)
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }catch(Exception e){
+            responseDto = ResponseDto.<List<RequestTreeResponseDto>>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/list")
     @ApiOperation(value="step1 문서들 불러오기")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "문서 존재하지 않음"),
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<RequestResponseDto>>> getStep1Requests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                                                    @RequestHeader String Authorization){
-        ResponseDto<List<RequestResponseDto>> responseDto;
+    public ResponseEntity<ResponseDto<List<RequestStepResponseDto>>> getStep1Requests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                                      @RequestHeader String Authorization){
+        ResponseDto<List<RequestStepResponseDto>> responseDto;
 
         try{
-            List<RequestResponseDto> requests = requestService.getStep1Requests(groundId);
-            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
+            List<RequestStepResponseDto> requests = requestService.getStep1Requests(groundId);
+            responseDto = ResponseDto.<List<RequestStepResponseDto>>builder()
                     .code(HttpStatus.OK.value())
-                    .message("step1 문서들을 불러왔습니다.")
+                    .message("문서 트리를 불러왔습니다.")
                     .data(requests)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
+            responseDto = ResponseDto.<List<RequestStepResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -223,7 +251,7 @@ public class RequestController {
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
-        }catch(InvalidAttributeValueException | UserNotFoundException e){
+        }catch(InvalidAttributeValueException e){
             responseDto = ResponseDto.<Request>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
@@ -237,22 +265,112 @@ public class RequestController {
             return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PutMapping("/send/{requestId}")
-    @ApiOperation(value="요청 문서 요청보내기")
+    @PutMapping("/{requestId}/status")
+    @ApiOperation(value="요청 문서 진행 상태 변경")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "문서 존재하지 않음"),
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<Void>> sendRequest(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                         @ApiParam(value = "문서아이디")@PathVariable("requestId") String requestId,
-                                                         @RequestBody RequestUpdateDto requestUpdateDto,
-                                                         @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
-                                                         @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<ResponseDto<Void>> changeStatus(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                          @ApiParam(value = "문서아이디")@PathVariable("requestId") String requestId,
+                                                          @ApiParam(value = "status -> 0: 해야할 일\n"+
+                                                          "status -> 1: 진행 중\n"+
+                                                          "status -> 2: 완료")@RequestBody RequestStatusDto requestStatusDto,
+                                                          @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
         ResponseDto<Void> responseDto;
 
         try{
-            requestService.sendRequest(groundId, requestId, requestUpdateDto, userDetails);
+            requestService.changeStatus(groundId, requestId, requestStatusDto);
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("상태를 변경했습니다")
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }catch(DocumentNotFoundException e){
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.NOT_FOUND.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
+        }catch(InvalidAttributeValueException e){
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
+        }catch(Exception e){
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/{requestId}/sender")
+    @ApiOperation(value="요청 문서 보내는 사람 변경")
+    @ApiResponses(value = {
+            @ApiResponse(code = 403, message = "유저를 찾을 수 없음"),
+            @ApiResponse(code = 404, message = "문서 존재하지 않음"),
+            @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
+            @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
+    })
+    public ResponseEntity<ResponseDto<Void>> changeSender(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                          @ApiParam(value = "문서 아이디")@PathVariable("requestId") String requestId,
+                                                          @ApiParam(value = "보내는 사람의 Id")@RequestBody RequestSenderDto requestSenderDto,
+                                                          @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
+        ResponseDto<Void> responseDto;
+
+        try{
+            requestService.changeSender(groundId, requestId, requestSenderDto);
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("보내는 사람을 변경했습니다.")
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }catch(DocumentNotFoundException e){
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.NOT_FOUND.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
+        }catch(UserNotFoundException e){
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.FORBIDDEN.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.FORBIDDEN);
+        }catch(InvalidAttributeValueException e){
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
+        }catch(Exception e){
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{requestId}/receiver")
+    @ApiOperation(value="요청 문서 받는 사람 변경")
+    @ApiResponses(value = {
+            @ApiResponse(code = 403, message = "유저를 찾을 수 없음"),
+            @ApiResponse(code = 404, message = "문서 존재하지 않음"),
+            @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
+            @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
+    })
+    public ResponseEntity<ResponseDto<Void>> changeReceiver(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                            @ApiParam(value = "문서 아이디")@PathVariable("requestId") String requestId,
+                                                            @ApiParam(value = "받는 사람의 Id")@RequestBody RequestReceiverDto requestReceiverDto,
+                                                            @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
+        ResponseDto<Void> responseDto;
+
+        try{
+            requestService.changeReceiver(groundId, requestId, requestReceiverDto);
             responseDto = ResponseDto.<Void>builder()
                     .code(HttpStatus.OK.value())
                     .message("요청을 보냈습니다.")
@@ -264,6 +382,12 @@ public class RequestController {
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
+        }catch(UserNotFoundException e){
+            responseDto = ResponseDto.<Void>builder()
+                    .code(HttpStatus.FORBIDDEN.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.FORBIDDEN);
         }catch(InvalidAttributeValueException e){
             responseDto = ResponseDto.<Void>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
@@ -320,8 +444,8 @@ public class RequestController {
             return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PutMapping("/move/{requestId}")
-    @ApiOperation(value="요청 문서 위치이동")
+    @PutMapping("/{requestId}/connect")
+    @ApiOperation(value="요청 문서 카테고리 이동")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "문서 존재하지 않음"),
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),

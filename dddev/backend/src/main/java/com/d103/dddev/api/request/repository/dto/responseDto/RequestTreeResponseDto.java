@@ -10,9 +10,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RequestResponseDto {
+public class RequestTreeResponseDto {
     private String id;
     private int step;
     private String title;
-    private List<RequestResponseDto> children;
+    private List<RequestTreeResponseDto> children;
 }

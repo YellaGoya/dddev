@@ -5,7 +5,8 @@ import com.d103.dddev.api.request.collection.Comment;
 import com.d103.dddev.api.request.collection.Request;
 import com.d103.dddev.api.request.repository.RequestRepository;
 import com.d103.dddev.api.request.repository.dto.requestDto.*;
-import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
+import com.d103.dddev.api.request.repository.dto.responseDto.RequestStepResponseDto;
+import com.d103.dddev.api.request.repository.dto.responseDto.RequestTreeResponseDto;
 import com.d103.dddev.api.user.repository.UserRepository;
 import com.d103.dddev.api.user.repository.entity.User;
 import com.d103.dddev.common.exception.document.DocumentNotFoundException;
@@ -21,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -107,14 +107,24 @@ public class RequestServiceImpl implements RequestService{
     public Request getRequest(int groundId, String requestId) throws Exception{
         return requestRepository.findById(requestId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다."));
     }
-
     @Override
-    public List<RequestResponseDto> getStep1Requests(int groundId) {
+    public List<RequestTreeResponseDto> getTreeRequests(int groundId) {
         List<Request> requestList = requestRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
 //      requestList.sort((r1, r2) -> Boolean.compare(r2.isUnclassified(), r1.isUnclassified()));
-        List<RequestResponseDto> requestResponseDtoList = new ArrayList<>();
+        List<RequestTreeResponseDto> requestResponseDtoList = new ArrayList<>();
         for (Request request : requestList) {
-            RequestResponseDto requestResponseDto = convertToDto(request);
+            RequestTreeResponseDto requestResponseDto = convertToRequestTreeResponseDto(request);
+            requestResponseDtoList.add(requestResponseDto);
+        }
+        return requestResponseDtoList;
+    }
+
+    @Override
+    public List<RequestStepResponseDto> getStep1Requests(int groundId) {
+        List<Request> requestList = requestRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<RequestStepResponseDto> requestResponseDtoList = new ArrayList<>();
+        for (Request request : requestList) {
+            RequestStepResponseDto requestResponseDto = convertToRequestStepResponseDto(request);
             requestResponseDtoList.add(requestResponseDto);
         }
         return requestResponseDtoList;
@@ -134,23 +144,14 @@ public class RequestServiceImpl implements RequestService{
         }
         String title = requestUpdateDto.getTitle();
         String content = requestUpdateDto.getContent();
-        Integer sendUserId = requestUpdateDto.getSendUserId();
-        Integer receiveUserId = requestUpdateDto.getReceiveUserId();
-        if(title==null && content==null && sendUserId==null && receiveUserId==null) return loadRequest;
+        if(title==null && content==null) return loadRequest;
         if(title != null){
             loadRequest.setTitle(title);
         }
         if(content != null){
             loadRequest.setContent(content);
         }
-        if(sendUserId != null){
-            User sendUser = userRepository.findById(sendUserId).orElseThrow(()->new UserNotFoundException("유저를 불러오는데 실패했습니다."));
-            loadRequest.setSendUser(sendUser);
-        }
-        if(receiveUserId != null){
-            User receiveUser = userRepository.findById(receiveUserId).orElseThrow(()->new UserNotFoundException("유저를 불러오는데 실패했습니다."));
-            loadRequest.setReceiveUser(receiveUser);
-        }
+
         int step = loadRequest.getStep();
 
         loadRequest.setUpdatedAt(LocalDateTime.now());
@@ -219,19 +220,40 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public void sendRequest(int groundId, String requestId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception{
+    public void changeStatus(int groundId, String requestId, RequestStatusDto requestStatusDto) throws Exception{
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
+        loadRequest.setStatus(requestStatusDto.getStatus());
+
         try{
-            Request request = updateRequest(groundId, requestId, requestUpdateDto, userDetails);
-            if(!userDetails.getUsername().equals(request.getAuthor()))
-                throw new InvalidAttributeValueException("작성자와 보내는 사람이 다릅니다.");
-            request.setStatus(1);
-            try{
-                requestRepository.save(request);
-            }catch(Exception e){
-                throw new TransactionException("문서를 저장하는데 실패했스빈다.");
-            }
+            requestRepository.save(loadRequest);
         }catch(Exception e){
-            throw new Exception(e.getMessage());
+            throw new TransactionException("문서를 저장하는데 실패했스빈다.");
+        }
+    }
+
+    @Override
+    public void changeSender(int groundId, String requestId, RequestSenderDto requestSenderDto) throws Exception{
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
+        User sendUser = userRepository.findById(requestSenderDto.getSendUserId()).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
+        loadRequest.setSendUser(sendUser);
+
+        try{
+            requestRepository.save(loadRequest);
+        }catch(Exception e){
+            throw new TransactionException("문서를 저장하는데 실패했스빈다.");
+        }
+    }
+
+    @Override
+    public void changeReceiver(int groundId, String requestId, RequestReceiverDto requestReceiverDto) throws Exception{
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
+        User receiveUser = userRepository.findById(requestReceiverDto.getReceiveUserId()).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
+        loadRequest.setSendUser(receiveUser);
+
+        try{
+            requestRepository.save(loadRequest);
+        }catch(Exception e){
+            throw new TransactionException("문서를 저장하는데 실패했스빈다.");
         }
     }
 
@@ -344,8 +366,8 @@ public class RequestServiceImpl implements RequestService{
     public boolean stepIsRange(int step){
         return step>=1 && step<=2;
     }
-    public RequestResponseDto convertToDto(Request request){
-        RequestResponseDto requestResponseDto = new RequestResponseDto();
+    public RequestTreeResponseDto convertToRequestTreeResponseDto(Request request){
+        RequestTreeResponseDto requestResponseDto = new RequestTreeResponseDto();
         requestResponseDto.setId(request.getId());
         requestResponseDto.setStep(request.getStep());
         if(request.getTitle() == null){
@@ -354,13 +376,29 @@ public class RequestServiceImpl implements RequestService{
         else{
             requestResponseDto.setTitle(request.getTitle());
         }
-        List<RequestResponseDto> children = new ArrayList<>();
+        List<RequestTreeResponseDto> children = new ArrayList<>();
         if(request.getChildren() != null){
             for(Request child : request.getChildren()){
-                children.add(convertToDto(child));
+                children.add(convertToRequestTreeResponseDto(child));
             }
         }
         requestResponseDto.setChildren(children);
         return requestResponseDto;
     }
+
+    public RequestStepResponseDto convertToRequestStepResponseDto(Request request) {
+        RequestStepResponseDto requestStepResponseDto = new RequestStepResponseDto();
+        requestStepResponseDto.setId(request.getId());
+
+        if(request.getTitle() == null){
+            requestStepResponseDto.setTitle("");
+        }
+        else{
+            requestStepResponseDto.setTitle(request.getTitle());
+        }
+
+        return requestStepResponseDto;
+    }
+
+
 }
