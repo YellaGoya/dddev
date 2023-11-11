@@ -80,7 +80,6 @@ export const SelectList = styled.ul`
   list-style: none;
 
   transition: all 0.7s ease;
-  z-index: 5;
 `;
 
 export const SelectItem = styled.li`

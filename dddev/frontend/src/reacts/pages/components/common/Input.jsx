@@ -1,39 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 import * as s from 'reacts/styles/components/common/Input';
-const Input = ({ label, holder, dataRef, array, fixed, click, enter, message, debounce }) => {
-  const [value, setValue] = useState(dataRef.current ? dataRef.current : '');
+const Input = ({ label, holder, data, setData, array, fixed, click, enter, message, valid }) => {
+  const [value, setValue] = useState('');
   const [placeholder, setPlaceholder] = useState(holder || '');
   const [isActive, setIsActive] = useState(false);
   const [timer, setTimer] = useState(null);
-
-  useEffect(() => {
-    setValue(dataRef.current ? dataRef.current : '');
-  }, [dataRef.current]);
+  const [validMessage, setValidMessage] = useState(null);
 
   const onChangeHandler = (e) => {
-    setValue(e.target.value);
-    if (dataRef) dataRef.current = e.target.value;
+    if (array) setValue(e.target.value);
+    else setData(e.target.value);
 
-    if (debounce) {
+    if (valid) {
       setTimer(
         setTimeout(() => {
-          debounce();
+          valid(e.target.value, setValidMessage);
         }, 500),
       );
     }
 
-    if (debounce) clearTimeout(timer);
+    if (valid) clearTimeout(timer);
   };
 
   const keyDownHandler = (e) => {
     if (e.key === 'Enter') {
       if (array) {
-        if (!array.includes(value)) enter([...array, value]);
-        setPlaceholder(value);
+        if (!array.includes(e.target.value)) enter([...array, e.target.value]);
+        setPlaceholder(e.target.value);
         setValue('');
-      } else if (enter) enter(value);
+      } else if (enter) enter(e.target.value);
     }
   };
 
@@ -53,7 +50,7 @@ const Input = ({ label, holder, dataRef, array, fixed, click, enter, message, de
     <s.InputWrapper>
       {label && <s.Label $isActive={isActive}>{label}</s.Label>}
       <s.Input
-        value={value}
+        value={array ? value : data}
         placeholder={placeholder}
         $isActive={isActive}
         $isClick={Boolean(click)}
@@ -63,11 +60,12 @@ const Input = ({ label, holder, dataRef, array, fixed, click, enter, message, de
         onBlur={handleBlur}
       />
       {click && (
-        <s.Button type="button" onClick={() => click(value)}>
+        <s.Button type="button" onClick={() => click(array ? value : data)}>
           <s.DivLine />
           <ExitToAppRoundedIcon />
         </s.Button>
       )}
+      {validMessage && <s.Message $fail={validMessage.fail}>{validMessage.text}</s.Message>}
       {message && <s.Message $fail={message.fail}>{message.text}</s.Message>}
       {array ? (
         <s.ArrayList>

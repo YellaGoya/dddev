@@ -52,6 +52,7 @@ const GitResult = () => {
               return ground.ground.id;
             });
             const groundsMap = grounds.data.map((ground) => ground.ground);
+            const groundsMine = grounds.data.filter((ground) => ground.isOwner === true).map((ground) => ground.ground);
             dispatch(
               loginUser({
                 accessToken: res.accessToken,
@@ -60,6 +61,7 @@ const GitResult = () => {
                 lastGround: res.lastGround,
                 groundsList,
                 groundsMap,
+                groundsMine,
               }),
             );
 

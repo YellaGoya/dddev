@@ -93,10 +93,12 @@ const Topbar = () => {
         .then((grounds) => {
           const groundsList = grounds.data.map((ground) => ground.ground.id);
           const groundsMap = grounds.data.map((ground) => ground.ground);
+          const groundsMine = grounds.data.filter((ground) => ground.isOwner === true).map((ground) => ground.ground);
           dispatch(
             updateUser({
               groundsList,
               groundsMap,
+              groundsMine,
             }),
           );
         })
@@ -130,7 +132,7 @@ const Topbar = () => {
         ) : null}
       </s.PositionWrapper>
       <s.PorfileButtonWrapper onClick={() => dispatch(setMessage(!messageToggle))}>
-        <s.ProfileImage src={userInfo.profileDto ? `https://k9d103.p.ssafy.io:8000/img/user/${userInfo.profileDto.fileName}` : userStockImage} />
+        <s.ProfileImage src={userInfo.profileDto ? `https://k9d103.p.ssafy.io/img/user/${userInfo.profileDto.fileName}` : userStockImage} />
         <ReviewsRoundedIcon />
       </s.PorfileButtonWrapper>
       <Message messageToggle={messageToggle} editToggle={editToggle} setEditToggle={setEditToggle} userInfo={userInfo} setUserInfo={setUserInfo} />
