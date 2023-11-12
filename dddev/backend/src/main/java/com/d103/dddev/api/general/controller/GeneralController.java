@@ -349,7 +349,8 @@ public class GeneralController {
     })
     public ResponseEntity<ResponseDto<General>> updateGeneral(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                               @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
-                                                              @RequestBody GeneralTitleDto generalTitleDto,
+                                                              @ApiParam(value = "변경하고 싶은 제목\n" +
+                                                                      "title(필수) 없으면 422에러")@RequestBody GeneralTitleDto generalTitleDto,
                                                               @AuthenticationPrincipal UserDetails userDetails,
                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
         ResponseDto<General> responseDto;

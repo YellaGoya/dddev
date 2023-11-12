@@ -11,4 +11,5 @@ public interface RequestRepository extends MongoRepository<Request, String> {
     Optional<List<Request>> findByParentId(String parentId);
     Optional<List<Request>> findByGroundIdAndStep(int groundId, int step);
     Optional<Request> findByGroundIdAndUnclassified(int groundId, boolean unclassified);
+    Optional<List<Request>> findByGroundIdAndStepAndStatus(int groundId, int step, int status);
 }

@@ -223,6 +223,89 @@ public class RequestController {
         }
     }
 
+    @GetMapping("/todo")
+    @ApiOperation(value="step2 문서들 중에 해야할 일 문서 불러오기")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "문서 존재하지 않음"),
+            @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
+            @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
+    })
+    public ResponseEntity<ResponseDto<List<Request>>> getStep2TodoRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                       @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<Request>> responseDto;
+
+        try{
+            List<Request> requests = requestService.getStep2Requests(groundId);
+            responseDto = ResponseDto.<List<Request>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("해야할 일 문서들을 불러왔습니다.")
+                    .data(requests)
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }catch(Exception e){
+            responseDto = ResponseDto.<List<Request>>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/proceed")
+    @ApiOperation(value="step2 문서들 중에 진행 중 문서 불러오기")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "문서 존재하지 않음"),
+            @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
+            @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
+    })
+    public ResponseEntity<ResponseDto<List<Request>>> getStep2ProceedRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                           @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<Request>> responseDto;
+
+        try{
+            List<Request> requests = requestService.getStep2Requests(groundId);
+            responseDto = ResponseDto.<List<Request>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("진행 중 문서들을 불러왔습니다.")
+                    .data(requests)
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }catch(Exception e){
+            responseDto = ResponseDto.<List<Request>>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/done")
+    @ApiOperation(value="step2 문서들 중에 완료된 문서 불러오기")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "문서 존재하지 않음"),
+            @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
+            @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
+    })
+    public ResponseEntity<ResponseDto<List<Request>>> getStep2DoneRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                           @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<Request>> responseDto;
+
+        try{
+            List<Request> requests = requestService.getStep2Requests(groundId);
+            responseDto = ResponseDto.<List<Request>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("완료 문서들을 불러왔습니다.")
+                    .data(requests)
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }catch(Exception e){
+            responseDto = ResponseDto.<List<Request>>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PutMapping("/{requestId}")
     @ApiOperation(value="요청 문서 수정")
     @ApiResponses(value = {
@@ -402,7 +485,7 @@ public class RequestController {
             return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PutMapping("/{requestId}/createComment")
+    @PostMapping("/{requestId}/comment")
     @ApiOperation(value="요청 문서 댓글달기")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "문서 존재하지 않음"),
@@ -536,7 +619,8 @@ public class RequestController {
     })
     public ResponseEntity<ResponseDto<Request>> updateRequest(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                               @ApiParam(value = "문서아이디")@PathVariable("requestId") String requestId,
-                                                              @ApiParam(value = "변경하고 싶은 제목")@RequestBody RequestTitleDto requestTitleDto,
+                                                              @ApiParam(value = "변경하고 싶은 제목\n" +
+                                                                      "title(필수) 없으면 422에러")@RequestBody RequestTitleDto requestTitleDto,
                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
                                                               @AuthenticationPrincipal UserDetails userDetails) {
         ResponseDto<Request> responseDto;
