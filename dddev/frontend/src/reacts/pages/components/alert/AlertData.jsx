@@ -26,7 +26,7 @@ const AlertData = () => {
     alertUserDataCollection.onSnapshot(
       (snapshot) => {
         const arr = [];
-        // console.log(`Received query snapshot of size ${snapshot.size}`);
+        console.log(`Received query snapshot of size ${snapshot.size}`);
 
         // githubId로 보고 있는 db에 새 문서가 추가된 경우 알림 내역 다시 조회
         snapshot.forEach((userDoc) => {
@@ -52,7 +52,7 @@ const AlertData = () => {
       },
       (err) => {
         console.log(`snapshot error: ${err}`);
-      }
+      },
     );
 
     groundsMap.forEach(({ id }) => {
@@ -77,13 +77,13 @@ const AlertData = () => {
         return (
           <div key={doc.id}>
             <div>
-              {doc.alertType}
+              {/* {doc.alertType}
               {doc.author.nickname}
               {doc.branch}
               {doc.message}
               {doc.timestamp}
               {doc.url}
-              {doc.keyword}
+              {doc.keyword} */}
             </div>
             <div>{doc.isRead}</div>
           </div>
@@ -94,12 +94,12 @@ const AlertData = () => {
           return (
             <div key={doc.id}>
               <div>
-                {doc.type}
+                {/* {doc.type}
                 {doc.author.nickname}
                 {doc.branch}
                 {doc.message}
                 {doc.timestamp}
-                {doc.url}
+                {doc.url} */}
               </div>
             </div>
           );
