@@ -38,7 +38,7 @@ public class AlertHistoryDocument {
 	// 키워드 포함된 커밋 메시지 리스트
 	private List<String> commitMessageList;
 
-	private Map<String, Set<String>> idKeywordMap;
+//	private Map<String, Object> idKeywordMap;
 
 	private String url;	// notification click event url
 
