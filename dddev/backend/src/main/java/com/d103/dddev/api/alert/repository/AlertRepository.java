@@ -20,7 +20,7 @@ public interface AlertRepository extends JpaRepository<AlertEntity, Integer> {
 	Optional<AlertEntity> findByUser_IdAndRepositoryIdAndType(Integer userId, Integer repositoryId, String type);
 
 	// 알림 구독 중인 사용자, 키워드 조회
-	List<AlertUserKeyword> findByRepositoryIdAndType(Integer repositoryId, String type);
+	List<AlertUserKeyword> findByRepositoryIdAndTypeAndUserIsNotNull(Integer repositoryId, String type);
 
 	List<AlertEntity> findByUser_Id(Integer id);
 

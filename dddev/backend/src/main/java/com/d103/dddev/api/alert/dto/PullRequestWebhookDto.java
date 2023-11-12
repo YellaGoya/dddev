@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PullRequestWebhookDto {
+	private Integer id;
 	private String action;
 	private Integer number;
 	private PullRequestDto pullRequest;

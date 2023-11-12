@@ -1,6 +1,8 @@
 package com.d103.dddev.api.alert.entity;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -17,7 +19,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class AlertDataDocument {
+public class AlertHistoryDocument {
 
 	// @Id
 	// @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +37,8 @@ public class AlertDataDocument {
 
 	// 키워드 포함된 커밋 메시지 리스트
 	private List<String> commitMessageList;
+
+//	private Map<String, Object> idKeywordMap;
 
 	private String url;	// notification click event url
 
