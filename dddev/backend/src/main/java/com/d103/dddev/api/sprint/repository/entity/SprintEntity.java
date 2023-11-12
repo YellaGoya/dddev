@@ -20,7 +20,7 @@ public class SprintEntity {
     private int id;
     private String name;
     private String goal;
-    private int status;
+    private Integer status;
     @Column(name="start_date")
     private LocalDate startDate;
     @Column(name="end_date")

@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import com.d103.dddev.api.file.service.DocumentService;
 
 import org.checkerframework.checker.units.qual.A;
+import org.hibernate.TransactionException;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -117,7 +118,7 @@ public class IssueServiceImpl implements IssueService {
 		ArrayList<Issue> result = new ArrayList<>();
 
 		for(Issue issue : issueList){
-			if(issue.getStatus() != 2){
+			if(issue.getStatus() != 3){
 				result.add(issue);
 			}
 		}
@@ -307,6 +308,37 @@ public class IssueServiceImpl implements IssueService {
 			.code(HttpStatus.OK.value())
 			.data(issue)
 			.build();
+	}
+
+	@Override
+	public void changeIssuesStatusWhenSprintComplete(Integer sprintId) throws Exception {
+		// 완료된 이슈들
+		List<Issue> doneIssues = issueRepository.findBySprintIdAndStatus(sprintId, 2);
+		for(Issue issue : doneIssues){
+			// 스프린트도 완료되고 완료인 이슈상태로 만든다.
+			issue.setStatus(3);
+		}
+		// 진행중 이슈들
+		List<Issue> proceedIssues = issueRepository.findBySprintIdAndStatus(sprintId, 1);
+		for(Issue issue : proceedIssues){
+			// 연결된 스프린트 없게 만들기
+			issue.setSprintId(0);
+			issue.setStatus(0);
+		}
+		// 해야할 일 이슈들
+		List<Issue> todoIssues = issueRepository.findBySprintIdAndStatus(sprintId, 0);
+		for(Issue issue : proceedIssues){
+			// 연결된 스프린트 없게 만들기
+			issue.setSprintId(0);
+			issue.setStatus(0);
+		}
+		try{
+			issueRepository.saveAll(doneIssues);
+			issueRepository.saveAll(proceedIssues);
+			issueRepository.saveAll(todoIssues);
+		}catch(Exception e){
+			throw new TransactionException("이슈들을 저장하는데 실패헀습니다.");
+		}
 	}
 
 	@Override

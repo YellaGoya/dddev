@@ -21,7 +21,7 @@ public interface RequestService {
     void changeStatus(int groundId, String requestId, RequestStatusDto requestStatusDto) throws Exception;
     void changeSender(int groundId, String requestId, RequestSenderDto requestSenderDto) throws Exception;
     void changeReceiver(int groundId, String requestId, RequestReceiverDto requestReceiverDto) throws Exception;
-    Comment createComment(int groundId, String requestId, String comment, UserDetails userDetails) throws Exception;
+    Comment createComment(int groundId, String requestId, RequestCommentDto comment, UserDetails userDetails) throws Exception;
     Request moveRequest(int groundId, String requestId, RequestMoveDto requestMoveDto) throws Exception;
     void deleteRequest(int groundId, String requestId) throws Exception;
 

@@ -20,6 +20,7 @@ public interface IssueRepository extends MongoRepository<Issue, String> {
 	Optional<Issue> findByGroundIdAndUnclassifiedAndType(Integer groundId, boolean unclassified, String type);
 
 	ArrayList<Issue> findAllByGroundIdAndParentIdAndType(Integer groundId, String parentId, String type);
+	List<Issue> findBySprintIdAndStatus(Integer sprintId, Integer status);
 
 	@Query("{ 'sprint_id' : ?0, 'focus_time' : { $gt : 0 } }")
 	List<Issue> getSprintIssueList(Integer sprintId);
