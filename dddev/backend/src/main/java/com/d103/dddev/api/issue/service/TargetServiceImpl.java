@@ -222,6 +222,25 @@ public class TargetServiceImpl implements TargetService {
                 .build();
     }
 
+    @Override
+    public TargetDto.Template.Response isTemplate(String targetId) {
+        Issue target = issueRepository.findById(targetId)
+                .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+        if(target.isTemplate()){
+            target.setTemplate(false);
+        }else{
+            target.setTemplate(true);
+        }
+
+        issueRepository.save(target);
+
+        return TargetDto.Template.Response.builder()
+                .message(TargetMessage.template())
+                .code(200)
+                .isTemplate(target.isTemplate())
+                .build();
+    }
 
 
 }

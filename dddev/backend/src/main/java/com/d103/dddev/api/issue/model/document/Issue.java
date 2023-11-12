@@ -64,4 +64,5 @@ public class Issue {
     private String title;
     private String content;
     private boolean unclassified;
+    private boolean isTemplate;
 }

@@ -23,4 +23,6 @@ public interface CheckService {
     CheckDto.Title.Response checkTitle(CheckDto.Title.Request request, String checkId, UserDetails userDetails);
 
     CheckDto.List.Response checkTotalList(Integer groundId);
+
+    CheckDto.Template.Response isTemplate(String checkId);
 }
