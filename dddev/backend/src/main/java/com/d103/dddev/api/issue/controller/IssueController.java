@@ -43,7 +43,7 @@ public class IssueController {
         }
     }
 
-    @ApiOperation("이슈 문서 목록 조회")
+    @ApiOperation(value = "이슈 문서 목록 조회",notes = "스프린트 종료 된 이슈 제외 조회")
     @GetMapping("{checkId}/list")
     public ResponseEntity<IssueDto.List.Response> issueList(@PathVariable Integer groundId,
                                     @PathVariable String checkId,
@@ -93,7 +93,7 @@ public class IssueController {
     }
 
     @ApiOperation(value = "이슈 문서 수정",notes = "이슈 문서 수정 => 들어오는 값 그대로 저장")
-    @PutMapping("/{issueId}/content")
+    @PutMapping("/{issueId}")
     public ResponseEntity<IssueDto.Content.Response> issueContent(@PathVariable Integer groundId,
                                        @PathVariable String issueId,
                                        @RequestBody IssueDto.Content.Request request,
@@ -110,10 +110,9 @@ public class IssueController {
         }
     }
 
-    @ApiOperation(value = "이슈 문서 진행 상태 변경", notes = "0 : 미분류(이 미분류는 문서 카테고리의 미분류와는 차이가 있음) \n" +
-                                                        "1 : 진행 예정(스프린트가 시작되는 경우임) \n" +
-                                                        "2 : 진행 중 \n" +
-                                                        "3 : 완료 \n" +
+    @ApiOperation(value = "이슈 문서 진행 상태 변경", notes = "0 : 진행 예정 \n" +
+                                                        "1 : 진행 중 \n" +
+                                                        "2 : 완료 \n" +
                                                         " + 진행 상태에 따라 startDate, endDate 생성\n" +
                                                         " + 완료 -> 진행 중 -> 진행 예정 처럼 뒤로 가는 경우 startDate, endDate 삭제됨")
     @PutMapping("/{issueId}/status")
@@ -197,6 +196,22 @@ public class IssueController {
         try{
             log.info("이슈 문서 제목 변경");
             IssueDto.Title.Response response = issueService.issueTitle(request, issueId,userDetails);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @ApiOperation(value = "이슈 문서(완료 포함) 목록 조회", notes = "완료 여부에 상관 없이 모두 조회")
+    @GetMapping("{checkId}/list/total")
+    public ResponseEntity<IssueDto.List.Response> issueTotalList(@PathVariable Integer groundId,
+                                                            @PathVariable String checkId,
+                                                            @RequestHeader String Authorization){
+        try{
+            log.info("이슈 문서 목록(완료 포함) 조회");
+            IssueDto.List.Response response = issueService.issueTotalList(groundId, checkId);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));

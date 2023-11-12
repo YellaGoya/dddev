@@ -258,7 +258,7 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Comment createComment(int groundId, String requestId, String comment, UserDetails userDetails) throws Exception{
+    public Comment createComment(int groundId, String requestId, RequestCommentDto comment, UserDetails userDetails) throws Exception{
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()-> new DocumentNotFoundException("요청 문서를 찾을 수 없습니다."));
         List<Comment> comments = loadRequest.getComments();
         if(comments == null){
@@ -266,7 +266,7 @@ public class RequestServiceImpl implements RequestService{
         }
         Comment saveComment = new Comment();
         saveComment.setAuthor(userDetails.getUsername());
-        saveComment.setComment(comment);
+        saveComment.setComment(comment.getComment());
         comments.add(saveComment);
         loadRequest.setComments(comments);
 

@@ -256,4 +256,23 @@ public class CheckServiceImpl implements CheckService{
                 .build();
     }
 
+    @Override
+    public CheckDto.List.Response checkTotalList(Integer groundId) {
+        ArrayList<Issue> checkList = issueRepository.findAllByGroundIdAndType(groundId,"check");
+
+        if(checkList.isEmpty()){
+            return CheckDto.List.Response.builder()
+                    .message(CheckMessage.emptyList())
+                    .code(HttpStatus.OK.value())
+                    .data(checkList)
+                    .build();
+        }
+
+        return CheckDto.List.Response.builder()
+                .message(CheckMessage.list())
+                .code(HttpStatus.OK.value())
+                .data(checkList)
+                .build();
+    }
+
 }

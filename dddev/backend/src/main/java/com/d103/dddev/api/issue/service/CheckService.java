@@ -21,4 +21,6 @@ public interface CheckService {
     CheckDto.Connect.Response connectTarget(CheckDto.Connect.Request request, UserDetails userDetails, String checkId);
 
     CheckDto.Title.Response checkTitle(CheckDto.Title.Request request, String checkId, UserDetails userDetails);
+
+    CheckDto.List.Response checkTotalList(Integer groundId);
 }
