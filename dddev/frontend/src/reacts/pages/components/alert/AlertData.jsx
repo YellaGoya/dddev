@@ -1,8 +1,8 @@
 // import eetch from 'eetch/eetch';
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 // import requestPermission from 'fcm/firebase-messaging.js';
-import { db } from "fcm/firebaseConfig";
+import { db } from 'fcm/firebaseConfig';
 // import eetch from 'eetch/eetch';
 
 const AlertData = () => {
@@ -19,10 +19,8 @@ const AlertData = () => {
 
     // const collection = db.collection('AlertData').where('receiverId', '==', `${user.githubId}`);
     // const collection = db.collection('AlertData');
-    const alertUserDataCollection = db
-      .collection("alertUserData")
-      .where("githubId", "==", `${user.githubId}`);
-    const webhookDataCollection = db.collection("webhookData");
+    const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', `${user.githubId}`);
+    const webhookDataCollection = db.collection('webhookData');
 
     // firestore 실시간 동기화, collection에 문서 변경 발생 시 실행
     alertUserDataCollection.onSnapshot(
