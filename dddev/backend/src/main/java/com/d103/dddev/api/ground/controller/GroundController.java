@@ -416,7 +416,7 @@ public class GroundController {
 		try {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
-				.message("그라운드 전체 완료/미완료 연구시간 조회 성공!")
+				.message("전체 완료/미완료 시간 조회 성공!")
 				.data(groundService.getSprintTotalTime(sprintId))
 				.build();
 
@@ -472,7 +472,7 @@ public class GroundController {
 		try {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
-				.message("집중시간 완료/미완료 개수 조회 성공!")
+				.message("연구시간 완료/미완료 개수 조회 성공!")
 				.data(groundService.getSprintActiveTimeCount(sprintId))
 				.build();
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -500,7 +500,7 @@ public class GroundController {
 		try {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
-				.message("집중시간 완료/미완료 개수 조회 성공!")
+				.message("전체 완료/미완료 개수 조회 성공!")
 				.data(groundService.getSprintTotalTimeCount(sprintId))
 				.build();
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);

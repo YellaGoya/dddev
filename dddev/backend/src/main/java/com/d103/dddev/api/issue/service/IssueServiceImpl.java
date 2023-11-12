@@ -395,7 +395,7 @@ public class IssueServiceImpl implements IssueService {
 		Map<String, Integer> groundActiveTimeCount = getSprintActiveTimeCount(sprintId);
 		Map<String, Integer> groundTotalTimeCount = new HashMap<>();
 		groundTotalTimeCount.put("done", groundFocusTimeCount.get("done") + groundActiveTimeCount.get("done"));
-		groundFocusTimeCount.put("undone", groundFocusTimeCount.get("undone") + groundActiveTimeCount.get("undone"));
+		groundTotalTimeCount.put("undone", groundFocusTimeCount.get("undone") + groundActiveTimeCount.get("undone"));
 
 		return groundTotalTimeCount;
 	}
