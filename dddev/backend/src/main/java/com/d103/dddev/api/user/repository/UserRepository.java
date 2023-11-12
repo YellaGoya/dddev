@@ -10,4 +10,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	Optional<User> findByGithubId(Integer githubId);
 	Optional<User> findByIdNotAndNickname(Integer id, String nickname);	// id != not and nickname = nickname
 
+	Optional<User> findByGithubName(String userName);
 }
