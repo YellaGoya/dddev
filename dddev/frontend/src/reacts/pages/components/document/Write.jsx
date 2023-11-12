@@ -7,7 +7,6 @@ import * as Y from 'yjs';
 import { QuillBinding } from 'y-quill';
 import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
-// import WriteOptions from 'reacts/pages/components/document/WriteOptions';
 
 import { setDoc } from 'redux/actions/doc';
 import { setMenu } from 'redux/actions/menu';
@@ -21,6 +20,8 @@ import Input from 'reacts/pages/components/common/Input';
 import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import hljs from 'highlight.js';
 
+import userStockImage from 'assets/userStockImage.webp';
+import KeyboardDoubleArrowRightRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowRightRounded';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import SaveIcon from '@mui/icons-material/Save';
 import SettingsEthernetRoundedIcon from '@mui/icons-material/SettingsEthernetRounded';
@@ -30,6 +31,17 @@ import 'highlight.js/styles/github-dark.css';
 import * as s from 'reacts/styles/components/document/Write';
 
 const statusList = [
+  { id: 0, name: '해야 할 일' },
+  { id: 1, name: '진행 중' },
+  { id: 2, name: '완료' },
+];
+
+const todoList = [
+  { id: 0, name: '해야 할 일' },
+  { id: 1, name: '진행 중' },
+];
+
+const onGoingList = [
   { id: 0, name: '해야 할 일' },
   { id: 1, name: '진행 중' },
   { id: 2, name: '완료' },
@@ -97,6 +109,9 @@ const Write = () => {
         id: params.docId,
         receiver: item.githubId,
       })
+      .then(() => {
+        setReceiver(item);
+      })
       .catch((err) => {
         if (err.message === 'RefreshTokenExpired') {
           dispatch(logoutUser());
@@ -116,6 +131,9 @@ const Write = () => {
         id: params.docId,
         sender: item.githubId,
       })
+      .then(() => {
+        setSender(item);
+      })
       .catch((err) => {
         if (err.message === 'RefreshTokenExpired') {
           dispatch(logoutUser());
@@ -131,7 +149,6 @@ const Write = () => {
   }, [title]);
 
   useEffect(() => {
-    console.log(sender, receiver);
     if (parentId)
       eetch
         .detailDocument({
@@ -171,10 +188,6 @@ const Write = () => {
   }, [params]);
 
   useEffect(() => {
-    console.log(users);
-  }, [users]);
-
-  useEffect(() => {
     if (params && step > 1) {
       eetch
         .parentsList({
@@ -199,6 +212,15 @@ const Write = () => {
         });
     }
   }, [step]);
+
+  useEffect(() => {
+    console.log(status);
+    if (quillRef.current) {
+      if (status === 0) {
+        quillRef.current.getEditor().enable();
+      } else quillRef.current.getEditor().disable();
+    }
+  }, [status]);
 
   const titleDocument = () => {
     if (title === '') setTitle(originalTitle === '' ? '새 문서' : originalTitle);
@@ -413,7 +435,7 @@ const Write = () => {
       if (lastEditorRef.current === wsProvider.awareness.clientID) {
         editDocument();
       }
-    }, 10000);
+    }, 5000);
 
     const ping = (noise) => {
       wsProvider.awareness.setLocalStateField('pinged', {
@@ -562,10 +584,62 @@ const Write = () => {
   }, [params.docId]);
 
   return (
-    <>
-      <s.EditorWrapper>
+    <s.EditorWrapper status={status}>
+      <textarea
+        ref={titleRef}
+        value={title}
+        rows={1}
+        onChange={(event) => {
+          setTitle(event.target.value);
+        }}
+        onBlur={titleDocument}
+      />
+      {(receiver || sender) && (
+        <s.ChargeInfo>
+          {sender && (
+            <s.SenderInfo>
+              <s.ProfileImage src={sender.profileDto ? `https://k9d103.p.ssafy.io/img/user/${sender.profileDto.fileName}` : userStockImage} />
+              {sender.nickname}
+            </s.SenderInfo>
+          )}
+          <KeyboardDoubleArrowRightRoundedIcon />
+          {receiver && (
+            <s.ReceiverInfo>
+              <s.ProfileImage src={receiver.profileDto ? `https://k9d103.p.ssafy.io/img/user/${receiver.profileDto.fileName}` : userStockImage} />
+              {sender.nickname}
+            </s.ReceiverInfo>
+          )}
+        </s.ChargeInfo>
+      )}
+      <ReactQuill ref={quillRef} modules={modules} placeholder="내용을 입력해주세요." />
+      {step === 1 ? (
+        <s.SettingButton className="only-delete-button" onClick={() => deleteDocument()}>
+          <RemoveCircleIcon />
+        </s.SettingButton>
+      ) : (
+        <>
+          <s.StatusText>{statusList[status] ? statusList[status].name : null}</s.StatusText>
+          <s.SettingButton onClick={() => setSettingToggle(true)}>
+            <SettingsEthernetRoundedIcon />
+          </s.SettingButton>
+          <s.SettingButton $toggle={status === 1 && params.type === 'request'} className="delete-button" onClick={() => deleteDocument()}>
+            <RemoveCircleIcon />
+          </s.SettingButton>
+        </>
+      )}
+      <s.SettingWrapper $toggle={settingToggle}>
+        <s.SettingLabel>제목</s.SettingLabel>
+        <s.SettingButton
+          className="close-button"
+          onClick={() => {
+            timeDocument();
+            setSettingToggle(false);
+          }}
+        >
+          <SaveIcon />
+        </s.SettingButton>
         <textarea
-          ref={titleRef}
+          ref={settingTitleRef}
           value={title}
           rows={1}
           onChange={(event) => {
@@ -573,78 +647,49 @@ const Write = () => {
           }}
           onBlur={titleDocument}
         />
-        <ReactQuill ref={quillRef} modules={modules} placeholder="내용을 입력해주세요." />
-        {step === 1 ? (
-          <s.SettingButton className="only-delete-button" onClick={() => deleteDocument()}>
-            <RemoveCircleIcon />
-          </s.SettingButton>
-        ) : (
+        <s.DivLine />
+        <s.ParentWrapper>
+          <SelectTransParent label="부모 문서" list={parents} select={(item) => linkParent(item.id)} selected={parentName} />
+        </s.ParentWrapper>
+
+        {params.type === 'issue' ? (
           <>
-            <s.StatusText>{statusList[status] ? statusList[status].name : null}</s.StatusText>
-            <s.SettingButton onClick={() => setSettingToggle(true)}>
-              <SettingsEthernetRoundedIcon />
-            </s.SettingButton>
-            <s.SettingButton className="delete-button" onClick={() => deleteDocument()}>
-              <RemoveCircleIcon />
-            </s.SettingButton>
+            <s.DivLine />
+            <s.AttributeWrapper>
+              <SelectTransParent
+                label="진행 상태"
+                list={statusList}
+                select={(item) => statusDocument(item.id)}
+                selected={statusList[status] && statusList[status].name}
+              />
+              <Input type="number" label="집중 시간" data={focusTime} setData={setFocusTime} valid={focusValid} />
+              <Input type="number" label="연구 시간" data={activeTime} setData={setActiveTime} valid={activeValid} />
+            </s.AttributeWrapper>
           </>
-        )}
-        <s.SettingWrapper $toggle={settingToggle}>
-          <s.SettingLabel>제목</s.SettingLabel>
-          <s.SettingButton
-            className="close-button"
-            onClick={() => {
-              timeDocument();
-              setSettingToggle(false);
-            }}
-          >
-            <SaveIcon />
-          </s.SettingButton>
-          <textarea
-            ref={settingTitleRef}
-            value={title}
-            rows={1}
-            onChange={(event) => {
-              setTitle(event.target.value);
-            }}
-            onBlur={titleDocument}
-          />
-          <s.DivLine />
-          <s.ParentWrapper>
-            <SelectTransParent label="부모 문서" list={parents} select={(item) => linkParent(item.id)} selected={parentName} />
-          </s.ParentWrapper>
-
-          {params.type === 'issue' ? (
-            <>
-              <s.DivLine />
-              <s.AttributeWrapper>
-                <SelectTransParent label="진행 상태" list={parents} select={(item) => statusDocument(item.id)} />
-                <Input type="number" label="집중 시간" data={focusTime} setData={setFocusTime} valid={focusValid} />
-                <Input type="number" label="연구 시간" data={activeTime} setData={setActiveTime} valid={activeValid} />
-              </s.AttributeWrapper>
-            </>
-          ) : params.type === 'request' && step === 2 ? (
-            <>
-              <s.DivLine />
-              <s.RequestWrapper>
-                <SelectTransParent
-                  label="진행 상태"
-                  list={statusList}
-                  select={(item) => statusDocument(item.id)}
-                  selected={statusList[status].name}
-                />
-                <SelectUser label="요청 멤버" list={users} select={(item) => senderChange(item)} selected={sender} keyInsert="send_" />
-                <SelectUser label="담당 멤버" list={users} select={(item) => receiverChange(item)} selected={receiver} keyInsert="receive_" />
-              </s.RequestWrapper>
-            </>
-          ) : null}
-        </s.SettingWrapper>
-      </s.EditorWrapper>
-
-      <s.InsertBottom onClick={insertBottom}>
+        ) : params.type === 'request' && step === 2 ? (
+          <>
+            <s.DivLine />
+            <s.RequestWrapper>
+              {status === 0 && <s.RequestDescription>* 한 번 상태를 진행 중으로 변경하면 되돌릴 수 없습니다.</s.RequestDescription>}
+              {status === 1 && <s.RequestDescription>* 완료 상태로 변경되면 아카이브 되어 삭제가 불가능합니다.</s.RequestDescription>}
+              {status === 2 && <s.RequestDescription>* 본 요청 문서는 완료 후 그라운드에 아카이브 되었습니다.</s.RequestDescription>}
+              <SelectTransParent
+                label="진행 상태"
+                list={status === 0 ? todoList : onGoingList}
+                select={(item) => statusDocument(item.id)}
+                selected={statusList[status].name}
+                available={status !== 2}
+              />
+              <SelectUser label="요청 멤버" list={users} select={(item) => senderChange(item)} selected={sender} keyInsert="send_" />
+              <SelectUser label="담당 멤버" list={users} select={(item) => receiverChange(item)} selected={receiver} keyInsert="receive_" />
+            </s.RequestWrapper>
+          </>
+        ) : null}
+      </s.SettingWrapper>
+      <s.InsertBottom className="insert-button" status={status} onClick={insertBottom}>
         <AddIcon />
       </s.InsertBottom>
-    </>
+    </s.EditorWrapper>
   );
 };
 
