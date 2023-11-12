@@ -21,7 +21,7 @@ public interface AlertService {
 
 	void receivePushWebhook(Map<String, Object> headerMap, PushWebhookDto pushWebhookDto) throws Exception;
 
-	List<AlertResponseDto> updateAlert(User user, UpdateAlertDto updateAlertDto, Integer alertId) throws Exception;
+	List<AlertResponseDto> updateAlert(User user, UpdateAlertDto updateAlertDto, Integer groundId) throws Exception;
 
 	List<AlertResponseDto> alertList(User user) throws Exception;
 

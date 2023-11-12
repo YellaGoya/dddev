@@ -147,7 +147,7 @@ public class AlertController {
         }
     }
 
-    @PutMapping("/{alertId}")
+    @PutMapping("/{groundId}")
     @ApiOperation(value = "알림 수정", notes = "커밋(푸시) 알림의 키워드를 수정하는 API")
     // @ApiImplicitParam(name = "map", paramType = "body", example = "{\n"
     // 	+ "  \"keyword\": [\n"
@@ -158,7 +158,7 @@ public class AlertController {
             @ApiResponse(code = 406, message = "알림 id 오류")
     })
     public ResponseEntity<ResponseDto<List<AlertResponseDto>>> updateAlert(@RequestHeader String Authorization, @RequestBody UpdateAlertDto updateAlertDto,
-                                                                           @PathVariable(name = "alertId") Integer alertId, HttpServletRequest request) {
+                                                                           @PathVariable(name = "groundId") Integer groundId, HttpServletRequest request) {
         try {
             ModelAndView mav = (ModelAndView) request.getAttribute("modelAndView");
             User user = (User) mav.getModel().get("user");
@@ -166,7 +166,7 @@ public class AlertController {
             ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("알림 수정 성공")
-                    .data(alertService.updateAlert(user, updateAlertDto, alertId))
+                    .data(alertService.updateAlert(user, updateAlertDto, groundId))
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         } catch (NoSuchElementException e) {
