@@ -13,7 +13,7 @@ public interface SprintService {
     SprintEntity createSprint(int groundId);
     List<SprintEntity> loadSprintList(int groundId);
     SprintEntity loadSprint(int sprintId) throws Exception;
-    void deleteSprint(int sprintId);
+    void deleteSprint(int sprintId) throws Exception;
     SprintEntity updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) throws Exception;
     void startSprint(int groundId, int sprintId) throws Exception;
     void completeSprint(int sprintId) throws Exception;
