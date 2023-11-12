@@ -41,4 +41,6 @@ public interface IssueService  {
     Map<String, Integer> getSprintTotalTimeCount(Integer sprintId) throws Exception;
 
     IssueDto.Title.Response issueTitle(IssueDto.Title.Request request, String issueId, UserDetails userDetails);
+
+    IssueDto.List.Response issueTotalList(Integer groundId, String checkId);
 }
