@@ -97,7 +97,13 @@ const Sidemenu = () => {
                 {name}
               </s.GroundItem>
             ))}
-          <s.GroundItem className="addGround" onClick={() => navigate('/newground')}>
+          <s.GroundItem
+            className="addGround"
+            onClick={() => {
+              groundButtonHandler();
+              navigate('/newground');
+            }}
+          >
             + 새로운 그라운드
           </s.GroundItem>
           <div />

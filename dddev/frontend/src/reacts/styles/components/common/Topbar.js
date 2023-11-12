@@ -55,6 +55,8 @@ export const SelectedGround = styled.span`
   align-items: center;
   justify-content: center;
 
+  pointer-events: ${({ $available }) => ($available ? 'none' : 'auto')};
+  opacity: ${({ $available }) => ($available ? '0.5' : '1')};
   cursor: pointer;
 
   & > svg {

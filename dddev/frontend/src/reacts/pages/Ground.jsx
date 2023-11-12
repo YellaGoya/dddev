@@ -6,6 +6,7 @@ import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 import { updateUser } from 'redux/actions/user';
+import { setGround } from 'redux/actions/ground';
 
 import SelectTransparent from 'reacts/pages/components/common/SelectTransparent';
 
@@ -23,6 +24,7 @@ const GroundInit = () => {
     eetch
       .createGround({ accessToken: user.accessToken, refreshToken: user.refreshToken, name: repository.name, repoId: repository.repoId })
       .then((res) => {
+        dispatch(setGround({ groundId: res.data.id, groundName: res.data.name }));
         dispatch(updateUser({ lastGround: res.data.id }));
         eetch
           .userGrounds({ accessToken: user.accessToken, refreshToken: user.refreshToken })
