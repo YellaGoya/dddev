@@ -263,7 +263,7 @@ public class RequestServiceImpl implements RequestService{
     public void changeReceiver(int groundId, String requestId, RequestReceiverDto requestReceiverDto) throws Exception{
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
         User receiveUser = userRepository.findByGithubId(requestReceiverDto.getReceiveUserId()).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
-        loadRequest.setSendUser(receiveUser);
+        loadRequest.setReceiveUser(receiveUser);
 
         try{
             requestRepository.save(loadRequest);
