@@ -21,7 +21,8 @@ import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import hljs from 'highlight.js';
 
 import userStockImage from 'assets/userStockImage.webp';
-import KeyboardDoubleArrowRightRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowRightRounded';
+// import KeyboardDoubleArrowRightRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowRightRounded';
+import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import SaveIcon from '@mui/icons-material/Save';
 import SettingsEthernetRoundedIcon from '@mui/icons-material/SettingsEthernetRounded';
@@ -42,7 +43,6 @@ const todoList = [
 ];
 
 const onGoingList = [
-  { id: 0, name: '해야 할 일' },
   { id: 1, name: '진행 중' },
   { id: 2, name: '완료' },
 ];
@@ -64,9 +64,12 @@ const Write = () => {
   const [focusTime, setFocusTime] = useState(0);
   const [activeTime, setActiveTime] = useState(0);
   const [users, setUsers] = useState(null);
+  const [comments, setComments] = useState([]);
   const titleRef = useRef(null);
   const settingTitleRef = useRef(null);
+  const statusRef = useRef(null);
   const quillRef = useRef(null);
+  const commentRef = useRef(null);
   const innerHtmlRef = useRef('');
   const lastEditorRef = useRef(null);
   const notInitiatedRef = useRef(true);
@@ -78,6 +81,30 @@ const Write = () => {
     titleRef.current.style.height = Math.round(titleRef.current.scrollHeight / 43) * 43 + 10 + 'px';
     settingTitleRef.current.style.height = 'auto';
     settingTitleRef.current.style.height = titleRef.current.style.height;
+  };
+
+  const SubmitComment = () => {
+    eetch
+      .commentDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+        comment: commentRef.current.getEditor().root.innerHTML,
+      })
+      .then(() => {
+        initRoom(false);
+        commentRef.current.getEditor().root.innerHTML = '';
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
   };
 
   const activeValid = (data, setMessage) => {
@@ -214,11 +241,11 @@ const Write = () => {
   }, [step]);
 
   useEffect(() => {
-    console.log(status);
+    statusRef.current = status;
     if (quillRef.current) {
       if (status === 0) {
         quillRef.current.getEditor().enable();
-      } else quillRef.current.getEditor().disable();
+      } else quillRef.current.getEditor().enable();
     }
   }, [status]);
 
@@ -297,7 +324,7 @@ const Write = () => {
         id: params.docId,
       })
       .then((res) => {
-        console.log(res.data);
+        setComments(res.data.comments);
         setStatus(res.data.status);
         setStep(res.data.step);
         setParentId(res.data.parentId);
@@ -419,6 +446,21 @@ const Write = () => {
     editor.insertText(length, '\n', Quill.sources.USER);
   };
 
+  const CommentQuill = ({ data }) => {
+    const commentsRef = useRef(null);
+
+    useEffect(() => {
+      commentsRef.current.getEditor().root.innerHTML = data.comment;
+    }, []);
+
+    return (
+      <s.CommentsWrapper>
+        <s.CommentAuthor>{data.author}</s.CommentAuthor>
+        <ReactQuill ref={commentsRef} modules={modules} placeholder="추가 사항을 입력해주세요." />
+      </s.CommentsWrapper>
+    );
+  };
+
   useEffect(() => {
     const roomName = `${params.docId || 'test'}`;
     const doc = new Y.Doc();
@@ -430,9 +472,8 @@ const Write = () => {
     const { container } = editor;
 
     const intervalId = setInterval(() => {
-      if (document.activeElement !== titleRef.current && document.activeElement !== settingTitleRef.current) initRoom(false);
-
-      if (lastEditorRef.current === wsProvider.awareness.clientID) {
+      if (lastEditorRef.current === wsProvider.awareness.clientID && statusRef.current === 0) {
+        if (document.activeElement !== titleRef.current && document.activeElement !== settingTitleRef.current) initRoom(false);
         editDocument();
       }
     }, 5000);
@@ -597,15 +638,8 @@ const Write = () => {
       {(receiver || sender) && (
         <s.ChargeInfo>
           {sender && (
-            <s.SenderInfo>
-              <s.ProfileImage src={sender.profileDto ? `https://k9d103.p.ssafy.io/img/user/${sender.profileDto.fileName}` : userStockImage} />
-              {sender.nickname}
-            </s.SenderInfo>
-          )}
-          <KeyboardDoubleArrowRightRoundedIcon />
-          {receiver && (
             <s.ReceiverInfo>
-              <s.ProfileImage src={receiver.profileDto ? `https://k9d103.p.ssafy.io/img/user/${receiver.profileDto.fileName}` : userStockImage} />
+              <s.ProfileImage src={sender.profileDto ? `https://k9d103.p.ssafy.io/img/user/${sender.profileDto.fileName}` : userStockImage} />
               {sender.nickname}
             </s.ReceiverInfo>
           )}
@@ -622,7 +656,7 @@ const Write = () => {
           <s.SettingButton onClick={() => setSettingToggle(true)}>
             <SettingsEthernetRoundedIcon />
           </s.SettingButton>
-          <s.SettingButton $toggle={status === 1 && params.type === 'request'} className="delete-button" onClick={() => deleteDocument()}>
+          <s.SettingButton $available={status === 2} className="delete-button" onClick={() => deleteDocument()}>
             <RemoveCircleIcon />
           </s.SettingButton>
         </>
@@ -686,9 +720,29 @@ const Write = () => {
           </>
         ) : null}
       </s.SettingWrapper>
-      <s.InsertBottom className="insert-button" status={status} onClick={insertBottom}>
-        <AddIcon />
-      </s.InsertBottom>
+      {status === 0 && (
+        <s.InsertBottom className="insert-button" status={status} onClick={insertBottom}>
+          <AddIcon />
+        </s.InsertBottom>
+      )}
+
+      {comments &&
+        comments.length > 0 &&
+        comments.map((comment) => (
+          <div key={comment.id}>
+            <CommentQuill data={comment} />
+          </div>
+        ))}
+
+      {params.type === 'request' && status !== 0 && (
+        <s.CommentWrapper>
+          <ReactQuill ref={commentRef} modules={modules} placeholder="추가 사항을 입력해주세요." />
+          <s.InsertBottom className="insert-button" status={status} onClick={insertBottom}>
+            <AddIcon />
+          </s.InsertBottom>
+          <PublishRoundedIcon onClick={SubmitComment} />
+        </s.CommentWrapper>
+      )}
     </s.EditorWrapper>
   );
 };

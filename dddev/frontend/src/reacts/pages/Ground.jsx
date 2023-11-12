@@ -24,7 +24,29 @@ const GroundInit = () => {
       .createGround({ accessToken: user.accessToken, refreshToken: user.refreshToken, name: repository.name, repoId: repository.repoId })
       .then((res) => {
         dispatch(updateUser({ lastGround: res.data.id }));
-        navigate(`/${res.data.id}/home`);
+        eetch
+          .userGrounds({ accessToken: user.accessToken, refreshToken: user.refreshToken })
+          .then((grounds) => {
+            const groundsList = grounds.data.map((ground) => ground.ground.id);
+            const groundsMap = grounds.data.map((ground) => ground.ground);
+            const groundsMine = grounds.data.filter((ground) => ground.isOwner === true).map((ground) => ground.ground);
+            dispatch(
+              updateUser({
+                groundsList,
+                groundsMap,
+                groundsMine,
+              }),
+            );
+            navigate(`/${res.data.id}`);
+          })
+          .catch((err) => {
+            if (err.message === 'RefreshTokenExpired') {
+              dispatch(logoutUser());
+              dispatch(setMenu(false));
+              dispatch(setMessage(false));
+              navigate(`/login`);
+            }
+          });
       })
       .catch((err) => {
         if (err.message === 'RefreshTokenExpired') {

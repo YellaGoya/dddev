@@ -20,11 +20,11 @@ const EditSettings = ({ toggle, setToggle }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const groundsMine = useSelector((state) => state.user.groundsMine);
-  const [selected, setSelected] = useState(user.groundsMine ? user.groundsMine[0] : null);
-  const [selectedName, setSelectedName] = useState(user.groundsMine[0] ? user.groundsMine[0].name : '');
-  const [groundName, setGroundName] = useState(user.groundsMine[0] ? user.groundsMine[0].name : '');
-  const [focusTime, setFocusTime] = useState(user.groundsMine[0] ? user.groundsMine[0].focusTime : '');
-  const [activeTime, setActiveTime] = useState(user.groundsMine[0] ? user.groundsMine[0].activeTime : '');
+  const [selected, setSelected] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0] : null);
+  const [selectedName, setSelectedName] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0].name : '');
+  const [groundName, setGroundName] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0].name : '');
+  const [focusTime, setFocusTime] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0].focusTime : '');
+  const [activeTime, setActiveTime] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0].activeTime : '');
 
   useEffect(() => {
     if (toggle) {

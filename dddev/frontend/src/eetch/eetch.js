@@ -75,6 +75,7 @@ eetch.editDocument = (values) => ground.editDocument(values);
 eetch.statusDocument = (values) => ground.statusDocument(values);
 eetch.senderDocument = (values) => ground.senderDocument(values);
 eetch.receiverDocument = (values) => ground.receiverDocument(values);
+eetch.commentDocument = (values) => ground.commentDocument(values);
 eetch.timeDocument = (values) => ground.timeDocument(values);
 eetch.titleDocument = (values) => ground.titleDocument(values);
 eetch.deleteDocument = (values) => ground.deleteDocument(values);
@@ -83,5 +84,7 @@ eetch.groundUser = (values) => ground.groundUser(values);
 eetch.groundOwn = (values) => ground.groundOwn(values);
 eetch.groundInvite = (values) => ground.groundInvite(values);
 eetch.groundOut = (values) => ground.groundOut(values);
+eetch.createSprint = (values) => ground.createSprint(values);
+eetch.listSprint = (values) => ground.listSprint(values);
 
 export default eetch;
