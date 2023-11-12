@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface SprintService {
-    public SprintEntity createSprint(int groundId);
-    public List<SprintEntity> loadSprintList(int groundId);
-    public Optional<SprintEntity> loadSprint(int sprintId);
-    public void deleteSprint(int sprintId);
-    public SprintEntity updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto);
-    public void startSprint(int sprintId);
-    public void completeSprint(int sprintId);
+    SprintEntity createSprint(int groundId);
+    List<SprintEntity> loadSprintList(int groundId);
+    SprintEntity loadSprint(int sprintId) throws Exception;
+    void deleteSprint(int sprintId);
+    SprintEntity updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) throws Exception;
+    void startSprint(int groundId, int sprintId) throws Exception;
+    void completeSprint(int sprintId) throws Exception;
 
     // 차트
     Map<LocalDateTime, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception;

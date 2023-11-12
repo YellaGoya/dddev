@@ -43,7 +43,7 @@ public class IssueController {
         }
     }
 
-    @ApiOperation(value = "이슈 문서 목록 조회",notes = "완료 된 이슈 제외 조회")
+    @ApiOperation(value = "이슈 문서 목록 조회",notes = "스프린트 종료 된 이슈 제외 조회")
     @GetMapping("{checkId}/list")
     public ResponseEntity<IssueDto.List.Response> issueList(@PathVariable Integer groundId,
                                     @PathVariable String checkId,
