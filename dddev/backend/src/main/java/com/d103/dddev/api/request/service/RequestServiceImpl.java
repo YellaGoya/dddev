@@ -136,10 +136,25 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
+    public List<Request> getStep2TodoRequests(int groundId) throws Exception {
+        return requestRepository.findByGroundIdAndStepAndStatus(groundId, 2, 0).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    }
+
+    @Override
+    public List<Request> getStep2ProceedRequests(int groundId) throws Exception {
+        return requestRepository.findByGroundIdAndStepAndStatus(groundId, 2, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    }
+
+    @Override
+    public List<Request> getStep2DoneRequests(int groundId) throws Exception {
+        return requestRepository.findByGroundIdAndStepAndStatus(groundId, 2, 2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    }
+
+    @Override
     public Request updateRequest(int groundId, String requestId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception{
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
-        // 이미 보낸 요청이라면 수정할 수 없다.
-        if(loadRequest.getStatus() == 1){
+        // 이미 진행중인 요청이거나 완료된 요청이라면 수정할 수 없다.
+        if(loadRequest.getStatus() == 1 || loadRequest.getStatus() == 2){
             throw new InvalidAttributeValueException("수정할 수 없습니다.");
         }
         String title = requestUpdateDto.getTitle();
@@ -258,7 +273,7 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Comment createComment(int groundId, String requestId, String comment, UserDetails userDetails) throws Exception{
+    public Comment createComment(int groundId, String requestId, RequestCommentDto comment, UserDetails userDetails) throws Exception{
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()-> new DocumentNotFoundException("요청 문서를 찾을 수 없습니다."));
         List<Comment> comments = loadRequest.getComments();
         if(comments == null){
@@ -266,7 +281,7 @@ public class RequestServiceImpl implements RequestService{
         }
         Comment saveComment = new Comment();
         saveComment.setAuthor(userDetails.getUsername());
-        saveComment.setComment(comment);
+        saveComment.setComment(comment.getComment());
         comments.add(saveComment);
         loadRequest.setComments(comments);
 
@@ -328,9 +343,10 @@ public class RequestServiceImpl implements RequestService{
 
     @Override
     public Request titleRequest(int groundId, String requestId, RequestTitleDto requestTitleDto, UserDetails userDetails) throws Exception{
+        if(requestTitleDto.getTitle() == null) throw new InvalidAttributeValueException("제목이 없습니다.");
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
-        // 이미 보낸 요청이라면 수정할 수 없다.
-        if(loadRequest.getStatus() == 1){
+        // 이미 진행중인 요청이거나 완료된 요청이라면 수정할 수 없다.
+        if(loadRequest.getStatus() == 1 || loadRequest.getStatus() == 2){
             throw new InvalidAttributeValueException("수정할 수 없습니다.");
         }
         int step = loadRequest.getStep();

@@ -10,6 +10,7 @@ import com.d103.dddev.api.sprint.repository.entity.BurnDown;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.repository.SprintRepository;
 
+import com.d103.dddev.common.exception.sprint.SprintNotFoundException;
 import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
@@ -103,17 +104,20 @@ public class SprintServiceImpl implements SprintService{
 
     @Override
     public List<SprintEntity> loadSprintList(int groundId) {
-        List<SprintEntity> sprintEntities = sprintRepository.findByGround_Id(groundId).orElseThrow(()-> new NoSuchElementException("스프린트 목록을 불러오는데 실패했습니다."));
+        List<SprintEntity> sprintEntities = sprintRepository.findByGround_Id(groundId).orElseThrow(()-> new TransactionException("스프린트 목록을 불러오는데 실패했습니다."));
         return sprintEntities;
     }
 
     @Override
-    public Optional<SprintEntity> loadSprint(int sprintId) {
-        return sprintRepository.findById(sprintId);
+    public SprintEntity loadSprint(int sprintId) throws Exception{
+        return sprintRepository.findById(sprintId).orElseThrow(()-> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
     }
 
     @Override
-    public void deleteSprint(int sprintId) {
+    public void deleteSprint(int sprintId) throws Exception{
+
+        issueService.changeIssuesStatusWhenSprintDelete(sprintId);
+
         try{
             sprintRepository.deleteById(sprintId);
         }catch(Exception e){
@@ -122,10 +126,17 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
-    public SprintEntity updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) {
-        SprintEntity loadSprint = sprintRepository.findById(sprintId).orElseThrow(() -> new NoSuchElementException("getSprintInfo :: 존재하지 않는 스프린트입니다."));
-        loadSprint.setName(sprintUpdateDto.getName());
-        loadSprint.setGoal(sprintUpdateDto.getGoal());
+    public SprintEntity updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) throws Exception{
+        SprintEntity loadSprint = sprintRepository.findById(sprintId).orElseThrow(() -> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
+        String name = sprintUpdateDto.getName();
+        String goal = sprintUpdateDto.getGoal();
+        if(name == null && goal == null) return loadSprint;
+        if(name != null){
+            loadSprint.setName(sprintUpdateDto.getName());
+        }
+        if(goal != null){
+            loadSprint.setGoal(sprintUpdateDto.getGoal());
+        }
         try{
             sprintRepository.save(loadSprint);
         }catch(Exception e){
@@ -135,8 +146,10 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
-    public void startSprint(int sprintId) {
-        SprintEntity sprint = sprintRepository.findById(sprintId).orElseThrow(() -> new NoSuchElementException("getSprintInfo :: 존재하지 않는 스프린트입니다."));
+    public void startSprint(int groundId, int sprintId) throws Exception{
+        Optional<SprintEntity> proceedSprintOptional = sprintRepository.findByGround_IdAndStatus(groundId, 1);
+        if(proceedSprintOptional.isPresent()) throw new IllegalAccessException("이미 진행중인 스프린트가 있습니다.");
+        SprintEntity sprint = sprintRepository.findById(sprintId).orElseThrow(() -> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
         sprint.setStatus(1);
 
         // 스프린트에 올라간 이슈들의 집중시간 총 합을 불러온다
@@ -156,9 +169,12 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
-    public void completeSprint(int sprintId) {
-        SprintEntity sprint = sprintRepository.findById(sprintId).orElseThrow(() -> new NoSuchElementException("getSprintInfo :: 존재하지 않는 스프린트입니다."));
+    public void completeSprint(int sprintId) throws Exception{
+        SprintEntity sprint = sprintRepository.findById(sprintId).orElseThrow(() -> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
         sprint.setStatus(2);
+
+        issueService.changeIssuesStatusWhenSprintComplete(sprintId);
+
         Ground ground = sprint.getGround();
 
         // 번다운 차트 데이터 db에 저장하기
@@ -233,8 +249,7 @@ public class SprintServiceImpl implements SprintService{
     @Override
     public Map<LocalDateTime, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception {
 
-        SprintEntity sprintEntity = loadSprint(sprintId)
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 스프린트입니다."));
+        SprintEntity sprintEntity = loadSprint(sprintId);
 
         Map<LocalDateTime, Integer> burnDown = new HashMap<>();
 

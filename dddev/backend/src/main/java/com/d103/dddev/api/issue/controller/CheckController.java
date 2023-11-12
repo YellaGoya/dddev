@@ -147,4 +147,19 @@ public class CheckController {
         }
     }
 
+    @ApiOperation("체크포인트 문서 전체 목록 조회")
+    @GetMapping("/list")
+    public ResponseEntity<CheckDto.List.Response> totalCheckList(@PathVariable Integer groundId,
+                                                                 @RequestHeader String Authorization){
+        try{
+            log.info("체크 포인트 문서 전체 목록 조회");
+            CheckDto.List.Response response = checkService.checkTotalList(groundId);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
+
 }

@@ -261,6 +261,7 @@ public class GeneralServiceImpl implements GeneralService{
 
     @Override
     public General titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) throws Exception{
+        if(generalTitleDto.getTitle() == null) throw new InvalidAttributeValueException("제목이 없습니다.");
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
         loadGeneral.setTitle(generalTitleDto.getTitle());

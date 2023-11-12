@@ -376,7 +376,7 @@ public class GroundController {
 	}
 
 	@GetMapping("/{groundId}/chart/active-time/{sprintId}")
-	@ApiOperation(value = "그라운드 차트 - 집중시간 조회", notes = "그라운드 차트 - 완료/미완료 집중시간 조회하는 API")
+	@ApiOperation(value = "그라운드 차트 - 연구시간 조회", notes = "그라운드 차트 - 완료/미완료 연구시간 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
 		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
@@ -416,7 +416,7 @@ public class GroundController {
 		try {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
-				.message("그라운드 전체 완료/미완료 연구시간 조회 성공!")
+				.message("전체 완료/미완료 시간 조회 성공!")
 				.data(groundService.getSprintTotalTime(sprintId))
 				.build();
 
@@ -472,7 +472,7 @@ public class GroundController {
 		try {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
-				.message("집중시간 완료/미완료 개수 조회 성공!")
+				.message("연구시간 완료/미완료 개수 조회 성공!")
 				.data(groundService.getSprintActiveTimeCount(sprintId))
 				.build();
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -500,7 +500,7 @@ public class GroundController {
 		try {
 			responseDto = ResponseDto.<Map<String, Integer>>builder()
 				.code(HttpStatus.OK.value())
-				.message("집중시간 완료/미완료 개수 조회 성공!")
+				.message("전체 완료/미완료 개수 조회 성공!")
 				.data(groundService.getSprintTotalTimeCount(sprintId))
 				.build();
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -520,6 +520,7 @@ public class GroundController {
 		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseDto<Map<LocalDateTime, Integer>>> getBurnDownChart(
+		@ApiParam("그라운드 아이디") @PathVariable Integer groundId,
 		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
 		HttpServletRequest request) {
 		log.info("controller - getBurnDownChart :: 번다운 차트 데이터 조회 진입");
@@ -540,7 +541,6 @@ public class GroundController {
 			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
 
 	@PutMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 정보 수정", notes = "그라운드 정보를 수정하는 API")

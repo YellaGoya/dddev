@@ -17,11 +17,14 @@ public interface RequestService {
     List<RequestTreeResponseDto> getTreeRequests(int groundId);
     List<RequestStepResponseDto> getStep1Requests(int groundId);
     List<Request> getStep2Requests(int groundId);
+    List<Request> getStep2TodoRequests(int groundId) throws Exception;
+    List<Request> getStep2ProceedRequests(int groundId) throws Exception;
+    List<Request> getStep2DoneRequests(int groundId) throws Exception;
     Request updateRequest(int groundId, String requestId, RequestUpdateDto requestUpdateDto, UserDetails userDetails) throws Exception;
     void changeStatus(int groundId, String requestId, RequestStatusDto requestStatusDto) throws Exception;
     void changeSender(int groundId, String requestId, RequestSenderDto requestSenderDto) throws Exception;
     void changeReceiver(int groundId, String requestId, RequestReceiverDto requestReceiverDto) throws Exception;
-    Comment createComment(int groundId, String requestId, String comment, UserDetails userDetails) throws Exception;
+    Comment createComment(int groundId, String requestId, RequestCommentDto comment, UserDetails userDetails) throws Exception;
     Request moveRequest(int groundId, String requestId, RequestMoveDto requestMoveDto) throws Exception;
     void deleteRequest(int groundId, String requestId) throws Exception;
 
