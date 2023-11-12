@@ -366,11 +366,14 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public List<AlertResponseDto> updateAlert(User user, UpdateAlertDto updateAlertDto, Integer alertId) throws Exception {
+    public List<AlertResponseDto> updateAlert(User user, UpdateAlertDto updateAlertDto, Integer groundId) throws Exception {
 
         // 알림 타입도 변경할 수 있게 변경
-        AlertEntity alertEntity = alertRepository.findByIdAndUser_Id(alertId, user.getId()).orElseThrow(
-                () -> new NoSuchElementException("updateAlert :: 알림이 존재하지 않습니다."));
+        List<Integer> alertIdList = alertRepository.findByGroupdIdAndUser_Id(groundId, user.getId());
+
+        if(alertIdList.isEmpty()) {
+            throw new Exception("updateAlert :: 알림을 찾을 수 없습니다.");
+        }
 
         // String type = updateAlertDto.getType();
         // Integer repositoryId = alertEntity.getRepositoryId();
@@ -430,7 +433,11 @@ public class AlertServiceImpl implements AlertService {
         // }
 
         // 타입 바꾸는게 아니라면 키워드 수정하고 끝
-        alertEntity.setKeyword(updateAlertDto.getKeyword());
+
+        for(Integer alertId : alertIdList) {
+            AlertEntity alertEntity = alertRepository.findById(alertId).orElseThrow(()-> new Exception("updateAlert :: 알림을 찾을 수 없습니다."));
+            alertEntity.setKeyword(updateAlertDto.getKeyword());
+        }
 
         return alertList(user);
     }
@@ -442,17 +449,37 @@ public class AlertServiceImpl implements AlertService {
         List<AlertListDto> list = alertRepository.findAlertEntityAndGroundName(user.getId());
 
         for (AlertListDto alert : list) {
-            List<String> keyword = alertRepository.findById(alert.getId())
-                    .orElseThrow(() -> new Exception("get keyword :: 알림이 존재하지 않습니다."))
-                    .getKeyword();
-            AlertResponseDto alertResponse = AlertResponseDto.builder()
-                    .id(alert.getId())
-                    .keyword(keyword)
-                    .type(alert.getType())
-                    .groundName(alert.getGroundName())
-                    .userId(alert.getUserId())
-                    .build();
-            alertListResponseDto.add(alertResponse);
+            AlertEntity alertEntity = alertRepository.findById(alert.getId())
+                    .orElseThrow(() -> new Exception("get keyword :: 알림이 존재하지 않습니다."));
+            List<String> keyword = alertEntity.getKeyword();
+
+            Boolean exist = false;
+
+            // 이미 있으면 타입에 아이디만 추가
+            for(AlertResponseDto existAlert : alertListResponseDto) {
+                if(existAlert.getGroundName().equals(alert.getGroundName())) {
+                    if(alert.getType().equals("push")) {
+                        existAlert.setPushId(alert.getId());
+                    } else if(alert.getType().equals("pull_request")) {
+                        existAlert.setPullRequestId(alert.getId());
+                    }
+                    exist = true;
+                }
+            }
+            if(!exist) {
+                AlertResponseDto alertResponse = AlertResponseDto.builder()
+                        .id(alert.getId())
+                        .keyword(keyword)
+                        .groundName(alert.getGroundName())
+                        .userId(alert.getUserId())
+                        .build();
+                if(alert.getType().equals("push")) {
+                    alertResponse.setPushId(alert.getId());
+                } else if(alert.getType().equals("pull_request")) {
+                    alertResponse.setPullRequestId(alert.getId());
+                }
+                alertListResponseDto.add(alertResponse);
+            }
         }
 
         return alertListResponseDto;

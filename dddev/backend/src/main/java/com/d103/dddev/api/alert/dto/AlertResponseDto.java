@@ -19,6 +19,7 @@ public class AlertResponseDto {
 	Integer id;
 	List<String> keyword;
 	String groundName;
-	String type;
+	Integer pushId;
+	Integer pullRequestId;
 	Integer userId;
 }
