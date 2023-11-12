@@ -8,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RequestUpdateDto {
-    private String title;
-    private String content;
+public class RequestSenderDto {
+    private Integer sendUserId;
 }
