@@ -17,7 +17,7 @@ const CreateAlert = () => {
   const [types, setTypes] = useState([{}]);
 
   useEffect(() => {
-    if (user.isLoggedIn) requestPermission({ accessToken: user.accessToken, refreshToken: user.refreshToken });
+    // if (user.isLoggedIn) requestPermission({ accessToken: user.accessToken, refreshToken: user.refreshToken });
   }, [user.accessToken, user.refreshToken]);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const CreateAlert = () => {
 
   // 알림 생성 api 호출
   const submitAlert = () => {
-    // console.log(ground);
+    console.log(ground);
     eetch.createAlert({ accessToken: user.accessToken, refreshToken: user.refreshToken, repoId: 0, keyword: keywords, type }).catch((err) => {
       console.log(err);
     });
@@ -49,10 +49,10 @@ const CreateAlert = () => {
 
   return (
     <div>
-      <Select label='ground' list={groundsMap} data='ground' select={setGround} />
-      <Select label='type' list={types} data='type' select={setType} />
-      <Input label='키워드' array={keywords} enter={setKeywords} />
-      <div type='button' onClick={submitAlert}>
+      <Select label="ground" list={groundsMap} data="ground" select={setGround} />
+      <Select label="type" list={types} data="type" select={setType} />
+      <Input label="키워드" array={keywords} enter={setKeywords} />
+      <div type="button" onClick={submitAlert}>
         추가
       </div>
     </div>
