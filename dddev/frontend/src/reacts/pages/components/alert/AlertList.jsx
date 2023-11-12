@@ -29,14 +29,14 @@ const CreateAlert = () => {
     // console.log(keywords);
 
     // 알림 리스트 조회
-    eetch.alertList({ accessToken: user.accessToken, refreshToken: user.refreshToken }).then((res => {
-      console.log(res);
-      
-    })
-      
-    ).catch((err) => {
-      console.log(err);
-    })
+    eetch
+      .alertList({ accessToken: user.accessToken, refreshToken: user.refreshToken })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [keywords]);
 
   // 알림 생성 api 호출
@@ -49,10 +49,10 @@ const CreateAlert = () => {
 
   return (
     <div>
-      <Select label="ground" list={groundsMap} data="ground" select={setGround} />
-      <Select label="type" list={types} data="type" select={setType} />
-      <Input label="키워드" array={keywords} enter={setKeywords} />
-      <div type="button" onClick={submitAlert}>
+      <Select label='ground' list={groundsMap} data='ground' select={setGround} />
+      <Select label='type' list={types} data='type' select={setType} />
+      <Input label='키워드' array={keywords} enter={setKeywords} />
+      <div type='button' onClick={submitAlert}>
         추가
       </div>
     </div>
