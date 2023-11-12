@@ -311,6 +311,20 @@ public class IssueServiceImpl implements IssueService {
 	}
 
 	@Override
+	public void changeIssuesStatusWhenSprintDelete(Integer sprintId) throws Exception {
+		List<Issue> issueList = issueRepository.findBySprintId(sprintId);
+		for(Issue issue : issueList){
+			issue.setSprintId(0);
+			issue.setStatus(0);
+		}
+		try{
+			issueRepository.saveAll(issueList);
+		}catch(Exception e){
+			throw new TransactionException("이슈들을 저장하는데 실패헀습니다.");
+		}
+	}
+
+	@Override
 	public void changeIssuesStatusWhenSprintComplete(Integer sprintId) throws Exception {
 		// 완료된 이슈들
 		List<Issue> doneIssues = issueRepository.findBySprintIdAndStatus(sprintId, 2);

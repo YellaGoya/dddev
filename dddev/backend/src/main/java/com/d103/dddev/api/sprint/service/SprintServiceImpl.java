@@ -114,7 +114,10 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
-    public void deleteSprint(int sprintId) {
+    public void deleteSprint(int sprintId) throws Exception{
+
+        issueService.changeIssuesStatusWhenSprintDelete(sprintId);
+
         try{
             sprintRepository.deleteById(sprintId);
         }catch(Exception e){
@@ -127,6 +130,7 @@ public class SprintServiceImpl implements SprintService{
         SprintEntity loadSprint = sprintRepository.findById(sprintId).orElseThrow(() -> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
         String name = sprintUpdateDto.getName();
         String goal = sprintUpdateDto.getGoal();
+        if(name == null && goal == null) return loadSprint;
         if(name != null){
             loadSprint.setName(sprintUpdateDto.getName());
         }
