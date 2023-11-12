@@ -162,4 +162,21 @@ public class CheckController {
         }
     }
 
+    @ApiOperation(value = "목표 문서 템플릿 여부 변경", notes = "template 속성 여부 변경")
+    @PutMapping("/{checkId}/template")
+    public ResponseEntity<CheckDto.Template.Response> isTemplate(@PathVariable Integer groundId,
+                                                               @PathVariable String checkId,
+                                                               @RequestHeader String Authorization){
+        try{
+            log.info("이슈 문서 제목 변경");
+            CheckDto.Template.Response response = checkService.isTemplate(checkId);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+
 }

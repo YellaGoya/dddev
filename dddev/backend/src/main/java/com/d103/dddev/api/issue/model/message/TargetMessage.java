@@ -31,4 +31,6 @@ public class TargetMessage {
     }
 
     public static String title() {return "목표 문서 제목 수정 완료";}
+
+    public static String template() {return "목표 문서 템플릿 여부 수정 완료";}
 }

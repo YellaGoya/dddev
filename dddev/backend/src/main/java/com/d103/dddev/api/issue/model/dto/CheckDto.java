@@ -131,4 +131,18 @@ public class CheckDto {
             private Issue data;
         }
     }
+
+    public static class Template{
+        @Data
+        @Builder
+        @ApiModel(value="체크 포인트 문서 템플릿 변경 응답")
+        public static class Response{
+            @ApiModelProperty(value="message", example = "체크 포인트 문서 템플릿 여부 수정 완료")
+            private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
+            @ApiModelProperty(value="isTemplate", example = "true")
+            private boolean isTemplate;
+        }
+    }
 }

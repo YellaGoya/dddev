@@ -68,6 +68,9 @@ public class IssueServiceImpl implements IssueService {
 			sprintId = 0;
 		}
 
+		Issue check = issueRepository.findById(issueUtil.unclassified(request.getParentId(), groundId, "check"))
+				.orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 연결할 문서 조회
+
 		Issue issue = Issue.builder()
 			.groundId(groundId)
 			.parentId(issueUtil.unclassified(request.getParentId(), groundId, "check"))
@@ -79,13 +82,10 @@ public class IssueServiceImpl implements IssueService {
 			.type("issue")
 			.status(0) // 0 : 미분류, 1 : 진행 예정, 2 : 진행 중, 3 : 완료
 			.title("")
-			.content("")
+			.content(check.isTemplate() ? check.getContent() : "")
 			.build();
 
 		issueRepository.save(issue); // 이슈 저장
-
-		Issue check = issueRepository.findById(issueUtil.unclassified(request.getParentId(), groundId, "check"))
-			.orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 연결할 문서 조회
 
 		List<String> children = check.getChildrenId(); // 하위 문서 조회
 

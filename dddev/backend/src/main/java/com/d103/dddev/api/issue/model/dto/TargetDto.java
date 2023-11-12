@@ -135,4 +135,18 @@ public class TargetDto {
             private Issue data;
         }
     }
+
+    public static class Template{
+        @Data
+        @Builder
+        @ApiModel(value="목표 문서 템플릿 변경 응답")
+        public static class Response{
+            @ApiModelProperty(value="message", example = "목표 문서 템플릿 여부 수정 완료")
+            private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
+            @ApiModelProperty(value="isTemplate", example = "true")
+            private boolean isTemplate;
+        }
+    }
 }

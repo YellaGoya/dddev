@@ -32,20 +32,19 @@ public class CheckServiceImpl implements CheckService{
     @Override
     @Transactional
     public CheckDto.Create.Response createCheck(Integer groundId, CheckDto.Create.Request request, UserDetails userDetails) {
-        Issue check = Issue.builder()
-                .groundId(groundId)
-                .parentId(issueUtil.unclassified(request.getParentId(),groundId, "target"))
-                .childrenId(new ArrayList<>())
-                .author(userDetails.getUsername())
-                .step(2)
-                .type("check")
-                .title("")
-                .content("")
-                .build(); // 체크포인트 문서 객체 생성
-
         Issue target = issueRepository.findById(issueUtil.unclassified(request.getParentId(),groundId, "target"))
-                        .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 상위 문서 조회
+                .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException())); // 상위 문서 조회
 
+        Issue check = Issue.builder()
+                    .groundId(groundId)
+                    .parentId(issueUtil.unclassified(request.getParentId(),groundId, "target"))
+                    .childrenId(new ArrayList<>())
+                    .author(userDetails.getUsername())
+                    .step(2)
+                    .type("check")
+                    .title("")
+                    .content(target.isTemplate() ? target.getContent() : "")
+                    .build(); // 체크포인트 문서 객체 생성
 
         issueRepository.save(check); // 체크포인트 문서 저장
 
@@ -272,6 +271,26 @@ public class CheckServiceImpl implements CheckService{
                 .message(CheckMessage.list())
                 .code(HttpStatus.OK.value())
                 .data(checkList)
+                .build();
+    }
+
+    @Override
+    public CheckDto.Template.Response isTemplate(String checkId) {
+        Issue check = issueRepository.findById(checkId)
+                .orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+        if(check.isTemplate()){
+            check.setTemplate(false);
+        }else{
+            check.setTemplate(true);
+        }
+
+        issueRepository.save(check);
+        return CheckDto.Template.Response
+                .builder()
+                .message(CheckMessage.template())
+                .code(HttpStatus.OK.value())
+                .isTemplate(check.isTemplate())
                 .build();
     }
 

@@ -21,4 +21,6 @@ public interface TargetService {
     TargetDto.Tree.Response Tree(Integer groundId);
 
     TargetDto.Title.Response targetTitle(TargetDto.Title.Request request, String targetId, UserDetails userDetails);
+
+    TargetDto.Template.Response isTemplate(String targetId);
 }

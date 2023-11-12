@@ -24,4 +24,7 @@ public class CheckMessage {
 
     public static String title() {return "체크 포인트 문서 제목 수정 완료";
     }
+
+    public static String template() {return "체크 포인트 문서 템플릿 여부 수정 완료";
+    }
 }
