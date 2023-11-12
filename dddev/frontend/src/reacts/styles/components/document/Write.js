@@ -46,11 +46,14 @@ export const EditorWrapper = styled.div`
 
   .quill {
     padding-top: 0px;
+    pointer-events: ${({ status }) => (status === 0 ? 'auto' : 'none')};
   }
 
   .ql-toolbar.ql-snow {
     width: 375px;
     padding-bottom: 20px;
+
+    opacity: ${({ status }) => (status === 0 ? '1' : '0.3')};
   }
 
   .ql-toolbar .ql-stroke {
@@ -173,6 +176,10 @@ export const EditorWrapper = styled.div`
     :hover {
       color: var(--font-rev);
     }
+  }
+
+  .insert-button {
+    margin: 0 15px;
   }
 
   .ql-snow.ql-toolbar button.ql-active {
@@ -421,7 +428,7 @@ export const InsertBottom = styled.button`
   max-width: 930px;
 
   display: block;
-  margin: 0 auto;
+  margin: 0 15px;
   margin-bottom: 50px;
   padding: 4px 10px 4px 10px;
 
@@ -439,6 +446,8 @@ export const InsertBottom = styled.button`
   transition: background-color 0.15s ease;
 
   cursor: pointer;
+  pointer-events: ${({ status }) => (status === 0 ? 'auto' : 'none')};
+  opacity: ${({ status }) => (status === 0 ? '1' : '0.4')};
 
   &:hover {
     background-color: var(--button-lite);
@@ -480,6 +489,11 @@ export const SettingButton = styled.button`
 
   &.delete-button {
     right: 55px;
+
+    opacity: ${({ $toggle }) => ($toggle ? '0.5' : '1')};
+
+    /* pointer-events: ${({ $available }) => ($available === 0 ? 'none' : 'auto')};
+    opacity: ${({ $available }) => ($available === 0 ? '0.5' : '1')}; */
 
     & > svg {
       fill: var(--font-border);
@@ -652,6 +666,7 @@ export const AttributeWrapper = styled.div`
 `;
 
 export const RequestWrapper = styled.div`
+  position: relative;
   & > div {
     margin-bottom: 0;
     & > div {
@@ -686,4 +701,59 @@ export const StatusText = styled.h3`
   font-size: 1rem;
 
   color: var(--font-border);
+`;
+
+export const ProfileImage = styled.img`
+  width: 90px;
+  height: 30px;
+
+  margin-right: 10px;
+  border: 1px solid var(--border-dark);
+
+  //비율 유지
+  object-fit: cover;
+
+  transition: filter 0.3s ease;
+  border-radius: 25px;
+  cursor: pointer;
+`;
+
+export const ChargeInfo = styled.span`
+  position: absolute;
+  top: 22px;
+  left: 18px;
+
+  display: flex;
+  align-items: center;
+
+  & > svg {
+    display: inline;
+    margin: 0 10px;
+
+    opacity: 0.5;
+  }
+`;
+
+export const SenderInfo = styled.span`
+  display: flex;
+  align-items: center;
+`;
+export const ReceiverInfo = styled.span`
+  display: flex;
+  align-items: center;
+`;
+
+export const RequestDescription = styled.p`
+  position: absolute;
+
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: var(--font-rev);
+  opacity: 0.5;
+
+  top: -20px;
+  left: 25px;
+
+  padding: 0;
+  margin: 0;
 `;

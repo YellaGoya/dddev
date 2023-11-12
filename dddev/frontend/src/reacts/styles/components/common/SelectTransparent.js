@@ -3,6 +3,9 @@ import styled from 'styled-components';
 export const SelectWrapper = styled.div`
   position: relative;
   margin-bottom: 1.5rem;
+
+  pointer-events: ${({ $available }) => ($available ? 'auto' : 'auto')};
+  opacity: ${({ $available }) => ($available ? '1' : '0.5')};
 `;
 
 export const Label = styled.h1`
