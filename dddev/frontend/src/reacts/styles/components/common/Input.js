@@ -3,9 +3,11 @@ import styled from 'styled-components';
 export const InputWrapper = styled.div`
   position: relative;
   margin-bottom: 1.5rem;
+
+  display: ${({ $display }) => ($display ? 'block' : 'none')};
 `;
 
-export const Label = styled.div`
+export const Label = styled.h2`
   position: absolute;
   left: 40px;
   top: -9px;
@@ -33,6 +35,12 @@ export const Input = styled.input`
 
   &:focus {
     outline: none;
+  }
+
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
   }
 `;
 

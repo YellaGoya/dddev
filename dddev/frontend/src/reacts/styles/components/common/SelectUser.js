@@ -38,6 +38,10 @@ export const Selected = styled.div`
     pointer-events: none;
   }
 
+  & > img {
+    border: ${({ $toggle }) => ($toggle ? 'none' : '1px solid var(--border-dark);')};
+  }
+
   display: flex;
   align-items: center;
 
@@ -48,6 +52,10 @@ export const Selected = styled.div`
 
   &:hover {
     background-color: var(--button-basic);
+
+    & > img {
+      border: none;
+    }
   }
 
   & > svg {
@@ -88,7 +96,7 @@ export const SelectItem = styled.li`
   align-items: center;
 
   margin-bottom: 2px;
-  padding: 0 10px;
+  padding: 18px 10px;
   border-radius: 0.5rem;
 
   & > p {
@@ -104,5 +112,39 @@ export const SelectItem = styled.li`
   &:hover {
     background-color: var(--font-toggle);
     color: var(--bg-basic);
+
+    & > img {
+      border: 1px solid transparent;
+    }
   }
+`;
+
+export const ProfileImage = styled.img`
+  width: 90px;
+  height: 30px;
+
+  margin-right: 10px;
+  border: 1px solid var(--border-dark);
+
+  //비율 유지
+  object-fit: cover;
+
+  transition: filter 0.3s ease;
+  border-radius: 25px;
+  cursor: pointer;
+`;
+
+export const SelectedProfileImage = styled.img`
+  width: 30px;
+  height: 30px;
+
+  margin-left: 10px;
+  border: 1px solid var(--border-dark);
+
+  //비율 유지
+  object-fit: cover;
+
+  transition: filter 0.3s ease;
+  border-radius: 25px;
+  cursor: pointer;
 `;

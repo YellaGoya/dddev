@@ -6,9 +6,9 @@ const initialState = {
   accessExp: null,
   refreshToken: null,
   lastGround: null,
-  groundsList: [],
-  groundsMap: [],
-  groundsMine: [],
+  groundsList: null,
+  groundsMap: null,
+  groundsMine: null,
   githubId: null,
 };
 
