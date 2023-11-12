@@ -78,6 +78,22 @@ export const listDocument = async ({ accessToken, refreshToken, groundId, type, 
   return res.json();
 };
 
+export const linkDocument = async ({ accessToken, refreshToken, groundId, type, parentId, id }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}/connect`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ parentId }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
 export const treeDocument = async ({ accessToken, refreshToken, type, groundId }) => {
   const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/total`;
   const options = {
@@ -94,7 +110,7 @@ export const treeDocument = async ({ accessToken, refreshToken, type, groundId }
 };
 
 export const parentsList = async ({ accessToken, refreshToken, type, groundId }) => {
-  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/total`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/list`;
   const options = {
     method: 'GET',
     headers: {
@@ -132,6 +148,70 @@ export const editDocument = async ({ accessToken, refreshToken, groundId, type, 
       Authorization: accessToken,
     },
     body: JSON.stringify({ title, content }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const statusDocument = async ({ accessToken, refreshToken, groundId, type, id, status }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}/status`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ status }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const senderDocument = async ({ accessToken, refreshToken, groundId, id, sender }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/request/${id}/sender`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ sendUserId: sender }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const receiverDocument = async ({ accessToken, refreshToken, groundId, id, receiver }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/request/${id}/receiver`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ receiveUserId: receiver }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const timeDocument = async ({ accessToken, refreshToken, groundId, type, id, focusTime, activeTime }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}/time`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ focusTime, activeTime }),
   };
 
   const res = await eetch(url, options, refreshToken);

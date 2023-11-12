@@ -79,6 +79,20 @@ export const userInfo = async ({ accessToken, refreshToken }) => {
   return res.json();
 };
 
+export const userById = async ({ accessToken, refreshToken, githubId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/user/${githubId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+  return res.json();
+};
+
 export const userNickname = async ({ accessToken, refreshToken, nickname }) => {
   const url = `https://k9d103.p.ssafy.io:8001/user/nickname/duplicate/${nickname}`;
   const options = {

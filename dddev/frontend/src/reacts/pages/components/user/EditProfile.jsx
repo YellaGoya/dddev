@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import eetch from 'eetch/eetch';
 import Input from 'reacts/pages/components/common/Input';
-import Select from 'reacts/pages/components/common/Select';
+import Select from 'reacts/pages/components/common/SelectUser';
 
 import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
@@ -184,7 +184,7 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
               <s.EditImageWrapper ref={sizeRef}>
                 <s.ProfileImage
                   ref={imageRef}
-                  src={userInfo.profileDto ? `https://k9d103.p.ssafy.io:8001/img/user/${userInfo.profileDto.fileName}` : userStockImage}
+                  src={userInfo.profileDto ? `https://k9d103.p.ssafy.io/img/user/${userInfo.profileDto.fileName}` : userStockImage}
                 />
                 <s.ImageButton onClick={handleFileSelect}>
                   <PhotoFilterIcon />

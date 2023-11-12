@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 import * as s from 'reacts/styles/components/common/Input';
-const Input = ({ label, holder, data, setData, array, fixed, click, enter, message, valid, display = true }) => {
+const Input = ({ label, holder, data, setData, array, fixed, click, enter, message, valid, display = true, type }) => {
   const [value, setValue] = useState('');
   const [placeholder, setPlaceholder] = useState(holder || '');
   const [isActive, setIsActive] = useState(false);
@@ -50,6 +50,7 @@ const Input = ({ label, holder, data, setData, array, fixed, click, enter, messa
     <s.InputWrapper $display={display}>
       {label && <s.Label $isActive={isActive}>{label}</s.Label>}
       <s.Input
+        type={type}
         value={array ? value : data}
         placeholder={placeholder}
         $isActive={isActive}

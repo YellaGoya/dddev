@@ -1,7 +1,7 @@
 // import eetch from 'eetch/eetch';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import Select from 'reacts/pages/components/common/Select';
+import Select from 'reacts/pages/components/common/SelectUser';
 import Input from 'reacts/pages/components/common/Input';
 import eetch from 'eetch/eetch';
 
