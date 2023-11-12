@@ -86,7 +86,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public void createAlert(String header, Repository repository, List<String> keyword, String type) throws Exception {
+    public List<AlertResponseDto> createAlert(String header, Repository repository, List<String> keyword, String type) throws Exception {
 
         User user = jwtService.getUser(header).orElseThrow(
                 () -> new NoSuchElementException("getUserInfo :: 존재하지 않는 사용자입니다."));
@@ -117,6 +117,7 @@ public class AlertServiceImpl implements AlertService {
 
         alertRepository.save(alertEntity);
 
+        return alertList(user);
     }
 
     @Override
@@ -365,7 +366,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public void updateAlert(User user, UpdateAlertDto updateAlertDto, Integer alertId) throws Exception {
+    public List<AlertResponseDto> updateAlert(User user, UpdateAlertDto updateAlertDto, Integer alertId) throws Exception {
 
         // 알림 타입도 변경할 수 있게 변경
         AlertEntity alertEntity = alertRepository.findByIdAndUser_Id(alertId, user.getId()).orElseThrow(
@@ -430,6 +431,8 @@ public class AlertServiceImpl implements AlertService {
 
         // 타입 바꾸는게 아니라면 키워드 수정하고 끝
         alertEntity.setKeyword(updateAlertDto.getKeyword());
+
+        return alertList(user);
     }
 
     @Override
@@ -456,7 +459,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public void deleteAlert(User user, Integer alertId) throws Exception {
+    public List<AlertResponseDto> deleteAlert(User user, Integer alertId) throws Exception {
 
 //        log.info("deleteAlert :: alertId, user id :: {} {}", alertId, user.getId());
         // alertId로 웹훅 아이디 찾고, (삭제 - alert 테이블에 해당 웹훅 아이디로 만들어진 다른 알람이 없을 때)
@@ -468,6 +471,8 @@ public class AlertServiceImpl implements AlertService {
 
         // db에서 알림 및 키워드 삭제
         alertRepository.deleteById(alertId);
+
+        return alertList(user);
     }
 
     @Override
