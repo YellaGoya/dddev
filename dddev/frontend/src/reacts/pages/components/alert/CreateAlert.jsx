@@ -22,6 +22,13 @@ const CreateAlert = () => {
     ];
     setTypes(list);
     // console.log(keywords);
+
+    // 알림 리스트 조회
+    eetch.alertList({ accessToken: user.accessToken, refreshToken: user.refreshToken }).then(
+      
+    ).catch((err) => {
+      console.log(err);
+    })
   }, [keywords]);
 
   // 알림 생성 api 호출
