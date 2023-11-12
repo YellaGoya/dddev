@@ -7,7 +7,7 @@ import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 import { updateUser } from 'redux/actions/user';
 
-import Select from 'reacts/pages/components/common/Select';
+import Select from 'reacts/pages/components/common/SelectUser';
 
 import AddHomeIcon from '@mui/icons-material/AddHome';
 import GitHubIcon from '@mui/icons-material/GitHub';

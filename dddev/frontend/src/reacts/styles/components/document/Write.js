@@ -9,8 +9,43 @@ export const EditorWrapper = styled.div`
 
   background-color: var(--bg-basic);
 
+  & > textarea {
+    width: calc(100% - 30px);
+    height: fit-content;
+    margin: 60px 15px 0 15px;
+
+    color: var(--font-rev);
+    font-size: 2rem;
+    font-weight: 600;
+
+    background-color: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+
+    font-family:
+      Pretendard,
+      -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      Roboto,
+      'Helvetica Neue',
+      'Segoe UI',
+      'Apple SD Gothic Neo',
+      'Noto Sans KR',
+      'Malgun Gothic',
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Segoe UI Symbol',
+      sans-serif;
+
+    //입력된 텍스트가 넓이를 넘어가면 다음 줄로 넘어감
+    overflow: hidden;
+    white-space: pre-line;
+  }
+
   .quill {
-    padding-top: 50px;
+    padding-top: 0px;
   }
 
   .ql-toolbar.ql-snow {
@@ -141,7 +176,7 @@ export const EditorWrapper = styled.div`
   }
 
   .ql-snow.ql-toolbar button.ql-active {
-    background: var(--button-activated);
+    background: var(--button-lite);
     border-radius: 6px;
   }
 
@@ -376,31 +411,7 @@ export const EditorWrapper = styled.div`
 
     * {
       position: relative;
-
-      /* &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -10px;
-        width: 6px;
-        height: 100%;
-        background-color: var(--font-rev);
-
-        transition: opacity 0.2s ease;
-
-        opacity: 0;
-      }
-
-      &:hover::before {
-        opacity: 1;
-      } */
     }
-
-    /* code {
-      &:hover::before {
-        opacity: 0;
-      }
-    } */
   }
 `;
 
@@ -411,13 +422,14 @@ export const InsertBottom = styled.button`
 
   display: block;
   margin: 0 auto;
+  margin-bottom: 50px;
   padding: 4px 10px 4px 10px;
 
   color: var(--font-rev);
 
   border: none;
   border-radius: 6px;
-  background-color: var(--button-basic);
+  background-color: var(--button-darker);
 
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
@@ -431,4 +443,247 @@ export const InsertBottom = styled.button`
   &:hover {
     background-color: var(--button-lite);
   }
+`;
+
+export const SettingButton = styled.button`
+  position: absolute;
+  right: 15px;
+  top: 17px;
+
+  padding: 0;
+  margin: 0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+
+  font-size: 1rem;
+
+  background-color: transparent;
+  border: none;
+  z-index: 6;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--button-lite);
+
+    & > svg {
+      fill: var(--font-rev);
+    }
+  }
+
+  & > svg {
+    fill: var(--font-border);
+    margin: 2px;
+  }
+
+  cursor: pointer;
+
+  &.delete-button {
+    right: 55px;
+
+    & > svg {
+      fill: var(--font-border);
+      margin: 3px;
+      width: 25px;
+      height: 25px;
+    }
+
+    &:hover {
+      & > svg {
+        fill: var(--font-delete);
+      }
+    }
+  }
+
+  &.only-delete-button {
+    & > svg {
+      fill: var(--font-border);
+      margin: 3px;
+      width: 25px;
+      height: 25px;
+    }
+
+    &:hover {
+      & > svg {
+        fill: var(--font-delete);
+      }
+    }
+  }
+`;
+
+export const SettingWrapper = styled.div`
+  position: absolute;
+  top: 10px;
+
+  width: calc(100% - 10px);
+  height: fit-content;
+  margin: 0 5px;
+  background-color: var(--bg-black);
+
+  border-radius: 0.75rem;
+  z-index: 7;
+
+  opacity: ${({ $toggle }) => ($toggle ? '1' : '0')};
+  visibility: ${({ $toggle }) => ($toggle ? 'visible' : 'hidden')};
+
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+
+  box-shadow:
+    rgba(0, 0, 0, 0.24) 0px 1px 1px,
+    rgba(0, 0, 0, 0.24) 0px 2px 2px,
+    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+
+  & > .close-button {
+    top: 7px;
+    right: 10px;
+    & > svg {
+      fill: var(--font-border);
+      width: 25px;
+      height: 25px;
+      margin: 3px;
+    }
+
+    &:hover {
+      & > svg {
+        fill: var(--font-rev);
+      }
+    }
+  }
+
+  & > textarea {
+    width: calc(100% - 20px);
+    height: fit-content;
+    margin: 50px 10px 0 10px;
+
+    color: var(--font-rev);
+    font-size: 2rem;
+    font-weight: 600;
+
+    background-color: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+
+    font-family:
+      Pretendard,
+      -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      Roboto,
+      'Helvetica Neue',
+      'Segoe UI',
+      'Apple SD Gothic Neo',
+      'Noto Sans KR',
+      'Malgun Gothic',
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Segoe UI Symbol',
+      sans-serif;
+
+    //입력된 텍스트가 넓이를 넘어가면 다음 줄로 넘어감
+    overflow: hidden;
+    white-space: pre-line;
+  }
+`;
+
+export const SettingLabel = styled.p`
+  left: 13px;
+  top: 17px;
+  position: absolute;
+  color: var(--font-border);
+
+  font-weight: 500;
+  font-size: 0.9rem;
+`;
+
+export const DivLine = styled.div`
+  width: calc(100% - 30px);
+  margin: 10px 15px 25px 15px;
+  height: 1px;
+  background-color: var(--font-border);
+  opacity: 0.25;
+`;
+
+export const ParentWrapper = styled.div`
+  margin-top: 20px;
+  & > div {
+    margin-bottom: 0px;
+
+    & > div {
+      margin: 0 15px;
+      width: calc(100% - 30px);
+
+      & > svg {
+        right: 25px;
+      }
+      &:focus {
+        background-color: #fff;
+      }
+    }
+  }
+`;
+
+export const AttributeWrapper = styled.div`
+  & > div {
+    margin-bottom: 30px;
+    & > div {
+      margin: 0 15px;
+      width: calc(100% - 30px);
+
+      & > svg {
+        right: 25px;
+      }
+      &:focus {
+        background-color: #fff;
+      }
+    }
+
+    & > h2 {
+      left: 30px;
+    }
+
+    & > input {
+      margin: 0 15px;
+      width: calc(100% - 30px);
+    }
+  }
+`;
+
+export const RequestWrapper = styled.div`
+  & > div {
+    margin-bottom: 0;
+    & > div {
+      margin: 0 15px;
+      width: calc(100% - 30px);
+
+      & > svg {
+        right: 25px;
+      }
+      &:focus {
+        background-color: #fff;
+      }
+    }
+
+    & > h2 {
+      left: 30px;
+    }
+
+    & > input {
+      margin: 0 15px;
+      width: calc(100% - 30px);
+    }
+  }
+`;
+
+export const StatusText = styled.h3`
+  position: absolute;
+  top: 22px;
+  right: 103px;
+
+  font-weight: 400;
+  font-size: 1rem;
+
+  color: var(--font-border);
 `;

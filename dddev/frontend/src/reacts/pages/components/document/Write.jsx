@@ -7,48 +7,367 @@ import * as Y from 'yjs';
 import { QuillBinding } from 'y-quill';
 import { WebsocketProvider } from 'y-websocket';
 import { useParams } from 'react-router-dom';
+// import WriteOptions from 'reacts/pages/components/document/WriteOptions';
 
 import { setDoc } from 'redux/actions/doc';
 import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 import eetch from 'eetch/eetch';
+import SelectTransParent from 'reacts/pages/components/common/SelectTransparent';
+import SelectUser from 'reacts/pages/components/common/SelectUser';
+import Input from 'reacts/pages/components/common/Input';
 
 import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import hljs from 'highlight.js';
 
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import SaveIcon from '@mui/icons-material/Save';
+import SettingsEthernetRoundedIcon from '@mui/icons-material/SettingsEthernetRounded';
 import AddIcon from '@mui/icons-material/Add';
 import 'quill/dist/quill.snow.css';
 import 'highlight.js/styles/github-dark.css';
 import * as s from 'reacts/styles/components/document/Write';
+
+const statusList = [
+  { id: 0, name: '해야 할 일' },
+  { id: 1, name: '진행 중' },
+  { id: 2, name: '완료' },
+];
+
 const Write = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
+  const [originalTitle, setOriginalTitle] = useState('');
+  const [settingToggle, setSettingToggle] = useState(false);
+  const [title, setTitle] = useState('');
+  const [step, setStep] = useState(1);
+  const [status, setStatus] = useState(null);
+  const [receiver, setReceiver] = useState(null);
+  const [sender, setSender] = useState(null);
+  const [parents, setParents] = useState(null);
+  const [parentId, setParentId] = useState(null);
+  const [parentName, setParentName] = useState('');
+  const [focusTime, setFocusTime] = useState(0);
+  const [activeTime, setActiveTime] = useState(0);
+  const [users, setUsers] = useState(null);
+  const titleRef = useRef(null);
+  const settingTitleRef = useRef(null);
   const quillRef = useRef(null);
   const innerHtmlRef = useRef('');
   const lastEditorRef = useRef(null);
   const notInitiatedRef = useRef(true);
+  const notDeleteRef = useRef(true);
   const params = useParams();
-  const [title, setTitle] = useState('');
+
+  const titleResizeHandler = () => {
+    titleRef.current.style.height = 'auto';
+    titleRef.current.style.height = Math.round(titleRef.current.scrollHeight / 43) * 43 + 10 + 'px';
+    settingTitleRef.current.style.height = 'auto';
+    settingTitleRef.current.style.height = titleRef.current.style.height;
+  };
+
+  const activeValid = (data, setMessage) => {
+    if (focusTime > 0 && data > 0) {
+      setMessage({ fail: true, text: '* 집중 시간과 동시에 입력할 수 없습니다.' });
+      setActiveTime(0);
+    } else {
+      setMessage({ fail: false, text: '' });
+      timeDocument();
+    }
+  };
+
+  const focusValid = (data, setMessage) => {
+    if (activeTime > 0 && data > 0) {
+      setMessage({ fail: true, text: '* 연구 시간과 동시에 입력할 수 없습니다.' });
+      setFocusTime(0);
+    } else {
+      setMessage({ fail: false, text: '' });
+      timeDocument();
+    }
+  };
+
+  const receiverChange = (item) => {
+    eetch
+      .receiverDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        id: params.docId,
+        receiver: item.githubId,
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
+
+  const senderChange = (item) => {
+    eetch
+      .senderDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        id: params.docId,
+        sender: item.githubId,
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
+
+  useEffect(() => {
+    titleResizeHandler();
+  }, [title]);
+
+  useEffect(() => {
+    console.log(sender, receiver);
+    if (parentId)
+      eetch
+        .detailDocument({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId: params.groundId,
+          type: params.type === 'issue' ? 'check' : params.type === 'check' ? 'target' : params.type,
+          id: parentId,
+        })
+        .then((res) => {
+          setParentName(res.data.title === '' ? '새 문서' : res.data.title);
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+  }, [parentId]);
+
+  useEffect(() => {
+    eetch
+      .groundUsers({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
+      .then((res) => {
+        setUsers(res.data);
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  }, [params]);
+
+  useEffect(() => {
+    console.log(users);
+  }, [users]);
+
+  useEffect(() => {
+    if (params && step > 1) {
+      eetch
+        .parentsList({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId: params.groundId,
+          type: params.type === 'issue' ? 'check' : params.type === 'check' ? 'target' : params.type,
+        })
+        .then((res) => {
+          const filtered = res.data.map((parent) => {
+            return { id: parent.id, name: parent.title === '' ? '새 문서' : parent.title };
+          });
+          setParents(filtered);
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+    }
+  }, [step]);
+
+  const titleDocument = () => {
+    if (title === '') setTitle(originalTitle === '' ? '새 문서' : originalTitle);
+    else
+      eetch
+        .titleDocument({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId: params.groundId,
+          type: params.type,
+          id: params.docId,
+          title,
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+  };
+
+  const linkParent = (parentId) => {
+    eetch
+      .linkDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+        parentId,
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
+
+  const deleteDocument = () => {
+    notDeleteRef.current = false;
+    eetch
+      .deleteDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+      })
+      .then(() => {
+        navigate(-1);
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
+
+  const initRoom = (needData) => {
+    eetch
+      .detailDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+      })
+      .then((res) => {
+        console.log(res.data);
+        setStatus(res.data.status);
+        setStep(res.data.step);
+        setParentId(res.data.parentId);
+        setActiveTime(res.data.activeTime);
+        setFocusTime(res.data.focusTime);
+        setReceiver(res.data.receiveUser);
+        setSender(res.data.sendUser);
+        dispatch(setDoc({ docTitle: res.data.title }));
+        setTitle(res.data.title === '' ? '새 문서' : res.data.title);
+        setOriginalTitle(res.data.title === '' ? '새 문서' : res.data.title);
+        if (needData) quillRef.current.getEditor().root.innerHTML = res.data.content;
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
+
+  const editDocument = () => {
+    if (notDeleteRef.current)
+      eetch
+        .editDocument({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId: params.groundId,
+          type: params.type,
+          id: params.docId,
+          content: innerHtmlRef.current,
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+  };
+
+  const statusDocument = (status) => {
+    eetch
+      .statusDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+        status,
+      })
+      .then(() => {
+        setStatus(status);
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
+
+  const timeDocument = () => {
+    eetch
+      .timeDocument({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        type: params.type,
+        id: params.docId,
+        focusTime,
+        activeTime,
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
 
   const getRandomPastelColor = () => {
     const r = Math.floor(Math.random() * 127 + 128);
     const g = Math.floor(Math.random() * 127 + 128);
     const b = Math.floor(Math.random() * 127 + 128);
     return `rgb(${r}, ${g}, ${b})`;
-  };
-
-  const editDocument = () => {
-    eetch.editDocument({
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      groundId: params.groundId,
-      type: params.type,
-      id: params.docId,
-      title,
-      content: innerHtmlRef.current,
-    });
   };
 
   const modules = useMemo(() => {
@@ -88,18 +407,19 @@ const Write = () => {
     editor.format('font', 'Pretendard');
     const { container } = editor;
 
-    const ping = (noise) => {
-      wsProvider.awareness.setLocalStateField('user', {
-        ping: true,
-        noise,
-      });
-    };
-
     const intervalId = setInterval(() => {
+      if (document.activeElement !== titleRef.current && document.activeElement !== settingTitleRef.current) initRoom(false);
+
       if (lastEditorRef.current === wsProvider.awareness.clientID) {
         editDocument();
       }
-    }, 10000); // 10초마다 실행
+    }, 10000);
+
+    const ping = (noise) => {
+      wsProvider.awareness.setLocalStateField('pinged', {
+        noise,
+      });
+    };
 
     const updateCursor = (react) => {
       const range = editor.getSelection();
@@ -145,30 +465,6 @@ const Write = () => {
       return false;
     };
 
-    const initRoom = (needData) => {
-      eetch
-        .detailDocument({
-          accessToken: user.accessToken,
-          refreshToken: user.refreshToken,
-          groundId: params.groundId,
-          type: params.type,
-          id: params.docId,
-        })
-        .then((res) => {
-          setTitle(res.data.title);
-          dispatch(setDoc({ docTitle: res.data.title }));
-          if (needData) quillRef.current.getEditor().root.innerHTML = res.data.content;
-        })
-        .catch((err) => {
-          if (err.message === 'RefreshTokenExpired') {
-            dispatch(logoutUser());
-            dispatch(setMenu(false));
-            dispatch(setMessage(false));
-            navigate(`/login`);
-          }
-        });
-    };
-
     editor.on('selection-change', () => {
       updateCursor();
       lastEditorRef.current = wsProvider.awareness.clientID;
@@ -189,31 +485,30 @@ const Write = () => {
     wsProvider.on('status', (event) => {
       if (event.status === 'connected' && notInitiatedRef.current) {
         ping(0);
+        initRoom(false);
       }
     });
 
     wsProvider.awareness.on('update', ({ added, updated, removed }) => {
       const users = wsProvider.awareness.getStates();
 
-      const intervalId = setInterval(() => {
-        const editorClassName = editor.container.firstChild.className;
+      added.concat(updated).forEach((id) => {
+        const userState = users.get(id);
+        if (userState && userState.pinged && notInitiatedRef.current) {
+          const { pinged } = userState;
+          if (pinged.noise < 3) ping(pinged.noise + 1);
+          if (pinged.noise === 3) {
+            ping(4);
+            initRoom([...users.keys()].length === 1);
+            notInitiatedRef.current = false;
+          }
+        }
 
-        if (editorClassName !== 'ql-editor ql-blank') {
-          added.concat(updated).forEach((id) => {
-            const userState = users.get(id);
-
+        const wsCycle = setInterval(() => {
+          const editorClassName = editor.container.firstChild.className;
+          if (editorClassName !== 'ql-editor ql-blank') {
             if (userState && userState.user && userState.user.cursor !== null) {
               const { user } = userState;
-              if (user.ping) {
-                if (user.noise < 3) ping(user.noise + 1);
-                if (user.noise === 3 && notInitiatedRef.current) {
-                  ping(4);
-                  initRoom([...users.keys()].length === 1);
-                  notInitiatedRef.current = false;
-                }
-
-                return;
-              }
 
               if (id === wsProvider.awareness.clientID) return;
 
@@ -242,18 +537,18 @@ const Write = () => {
 
               cursorElement.style.top = cursorPosition.top + 'px';
             }
-          });
 
-          removed.forEach((id) => {
-            const cursorElement = document.getElementById(`cursor-${id}`);
-            if (cursorElement !== null) {
-              cursorElement.remove();
-            }
-          });
+            clearInterval(wsCycle);
+          }
+        }, 100);
+      });
 
-          clearInterval(intervalId);
+      removed.forEach((id) => {
+        const cursorElement = document.getElementById(`cursor-${id}`);
+        if (cursorElement !== null) {
+          cursorElement.remove();
         }
-      }, 100);
+      });
     });
 
     const binding = new QuillBinding(type, editor, wsProvider.awareness);
@@ -269,7 +564,81 @@ const Write = () => {
   return (
     <>
       <s.EditorWrapper>
+        <textarea
+          ref={titleRef}
+          value={title}
+          rows={1}
+          onChange={(event) => {
+            setTitle(event.target.value);
+          }}
+          onBlur={titleDocument}
+        />
         <ReactQuill ref={quillRef} modules={modules} placeholder="내용을 입력해주세요." />
+        {step === 1 ? (
+          <s.SettingButton className="only-delete-button" onClick={() => deleteDocument()}>
+            <RemoveCircleIcon />
+          </s.SettingButton>
+        ) : (
+          <>
+            <s.StatusText>{statusList[status] ? statusList[status].name : null}</s.StatusText>
+            <s.SettingButton onClick={() => setSettingToggle(true)}>
+              <SettingsEthernetRoundedIcon />
+            </s.SettingButton>
+            <s.SettingButton className="delete-button" onClick={() => deleteDocument()}>
+              <RemoveCircleIcon />
+            </s.SettingButton>
+          </>
+        )}
+        <s.SettingWrapper $toggle={settingToggle}>
+          <s.SettingLabel>제목</s.SettingLabel>
+          <s.SettingButton
+            className="close-button"
+            onClick={() => {
+              timeDocument();
+              setSettingToggle(false);
+            }}
+          >
+            <SaveIcon />
+          </s.SettingButton>
+          <textarea
+            ref={settingTitleRef}
+            value={title}
+            rows={1}
+            onChange={(event) => {
+              setTitle(event.target.value);
+            }}
+            onBlur={titleDocument}
+          />
+          <s.DivLine />
+          <s.ParentWrapper>
+            <SelectTransParent label="부모 문서" list={parents} select={(item) => linkParent(item.id)} selected={parentName} />
+          </s.ParentWrapper>
+
+          {params.type === 'issue' ? (
+            <>
+              <s.DivLine />
+              <s.AttributeWrapper>
+                <SelectTransParent label="진행 상태" list={parents} select={(item) => statusDocument(item.id)} />
+                <Input type="number" label="집중 시간" data={focusTime} setData={setFocusTime} valid={focusValid} />
+                <Input type="number" label="연구 시간" data={activeTime} setData={setActiveTime} valid={activeValid} />
+              </s.AttributeWrapper>
+            </>
+          ) : params.type === 'request' && step === 2 ? (
+            <>
+              <s.DivLine />
+              <s.RequestWrapper>
+                <SelectTransParent
+                  label="진행 상태"
+                  list={statusList}
+                  select={(item) => statusDocument(item.id)}
+                  selected={statusList[status].name}
+                />
+                <SelectUser label="요청 멤버" list={users} select={(item) => senderChange(item)} selected={sender} keyInsert="send_" />
+                <SelectUser label="담당 멤버" list={users} select={(item) => receiverChange(item)} selected={receiver} keyInsert="receive_" />
+              </s.RequestWrapper>
+            </>
+          ) : null}
+        </s.SettingWrapper>
       </s.EditorWrapper>
 
       <s.InsertBottom onClick={insertBottom}>

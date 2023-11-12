@@ -34,7 +34,16 @@ export const ContentGrid = styled.section`
     }
   }
 
+  @media (min-width: 1560px) and (min-height: 691px) {
+    top: calc((100vh - 630px) / 2);
+  }
+  // 화면 넓이 1200px 이하, 높이 500px 이하일 때 top: 20px
+  @media (min-width: 1560px) and (max-height: 690px) {
+    top: 30px;
+  }
+
   @media (max-width: 1559px) {
+    top: 30px;
     grid-template-columns: repeat(1, 1fr);
     justify-items: center;
     align-items: center;

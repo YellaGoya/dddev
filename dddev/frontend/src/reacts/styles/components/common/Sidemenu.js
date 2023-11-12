@@ -26,80 +26,118 @@ export const PositionWrapper = styled.div`
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
     rgba(0, 0, 0, 0.24) 0px 4px 4px;
-
-  border: 1px solid var(--border-basic);
 `;
 
 export const MenuNav = styled.nav`
   position: relative;
-  margin-top: 50px;
+  margin-top: 20px;
 `;
 
 export const MenuCategory = styled(Link)`
+  width: calc(100% - 20px);
   text-decoration: none;
   display: block;
-  padding: 3px 10px;
+  padding: 3px 20px;
   margin-top: 10px;
+  margin-left: 10px;
 
   display: flex;
   align-items: center;
+
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
 
   & > svg {
     width: 19px;
     height: 19px;
     margin-right: 4px;
   }
+
+  border-radius: 0.5rem;
 `;
 
 export const MenuChild = styled(Link)`
+  width: calc(100% - 20px);
+
   text-decoration: none;
-  margin-left: 10px;
-  padding: 1px 10px;
+  padding: 3px 20px 3px 40px;
   display: block;
+  margin-left: 10px;
 
   display: flex;
   align-items: center;
+
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
 
   & > svg {
     width: 19px;
     height: 19px;
     margin-right: 4px;
   }
+
+  border-radius: 0.5rem;
 `;
 
 export const GroundList = styled.ul`
   position: absolute;
-  top: 30px;
-  left: 0;
+  top: 58px;
+  left: 10px;
 
-  width: 275px;
-  transform: translateY(${({ $groundListToggle }) => ($groundListToggle ? '-30px' : '-100%')});
+  width: 255px;
 
-  background-color: white;
-  padding-bottom: 30px;
+  visibility: ${({ $groundListToggle }) => ($groundListToggle ? 'visible' : 'hidden')};
+  opacity: ${({ $groundListToggle }) => ($groundListToggle ? '1' : '0')};
 
-  transition: transform 0.5s ease;
+  transform: ${({ $groundListToggle }) => ($groundListToggle ? 'scale(1)' : 'scale(0.95)')};
+  background-color: var(--bg-dark);
+  padding: 10px;
+
+  list-style: none;
+
+  transition: all 0.5s ease;
+
+  border-radius: 0.5rem;
+
+  box-shadow:
+    rgba(0, 0, 0, 0.24) 0px 1px 1px,
+    rgba(0, 0, 0, 0.24) 0px 2px 2px,
+    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+
+  & > .addGround {
+    margin-top: 15px;
+    list-style-type: none;
+  }
 
   & > div {
     position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 275px;
-    height: 30px;
+    height: calc(100% - 20px);
+    width: 5px;
+    top: 10px;
 
-    background-color: #aaa;
+    border-radius: 1px;
 
-    cursor: pointer;
-  }
+    left: -8px;
 
-  & > li:nth-last-child(2) {
-    margin: 6px 0;
-    list-style-type: none;
+    background-color: var(--font-toggle);
   }
 `;
 
 export const GroundItem = styled.li`
-  color: var(--font-basic);
+  color: var(--font-rev);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 3px 10px;
+
+  border-radius: 0.25rem;
+
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
+
   cursor: pointer;
 `;
 
@@ -108,11 +146,13 @@ export const BottomWrapper = styled.div`
 `;
 
 export const MenuButton = styled.button`
+  width: calc(100% - 20px);
   display: block;
   color: var(--font-rev);
 
   font-size: 18px;
-  padding: 5px 10px 0 10px;
+  padding: 3px 20px;
+  margin-left: 10px;
 
   background-color: transparent;
   border: none;
@@ -120,6 +160,11 @@ export const MenuButton = styled.button`
 
   display: flex;
   align-items: center;
+
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
+  border-radius: 0.5rem;
 
   & > svg {
     width: 19px;

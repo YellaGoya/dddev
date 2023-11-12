@@ -1,7 +1,7 @@
 // import eetch from 'eetch/eetch';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-// import Select from 'reacts/pages/components/common/Select';
+// import Select from 'reacts/pages/components/common/SelectUser';
 import Input from 'reacts/pages/components/common/Input';
 import eetch from 'eetch/eetch';
 
@@ -147,11 +147,29 @@ const CreateAlert = () => {
   return (
     <div>
       {alertList.map(({ keyword, groundName, pushId, pullRequestId }) => (
-        <div>
-          {keyword}
-          {groundName}
-          {pushId}
-          {pullRequestId}
+        <div key={groundName}>
+          <div>{groundName}</div>
+          {pushToggle ? (
+            <div type="button" onClick={clickPushToggle(pushId)}>
+              푸시 토글 {pushToggle} 상태
+            </div>
+          ) : (
+            <div type="button" onClick={clickPushToggle(pushId)}>
+              푸시 토글 {pushToggle} 상태
+            </div>
+          )}
+          {pullRequestToggle ? (
+            <div type="button" onClick={clickPullRequestToggle(pullRequestId)}>
+              풀 리퀘스트 토글 {pullRequestToggle} 상태
+            </div>
+          ) : (
+            <div type="button" onClick={clickPullRequestToggle(pullRequestId)}>
+              플 리퀘스르 토글 {pullRequestToggle} 상태
+            </div>
+          )}
+          {(pushToggle || pullRequestToggle) && { keyword } ? (
+            <Input label="키워드" array={keyword} enter={updateAlert(groundName, keyword)} />
+          ) : null}
         </div>
       ))}
     </div>
