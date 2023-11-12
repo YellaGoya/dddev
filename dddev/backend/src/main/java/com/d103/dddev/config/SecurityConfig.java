@@ -73,6 +73,7 @@ public class SecurityConfig {
 		corsConfiguration.addExposedHeader("Authorization-refresh");
 		corsConfiguration.addExposedHeader("nickname");
 		corsConfiguration.addExposedHeader("role");
+		corsConfiguration.addExposedHeader("githubId");
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);
 		return source;
