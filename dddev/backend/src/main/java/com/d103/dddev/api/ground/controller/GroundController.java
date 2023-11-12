@@ -520,6 +520,7 @@ public class GroundController {
 		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
 	ResponseEntity<ResponseDto<Map<LocalDateTime, Integer>>> getBurnDownChart(
+		@ApiParam("그라운드 아이디") @PathVariable Integer groundId,
 		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
 		HttpServletRequest request) {
 		log.info("controller - getBurnDownChart :: 번다운 차트 데이터 조회 진입");
@@ -540,7 +541,6 @@ public class GroundController {
 			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
 
 	@PutMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 정보 수정", notes = "그라운드 정보를 수정하는 API")
