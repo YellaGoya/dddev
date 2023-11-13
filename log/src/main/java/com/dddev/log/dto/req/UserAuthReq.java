@@ -1,10 +1,13 @@
 package com.dddev.log.dto.req;
 
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserAuthReq {
     private String token;
 }
