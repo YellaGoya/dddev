@@ -32,6 +32,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	implementation "org.springframework.data:spring-data-elasticsearch"
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {

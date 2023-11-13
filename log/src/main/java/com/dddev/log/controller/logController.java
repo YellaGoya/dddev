@@ -6,23 +6,19 @@ import com.dddev.log.dto.req.LogReq;
 import com.dddev.log.dto.req.UserAuthReq;
 import com.dddev.log.dto.res.LogRes;
 import com.dddev.log.exception.ElasticSearchException;
+import com.dddev.log.exception.UserUnAuthException;
 import com.dddev.log.service.ElasticSearchLogService;
 import com.dddev.log.service.GroundAuthService;
+import com.dddev.log.service.UserLogAccessService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.NoSuchIndexException;
 import org.springframework.http.*;
-import org.springframework.util.Base64Utils;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 @Api(tags = {"로그 관련 API"})
 @RestController
@@ -33,71 +29,74 @@ public class logController {
 
     private final ElasticSearchLogService elasticSearchLogService;
     private final GroundAuthService groundAuthService;
+    private final UserLogAccessService userLogAccessService;
 
-    //로그 요청 시 토큰 저장
-    @ApiOperation(value = "사용자가 토큰을 발급 받으면 저장하는 API")
+    //토큰 저장
+    @ApiOperation(value = "사용자가 토큰을 발급 받으면 토근에 대한 정보를 저장하는 API")
     @ApiResponses(
-            value = {@ApiResponse(code = 500, message = "서버 내부 오류")})
+            value = {@ApiResponse(code = 201, message = "토큰 저장 완료"),
+                    @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("/auth")
-    public ResponseEntity<?> userAuth(
+    public ResponseEntity<?> userAuthSave(
             @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestBody UserAuthReq userAuthReq) {
         try{
-//            log.info(map.toString());
-//            log.info(map.get("token"));
-////            byte[] decodedBytes = Base64.getDecoder().decode(map.get("token").toString());
-//            byte[] tokens = Base64Utils.decodeFromUrlSafeString(map.get("token"));
-//            String token = new String(tokens);
-            log.info(userAuthReq.getToken());
             groundAuthService.save(userAuthReq.getToken());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                     "토큰 저장 완료", null));
         }catch (Exception e){
-            log.info("exception 발생");
-            log.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
         }
     }
 
-//    //로그 요청 시 인증 확인
-//    @ApiOperation(value = "사용자의 토큰 유효성 체크")
-////    @ApiResponses(
-////            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
-////                    @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
-////                    @ApiResponse(code = 500, message = "서버 내부 오류")})
-//    @GetMapping("/auth")
-//    public ResponseEntity<?> userAuth(
-//            @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestHeader String AuthToken) {
-//        try{
-//            groundAuthService.save(AuthToken.getToken());
-//            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
-//                    "토큰 저장 완료", null);
-//        }catch (Exception e){
-//            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
-//                    "서버 내부 에러", null);
-//        }
-//    }
+    //토큰 인증 확인
+    @ApiOperation(value = "사용자의 토큰 유효성 체크")
+    @ApiResponses(
+            value = {@ApiResponse(code = 202, message = "토큰 유효성 검증 완료"),
+                    @ApiResponse(code = 401, message = "유효하지 않은 토큰"),
+                    @ApiResponse(code = 500, message = "서버 내부 오류")})
+    @GetMapping("/auth")
+    public ResponseEntity<?> userAuth(
+            @ApiParam(value = "로그 기능 사용을 위한 토큰 유효성 체크", required = true)@RequestHeader String token) {
+        try{
+            groundAuthService.checkValid(token);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseVO<>(HttpStatus.ACCEPTED.value(),
+                    "토큰 유효성 검증 완료", null));
+        }catch (UserUnAuthException e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
+                    "유효 하지 않은 토큰", null));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "서버 내부 에러", null));
+        }
+    }
 
     //로그 저장
     @ApiOperation(value = "로그를 저장하는 API")
     @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
-                    @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
+            value = {@ApiResponse(code = 400, message = "로그 요청이 비정상적으로 많을 때"),
+                    @ApiResponse(code = 401, message = "토큰이 유효하지 않을 때"),
+                    @ApiResponse(code = 409, message = "저장된 Ground_ID가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("")
     public ResponseEntity<?> saveLog(
             @ApiParam(value = "자동으로 저장 되는 로그", required = true) @RequestBody LogReq log,
-            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String ground_id) {
+            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String token) {
         // 문자열을 파일로 저장
         try{
+            String ground_id = groundAuthService.checkValid(token);
             LocalDateTime localDateTime = LocalDateTime.now();
+            userLogAccessService.count(ground_id);
             elasticSearchLogService.save(ground_id, ElasticSearchLog.builder().localDateTime(localDateTime).log(log.getLog()).build());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                             "로그 저장 완료", new LogRes(localDateTime, log.getLog())));
-        }catch (ElasticSearchException.NoContentException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
-                    e.getMessage(), null));
-        }catch (ElasticSearchException.NoIndexException e){
+        }catch (UserUnAuthException.UnusualRequest e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseVO<>(HttpStatus.BAD_REQUEST.value(),
+                    "비정상적인 많은 요청으로 Token을 삭제합니다. 재발급 받으세요.", null));
+        }catch (UserUnAuthException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
+                    "유효 하지 않은 토큰", null));
+        }catch (ElasticSearchException.NoIndexException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseVO<>(HttpStatus.CONFLICT.value(),
                     e.getMessage(), null));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -130,7 +129,6 @@ public class logController {
                     e.getMessage(), null));
         }
     }
-
 
     //인덱스별 정해진 특정 개수 만큼 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 size로 가져오는 API")
@@ -185,7 +183,6 @@ public class logController {
                     e.getMessage(), null));
         }
     }
-
 
     //인덱스별 정규표현식으로 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 정규표현식으로 가져오는 API")
