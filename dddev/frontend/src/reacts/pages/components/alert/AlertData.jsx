@@ -8,7 +8,7 @@ import { db } from 'fcm/firebaseConfig';
 const AlertData = () => {
   const user = useSelector((state) => state.user);
   const groundsMap = useSelector((state) => state.user.groundsMap);
-  const [userDocIdList, setUserDocIdList] = useState([]);
+  // const [userDocIdList, setUserDocIdList] = useState([]);
   const [userAlertList, setUserAlertList] = useState([{}]);
   const [allAlertList, setAllAlertList] = useState([{}]);
 
@@ -35,7 +35,7 @@ const AlertData = () => {
           arr.push(doc.data());
         });
 
-        setUserDocIdList(arr);
+        // setUserDocIdList(arr);
 
         // 전체 알림에서 id로 사용자가 받을 알림을 찾고
         // const AlertList = [];
