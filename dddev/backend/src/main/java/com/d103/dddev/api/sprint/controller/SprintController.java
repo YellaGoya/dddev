@@ -2,13 +2,11 @@ package com.d103.dddev.api.sprint.controller;
 
 
 import com.d103.dddev.api.common.ResponseDto;
-import com.d103.dddev.api.general.collection.General;
-import com.d103.dddev.api.sprint.repository.dto.SprintUpdateDto;
+import com.d103.dddev.api.sprint.repository.dto.requestDto.SprintUpdateDto;
+import com.d103.dddev.api.sprint.repository.dto.responseDto.SprintResponseDto;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.service.SprintService;
-import com.d103.dddev.common.exception.document.DocumentNotFoundException;
 import com.d103.dddev.common.exception.sprint.SprintNotFoundException;
-import com.d103.dddev.common.exception.user.UserNotFoundException;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,19 +34,19 @@ public class SprintController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<SprintEntity>> createSprint(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                                  @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<SprintEntity> responseDto;
+    public ResponseEntity<ResponseDto<SprintResponseDto>> createSprint(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                       @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<SprintResponseDto> responseDto;
         try{
-            SprintEntity returnSprint = sprintService.createSprint(groundId);
-            responseDto = ResponseDto.<SprintEntity>builder()
+            SprintResponseDto returnSprint = sprintService.createSprint(groundId);
+            responseDto = ResponseDto.<SprintResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트가 생성되었습니다.")
                     .data(returnSprint)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<SprintEntity>builder()
+            responseDto = ResponseDto.<SprintResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -63,20 +61,20 @@ public class SprintController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<SprintEntity>>> loadSprintList(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<List<SprintResponseDto>>> loadSprintList(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                                           @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<List<SprintEntity>> responseDto;
+        ResponseDto<List<SprintResponseDto>> responseDto;
 
         try{
-            List<SprintEntity> sprintList = sprintService.loadSprintList(groundId);
-            responseDto = ResponseDto.<List<SprintEntity>>builder()
+            List<SprintResponseDto> sprintList = sprintService.loadSprintList(groundId);
+            responseDto = ResponseDto.<List<SprintResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트를 불러왔습니다.")
                     .data(sprintList)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<SprintEntity>>builder()
+            responseDto = ResponseDto.<List<SprintResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -117,35 +115,35 @@ public class SprintController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<SprintEntity>> updateSprint(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<SprintResponseDto>> updateSprint(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                                   @ApiParam(value = "스프린트 아이디")@PathVariable("sprintId") int sprintId,
                                                                   @ApiParam(value = "goal(필수x)은 스프린트의 목표 지라에 보면은 스프린트 제목밑에 자그마한 글씨로 목표를 쓸 수 있다. 그 내용이다.\n" +
                                                                           "name(필수 x)은 스프린트의 이름")@RequestBody SprintUpdateDto sprintUpdateDto,
                                                                   @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<SprintEntity> responseDto;
+        ResponseDto<SprintResponseDto> responseDto;
 
         try{
-            SprintEntity returnSprint = sprintService.updateSprint(sprintId, sprintUpdateDto);
-            responseDto = ResponseDto.<SprintEntity>builder()
+            SprintResponseDto returnSprint = sprintService.updateSprint(sprintId, sprintUpdateDto);
+            responseDto = ResponseDto.<SprintResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트를 업데이트했습니다.")
                     .data(returnSprint)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(SprintNotFoundException e){
-            responseDto = ResponseDto.<SprintEntity>builder()
+            responseDto = ResponseDto.<SprintResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(InvalidAttributeValueException e){
-            responseDto = ResponseDto.<SprintEntity>builder()
+            responseDto = ResponseDto.<SprintResponseDto>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         }catch(Exception e){
-            responseDto = ResponseDto.<SprintEntity>builder()
+            responseDto = ResponseDto.<SprintResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();

@@ -3,11 +3,15 @@ package com.d103.dddev.api.request.service;
 import com.d103.dddev.api.file.service.DocumentServiceImpl;
 import com.d103.dddev.api.request.collection.Comment;
 import com.d103.dddev.api.request.collection.Request;
+import com.d103.dddev.api.request.repository.CommentRepository;
 import com.d103.dddev.api.request.repository.RequestRepository;
 import com.d103.dddev.api.request.repository.dto.requestDto.*;
+import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
 import com.d103.dddev.api.request.repository.dto.responseDto.RequestStepResponseDto;
 import com.d103.dddev.api.request.repository.dto.responseDto.RequestTreeResponseDto;
+import com.d103.dddev.api.request.repository.dto.responseDto.CommentResponseDto;
 import com.d103.dddev.api.user.repository.UserRepository;
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.repository.entity.User;
 import com.d103.dddev.common.exception.document.DocumentNotFoundException;
 import com.d103.dddev.common.exception.user.UserNotFoundException;
@@ -22,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +34,7 @@ import java.util.ListIterator;
 public class RequestServiceImpl implements RequestService{
 
     private final RequestRepository requestRepository;
+    private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final DocumentServiceImpl documentService;
 
@@ -58,13 +64,19 @@ public class RequestServiceImpl implements RequestService{
             insertRequest.setStep(2);
             insertRequest.setParentId(requestInsertOneDto.getParentId());
 
+            parent = requestRepository.findById(requestInsertOneDto.getParentId()).orElseThrow(()->new DocumentNotFoundException("부모 문서를 찾을 수 없습니다."));
+            // 부모의 템플릿 값이 true라면 content를 복사한다.
+            if(parent.isTemplate()){
+                insertRequest.setContent(parent.getContent());
+            }
+
             try{
                 requestRepository.save(insertRequest);
             }catch(Exception e){
                 throw new TransactionException("문서 저장에 실패했습니다.");
             }
 
-            parent = requestRepository.findById(requestInsertOneDto.getParentId()).orElseThrow(()->new DocumentNotFoundException("부모 문서를 찾을 수 없습니다."));
+            // 부모의 자식에 insertRequest를 넣는다.
             List<Request> children = parent.getChildren();
             if(children == null){
                 children = new ArrayList<>();
@@ -104,8 +116,8 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Request getRequest(int groundId, String requestId) throws Exception{
-        return requestRepository.findById(requestId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다."));
+    public RequestResponseDto getRequest(int groundId, String requestId) throws Exception{
+        return convertToRequestResponseDto(requestRepository.findById(requestId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다.")));
     }
     @Override
     public List<RequestTreeResponseDto> getTreeRequests(int groundId) {
@@ -273,24 +285,34 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Comment createComment(int groundId, String requestId, RequestCommentDto comment, UserDetails userDetails) throws Exception{
+    public CommentResponseDto createComment(int groundId, String requestId, RequestCommentDto comment, UserDto user) throws Exception{
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()-> new DocumentNotFoundException("요청 문서를 찾을 수 없습니다."));
-        List<Comment> comments = loadRequest.getComments();
-        if(comments == null){
-            comments = new ArrayList<>();
-        }
+
         Comment saveComment = new Comment();
-        saveComment.setAuthor(userDetails.getUsername());
+        saveComment.setAuthor(user);
         saveComment.setComment(comment.getComment());
-        comments.add(saveComment);
-        loadRequest.setComments(comments);
+        saveComment.setCreatedTime(LocalDateTime.now());
+        saveComment.setRequestId(loadRequest.getId());
+
+        try{
+            commentRepository.save(saveComment);
+        }catch(Exception e){
+            throw new TransactionException("댓글을 저장하는데 실패했습니다.");
+        }
+
+        List<String> commentIdList = loadRequest.getCommentIdList();
+        if(commentIdList == null){
+            commentIdList = new ArrayList<>();
+        }
+        commentIdList.add(saveComment.getCommentId());
+        loadRequest.setCommentIdList(commentIdList);
 
         try{
             requestRepository.save(loadRequest);
         }catch(Exception e){
             throw new TransactionException("문서를 저장하는데 실패했습니다.");
         }
-        return saveComment;
+        return convertToCommentResponseDto(saveComment);
     }
 
     @Override
@@ -339,6 +361,24 @@ public class RequestServiceImpl implements RequestService{
 
         documentService.deleteFile(requestId);
 
+    }
+
+    @Override
+    public Request changeTemplate(int groundId, String requestId) throws Exception {
+        Request loadRequest = requestRepository.findById(requestId).orElseThrow(() -> new NoSuchElementException("요청 문서를 찾을 수 없습니다."));
+        // isTemplate 값을 true면은 false로 false였다면 true로 바꾼다.
+        if(loadRequest.isTemplate()){
+            loadRequest.setTemplate(false);
+        }
+        else{
+            loadRequest.setTemplate(true);
+        }
+        try{
+            requestRepository.save(loadRequest);
+        }catch(Exception e){
+            throw new TransactionException("요청 문서 저장에 실패했습니다.");
+        }
+        return loadRequest;
     }
 
     @Override
@@ -416,5 +456,42 @@ public class RequestServiceImpl implements RequestService{
         return requestStepResponseDto;
     }
 
+    public CommentResponseDto convertToCommentResponseDto(Comment comment){
+        CommentResponseDto commentResponseDto = new CommentResponseDto();
+        commentResponseDto.setId(comment.getCommentId());
+        commentResponseDto.setComment(comment.getComment());
+        commentResponseDto.setAuthor(comment.getAuthor().getNickname());
+        commentResponseDto.setFileName(comment.getAuthor().getProfileDto().getFileName());
+        commentResponseDto.setCreatedTime(comment.getCreatedTime());
+        return commentResponseDto;
+    }
+
+    public RequestResponseDto convertToRequestResponseDto(Request request){
+        RequestResponseDto requestResponseDto = new RequestResponseDto();
+        requestResponseDto.setId(request.getId());
+        requestResponseDto.setGroundId(request.getGroundId());
+        requestResponseDto.setParentId(request.getParentId());
+        requestResponseDto.setChildren(request.getChildren());
+        requestResponseDto.setTitle(request.getTitle());
+        requestResponseDto.setContent(request.getContent());
+        requestResponseDto.setStep(request.getStep());
+        requestResponseDto.setCreatedAt(request.getCreatedAt());
+        requestResponseDto.setUpdatedAt(request.getUpdatedAt());
+        requestResponseDto.setSendUser(request.getSendUser());
+        requestResponseDto.setReceiveUser(request.getReceiveUser());
+        requestResponseDto.setAuthor(request.getAuthor());
+        requestResponseDto.setModifier(request.getModifier());
+        requestResponseDto.setStatus(request.getStatus());
+        requestResponseDto.setUnclassified(request.isUnclassified());
+        requestResponseDto.setTemplate(request.isTemplate());
+        List<Comment> commentList = commentRepository.findByRequestId(request.getId()).orElseThrow(() -> new TransactionException("댓글을 불러오는데 실패했습니다."));
+        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+        for(Comment comment : commentList){
+            CommentResponseDto commentResponseDto = convertToCommentResponseDto(comment);
+            commentResponseDtoList.add(commentResponseDto);
+        }
+        requestResponseDto.setComments(commentResponseDtoList);
+        return requestResponseDto;
+    }
 
 }
