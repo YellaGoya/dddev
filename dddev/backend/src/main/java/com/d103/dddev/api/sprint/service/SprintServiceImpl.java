@@ -113,6 +113,14 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
+    public SprintResponseDto loadRecentSprint(int sprintId) throws Exception {
+        List<SprintEntity> sprintEntityList = sprintRepository.findByGround_IdOrderByIdDesc(sprintId).orElseThrow(() -> new TransactionException("스프린트들을 불러오는데 실패했습니다."));
+        if(sprintEntityList.isEmpty()) return null;
+        SprintEntity recentSprint = sprintEntityList.get(0);
+        return convertToSprintResponseDto(recentSprint);
+    }
+
+    @Override
     public void deleteSprint(int sprintId) throws Exception{
 
         issueService.changeIssuesStatusWhenSprintDelete(sprintId);
