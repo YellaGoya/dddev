@@ -4,6 +4,7 @@ import com.d103.dddev.api.general.collection.General;
 import com.d103.dddev.api.general.repository.dto.requestDto.*;
 import com.d103.dddev.api.general.repository.dto.responseDto.GeneralStepResponseDto;
 import com.d103.dddev.api.general.repository.dto.responseDto.GeneralTreeResponseDto;
+import com.d103.dddev.api.request.collection.Request;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
@@ -19,6 +20,6 @@ public interface GeneralService {
 
     General moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws Exception;
     void deleteGeneral(int groundId, String generalId) throws Exception;
-
+    General changeTemplate(int groundId, String generalId) throws Exception;
     General titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) throws Exception;
 }

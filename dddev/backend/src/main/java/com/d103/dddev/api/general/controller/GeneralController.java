@@ -383,4 +383,45 @@ public class GeneralController {
             return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/{generalId}/template")
+    @ApiOperation(value="일반 문서 템플릿 여부 변경", notes = "template 속성 여부 변경")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "문서 존재하지 않음"),
+            @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
+            @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
+    })
+    public ResponseEntity<ResponseDto<General>> changeTemplate(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                              @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
+                                                              @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<General> responseDto;
+
+        try{
+            General general = generalService.changeTemplate(groundId, generalId);
+            responseDto = ResponseDto.<General>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("일반 문서 템플릿 여부 수정 완료")
+                    .data(general)
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }catch(DocumentNotFoundException e){
+            responseDto = ResponseDto.<General>builder()
+                    .code(HttpStatus.NOT_FOUND.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
+        }catch(InvalidAttributeValueException e){
+            responseDto = ResponseDto.<General>builder()
+                    .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
+        }catch(Exception e){
+            responseDto = ResponseDto.<General>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

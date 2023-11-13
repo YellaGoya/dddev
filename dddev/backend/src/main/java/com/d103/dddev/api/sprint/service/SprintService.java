@@ -1,20 +1,19 @@
 package com.d103.dddev.api.sprint.service;
 
-import com.d103.dddev.api.issue.model.document.Issue;
-import com.d103.dddev.api.sprint.repository.dto.SprintUpdateDto;
+import com.d103.dddev.api.sprint.repository.dto.requestDto.SprintUpdateDto;
+import com.d103.dddev.api.sprint.repository.dto.responseDto.SprintResponseDto;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public interface SprintService {
-    SprintEntity createSprint(int groundId);
-    List<SprintEntity> loadSprintList(int groundId);
-    SprintEntity loadSprint(int sprintId) throws Exception;
+    SprintResponseDto createSprint(int groundId);
+    List<SprintResponseDto> loadSprintList(int groundId);
+    SprintResponseDto loadSprint(int sprintId) throws Exception;
     void deleteSprint(int sprintId) throws Exception;
-    SprintEntity updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) throws Exception;
+    SprintResponseDto updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) throws Exception;
     void startSprint(int groundId, int sprintId) throws Exception;
     void completeSprint(int sprintId) throws Exception;
 
