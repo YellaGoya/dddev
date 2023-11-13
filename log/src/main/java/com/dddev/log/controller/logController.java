@@ -40,11 +40,12 @@ public class logController {
             value = {@ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("/auth")
     public ResponseEntity<?> userAuth(
-            @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestBody MultiValueMap<String, String> map) {
+            @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestBody Map<String, String> map) {
         try{
             log.info(map.toString());
+            log.info(map.get("token"));
 //            byte[] decodedBytes = Base64.getDecoder().decode(map.get("token").toString());
-            byte[] tokens = Base64Utils.decodeFromUrlSafeString(map.get("token").toString());
+            byte[] tokens = Base64Utils.decodeFromUrlSafeString(map.get("token"));
             String token = new String(tokens);
             log.info(token);
 //            groundAuthService.save(token);
