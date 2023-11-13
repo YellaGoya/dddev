@@ -6,6 +6,7 @@ import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { updateUser } from 'redux/actions/user';
 import { logoutUser } from 'redux/actions/user';
+import { setDoc } from 'redux/actions/doc';
 
 import eetch from 'eetch/eetch';
 
@@ -32,6 +33,7 @@ const Topbar = () => {
 
   useEffect(() => {
     const pathNames = [];
+    if (paths[4] !== 'docs') dispatch(setDoc({ docTitle: null }));
 
     if (paths[2])
       switch (paths[2]) {
@@ -125,11 +127,11 @@ const Topbar = () => {
             <span>{pathState[0]}</span>
           </s.PathsText>
         ) : null}
-        {paths[3] ? (
+        {paths[3] && (
           <s.PathsText>
-            <span>{pathState[1] || '/ ' + (docTitle === '' ? '새 문서' : docTitle)}</span>
+            <span>{pathState[1] ? pathState[1] : docTitle === null ? null : '/ ' + (docTitle === '' ? '새 문서' : docTitle)}</span>
           </s.PathsText>
-        ) : null}
+        )}
       </s.PositionWrapper>
       <s.PorfileButtonWrapper onClick={() => dispatch(setMessage(!messageToggle))}>
         <s.ProfileImage src={userInfo.profileDto ? `https://k9d103.p.ssafy.io/img/user/${userInfo.profileDto.fileName}` : userStockImage} />

@@ -370,3 +370,33 @@ export const listSprint = async ({ accessToken, refreshToken, groundId }) => {
 
   return res.json();
 };
+
+export const listRequest = async ({ accessToken, refreshToken, groundId, filter }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/request/${filter}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const listSprints = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/issue/${sprintId}/sprint`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};

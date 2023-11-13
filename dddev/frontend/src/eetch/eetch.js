@@ -86,5 +86,7 @@ eetch.groundInvite = (values) => ground.groundInvite(values);
 eetch.groundOut = (values) => ground.groundOut(values);
 eetch.createSprint = (values) => ground.createSprint(values);
 eetch.listSprint = (values) => ground.listSprint(values);
+eetch.listSprints = (values) => ground.listSprints(values);
+eetch.listRequest = (values) => ground.listRequest(values);
 
 export default eetch;
