@@ -44,7 +44,7 @@ public class AlertDataRepo {
 
 	public String addWebhookData(WebhookDataDocument webhookDataDocument) throws Exception{
 		// Firestore FIRE_STORE = FirestoreClient.getFirestore();
-		DocumentReference document = FIRE_STORE.collection(WEBHOOK_NAME).document();
+		DocumentReference document = FIRE_STORE.collection(WEBHOOK_NAME).document(webhookDataDocument.getId());
 		document.set(webhookDataDocument);
 		// log.info("새로운 문서 - 웹훅 데이터 - 가 추가되었습니다. document id: {}", document.getId()	);
 		return document.getId();
