@@ -25,7 +25,7 @@ export const PositionWrapper = styled.div`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 `;
 
 export const MenuNav = styled.nav`
@@ -106,7 +106,7 @@ export const GroundList = styled.ul`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
   & > .addGround {
     margin-top: 15px;
@@ -182,8 +182,8 @@ export const DivLine = styled.div`
   height: 1px;
   margin: 0 15px;
 
-  background-color: #fff;
-  opacity: 0.2;
+  background-color: var(--font-rev);
+  opacity: 0.1;
 `;
 
 export const TreeWrapper = styled.div`
@@ -191,6 +191,20 @@ export const TreeWrapper = styled.div`
   top: 295px;
   width: 100%;
   height: calc(100vh - 335px);
+  padding-bottom: 20px;
+  padding-top: 5px;
+
+  overflow-y: scroll;
+`;
+
+export const TreeGradBox = styled.div`
+  background: linear-gradient(0deg, var(--bg-lite-grad-bottom) 0%, var(--bg-lite-grad-top) 100%);
+  /* background-color: #fff; */
+  position: absolute;
+  width: 100%;
+  height: 10px;
+
+  top: 294px;
 `;
 
 export const GeneralList = styled.ul`

@@ -333,7 +333,7 @@ export const EditorWrapper = styled.div`
       box-shadow:
         rgba(0, 0, 0, 0.24) 0px 1px 1px,
         rgba(0, 0, 0, 0.24) 0px 2px 2px,
-        rgba(0, 0, 0, 0.24) 0px 4px 4px;
+        rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
       /* &::before {
         width: 10px;
@@ -370,7 +370,7 @@ export const EditorWrapper = styled.div`
       box-shadow:
         rgba(0, 0, 0, 0.24) 0px 1px 1px,
         rgba(0, 0, 0, 0.24) 0px 2px 2px,
-        rgba(0, 0, 0, 0.24) 0px 4px 4px;
+        rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
       /* &::before {
         width: 10px;
@@ -441,7 +441,7 @@ export const InsertBottom = styled.button`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
   transition: background-color 0.15s ease;
 
@@ -545,7 +545,7 @@ export const SettingWrapper = styled.div`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
   & > .close-button {
     top: 7px;
@@ -776,7 +776,7 @@ export const CommentWrapper = styled.div`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
   .quill {
     padding-top: 0px;
@@ -836,7 +836,7 @@ export const CommentsWrapper = styled.div`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 `;
 
 export const CommentAuthor = styled.span`

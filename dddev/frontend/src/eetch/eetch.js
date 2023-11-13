@@ -2,16 +2,6 @@ import * as user from 'eetch/user';
 import * as repo from 'eetch/repo';
 import * as ground from 'eetch/ground';
 import * as test from 'eetch/test';
-// import * as notice from "apis/notice";
-// import * as question from "apis/question";
-// import * as statistics from "apis/statistics";
-// import * as test from "apis/test";
-// import * as user from "apis/user";
-// import * as history from "apis/history";
-// import * as practice from "apis/practice";
-
-// import { refresh } from "apis/user";
-// import { updateRefresh } from "redux/slice/userSlice";
 
 const eetch = async (url, options, refreshToken) => {
   const res = await fetch(url, options);
@@ -86,7 +76,12 @@ eetch.groundInvite = (values) => ground.groundInvite(values);
 eetch.groundOut = (values) => ground.groundOut(values);
 eetch.createSprint = (values) => ground.createSprint(values);
 eetch.listSprint = (values) => ground.listSprint(values);
-eetch.listSprints = (values) => ground.listSprints(values);
+eetch.sprintIssues = (values) => ground.sprintIssues(values);
 eetch.listRequest = (values) => ground.listRequest(values);
+eetch.recentSprint = (values) => ground.recentSprint(values);
+eetch.startSprint = (values) => ground.startSprint(values);
+eetch.completeSprint = (values) => ground.completeSprint(values);
+eetch.connectSprint = (values) => ground.connectSprint(values);
+eetch.multiConnectSprint = (values) => ground.multiConnectSprint(values);
 
 export default eetch;

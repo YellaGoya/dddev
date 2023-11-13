@@ -171,6 +171,7 @@ const Sidemenu = () => {
             })}
           </s.GeneralList>
         </s.TreeWrapper>
+        <s.TreeGradBox />
         <EditSettings toggle={settingToggle} setToggle={setSettingToggle} />
       </s.PositionWrapper>
     </s.SidemenuWrapper>

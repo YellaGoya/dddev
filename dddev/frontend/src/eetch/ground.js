@@ -386,7 +386,7 @@ export const listRequest = async ({ accessToken, refreshToken, groundId, filter 
   return res.json();
 };
 
-export const listSprints = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+export const sprintIssues = async ({ accessToken, refreshToken, groundId, sprintId }) => {
   const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/issue/${sprintId}/sprint`;
   const options = {
     method: 'GET',
@@ -394,6 +394,83 @@ export const listSprints = async ({ accessToken, refreshToken, groundId, sprintI
       'Content-Type': 'application/json',
       Authorization: accessToken,
     },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const recentSprint = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint/recent`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const startSprint = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint/${sprintId}/start`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const completeSprint = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint/${sprintId}/complete`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const connectSprint = async ({ accessToken, refreshToken, groundId, sprintId, issueId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/issue/${issueId}/sprint`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ sprintId }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const multiConnectSprint = async ({ accessToken, refreshToken, groundId, sprintId, issueList }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/issue/multi-sprint`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ sprintId, issueList }),
   };
 
   const res = await eetch(url, options, refreshToken);
