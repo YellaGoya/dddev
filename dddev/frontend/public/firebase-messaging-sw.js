@@ -68,7 +68,8 @@ self.addEventListener('notificationclick', function (event) {
   // console.log(`docId : ${docId}`);
   // collection.doc(docId).update({ isRead: true });
   const { githubUrl } = event.notification.data;
-  const redirectUrl = `http://localhost:8000/temp/redirect?githubUrl=${githubUrl}&docId=${docId}`;
+  // const redirectUrl = `http://localhost:8000/temp/redirect?githubUrl=${githubUrl}&docId=${docId}`;
+  const redirectUrl = `https://k9d103.p.ssafy.io/temp/redirect?githubUrl=${githubUrl}&docId=${docId}`;
   event.notification.close();
   event.waitUntil(clients.openWindow(redirectUrl));
 });

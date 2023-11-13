@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +37,7 @@ const EditSettings = ({ toggle, setToggle }) => {
           dispatch(
             updateUser({
               groundsMine: groundsMap,
-            }),
+            })
           );
         })
         .catch((err) => {
@@ -80,7 +81,7 @@ const EditSettings = ({ toggle, setToggle }) => {
             dispatch(
               updateUser({
                 groundsMine: groundsMap,
-              }),
+              })
             );
           })
           .catch((err) => {
