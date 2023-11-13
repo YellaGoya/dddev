@@ -187,7 +187,7 @@ public class AlertController {
     }
 
     @GetMapping("")
-    @ApiOperation(value = "알림 조회", notes = "커밋(푸시) 알림을 조회하는 API")
+    @ApiOperation(value = "알림 조회", notes = "알림을 조회하는 API")
     @ApiResponses(value = {
             @ApiResponse(code = 406, message = "사용자 accessToken 오류")
     })
@@ -217,6 +217,41 @@ public class AlertController {
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("{groundId}")
+    @ApiOperation(value = "알림 조회", notes = "단일 알림을 조회하는 API")
+    @ApiResponses(value = {
+        @ApiResponse(code = 406, message = "사용자 accessToken 오류")
+    })
+    public ResponseEntity<ResponseDto<AlertResponseDto>> getAlert(@RequestHeader String Authorization, HttpServletRequest request, @PathVariable Integer groundId) {
+        try {
+            ModelAndView mav = (ModelAndView) request.getAttribute("modelAndView");
+            User user = (User) mav.getModel().get("user");
+
+            AlertResponseDto alertListResponseDto = alertService.getAlert(user, groundId);
+
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
+                .code(HttpStatus.OK.value())
+                .message("알림 조회 성공")
+                .data(alertListResponseDto)
+                .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
+                .code(HttpStatus.NOT_ACCEPTABLE.value())
+                .message(e.getMessage())
+                .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
+                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message(e.getMessage())
+                .build();
             return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

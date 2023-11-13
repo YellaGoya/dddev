@@ -30,4 +30,6 @@ public interface AlertService {
 	void receivePullRequestWebhook(Map<String, Object> headerMap, PullRequestWebhookDto pullRequestWebhookDto) throws Exception;
 
 	void deleteWebhook(User user, Repository repository) throws Exception;
+
+	AlertResponseDto getAlert(User user, Integer groundId) throws Exception;
 }
