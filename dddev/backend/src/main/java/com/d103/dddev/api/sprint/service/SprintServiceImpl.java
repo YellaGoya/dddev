@@ -5,13 +5,13 @@ import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.service.IssueService;
 import com.d103.dddev.api.sprint.repository.BurnDownRepository;
-import com.d103.dddev.api.sprint.repository.dto.SprintUpdateDto;
+import com.d103.dddev.api.sprint.repository.dto.requestDto.SprintUpdateDto;
+import com.d103.dddev.api.sprint.repository.dto.responseDto.SprintResponseDto;
 import com.d103.dddev.api.sprint.repository.entity.BurnDown;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.repository.SprintRepository;
 
 import com.d103.dddev.common.exception.sprint.SprintNotFoundException;
-import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
 import org.springframework.stereotype.Service;
@@ -20,12 +20,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.WeekFields;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +47,7 @@ public class SprintServiceImpl implements SprintService{
      * @throws TransactionException 스프린트 저장에 실패 했을때
      */
     @Override
-    public SprintEntity createSprint(int groundId) {
+    public SprintResponseDto createSprint(int groundId) {
         Ground ground = groundRepository.findById(groundId).orElseThrow(() -> new NoSuchElementException("getGroundInfo :: 존재하지 않는 그라운드입니다."));
 
         LocalDate start, end;
@@ -60,17 +55,14 @@ public class SprintServiceImpl implements SprintService{
         DayOfWeek dayOfWeek = now.getDayOfWeek();
         int day = dayOfWeek.getValue();
         // 월요일부터 금요일
-        System.out.println("day: " + day);
         if(day >= 1 && day <= 5){
             while(now.getDayOfWeek().getValue() != 1){
                 now = now.minusDays(1);
             }
-            System.out.println("before start: " + now);
             start = LocalDate.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth());
             while(now.getDayOfWeek().getValue() != 5){
                 now = now.plusDays(1);
             }
-            System.out.println("before end: " + now);
             end = LocalDate.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth());
         }
         // 토요일 일요일
@@ -99,18 +91,25 @@ public class SprintServiceImpl implements SprintService{
         }catch(Exception e){
             throw new TransactionException("스프린트 저장에 실패했습니다.");
         }
-        return sprint;
+
+        return convertToSprintResponseDto(sprint);
     }
 
     @Override
-    public List<SprintEntity> loadSprintList(int groundId) {
+    public List<SprintResponseDto> loadSprintList(int groundId) {
         List<SprintEntity> sprintEntities = sprintRepository.findByGround_Id(groundId).orElseThrow(()-> new TransactionException("스프린트 목록을 불러오는데 실패했습니다."));
-        return sprintEntities;
+        List<SprintResponseDto> sprintResponseDtoList = new ArrayList<>();
+        for(SprintEntity entity : sprintEntities){
+            SprintResponseDto sprintResponseDto = convertToSprintResponseDto(entity);
+            sprintResponseDtoList.add(sprintResponseDto);
+        }
+        return sprintResponseDtoList;
     }
 
     @Override
-    public SprintEntity loadSprint(int sprintId) throws Exception{
-        return sprintRepository.findById(sprintId).orElseThrow(()-> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
+    public SprintResponseDto loadSprint(int sprintId) throws Exception{
+        SprintEntity sprintEntity = sprintRepository.findById(sprintId).orElseThrow(()-> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
+        return convertToSprintResponseDto(sprintEntity);
     }
 
     @Override
@@ -126,11 +125,11 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
-    public SprintEntity updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) throws Exception{
+    public SprintResponseDto updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) throws Exception{
         SprintEntity loadSprint = sprintRepository.findById(sprintId).orElseThrow(() -> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
         String name = sprintUpdateDto.getName();
         String goal = sprintUpdateDto.getGoal();
-        if(name == null && goal == null) return loadSprint;
+        if(name == null && goal == null) return convertToSprintResponseDto(loadSprint);
         if(name != null){
             loadSprint.setName(sprintUpdateDto.getName());
         }
@@ -142,7 +141,7 @@ public class SprintServiceImpl implements SprintService{
         }catch(Exception e){
             throw new TransactionException("스프린트 저장에 실패했습니다.");
         }
-        return loadSprint;
+        return convertToSprintResponseDto(loadSprint);
     }
 
     @Override
@@ -249,7 +248,7 @@ public class SprintServiceImpl implements SprintService{
     @Override
     public Map<LocalDateTime, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception {
 
-        SprintEntity sprintEntity = loadSprint(sprintId);
+        SprintEntity sprintEntity = sprintRepository.findById(sprintId).orElseThrow(()-> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
 
         Map<LocalDateTime, Integer> burnDown = new HashMap<>();
 
@@ -292,5 +291,16 @@ public class SprintServiceImpl implements SprintService{
         return burnDown;
     }
 
+    private SprintResponseDto convertToSprintResponseDto(SprintEntity sprintEntity){
+        SprintResponseDto sprintResponseDto = new SprintResponseDto();
+        sprintResponseDto.setId(sprintEntity.getId());
+        sprintResponseDto.setName(sprintEntity.getName());
+        sprintResponseDto.setGoal(sprintEntity.getGoal());
+        sprintResponseDto.setStatus(sprintEntity.getStatus());
+        sprintResponseDto.setStartDate(sprintEntity.getStartDate());
+        sprintResponseDto.setEndDate(sprintEntity.getEndDate());
+        sprintResponseDto.setTotalFocusTime(sprintEntity.getTotalFocusTime());
+        return sprintResponseDto;
+    }
 
 }

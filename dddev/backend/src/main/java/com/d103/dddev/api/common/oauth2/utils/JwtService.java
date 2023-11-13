@@ -188,7 +188,7 @@ public class JwtService {
 				String reIssuedRefreshToken = createRefreshToken(user.getGithubId());
 				String reIssuedAccessToken = createAccessToken(user.getGithubId());
 				sendAccessAndRefreshToken(response, reIssuedAccessToken, reIssuedRefreshToken);
-				System.out.println(reIssuedRefreshToken);
+//				System.out.println(reIssuedRefreshToken);
 			});
 	}
 

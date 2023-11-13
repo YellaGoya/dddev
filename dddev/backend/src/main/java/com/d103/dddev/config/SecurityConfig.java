@@ -50,9 +50,11 @@ public class SecurityConfig {
 			.antMatchers("/swagger-resources/**", "/v2/api-docs", "/swagger-resources",
 				"/swagger-ui.html", "/webjars/**", "/swagger/**", "/swagger-ui/**").permitAll()
 			.antMatchers("/", "/**", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
-//			.anyRequest().authenticated();
+			.antMatchers("/v3/api-docs", "//v3/api-docs", "/configuration/ui", "/configuration/security",
+				"//swagger-ui.html", "/webjars/**").permitAll()
+			//			.anyRequest().authenticated();
 			.anyRequest().permitAll();
-//		http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
+		//		http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
 		return http.build();
 	}
 
@@ -63,9 +65,10 @@ public class SecurityConfig {
 		corsConfiguration.setAllowCredentials(true); // 내 서버가 응답할 때 json을 JS에서 처리할 수 있게 설정
 		corsConfiguration.setExposedHeaders(List.of("*")); // 헤더 값 접근
 
-		corsConfiguration.addAllowedOriginPattern("http://localhost:3000");
-		corsConfiguration.addAllowedOriginPattern("https://k9d103.p.ssafy.io");
 		corsConfiguration.addAllowedMethod("*");
+		corsConfiguration.addAllowedOriginPattern("https://k9d103.p.ssafy.io");
+		corsConfiguration.addAllowedOriginPattern("http://localhost:3000");
+		corsConfiguration.addAllowedOriginPattern("https://k9d103.p.ssafy.io:8001");
 		corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
 		corsConfiguration.addAllowedHeader("*");
 		corsConfiguration.setMaxAge(7200L);

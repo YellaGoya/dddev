@@ -96,6 +96,10 @@ public class AlertServiceImpl implements AlertService {
             throw new NoSuchElementException("createWebhook :: 사용자 알림 허용이 필요합니다.");
         }
 
+        if(!type.equals("push") && !type.equals("pull_request")) {
+            throw new NoSuchElementException("createWebhook :: 알림 타입이 잘못되었습니다.");
+        }
+
         Integer repoId = repository.getId();
 
         // 이미 alertdto가 있는 경우 - repo id, type 비교
@@ -103,9 +107,11 @@ public class AlertServiceImpl implements AlertService {
 
         Optional<AlertEntity> userAlertDto = alertRepository.findByUser_IdAndRepositoryIdAndType(user.getId(),
                 repoId, type);
+
         if (userAlertDto.isPresent()) {
             throw new DuplicateRequestException("이미 생성한 알림입니다.");
         }
+
         AlertEntity existAlertEntity = alertEntityOptional.get(0);
         AlertEntity alertEntity = AlertEntity.builder()
                 .webhookId(existAlertEntity.getWebhookId())
@@ -184,7 +190,7 @@ public class AlertServiceImpl implements AlertService {
 
         // 커밋 정보 저장 (키워드 상관 없이 모든 커밋 리스트 저장)
         for (CommitDataDto commitDataDto : pushWebhookDto.getCommits()) {
-            saveWebhookData(commitDataDto.getId(), commitDataDto.getAuthor().get("username"), commitDataDto.getMessage(), pushWebhookDto.getRef(), commitDataDto.getTimestamp().toString(), commitDataDto.getUrl());
+            saveWebhookData(pushWebhookDto.getRepository().getId(), commitDataDto.getId(), commitDataDto.getAuthor().get("username"), commitDataDto.getMessage(), pushWebhookDto.getRef(), commitDataDto.getTimestamp().toString(), commitDataDto.getUrl());
         }
 
         for (AlertUserKeyword alertUserKeyword : userKeyowrdList) {
@@ -320,11 +326,12 @@ public class AlertServiceImpl implements AlertService {
         return alertDataRepo.addAlertUserData(alertUserHistoryDocument);
     }
 
-    private String saveWebhookData(String id, String username, String message, String branch, String timestamp, String url) throws Exception {
+    private String saveWebhookData(Integer gitRepoId, String id, String username, String message, String branch, String timestamp, String url) throws Exception {
         UserDto emptyAuthor = UserDto.builder()
                 .nickname(username)
                 .build();
         UserDto author = userService.getUserDtoWithName(username).orElse(emptyAuthor);
+        Integer groundId = alertRepository.findGroundIdWithGitRepoId(gitRepoId);
         WebhookDataDocument webhookDataDocument = WebhookDataDocument.builder()
                 .author(author)
                 .branch(branch)
@@ -332,6 +339,7 @@ public class AlertServiceImpl implements AlertService {
                 .message(message)
                 .url(url)
                 .timestamp(timestamp)
+                .groundId(groundId)
                 .build();
 
         return alertDataRepo.addWebhookData(webhookDataDocument);
@@ -469,7 +477,6 @@ public class AlertServiceImpl implements AlertService {
             }
             if(!exist) {
                 AlertResponseDto alertResponse = AlertResponseDto.builder()
-                        .id(alert.getId())
                         .keyword(keyword)
                         .groundName(alert.getGroundName())
                         .userId(alert.getUserId())
@@ -526,7 +533,7 @@ public class AlertServiceImpl implements AlertService {
         String title = pullRequestWebhookDto.getPullRequest().getTitle();
         String body = pullRequestWebhookDto.getPullRequest().getBody();
 
-        saveWebhookData(pullRequestDto.getId().toString(), pullRequestDto.getUser().getLogin(), title, headBranch + "->" + baseBranch, pullRequestDto.getCreatedAt().toString(), url);
+        saveWebhookData(pullRequestWebhookDto.getRepository().getId(), pullRequestDto.getId().toString(), pullRequestDto.getUser().getLogin(), title, headBranch + "->" + baseBranch, pullRequestDto.getCreatedAt().toString(), url);
 
         for (AlertUserKeyword alertUserKeyword : userKeywordList) {
 
@@ -613,6 +620,36 @@ public class AlertServiceImpl implements AlertService {
             log.error("deleteAlert :: 깃허브에서 해당 웹훅을 찾을 수 없습니다. 삭제 실패");
         }
         alertRepository.deleteByRepositoryId(repository.getId());
+    }
+
+    @Override
+    public AlertResponseDto getAlert(User user, Integer groundId) throws Exception {
+
+        List<AlertListDto> alertListDto = alertRepository.findAlertEntityAndGroundName(groundId, user.getId());
+
+        if(alertListDto.isEmpty()) {
+            throw new NoSuchElementException("getAlert :: 해당 그라운드에 사용자의 알림을 찾을 수 없습니다.");
+        }
+
+        AlertResponseDto alertResponse = AlertResponseDto.builder().build();
+
+        for(AlertListDto alert : alertListDto) {
+            AlertEntity alertEntity = alertRepository.findById(alert.getId())
+                .orElseThrow(() -> new Exception("get keyword :: 알림이 존재하지 않습니다."));
+            List<String> keyword = alertEntity.getKeyword();
+
+            alertResponse.setKeyword(keyword);
+            alertResponse.setUserId(user.getId());
+            alertResponse.setGroundName(alert.getGroundName());
+
+            if(alert.getType().equals("push")) {
+                alertResponse.setPushId(alert.getId());
+            } else {
+                alertResponse.setPullRequestId(alert.getId());
+            }
+        }
+
+        return alertResponse;
     }
 
     public FcmResponseDto sendAlert(User user, String alertTitle, String alertBody, String alertUrl,

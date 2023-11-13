@@ -6,6 +6,7 @@ import com.d103.dddev.api.general.repository.GeneralRepository;
 import com.d103.dddev.api.general.repository.dto.requestDto.*;
 import com.d103.dddev.api.general.repository.dto.responseDto.GeneralStepResponseDto;
 import com.d103.dddev.api.general.repository.dto.responseDto.GeneralTreeResponseDto;
+import com.d103.dddev.api.request.collection.Request;
 import com.d103.dddev.common.exception.document.DocumentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +55,11 @@ public class GeneralServiceImpl implements GeneralService{
         else{
             insertGeneral.setStep(2);
             insertGeneral.setParentId(generalInsertOneDto.getParentId());
+            parent = generalRepository.findById(generalInsertOneDto.getParentId()).orElseThrow(()->new DocumentNotFoundException("부모 문서를 찾을 수 없습니다."));
+            // 부모의 템플릿 값이 true라면 content를 복사한다.
+            if(parent.isTemplate()){
+                insertGeneral.setContent(parent.getContent());
+            }
 
             try{
                 generalRepository.save(insertGeneral);
@@ -60,7 +67,7 @@ public class GeneralServiceImpl implements GeneralService{
                 throw new TransactionException("문서 저장에 실패했습니다.");
             }
 
-            parent = generalRepository.findById(generalInsertOneDto.getParentId()).orElseThrow(()->new DocumentNotFoundException("부모 문서를 찾을 수 없습니다."));
+            // 부모의 자식에 insertGeneral을 넣는다.
             List<General> children = parent.getChildren();
             if(children == null){
                 children = new ArrayList<>();
@@ -257,6 +264,24 @@ public class GeneralServiceImpl implements GeneralService{
         }
 
         documentService.deleteFile(generalId);
+    }
+
+    @Override
+    public General changeTemplate(int groundId, String generalId) throws Exception {
+        General loadGeneral = generalRepository.findById(generalId).orElseThrow(() -> new NoSuchElementException("요청 문서를 찾을 수 없습니다."));
+        // isTemplate 값을 true면은 false로 false였다면 true로 바꾼다.
+        if(loadGeneral.isTemplate()){
+            loadGeneral.setTemplate(false);
+        }
+        else{
+            loadGeneral.setTemplate(true);
+        }
+        try{
+            generalRepository.save(loadGeneral);
+        }catch(Exception e){
+            throw new TransactionException("일반 문서 저장에 실패했습니다.");
+        }
+        return loadGeneral;
     }
 
     @Override

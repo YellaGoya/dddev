@@ -36,4 +36,5 @@ public class General {
     private String author;
     private String modifier;
     private boolean unclassified;
+    private boolean isTemplate;
 }
