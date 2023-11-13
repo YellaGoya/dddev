@@ -116,27 +116,27 @@ public class GeneralController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<General>> getGeneral(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<GeneralResponseDto>> getGeneral(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
                                                           @ApiParam(value = "문서 아이디") @PathVariable("generalId") String generalId,
                                                           @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<General> responseDto;
+        ResponseDto<GeneralResponseDto> responseDto;
 
         try{
-            General general = generalService.getGeneral(groundId, generalId);
-            responseDto = ResponseDto.<General>builder()
+            GeneralResponseDto general = generalService.getGeneral(groundId, generalId);
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("일반 문서를 불러왔습니다.")
                     .data(general)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(Exception e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -204,20 +204,20 @@ public class GeneralController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<General>>> getStep2Generals(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<List<GeneralResponseDto>>> getStep2Generals(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
                                                                        @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<List<General>> responseDto;
+        ResponseDto<List<GeneralResponseDto>> responseDto;
 
         try{
-            List<General> generals = generalService.getStep2Generals(groundId);
-            responseDto = ResponseDto.<List<General>>builder()
+            List<GeneralResponseDto> generals = generalService.getStep2Generals(groundId);
+            responseDto = ResponseDto.<List<GeneralResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("step2 문서들을 불러왔습니다.")
                     .data(generals)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<General>>builder()
+            responseDto = ResponseDto.<List<GeneralResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -279,34 +279,34 @@ public class GeneralController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<General>> moveGeneral(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<GeneralResponseDto>> moveGeneral(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                             @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
-                                                            @ApiParam(value= "parentId -> 목적지 부모의 아이디") @RequestBody GeneralMoveDto GeneralMoveDto,
+                                                            @ApiParam(value= "parentId -> 목적지 부모의 아이디") @RequestBody GeneralMoveDto generalMoveDto,
                                                             @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
-        ResponseDto<General> responseDto;
+        ResponseDto<GeneralResponseDto> responseDto;
 
         try{
-            General general = generalService.moveGeneral(groundId, generalId, GeneralMoveDto);
-            responseDto = ResponseDto.<General>builder()
+            GeneralResponseDto general = generalService.moveGeneral(groundId, generalId, generalMoveDto);
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 이동했습니다.")
                     .data(general)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(InvalidAttributeValueException e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         }catch(Exception e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -362,36 +362,36 @@ public class GeneralController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<General>> updateGeneral(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<GeneralResponseDto>> updateGeneral(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                               @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
                                                               @ApiParam(value = "변경하고 싶은 제목\n" +
                                                                       "title(필수) 없으면 422에러")@RequestBody GeneralTitleDto generalTitleDto,
                                                               @AuthenticationPrincipal UserDetails userDetails,
                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<General> responseDto;
+        ResponseDto<GeneralResponseDto> responseDto;
 
         try{
-            General general = generalService.titleGeneral(groundId, generalId, generalTitleDto, userDetails);
-            responseDto = ResponseDto.<General>builder()
+            GeneralResponseDto general = generalService.titleGeneral(groundId, generalId, generalTitleDto, userDetails);
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서의 제목을 수정했습니다.")
                     .data(general)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(InvalidAttributeValueException e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         }catch(Exception e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -406,33 +406,33 @@ public class GeneralController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<General>> changeTemplate(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<GeneralResponseDto>> changeTemplate(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                                @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
                                                                @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<General> responseDto;
+        ResponseDto<GeneralResponseDto> responseDto;
 
         try{
-            General general = generalService.changeTemplate(groundId, generalId);
-            responseDto = ResponseDto.<General>builder()
+            GeneralResponseDto general = generalService.changeTemplate(groundId, generalId);
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("일반 문서 템플릿 여부 수정 완료")
                     .data(general)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(InvalidAttributeValueException e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         }catch(Exception e){
-            responseDto = ResponseDto.<General>builder()
+            responseDto = ResponseDto.<GeneralResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();

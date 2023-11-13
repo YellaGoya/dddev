@@ -114,8 +114,9 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General getGeneral(int groundId, String generalId) throws Exception{
-        return generalRepository.findById(generalId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다."));
+    public GeneralResponseDto getGeneral(int groundId, String generalId) throws Exception{
+        General general = generalRepository.findById(generalId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다."));
+        return convertToGeneralResponseDto(general);
     }
 
     /**
@@ -146,8 +147,14 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public List<General> getStep2Generals(int groundId){
-        return generalRepository.findByGroundIdAndStep(groundId, 2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    public List<GeneralResponseDto> getStep2Generals(int groundId){
+        List<General> generalList = generalRepository.findByGroundIdAndStep(groundId, 2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<GeneralResponseDto> generalResponseDtoList = new ArrayList<>();
+        for(General general : generalList){
+            GeneralResponseDto generalResponseDto = convertToGeneralResponseDto(general);
+            generalResponseDtoList.add(generalResponseDto);
+        }
+        return generalResponseDtoList;
     }
 
     @Override
@@ -192,7 +199,7 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws Exception{
+    public GeneralResponseDto moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws Exception{
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
         if(loadGeneral.getStep() == 1){
             throw new InvalidAttributeValueException("움직일 수 없는 문서입니다.");
@@ -222,7 +229,7 @@ public class GeneralServiceImpl implements GeneralService{
         }catch(Exception e){
             throw new TransactionException("문서를 저장하는데 실패했습니다.");
         }
-        return loadGeneral;
+        return convertToGeneralResponseDto(loadGeneral);
     }
 
 
@@ -274,7 +281,7 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General changeTemplate(int groundId, String generalId) throws Exception {
+    public GeneralResponseDto changeTemplate(int groundId, String generalId) throws Exception {
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(() -> new NoSuchElementException("요청 문서를 찾을 수 없습니다."));
         // isTemplate 값을 true면은 false로 false였다면 true로 바꾼다.
         if(loadGeneral.isTemplate()){
@@ -288,11 +295,11 @@ public class GeneralServiceImpl implements GeneralService{
         }catch(Exception e){
             throw new TransactionException("일반 문서 저장에 실패했습니다.");
         }
-        return loadGeneral;
+        return convertToGeneralResponseDto(loadGeneral);
     }
 
     @Override
-    public General titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) throws Exception{
+    public GeneralResponseDto titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) throws Exception{
         if(generalTitleDto.getTitle() == null) throw new InvalidAttributeValueException("제목이 없습니다.");
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
@@ -322,7 +329,7 @@ public class GeneralServiceImpl implements GeneralService{
             }
         }
 
-        return loadGeneral;
+        return convertToGeneralResponseDto(loadGeneral);
     }
 
     public boolean stepIsRange(int step){

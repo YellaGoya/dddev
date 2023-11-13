@@ -93,7 +93,7 @@ public class SprintController {
         ResponseDto<List<SprintResponseDto>> responseDto;
 
         try{
-            List<SprintResponseDto> sprintList = sprintService.loadSprintList(groundId);
+            List<SprintResponseDto> sprintList = sprintService.loadRecentSprint(groundId);
             responseDto = ResponseDto.<List<SprintResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("스프린트를 불러왔습니다.")
