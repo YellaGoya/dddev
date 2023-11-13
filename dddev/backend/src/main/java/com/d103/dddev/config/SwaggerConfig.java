@@ -29,7 +29,6 @@ public class SwaggerConfig {
 	public Docket api() {
 
 		return new Docket(DocumentationType.SWAGGER_2)
-			.host("k9d103.p.ssafy.io")
 			.useDefaultResponseMessages(false)
 			.select()
 			.apis(RequestHandlerSelectors.basePackage("com.d103.dddev.api"))
