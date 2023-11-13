@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.NoSuchIndexException;
 import org.springframework.http.*;
+import org.springframework.util.Base64Utils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,8 +43,9 @@ public class logController {
             @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestBody MultiValueMap<String, String> map) {
         try{
             log.info(map.toString());
-            byte[] decodedBytes = Base64.getDecoder().decode(map.get("token").toString());
-            String token = new String(decodedBytes);
+//            byte[] decodedBytes = Base64.getDecoder().decode(map.get("token").toString());
+            byte[] tokens = Base64Utils.decodeFromUrlSafeString(map.get("token").toString());
+            String token = new String(tokens);
             log.info(token);
 //            groundAuthService.save(token);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
