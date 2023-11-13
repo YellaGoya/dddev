@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface GroundAuthRepository extends JpaRepository<GroundAuth, Long> {
     @Query("SELECT g.token FROM GroundAuth g WHERE g.userId = :userId AND g.groundId  = :groundId")
-    List<String> findToken(@Param("userId") Integer userId, @Param("userId") Integer groundId);
+    List<String> findToken( @Param("groundId") Integer groundId, @Param("userId") Integer userId);
 
     @Query("SELECT g FROM GroundAuth g WHERE g.groundId  = :groundId ORDER BY  g.localDateTime ASC")
     List<GroundAuth> findByGroundId(@Param("groundId") Integer groundId);

@@ -5,6 +5,7 @@ import com.dddev.log.entity.GroundAuth;
 import com.dddev.log.exception.UserUnAuthException;
 import com.dddev.log.repository.GroundAuthRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class GroundAuthService {
 
     private final GroundAuthRepository groundAuthRepository;
