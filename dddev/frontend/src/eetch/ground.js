@@ -203,6 +203,22 @@ export const receiverDocument = async ({ accessToken, refreshToken, groundId, id
   return res.json();
 };
 
+export const commentDocument = async ({ accessToken, refreshToken, groundId, id, comment }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/request/${id}/comment`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ comment }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
 export const timeDocument = async ({ accessToken, refreshToken, groundId, type, id, focusTime, activeTime }) => {
   const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}/time`;
   const options = {
@@ -314,6 +330,36 @@ export const groundOut = async ({ accessToken, refreshToken, groundId, githubId 
   const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/owner/user/${githubId}`;
   const options = {
     method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const createSprint = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const listSprint = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint`;
+  const options = {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,

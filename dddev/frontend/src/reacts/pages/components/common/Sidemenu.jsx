@@ -11,9 +11,9 @@ import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
 import FreeBreakfastRoundedIcon from '@mui/icons-material/FreeBreakfastRounded';
 import FolderCopyRoundedIcon from '@mui/icons-material/FolderCopyRounded';
-import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
-import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
-import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
+// import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
+// import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
+// import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
 
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 
@@ -70,7 +70,7 @@ const Sidemenu = () => {
             <FolderCopyRoundedIcon />
             문서
           </s.MenuCategory>
-          <s.MenuChild to={`/${groundId}/document/issue`}>
+          {/* <s.MenuChild to={`/${groundId}/document/issue`}>
             <FlagRoundedIcon />
             이슈
           </s.MenuChild>
@@ -81,7 +81,7 @@ const Sidemenu = () => {
           <s.MenuChild to={`/${groundId}/document/general`}>
             <AssignmentRoundedIcon />
             일반
-          </s.MenuChild>
+          </s.MenuChild> */}
         </s.MenuNav>
 
         <s.GroundList $groundListToggle={groundListToggle}>
@@ -90,13 +90,20 @@ const Sidemenu = () => {
               <s.GroundItem
                 key={id}
                 onClick={() => {
+                  groundButtonHandler();
                   groundItemhandler(id);
                 }}
               >
                 {name}
               </s.GroundItem>
             ))}
-          <s.GroundItem className="addGround" onClick={() => navigate('/newground')}>
+          <s.GroundItem
+            className="addGround"
+            onClick={() => {
+              groundButtonHandler();
+              navigate('/newground');
+            }}
+          >
             + 새로운 그라운드
           </s.GroundItem>
           <div />

@@ -20,7 +20,7 @@ const Project = () => {
     },
   ]);
 
-  return <>이거 프로젝트 페이지야!!!{routes}</>;
+  return routes;
 };
 
 export default Project;

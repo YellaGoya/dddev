@@ -46,14 +46,14 @@ export const EditorWrapper = styled.div`
 
   .quill {
     padding-top: 0px;
-    pointer-events: ${({ status }) => (status === 0 ? 'auto' : 'none')};
+    /* pointer-events: ${({ status }) => (status === 0 ? 'auto' : 'none')}; */
   }
 
   .ql-toolbar.ql-snow {
     width: 375px;
     padding-bottom: 20px;
 
-    opacity: ${({ status }) => (status === 0 ? '1' : '0.3')};
+    display: ${({ status }) => (status === 0 ? 'block' : 'none')};
   }
 
   .ql-toolbar .ql-stroke {
@@ -447,7 +447,7 @@ export const InsertBottom = styled.button`
 
   cursor: pointer;
   pointer-events: ${({ status }) => (status === 0 ? 'auto' : 'none')};
-  opacity: ${({ status }) => (status === 0 ? '1' : '0.4')};
+  opacity: ${({ status }) => (status === 0 ? '1' : '0.3')};
 
   &:hover {
     background-color: var(--button-lite);
@@ -490,10 +490,8 @@ export const SettingButton = styled.button`
   &.delete-button {
     right: 55px;
 
-    opacity: ${({ $toggle }) => ($toggle ? '0.5' : '1')};
-
-    /* pointer-events: ${({ $available }) => ($available === 0 ? 'none' : 'auto')};
-    opacity: ${({ $available }) => ($available === 0 ? '0.5' : '1')}; */
+    opacity: ${({ $available }) => ($available ? '0.5' : '1')};
+    pointer-events: ${({ $available }) => ($available ? 'none' : 'auto')};
 
     & > svg {
       fill: var(--font-border);
@@ -720,8 +718,10 @@ export const ProfileImage = styled.img`
 
 export const ChargeInfo = styled.span`
   position: absolute;
-  top: 22px;
+  top: 17px;
   left: 18px;
+
+  width: calc(100% - 190px);
 
   display: flex;
   align-items: center;
@@ -741,6 +741,10 @@ export const SenderInfo = styled.span`
 export const ReceiverInfo = styled.span`
   display: flex;
   align-items: center;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 export const RequestDescription = styled.p`
@@ -756,4 +760,90 @@ export const RequestDescription = styled.p`
 
   padding: 0;
   margin: 0;
+`;
+
+export const CommentWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  margin: 100px 0;
+  padding: 10px 0 15px 0;
+
+  border-radius: 0.75rem;
+
+  background-color: var(--bg-lite);
+
+  box-shadow:
+    rgba(0, 0, 0, 0.24) 0px 1px 1px,
+    rgba(0, 0, 0, 0.24) 0px 2px 2px,
+    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+
+  .quill {
+    padding-top: 0px;
+  }
+
+  .ql-toolbar.ql-snow {
+    width: 375px;
+    padding-bottom: 20px;
+    display: block;
+
+    opacity: 1;
+  }
+
+  & > button {
+    pointer-events: auto;
+    opacity: 1;
+
+    background-color: var(--button-comment);
+  }
+
+  & > svg {
+    left: 50%;
+    top: -70px;
+    transform: translateX(-50%);
+    position: absolute;
+    width: 64px;
+    height: 64px;
+
+    border-radius: 0.75rem;
+
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--button-lite);
+    }
+  }
+`;
+
+export const CommentsWrapper = styled.div`
+  display: ${({ type }) => (type.type === 'request' ? 'block' : 'none')};
+
+  position: relative;
+  width: 100%;
+  margin: 20px 0;
+  padding: 50px 0 15px 0;
+
+  border-radius: 0.75rem;
+  background-color: #070a0d;
+  border-radius: 0.75rem;
+
+  .quill {
+    padding-top: 0px;
+  }
+
+  box-shadow:
+    rgba(0, 0, 0, 0.24) 0px 1px 1px,
+    rgba(0, 0, 0, 0.24) 0px 2px 2px,
+    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+`;
+
+export const CommentAuthor = styled.span`
+  position: absolute;
+  top: 23px;
+  left: 15px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 300;
+
+  opacity: 0.7;
 `;
