@@ -47,4 +47,6 @@ public interface IssueService  {
     IssueDto.List.Response issueTotalList(Integer groundId, String checkId);
 
     IssueDto.List.Response issueBackLog(Integer groundId, Integer sprintId);
+
+    IssueDto.SprintList.Response issueSprintList(IssueDto.SprintList.Request request, UserDetails userDetails);
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 public class IssueDto {
 
@@ -195,6 +196,27 @@ public class IssueDto {
             @ApiModelProperty(value="code", example = "200")
             private Integer code;
             private Issue data;
+        }
+    }
+
+    public static class SprintList{
+        @Data
+        @ApiModel(value="다중 이슈 문서 스프린트 변경", description = "다중 이슈 문서 스프린트 변경 API")
+        public static class Request{
+            @ApiModelProperty(value = "issue List")
+            private java.util.List<String> issueList;
+            @ApiModelProperty(value = "sprintId",example = "0")
+            private Integer sprintId;
+        }
+
+        @Data
+        @Builder
+        @ApiModel(value="이슈 문서 스프린트 연결 응답")
+        public static class Response{
+            @ApiModelProperty(value="message", example = "다중 이슈 문서 스프린트 변경 완료")
+            private String message;
+            @ApiModelProperty(value="code", example = "200")
+            private Integer code;
         }
     }
 }
