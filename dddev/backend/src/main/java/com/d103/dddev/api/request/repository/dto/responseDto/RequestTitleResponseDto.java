@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RequestStepResponseDto {
+public class RequestTitleResponseDto {
     private String id;
     private String title;
 }

@@ -1,7 +1,6 @@
 package com.d103.dddev.api.request.collection;
 
 import com.d103.dddev.api.user.repository.dto.UserDto;
-import com.d103.dddev.api.user.repository.entity.User;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

@@ -9,5 +9,6 @@ import java.util.Optional;
 
 public interface SprintRepository extends JpaRepository<SprintEntity, Integer> {
     Optional<List<SprintEntity>> findByGround_Id(int groundId);
+    Optional<List<SprintEntity>> findByGround_IdOrderByIdDesc(int groundId);
     Optional<SprintEntity> findByGround_IdAndStatus(int groundId, int status);
 }
