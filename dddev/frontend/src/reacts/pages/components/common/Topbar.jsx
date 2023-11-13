@@ -116,7 +116,7 @@ const Topbar = () => {
   return (
     <s.TopbarWrapper $isLoggedIn={isLoggedIn}>
       <s.PositionWrapper $isGround={Boolean(selectedGround)}>
-        <s.SelectedGround onClick={() => dispatch(toggleMenu())}>
+        <s.SelectedGround $available={paths[1] === 'login'} onClick={() => dispatch(toggleMenu())}>
           {menuToggle ? <MenuOpenIcon /> : <MenuIcon />}
           {!selectedGround || selectedGround.length === 0 ? '' : selectedGround}
         </s.SelectedGround>
