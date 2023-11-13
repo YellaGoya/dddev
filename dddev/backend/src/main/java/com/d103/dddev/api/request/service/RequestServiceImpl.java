@@ -104,12 +104,15 @@ public class RequestServiceImpl implements RequestService{
                     .modifier(userDto)
                     .build();
             list.add(insertRequest);
-            requestResponseDtoList.add(convertToRequestResponseDto(insertRequest));
         }
         try{
             requestRepository.saveAll(list);
         }catch(Exception e){
             throw new TransactionException("문서 저장에 실패했습니다.");
+        }
+        for(Request request : list){
+            RequestResponseDto requestResponseDto = convertToRequestResponseDto(request);
+            requestResponseDtoList.add(requestResponseDto);
         }
         return requestResponseDtoList;
     }
@@ -142,23 +145,47 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public List<Request> getStep2Requests(int groundId) {
-        return requestRepository.findByGroundIdAndStep(groundId,2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    public List<RequestResponseDto> getStep2Requests(int groundId) {
+        List<Request> requestList = requestRepository.findByGroundIdAndStep(groundId,2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<RequestResponseDto> requestResponseDtoList = new ArrayList<>();
+        for(Request request : requestList){
+            RequestResponseDto requestResponseDto = convertToRequestResponseDto(request);
+            requestResponseDtoList.add(requestResponseDto);
+        }
+        return requestResponseDtoList;
     }
 
     @Override
-    public List<Request> getStep2TodoRequests(int groundId) throws Exception {
-        return requestRepository.findByGroundIdAndStepAndStatus(groundId, 2, 0).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    public List<RequestResponseDto> getStep2TodoRequests(int groundId) throws Exception {
+        List<Request> requestList = requestRepository.findByGroundIdAndStepAndStatus(groundId, 2, 0).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<RequestResponseDto> requestResponseDtoList = new ArrayList<>();
+        for(Request request : requestList){
+            RequestResponseDto requestResponseDto = convertToRequestResponseDto(request);
+            requestResponseDtoList.add(requestResponseDto);
+        }
+        return requestResponseDtoList;
     }
 
     @Override
-    public List<Request> getStep2ProceedRequests(int groundId) throws Exception {
-        return requestRepository.findByGroundIdAndStepAndStatus(groundId, 2, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    public List<RequestResponseDto> getStep2ProceedRequests(int groundId) throws Exception {
+        List<Request> requestList = requestRepository.findByGroundIdAndStepAndStatus(groundId, 2, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<RequestResponseDto> requestResponseDtoList = new ArrayList<>();
+        for(Request request : requestList){
+            RequestResponseDto requestResponseDto = convertToRequestResponseDto(request);
+            requestResponseDtoList.add(requestResponseDto);
+        }
+        return requestResponseDtoList;
     }
 
     @Override
-    public List<Request> getStep2DoneRequests(int groundId) throws Exception {
-        return requestRepository.findByGroundIdAndStepAndStatus(groundId, 2, 2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    public List<RequestResponseDto> getStep2DoneRequests(int groundId) throws Exception {
+        List<Request> requestList = requestRepository.findByGroundIdAndStepAndStatus(groundId, 2, 2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<RequestResponseDto> requestResponseDtoList = new ArrayList<>();
+        for(Request request : requestList){
+            RequestResponseDto requestResponseDto = convertToRequestResponseDto(request);
+            requestResponseDtoList.add(requestResponseDto);
+        }
+        return requestResponseDtoList;
     }
 
     @Override
@@ -212,7 +239,7 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Request moveRequest(int groundId, String requestId, RequestMoveDto requestMoveDto) throws Exception {
+    public RequestResponseDto moveRequest(int groundId, String requestId, RequestMoveDto requestMoveDto) throws Exception {
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
         if(loadRequest.getStep() == 1){
             throw new InvalidAttributeValueException("움직일 수 없는 문서입니다.");
@@ -242,7 +269,7 @@ public class RequestServiceImpl implements RequestService{
         }catch(Exception e){
             throw new TransactionException("문서를 저장하는데 실패했습니다.");
         }
-        return loadRequest;
+        return convertToRequestResponseDto(loadRequest);
     }
 
     @Override
@@ -363,7 +390,7 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
-    public Request changeTemplate(int groundId, String requestId) throws Exception {
+    public RequestResponseDto changeTemplate(int groundId, String requestId) throws Exception {
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(() -> new NoSuchElementException("요청 문서를 찾을 수 없습니다."));
         // isTemplate 값을 true면은 false로 false였다면 true로 바꾼다.
         if(loadRequest.isTemplate()){
@@ -377,7 +404,7 @@ public class RequestServiceImpl implements RequestService{
         }catch(Exception e){
             throw new TransactionException("요청 문서 저장에 실패했습니다.");
         }
-        return loadRequest;
+        return convertToRequestResponseDto(loadRequest);
     }
 
     @Override
@@ -494,13 +521,16 @@ public class RequestServiceImpl implements RequestService{
     }
 
     public RequestUserResponseDto convertToRequestUserResponseDto(UserDto userDto){
+        if(userDto == null) return null;
         RequestUserResponseDto requestUserResponseDto = new RequestUserResponseDto();
         requestUserResponseDto.setId(userDto.getId());
         requestUserResponseDto.setGithubId(userDto.getGithubId());
         requestUserResponseDto.setNickname(userDto.getNickname());
         requestUserResponseDto.setEmail(userDto.getEmail());
         requestUserResponseDto.setStatusMsg(userDto.getStatusMsg());
-        requestUserResponseDto.setFileName(userDto.getProfileDto().getFileName());
+        if(userDto.getProfileDto() != null){
+            requestUserResponseDto.setFileName(userDto.getProfileDto().getFileName());
+        }
         return requestUserResponseDto;
     }
 
