@@ -37,12 +37,12 @@ public class logController {
             value = {@ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("/auth")
     public ResponseEntity<?> userAuth(
-            @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) HttpServletRequest servletRequest) {
+            @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) List<UserAuthReq> userAuthReq) {
         try{
-            log.info(servletRequest.getContextPath());
-            log.info(servletRequest.getMethod());
-            log.info(servletRequest.getRequestURI());
-                log.info("로그 토큰 발급 저장 요청");
+            userAuthReq.forEach(a-> {
+                log.info(a.toString());
+                log.info(a.getToken());
+            });
 //                groundAuthService.save(userAuthReq.getToken());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                     "토큰 저장 완료", null));
