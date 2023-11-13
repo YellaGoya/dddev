@@ -40,11 +40,10 @@ public class logController {
     @PostMapping("/auth")
     public ResponseEntity<?> userAuth(
             @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestBody MultiValueMap<String, String> map) {
-
         try{
             log.info(map.toString());
-            byte[] decoded = Base64.getDecoder().decode(String.valueOf(map.get("token")));
-            String token = new String(decoded);
+            byte[] decodedBytes = Base64.getDecoder().decode(map.get("token").toString());
+            String token = new String(decodedBytes);
             log.info(token);
 //            groundAuthService.save(token);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
