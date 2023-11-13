@@ -95,6 +95,10 @@ public class AlertServiceImpl implements AlertService {
             throw new NoSuchElementException("createWebhook :: 사용자 알림 허용이 필요합니다.");
         }
 
+        if(!type.equals("push") && !type.equals("pull_request")) {
+            throw new NoSuchElementException("createWebhook :: 알림 타입이 잘못되었습니다.");
+        }
+
         Integer repoId = repository.getId();
 
         // 이미 alertdto가 있는 경우 - repo id, type 비교
@@ -102,9 +106,11 @@ public class AlertServiceImpl implements AlertService {
 
         Optional<AlertEntity> userAlertDto = alertRepository.findByUser_IdAndRepositoryIdAndType(user.getId(),
                 repoId, type);
+
         if (userAlertDto.isPresent()) {
             throw new DuplicateRequestException("이미 생성한 알림입니다.");
         }
+
         AlertEntity existAlertEntity = alertEntityOptional.get(0);
         AlertEntity alertEntity = AlertEntity.builder()
                 .webhookId(existAlertEntity.getWebhookId())
