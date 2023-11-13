@@ -468,7 +468,6 @@ public class AlertServiceImpl implements AlertService {
             }
             if(!exist) {
                 AlertResponseDto alertResponse = AlertResponseDto.builder()
-                        .id(alert.getId())
                         .keyword(keyword)
                         .groundName(alert.getGroundName())
                         .userId(alert.getUserId())
@@ -612,6 +611,36 @@ public class AlertServiceImpl implements AlertService {
             log.error("deleteAlert :: 깃허브에서 해당 웹훅을 찾을 수 없습니다. 삭제 실패");
         }
         alertRepository.deleteByRepositoryId(repository.getId());
+    }
+
+    @Override
+    public AlertResponseDto getAlert(User user, Integer groundId) throws Exception {
+
+        List<AlertListDto> alertListDto = alertRepository.findAlertEntityAndGroundName(groundId, user.getId());
+
+        if(alertListDto.isEmpty()) {
+            throw new NoSuchElementException("getAlert :: 해당 그라운드에 사용자의 알림을 찾을 수 없습니다.");
+        }
+
+        AlertResponseDto alertResponse = AlertResponseDto.builder().build();
+
+        for(AlertListDto alert : alertListDto) {
+            AlertEntity alertEntity = alertRepository.findById(alert.getId())
+                .orElseThrow(() -> new Exception("get keyword :: 알림이 존재하지 않습니다."));
+            List<String> keyword = alertEntity.getKeyword();
+
+            alertResponse.setKeyword(keyword);
+            alertResponse.setUserId(user.getId());
+            alertResponse.setGroundName(alert.getGroundName());
+
+            if(alert.getType().equals("push")) {
+                alertResponse.setPushId(alert.getId());
+            } else {
+                alertResponse.setPullRequestId(alert.getId());
+            }
+        }
+
+        return alertResponse;
     }
 
     public FcmResponseDto sendAlert(User user, String alertTitle, String alertBody, String alertUrl,

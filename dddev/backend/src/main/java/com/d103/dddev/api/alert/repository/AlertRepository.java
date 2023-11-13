@@ -36,5 +36,8 @@ public interface AlertRepository extends JpaRepository<AlertEntity, Integer> {
 	@Query(value = "select a.id as id, a.type as type, a.user_id as userId, gr.name as groundName from dddev.alert a join (select g.name, r.id from dddev.ground g join dddev.repository r on g.repository_id = r.id) gr on a.repository_id = gr.id where a.user_id=?", nativeQuery = true)
 	List<AlertListDto> findAlertEntityAndGroundName(Integer userId);
 
+	@Query(value = "select a.id as id, a.type as type, a.user_id as userId, gr.name as groundName from dddev.alert a join (select g.name, r.id from dddev.ground g join dddev.repository r on g.repository_id = r.id and g.id = ?) gr on a.repository_id = gr.id where a.user_id=?", nativeQuery = true)
+	List<AlertListDto> findAlertEntityAndGroundName(Integer groundId, Integer userId);
+
 	Optional<AlertEntity> findByIdAndUser_Id(Integer alertId, Integer id);
 }
