@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import com.d103.dddev.api.common.oauth2.utils.AesType;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public String getPersonalAccessToken(User user) throws Exception {
 		log.info("service - getPersonalAccessToken :: 사용자 personal access token 조회 진입");
-		return decryptPersonalAccessToken(user.getPersonalAccessToken());
+		return decryptPersonalAccessToken(user.getPersonalAccessToken(), AesType.PAT);
 	}
 
 	@Override
@@ -139,7 +140,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto savePersonalAccessToken(String newPersonalAccessToken, User user) throws Exception {
 		log.info("service - savePersonalAccessToken :: 사용자 personal access token 저장 진입");
-		String encrypted = encryptPersonalAccessToken(newPersonalAccessToken);
+		String encrypted = encryptPersonalAccessToken(newPersonalAccessToken, AesType.PAT);
 
 		// pat로 email 조회해서 저장한다.
 
@@ -273,11 +274,11 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 	}
 
-	public String encryptPersonalAccessToken(String personalAccessToken) throws Exception {
-		return aesUtil.aes256Encrypt(personalAccessToken);
+	public String encryptPersonalAccessToken(String personalAccessToken, AesType aesType) throws Exception {
+		return aesUtil.aes256Encrypt(personalAccessToken, aesType);
 	}
 
-	public String decryptPersonalAccessToken(String personalAccessToken) throws Exception {
-		return aesUtil.aes256Decrypt(personalAccessToken);
+	public String decryptPersonalAccessToken(String personalAccessToken, AesType aesType) throws Exception {
+		return aesUtil.aes256Decrypt(personalAccessToken, aesType);
 	}
 }

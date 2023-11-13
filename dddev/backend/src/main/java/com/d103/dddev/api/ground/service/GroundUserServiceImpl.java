@@ -1,14 +1,26 @@
 package com.d103.dddev.api.ground.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.persistence.EntityExistsException;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
+import com.d103.dddev.api.common.oauth2.utils.AesType;
+import com.d103.dddev.api.common.oauth2.utils.AesUtil;
 import com.d103.dddev.api.ground.repository.GroundUserRepository;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.repository.entity.GroundUser;
@@ -24,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GroundUserServiceImpl implements GroundUserService {
 
 	private final GroundUserRepository groundUserRepository;
+	private final AesUtil aesUtil;
 
 	/**
 	 * 그라운드 유저 초대를 위해 email로 검색하기
@@ -63,6 +76,26 @@ public class GroundUserServiceImpl implements GroundUserService {
 			groundUserDtoList.add(g.convertToGroundUserDto());
 		}
 		return groundUserDtoList;
+	}
+
+	@Override
+	public String createGroundUserToken(Integer groundId, User user) throws Exception {
+		// 토큰 생성
+		String token = groundId + "/" + user.getId() + "/" + UUID.randomUUID();
+		getUserInfo(token);
+		// 토큰 암호화
+		return aesUtil.aes256Encrypt(token, AesType.LOG);
+
+	}
+
+	public Map<String, Integer> getUserInfo(String token) {
+		Map<String, Integer> info = new HashMap<>();
+		String[] split = token.split("/");
+		info.put("groundId", Integer.parseInt(split[0]));
+		info.put("userId", Integer.parseInt(split[1]));
+		System.out.println(info.get("groundId"));
+		System.out.println(info.get("userId"));
+		return info;
 	}
 
 	/**

@@ -46,9 +46,6 @@ public class Oauth2Service {
 	@Value("${spring.security.oauth2.client.registration.github.client-secret}")
 	private String CLIENT_SECRET;
 
-	@Value("${aes.secretKey}")
-	private String AES_SECRET_KEY;
-
 	public Map<String, String> login(String code) throws Exception {
 		log.info("service - login :: github api login 진입");
 		// github에서 access, refresh token 받아오기
