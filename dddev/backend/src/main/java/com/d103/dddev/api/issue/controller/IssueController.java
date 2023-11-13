@@ -219,4 +219,20 @@ public class IssueController {
             return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
         }
     }
+
+    @ApiOperation(value = "스프린트 소속 및 종료 제외 이슈 문서 목록 조회",notes = "현재 소속 스프린트 및 스프린트 종료 된 이슈 제외 조회")
+    @GetMapping("{sprintId}/sprint")
+    public ResponseEntity<IssueDto.List.Response> issueBackLog(@PathVariable Integer groundId,
+                                                            @PathVariable Integer sprintId,
+                                                            @RequestHeader String Authorization){
+        try{
+            log.info("현재 소속 스프린트 및 스프린트 종료 된 이슈 제외 조회");
+            IssueDto.List.Response response = issueService.issueBackLog(groundId, sprintId);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
 }

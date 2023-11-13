@@ -53,4 +53,7 @@ public interface IssueRepository extends MongoRepository<Issue, String> {
 	@Query(value = "{ 'sprint_id' : ?0, 'status' : { $gt : 0, $lt : 3 }, 'active_time' : { $gt : 0 } }", count = true)
 	Integer findActiveTimeUndoneCount(Integer sprintId);
 
+    ArrayList<Issue> findAllByGroundIdAndSprintIdAndType(Integer groundId, Integer sprintId, String issue);
+
+	ArrayList<Issue> findAllByGroundIdAndSprintIdAndTypeAndStatus(Integer groundId, int sprintId, String issue, int Status);
 }

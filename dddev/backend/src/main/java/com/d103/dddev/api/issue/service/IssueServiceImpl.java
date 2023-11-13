@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.d103.dddev.api.file.service.DocumentService;
-
-import org.checkerframework.checker.units.qual.A;
 import org.hibernate.TransactionException;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -494,5 +491,33 @@ public class IssueServiceImpl implements IssueService {
 				.data(issueList)
 				.build();
 	}
+
+    @Override
+    public IssueDto.List.Response issueBackLog(Integer groundId, Integer sprintId) {
+		// 1. 스프린트에 속한 ground 이슈 목록 로딩
+		ArrayList<Issue> sprintIssueList = issueRepository.findAllByGroundIdAndSprintIdAndType(groundId, sprintId, "issue");
+
+		// 2. 스프린트에 속하지 않은 ground 이슈 목록 로딩
+		ArrayList<Issue> noSprintIssueList = issueRepository.findAllByGroundIdAndSprintIdAndTypeAndStatus(groundId, 0, "issue", 0);
+
+		ArrayList<Issue> result = new ArrayList<>();
+
+		result.addAll(sprintIssueList);
+		result.addAll(noSprintIssueList);
+
+		if (result.isEmpty()) {
+			return IssueDto.List.Response.builder()
+					.message(IssueMessage.emptyList())
+					.code(HttpStatus.OK.value())
+					.data(result)
+					.build();
+		}
+
+		return IssueDto.List.Response.builder()
+				.message(IssueMessage.list())
+				.code(HttpStatus.OK.value())
+				.data(result)
+				.build();
+    }
 
 }
