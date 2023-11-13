@@ -50,9 +50,11 @@ public class SecurityConfig {
 			.antMatchers("/swagger-resources/**", "/v2/api-docs", "/swagger-resources",
 				"/swagger-ui.html", "/webjars/**", "/swagger/**", "/swagger-ui/**").permitAll()
 			.antMatchers("/", "/**", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
-//			.anyRequest().authenticated();
+			.antMatchers("/v3/api-docs", "//v3/api-docs", "/configuration/ui", "/configuration/security",
+				"//swagger-ui.html", "/webjars/**").permitAll()
+			//			.anyRequest().authenticated();
 			.anyRequest().permitAll();
-//		http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
+		//		http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
 		return http.build();
 	}
 
