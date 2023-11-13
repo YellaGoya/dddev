@@ -487,7 +487,9 @@ public class RequestServiceImpl implements RequestService{
         commentResponseDto.setId(comment.getCommentId());
         commentResponseDto.setComment(comment.getComment());
         commentResponseDto.setAuthor(comment.getAuthor().getNickname());
-        commentResponseDto.setFileName(comment.getAuthor().getProfileDto().getFileName());
+        if(comment.getAuthor().getProfileDto() != null){
+            commentResponseDto.setFileName(comment.getAuthor().getProfileDto().getFileName());
+        }
         commentResponseDto.setCreatedTime(comment.getCreatedTime());
         return commentResponseDto;
     }
