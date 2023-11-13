@@ -3,9 +3,11 @@ package com.dddev.log.controller;
 import com.dddev.log.dto.ElasticSearchLog;
 import com.dddev.log.dto.ResponseVO;
 import com.dddev.log.dto.req.LogReq;
+import com.dddev.log.dto.req.UserAuthReq;
 import com.dddev.log.dto.res.LogRes;
 import com.dddev.log.exception.ElasticSearchException;
 import com.dddev.log.service.ElasticSearchLogService;
+import com.dddev.log.service.GroundAuthService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Api(tags = {"로그 관련 API"})
 @RestController
@@ -24,6 +27,44 @@ import java.util.List;
 public class logController {
 
     private final ElasticSearchLogService elasticSearchLogService;
+    private final GroundAuthService groundAuthService;
+
+    //로그 요청 시 토큰 저장
+    @ApiOperation(value = "사용자가 토큰을 발급 받으면 저장하는 API")
+    @ApiResponses(
+            value = {@ApiResponse(code = 500, message = "서버 내부 오류")})
+    @PostMapping("/auth")
+    public ResponseEntity<?> userAuth(
+            @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestBody Map<String, String> userAuthReq) {
+        try{
+                log.info("로그 토큰 발급 저장 요청");
+                groundAuthService.save(userAuthReq.get("token"));
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
+                    "토큰 저장 완료", null));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "토큰 저장 미완료", null));
+        }
+    }
+
+//    //로그 요청 시 인증 확인
+//    @ApiOperation(value = "사용자의 토큰 유효성 체크")
+////    @ApiResponses(
+////            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
+////                    @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
+////                    @ApiResponse(code = 500, message = "서버 내부 오류")})
+//    @GetMapping("/auth")
+//    public ResponseEntity<?> userAuth(
+//            @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestHeader String AuthToken) {
+//        try{
+//            groundAuthService.save(AuthToken.getToken());
+//            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
+//                    "토큰 저장 완료", null);
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
+//                    "서버 내부 에러", null);
+//        }
+//    }
 
     //로그 저장
     @ApiOperation(value = "로그를 저장하는 API")
@@ -100,7 +141,7 @@ public class logController {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 Group id 접근입니다.", null));
+                    "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
@@ -127,7 +168,7 @@ public class logController {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 Group id 접근입니다.", null));
+                    "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
@@ -155,7 +196,7 @@ public class logController {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 Group id 접근입니다.", null));
+                    "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
@@ -186,7 +227,7 @@ public class logController {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 Group id 접근입니다.", null));
+                    "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
@@ -219,7 +260,7 @@ public class logController {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 Group id 접근입니다.", null));
+                    "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));

@@ -46,7 +46,7 @@ public class gptcontroller {
                         e.getMessage(), null));
             } catch (NoSuchIndexException e) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                        "잘못된 Group id 접근입니다.", null));
+                        "잘못된 ground id 접근입니다.", null));
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                         e.getMessage(), null));
@@ -74,7 +74,7 @@ public class gptcontroller {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 Group id 접근입니다.", null));
+                    "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
@@ -99,7 +99,7 @@ public class gptcontroller {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 Group id 접근입니다.", null));
+                    "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
