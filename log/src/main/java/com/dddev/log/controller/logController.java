@@ -14,9 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.NoSuchIndexException;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -38,11 +35,10 @@ public class logController {
             value = {@ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("/auth")
     public ResponseEntity<?> userAuth(
-            @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestBody Map<String, String> userAuthReq) throws UnsupportedEncodingException {
-        String decodeText = URLDecoder.decode(userAuthReq.get("token"), "UTF-8");
+            @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestBody UserAuthReq userAuthReq) {
         try{
                 log.info("로그 토큰 발급 저장 요청");
-                groundAuthService.save(decodeText);
+                groundAuthService.save(userAuthReq.getToken());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                     "토큰 저장 완료", null));
         }catch (Exception e){
