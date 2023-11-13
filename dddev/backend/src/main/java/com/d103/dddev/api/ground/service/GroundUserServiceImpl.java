@@ -1,6 +1,8 @@
 package com.d103.dddev.api.ground.service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +12,14 @@ import java.util.UUID;
 import javax.persistence.EntityExistsException;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -22,6 +27,8 @@ import org.springframework.web.client.RestTemplate;
 import com.d103.dddev.api.common.oauth2.utils.AesType;
 import com.d103.dddev.api.common.oauth2.utils.AesUtil;
 import com.d103.dddev.api.ground.repository.GroundUserRepository;
+import com.d103.dddev.api.ground.repository.dto.GroundDto;
+import com.d103.dddev.api.ground.repository.dto.GroundTokenDto;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.repository.entity.GroundUser;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
@@ -37,6 +44,9 @@ public class GroundUserServiceImpl implements GroundUserService {
 
 	private final GroundUserRepository groundUserRepository;
 	private final AesUtil aesUtil;
+
+	@Value("${ip.log.server}")
+	private String LOG_SERVER_URI;
 
 	/**
 	 * 그라운드 유저 초대를 위해 email로 검색하기
@@ -82,20 +92,37 @@ public class GroundUserServiceImpl implements GroundUserService {
 	public String createGroundUserToken(Integer groundId, User user) throws Exception {
 		// 토큰 생성
 		String token = groundId + "/" + user.getId() + "/" + UUID.randomUUID();
-		getUserInfo(token);
+		// String token = groundId + user.getId() + UUID.randomUUID().toString();
+		// getUserInfo(token);
+
 		// 토큰 암호화
-		return aesUtil.aes256Encrypt(token, AesType.LOG);
+		String encryptToken = aesUtil.aes256Encrypt(token, AesType.LOG);
+		System.out.println(encryptToken);
 
-	}
+		// uri
+		String uri = LOG_SERVER_URI+"/log/auth";
 
-	public Map<String, Integer> getUserInfo(String token) {
-		Map<String, Integer> info = new HashMap<>();
-		String[] split = token.split("/");
-		info.put("groundId", Integer.parseInt(split[0]));
-		info.put("userId", Integer.parseInt(split[1]));
-		System.out.println(info.get("groundId"));
-		System.out.println(info.get("userId"));
-		return info;
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		// MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		// params.add("token", Base64Utils.encodeToUrlSafeString(encryptToken.getBytes()));
+		GroundTokenDto param = GroundTokenDto.builder()
+			.token(encryptToken)
+			.build();
+
+		HttpEntity<GroundTokenDto> entity = new HttpEntity<>(param, headers);
+
+		ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+			uri,
+			HttpMethod.POST,
+			entity,
+			new ParameterizedTypeReference<Map<String, Object>>() {
+			}
+		);
+
+		return (String)response.getBody().get("message");
 	}
 
 	/**
