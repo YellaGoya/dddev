@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Repository
 @Slf4j
 public class AlertDataRepo {
-	public static final String ALERT_NAME = "AlertData";
+	public static final String ALERT_NAME = "alertData";
 	public static final String WEBHOOK_NAME = "webhookData";
 	public static final String ALERT_USER_NAME = "alertUserData";
 	// private Firestore FIRE_STORE = FirestoreClient.getFirestore();

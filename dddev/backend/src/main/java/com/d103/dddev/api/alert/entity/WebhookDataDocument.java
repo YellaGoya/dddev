@@ -24,5 +24,5 @@ public class WebhookDataDocument {
 	private String branch;
 	private String timestamp;
 	private String url;
-	private Integer repoId;
+	private Integer groundId;
 }

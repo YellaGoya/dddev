@@ -40,4 +40,7 @@ public interface AlertRepository extends JpaRepository<AlertEntity, Integer> {
 	List<AlertListDto> findAlertEntityAndGroundName(Integer groundId, Integer userId);
 
 	Optional<AlertEntity> findByIdAndUser_Id(Integer alertId, Integer id);
+
+	@Query(value = "select g.id from repository r, ground g where g.repository_id = r.id and r.repo_id = ?", nativeQuery = true)
+	Integer findGroundIdWithGitRepoId(Integer gitRepoId);
 }

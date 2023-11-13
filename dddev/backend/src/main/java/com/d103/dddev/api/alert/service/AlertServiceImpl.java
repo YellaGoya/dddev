@@ -189,7 +189,7 @@ public class AlertServiceImpl implements AlertService {
 
         // 커밋 정보 저장 (키워드 상관 없이 모든 커밋 리스트 저장)
         for (CommitDataDto commitDataDto : pushWebhookDto.getCommits()) {
-            saveWebhookData(commitDataDto.getId(), commitDataDto.getAuthor().get("username"), commitDataDto.getMessage(), pushWebhookDto.getRef(), commitDataDto.getTimestamp().toString(), commitDataDto.getUrl());
+            saveWebhookData(pushWebhookDto.getRepository().getId(), commitDataDto.getId(), commitDataDto.getAuthor().get("username"), commitDataDto.getMessage(), pushWebhookDto.getRef(), commitDataDto.getTimestamp().toString(), commitDataDto.getUrl());
         }
 
         for (AlertUserKeyword alertUserKeyword : userKeyowrdList) {
@@ -325,11 +325,12 @@ public class AlertServiceImpl implements AlertService {
         return alertDataRepo.addAlertUserData(alertUserHistoryDocument);
     }
 
-    private String saveWebhookData(String id, String username, String message, String branch, String timestamp, String url) throws Exception {
+    private String saveWebhookData(Integer gitRepoId, String id, String username, String message, String branch, String timestamp, String url) throws Exception {
         UserDto emptyAuthor = UserDto.builder()
                 .nickname(username)
                 .build();
         UserDto author = userService.getUserDtoWithName(username).orElse(emptyAuthor);
+        Integer groundId = alertRepository.findGroundIdWithGitRepoId(gitRepoId);
         WebhookDataDocument webhookDataDocument = WebhookDataDocument.builder()
                 .author(author)
                 .branch(branch)
@@ -337,6 +338,7 @@ public class AlertServiceImpl implements AlertService {
                 .message(message)
                 .url(url)
                 .timestamp(timestamp)
+                .groundId(groundId)
                 .build();
 
         return alertDataRepo.addWebhookData(webhookDataDocument);
@@ -530,7 +532,7 @@ public class AlertServiceImpl implements AlertService {
         String title = pullRequestWebhookDto.getPullRequest().getTitle();
         String body = pullRequestWebhookDto.getPullRequest().getBody();
 
-        saveWebhookData(pullRequestDto.getId().toString(), pullRequestDto.getUser().getLogin(), title, headBranch + "->" + baseBranch, pullRequestDto.getCreatedAt().toString(), url);
+        saveWebhookData(pullRequestWebhookDto.getRepository().getId(), pullRequestDto.getId().toString(), pullRequestDto.getUser().getLogin(), title, headBranch + "->" + baseBranch, pullRequestDto.getCreatedAt().toString(), url);
 
         for (AlertUserKeyword alertUserKeyword : userKeywordList) {
 
