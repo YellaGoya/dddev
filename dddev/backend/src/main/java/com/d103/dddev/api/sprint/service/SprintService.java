@@ -12,6 +12,7 @@ public interface SprintService {
     SprintResponseDto createSprint(int groundId);
     List<SprintResponseDto> loadSprintList(int groundId);
     SprintResponseDto loadSprint(int sprintId) throws Exception;
+    SprintResponseDto loadRecentSprint(int sprintId) throws Exception;
     void deleteSprint(int sprintId) throws Exception;
     SprintResponseDto updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) throws Exception;
     void startSprint(int groundId, int sprintId) throws Exception;

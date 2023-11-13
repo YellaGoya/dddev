@@ -1,5 +1,6 @@
 package com.d103.dddev.api.request.collection;
 
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.repository.entity.User;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -35,13 +36,13 @@ public class Request {
     @CreatedDate
     private LocalDateTime updatedAt;
     // 요청을 보내는 사람
-    private User sendUser;
+    private UserDto sendUser;
     // 요청을 받는 사람
-    private User receiveUser;
+    private UserDto receiveUser;
     // 작성한 사람
-    private String author;
+    private UserDto author;
     // 마지막으로 수정한 사람
-    private String modifier;
+    private UserDto modifier;
     // status 0이면 요청 보내기전, 1이면 요청 보낸후 수정 불가
     private int status; // 0: 해야 할 일, 1: 진행 중, 2 완료
     private List<String> commentIdList;
