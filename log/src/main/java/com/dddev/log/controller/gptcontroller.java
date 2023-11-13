@@ -13,7 +13,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.NoSuchIndexException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +40,9 @@ public class gptcontroller {
                 throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
             }
             try {
+                userGptAccessService.count(ground_id);
                 String result = "일반 질문 분석 완료!";
                 String response = chatService.chatGpt(ground_id, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
-                userGptAccessService.count(ground_id);
                 return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                         result, response));
             }catch (UserUnAuthGptException e){
@@ -74,9 +73,9 @@ public class gptcontroller {
             throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
         }
         try{
+            userGptAccessService.count(ground_id);
             String result = "사용자 로그 분석 완료!";
             String response = chatService.chatGptLog(ground_id, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
-            userGptAccessService.count(ground_id);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (UserUnAuthGptException e) {
@@ -104,9 +103,9 @@ public class gptcontroller {
     @GetMapping("/analyze")
     public ResponseEntity<?> analyzeLogAuto(@RequestHeader String ground_id) {
         try{
+            userGptAccessService.count(ground_id);
             String result = "최근 로그를 불러 분석 완료";
             String response = chatService.chatGptLogAuto(ground_id).trim().replaceAll("\n", "");
-            userGptAccessService.count(ground_id);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (ElasticSearchException e){
