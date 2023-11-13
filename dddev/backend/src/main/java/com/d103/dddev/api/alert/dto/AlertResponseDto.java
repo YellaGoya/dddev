@@ -16,7 +16,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class AlertResponseDto {
-	Integer id;
 	List<String> keyword;
 	String groundName;
 	Integer pushId;
