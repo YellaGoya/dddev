@@ -346,7 +346,7 @@ public class IssueServiceImpl implements IssueService {
 		}
 		// 해야할 일 이슈들
 		List<Issue> todoIssues = issueRepository.findBySprintIdAndStatus(sprintId, 0);
-		for(Issue issue : proceedIssues){
+		for(Issue issue : todoIssues){
 			// 연결된 스프린트 없게 만들기
 			issue.setSprintId(0);
 			issue.setStatus(0);
