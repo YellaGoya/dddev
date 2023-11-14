@@ -3,17 +3,21 @@ import styled from 'styled-components';
 export const SelectWrapper = styled.div`
   position: relative;
   margin-bottom: 1.5rem;
+
+  pointer-events: ${({ $available }) => ($available ? 'auto' : 'auto')};
+  opacity: ${({ $available }) => ($available ? '1' : '0.5')};
 `;
 
-export const Label = styled.div`
-  position: absolute;
-  left: 40px;
-  top: 12px;
+export const Label = styled.h1`
   padding: 0 5px;
   color: var(--font-border);
 
+  width: fit-content;
+  margin-right: 5px;
+
   font-weight: 500;
   font-size: 0.8rem;
+  white-space: nowrap;
 
   pointer-events: none;
 `;
@@ -27,7 +31,6 @@ export const Selected = styled.div`
   background-color: ${({ $toggle }) => ($toggle ? 'var(--button-basic)' : 'transparent')};
 
   & > p {
-    width: 100%;
     font-size: 0.9rem;
     color: var(--font-rev);
 
@@ -41,7 +44,7 @@ export const Selected = styled.div`
   display: flex;
   align-items: center;
 
-  padding: 0 47px 0 80px;
+  padding: 0 47px 0 15px;
   &:focus {
     outline: none;
   }

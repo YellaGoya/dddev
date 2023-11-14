@@ -10,4 +10,5 @@ public interface GeneralRepository extends MongoRepository<General, String> {
     Optional<List<General>> findByParentId(String parentId);
     Optional<List<General>> findByGroundIdAndStep(int groundId, int step);
     Optional<General> findByGroundIdAndUnclassified(int groundId, boolean unclassified);
+    void deleteByGroundId(int groundId);
 }

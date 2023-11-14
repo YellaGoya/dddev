@@ -25,81 +25,121 @@ export const PositionWrapper = styled.div`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
-
-  border: 1px solid var(--border-basic);
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 `;
 
 export const MenuNav = styled.nav`
   position: relative;
-  margin-top: 50px;
+  margin-top: 20px;
 `;
 
 export const MenuCategory = styled(Link)`
+  width: calc(100% - 20px);
   text-decoration: none;
   display: block;
-  padding: 3px 10px;
+  padding: 3px 20px;
   margin-top: 10px;
+  margin-left: 10px;
 
   display: flex;
   align-items: center;
+
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
 
   & > svg {
     width: 19px;
     height: 19px;
     margin-right: 4px;
   }
+
+  border-radius: 0.5rem;
 `;
 
 export const MenuChild = styled(Link)`
+  width: calc(100% - 20px);
+
   text-decoration: none;
-  margin-left: 10px;
-  padding: 1px 10px;
+  padding: 3px 20px 3px 40px;
   display: block;
+  margin-left: 10px;
 
   display: flex;
   align-items: center;
+
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
 
   & > svg {
     width: 19px;
     height: 19px;
     margin-right: 4px;
   }
+
+  border-radius: 0.5rem;
 `;
 
 export const GroundList = styled.ul`
   position: absolute;
-  top: 30px;
-  left: 0;
+  top: 58px;
+  left: 10px;
 
-  width: 275px;
-  transform: translateY(${({ $groundListToggle }) => ($groundListToggle ? '-30px' : '-100%')});
+  width: 255px;
 
-  background-color: white;
-  padding-bottom: 30px;
+  visibility: ${({ $groundListToggle }) => ($groundListToggle ? 'visible' : 'hidden')};
+  opacity: ${({ $groundListToggle }) => ($groundListToggle ? '1' : '0')};
 
-  transition: transform 0.5s ease;
+  transform: ${({ $groundListToggle }) => ($groundListToggle ? 'scale(1)' : 'scale(0.95)')};
+  background-color: var(--bg-dark);
+  padding: 10px;
+
+  list-style: none;
+
+  transition: all 0.5s ease;
+
+  border-radius: 0.5rem;
+
+  z-index: 7;
+
+  box-shadow:
+    rgba(0, 0, 0, 0.24) 0px 1px 1px,
+    rgba(0, 0, 0, 0.24) 0px 2px 2px,
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
+
+  & > .addGround {
+    margin-top: 15px;
+    list-style-type: none;
+  }
 
   & > div {
     position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 275px;
-    height: 30px;
+    height: calc(100% - 20px);
+    width: 5px;
+    top: 10px;
 
-    background-color: #aaa;
+    border-radius: 1px;
 
-    cursor: pointer;
-  }
+    left: -8px;
 
-  & > li:nth-last-child(2) {
-    margin: 6px 0;
-    list-style-type: none;
+    background-color: var(--font-toggle);
   }
 `;
 
 export const GroundItem = styled.li`
-  color: var(--font-basic);
+  color: var(--font-rev);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 3px 10px;
+
+  border-radius: 0.25rem;
+
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
+
   cursor: pointer;
 `;
 
@@ -108,11 +148,13 @@ export const BottomWrapper = styled.div`
 `;
 
 export const MenuButton = styled.button`
+  width: calc(100% - 20px);
   display: block;
   color: var(--font-rev);
 
   font-size: 18px;
-  padding: 5px 10px 0 10px;
+  padding: 3px 20px;
+  margin-left: 10px;
 
   background-color: transparent;
   border: none;
@@ -121,9 +163,114 @@ export const MenuButton = styled.button`
   display: flex;
   align-items: center;
 
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
+  border-radius: 0.5rem;
+
   & > svg {
     width: 19px;
     height: 19px;
     margin-right: 4px;
+  }
+`;
+
+export const DivLine = styled.div`
+  position: absolute;
+  top: 270px;
+  width: calc(100% - 30px);
+  height: 1px;
+  margin: 0 15px;
+
+  background-color: var(--font-rev);
+  opacity: 0.1;
+`;
+
+export const TreeWrapper = styled.div`
+  position: absolute;
+  top: 295px;
+  width: 100%;
+  height: calc(100vh - 335px);
+  padding-bottom: 20px;
+  padding-top: 5px;
+
+  overflow-y: scroll;
+`;
+
+export const TreeGradBox = styled.div`
+  background: linear-gradient(0deg, var(--bg-lite-grad-bottom) 0%, var(--bg-lite-grad-top) 100%);
+  /* background-color: #fff; */
+  position: absolute;
+  width: 100%;
+  height: 10px;
+
+  top: 294px;
+`;
+
+export const GeneralList = styled.ul`
+  margin-left: 10px;
+  padding: 0;
+  list-style: none;
+`;
+
+export const GeneralItem = styled.li`
+  position: relative;
+  width: calc(100% - 20px);
+  height: fit-content;
+
+  cursor: pointer;
+
+  display: block;
+  align-items: center;
+`;
+
+export const childWrapper = styled.div`
+  position: relative;
+  display: ${({ $isToggle }) => ($isToggle ? 'block' : 'none')};
+
+  & > ul {
+    margin-left: 0;
+    & > li {
+      width: 100%;
+      & > div {
+        padding-left: 60px;
+      }
+    }
+  }
+`;
+
+export const GeneralName = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 3px 16px;
+  padding-left: 44px;
+
+  border-radius: 0.5rem;
+
+  & > p {
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
+
+  & > svg {
+    position: absolute;
+    top: 0;
+    left: 16px;
+    fill: var(--font-toggle);
+    transition: fill 0.3s ease;
+    &:hover {
+      fill: var(--font-rev);
+    }
   }
 `;

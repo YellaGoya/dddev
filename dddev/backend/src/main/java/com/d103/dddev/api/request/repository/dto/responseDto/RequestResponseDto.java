@@ -24,13 +24,13 @@ public class RequestResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     // 요청을 보내는 사람
-    private User sendUser;
+    private RequestUserResponseDto sendUser;
     // 요청을 받는 사람
-    private User receiveUser;
+    private RequestUserResponseDto receiveUser;
     // 작성한 사람
-    private String author;
+    private RequestUserResponseDto author;
     // 마지막으로 수정한 사람
-    private String modifier;
+    private RequestUserResponseDto modifier;
     // status 0이면 요청 보내기전, 1이면 요청 보낸후 수정 불가
     private int status; // 0: 해야 할 일, 1: 진행 중, 2 완료
     private List<CommentResponseDto> comments;

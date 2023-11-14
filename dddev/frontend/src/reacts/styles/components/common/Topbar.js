@@ -55,6 +55,8 @@ export const SelectedGround = styled.span`
   align-items: center;
   justify-content: center;
 
+  pointer-events: ${({ $available }) => ($available ? 'none' : 'auto')};
+  opacity: ${({ $available }) => ($available ? '0.5' : '1')};
   cursor: pointer;
 
   & > svg {
@@ -115,6 +117,7 @@ export const ProfileImage = styled.img`
   //비율 유지
   object-fit: cover;
 
+  border: 1px solid var(--border-dark);
   transition: filter 0.3s ease;
   border-radius: 25px;
   cursor: pointer;
@@ -128,5 +131,5 @@ export const GradBox = styled.div`
   top: 0;
   right: 110px;
 
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  background: linear-gradient(90deg, var(--bg-dark-grad-bottom) 0%, var(--bg-dark-grad-top) 100%);
 `;

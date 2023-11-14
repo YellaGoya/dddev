@@ -1,12 +1,10 @@
 package com.d103.dddev.api.request.controller;
 
 import com.d103.dddev.api.common.ResponseDto;
-import com.d103.dddev.api.request.collection.Comment;
-import com.d103.dddev.api.request.collection.Request;
 import com.d103.dddev.api.request.repository.dto.requestDto.*;
 import com.d103.dddev.api.request.repository.dto.responseDto.CommentResponseDto;
 import com.d103.dddev.api.request.repository.dto.responseDto.RequestResponseDto;
-import com.d103.dddev.api.request.repository.dto.responseDto.RequestStepResponseDto;
+import com.d103.dddev.api.request.repository.dto.responseDto.RequestTitleResponseDto;
 import com.d103.dddev.api.request.repository.dto.responseDto.RequestTreeResponseDto;
 import com.d103.dddev.api.request.service.RequestServiceImpl;
 import com.d103.dddev.api.user.repository.dto.UserDto;
@@ -17,8 +15,6 @@ import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -40,36 +36,39 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<Request>> insertRequest(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<RequestResponseDto>> insertRequest(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
                                                               @ApiParam(value = "step1문서 생성할 때 parentId 필요없음\n" +
                                                                         "미분류로 생성할 때 parentId 미분류 문서 id\n" +
                                                                         "title -> not required 없으면 빈 문자열 \"\"로 생성")@RequestBody RequestInsertOneDto requestInsertOneDto,
                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
-                                                              @AuthenticationPrincipal UserDetails userDetails){
-        ResponseDto<Request> responseDto;
+                                                              HttpServletRequest request){
+        ResponseDto<RequestResponseDto> responseDto;
+        ModelAndView modelAndView = (ModelAndView) request.getAttribute("modelAndView");
+        User user = (User) modelAndView.getModel().get("user");
+        UserDto userDto = user.convertToDto();
 
         try{
-            Request request = requestService.insertRequest(groundId, requestInsertOneDto, userDetails);
-            responseDto = ResponseDto.<Request>builder()
+            RequestResponseDto requestResponseDto = requestService.insertRequest(groundId, requestInsertOneDto, userDto);
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("요청 문서가 생성되었습니다.")
-                    .data(request)
+                    .data(requestResponseDto)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(InvalidAttributeValueException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         }catch(Exception e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -84,22 +83,25 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<Request>>> insertRequestsWithTitles(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                                               @RequestBody RequestInsertManyDto requestInsertManyDto,
-                                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
-                                                                               @AuthenticationPrincipal UserDetails userDetails){
-        ResponseDto<List<Request>> responseDto;
+    public ResponseEntity<ResponseDto<List<RequestResponseDto>>> insertRequestsWithTitles(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                                          @RequestBody RequestInsertManyDto requestInsertManyDto,
+                                                                                          @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
+                                                                                          HttpServletRequest request){
+        ResponseDto<List<RequestResponseDto>> responseDto;
+        ModelAndView modelAndView = (ModelAndView) request.getAttribute("modelAndView");
+        User user = (User) modelAndView.getModel().get("user");
+        UserDto userDto = user.convertToDto();
 
         try{
-            List<Request> requestList = requestService.insertRequestsWithTitles(groundId, requestInsertManyDto, userDetails);
-            responseDto = ResponseDto.<List<Request>>builder()
+            List<RequestResponseDto> requestList = requestService.insertRequestsWithTitles(groundId, requestInsertManyDto, userDto);
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("요청 문서들이 생성되었습니다.")
                     .data(requestList)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<Request>>builder()
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -181,20 +183,20 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<RequestStepResponseDto>>> getStep1Requests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                                                      @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<List<RequestStepResponseDto>> responseDto;
+    public ResponseEntity<ResponseDto<List<RequestTitleResponseDto>>> getStep1Requests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                                       @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<RequestTitleResponseDto>> responseDto;
 
         try{
-            List<RequestStepResponseDto> requests = requestService.getStep1Requests(groundId);
-            responseDto = ResponseDto.<List<RequestStepResponseDto>>builder()
+            List<RequestTitleResponseDto> requests = requestService.getStep1Requests(groundId);
+            responseDto = ResponseDto.<List<RequestTitleResponseDto>>builder()
                     .code(HttpStatus.OK.value())
-                    .message("문서 트리를 불러왔습니다.")
+                    .message("요청 문서 step1들을 불러왔습니다.")
                     .data(requests)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<RequestStepResponseDto>>builder()
+            responseDto = ResponseDto.<List<RequestTitleResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -208,20 +210,20 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<Request>>> getStep2Requests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                                       @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<List<Request>> responseDto;
+    public ResponseEntity<ResponseDto<List<RequestResponseDto>>> getStep2Requests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                                  @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<RequestResponseDto>> responseDto;
 
         try{
-            List<Request> requests = requestService.getStep2Requests(groundId);
-            responseDto = ResponseDto.<List<Request>>builder()
+            List<RequestResponseDto> requests = requestService.getStep2Requests(groundId);
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("step2 문서들을 불러왔습니다.")
                     .data(requests)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<Request>>builder()
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -236,20 +238,20 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<Request>>> getStep2TodoRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                                       @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<List<Request>> responseDto;
+    public ResponseEntity<ResponseDto<List<RequestResponseDto>>> getStep2TodoRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                           @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<RequestResponseDto>> responseDto;
 
         try{
-            List<Request> requests = requestService.getStep2TodoRequests(groundId);
-            responseDto = ResponseDto.<List<Request>>builder()
+            List<RequestResponseDto> requests = requestService.getStep2TodoRequests(groundId);
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("해야할 일 문서들을 불러왔습니다.")
                     .data(requests)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<Request>>builder()
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -264,20 +266,20 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<Request>>> getStep2ProceedRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                                           @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<List<Request>> responseDto;
+    public ResponseEntity<ResponseDto<List<RequestResponseDto>>> getStep2ProceedRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                              @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<RequestResponseDto>> responseDto;
 
         try{
-            List<Request> requests = requestService.getStep2ProceedRequests(groundId);
-            responseDto = ResponseDto.<List<Request>>builder()
+            List<RequestResponseDto> requests = requestService.getStep2ProceedRequests(groundId);
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("진행 중 문서들을 불러왔습니다.")
                     .data(requests)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<Request>>builder()
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -291,20 +293,20 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<List<Request>>> getStep2DoneRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<List<RequestResponseDto>>> getStep2DoneRequests(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                                            @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
-        ResponseDto<List<Request>> responseDto;
+        ResponseDto<List<RequestResponseDto>> responseDto;
 
         try{
-            List<Request> requests = requestService.getStep2DoneRequests(groundId);
-            responseDto = ResponseDto.<List<Request>>builder()
+            List<RequestResponseDto> requests = requestService.getStep2DoneRequests(groundId);
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.OK.value())
                     .message("완료 문서들을 불러왔습니다.")
                     .data(requests)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(Exception e){
-            responseDto = ResponseDto.<List<Request>>builder()
+            responseDto = ResponseDto.<List<RequestResponseDto>>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -319,35 +321,38 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<Request>> updateRequest(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<RequestResponseDto>> updateRequest(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                               @ApiParam(value = "문서아이디") @PathVariable("requestId") String requestId,
                                                               @ApiParam(value = "title(필수 x), content(필수 x)")@RequestBody RequestUpdateDto requestUpdateDto,
                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
-                                                              @AuthenticationPrincipal UserDetails userDetails) {
-        ResponseDto<Request> responseDto;
+                                                              HttpServletRequest request) {
+        ResponseDto<RequestResponseDto> responseDto;
+        ModelAndView modelAndView = (ModelAndView) request.getAttribute("modelAndView");
+        User user = (User) modelAndView.getModel().get("user");
+        UserDto userDto = user.convertToDto();
 
         try{
-            Request request = requestService.updateRequest(groundId, requestId, requestUpdateDto, userDetails);
-            responseDto = ResponseDto.<Request>builder()
+            RequestResponseDto requestResponseDto = requestService.updateRequest(groundId, requestId, requestUpdateDto, userDto);
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 수정했습니다.")
-                    .data(request)
+                    .data(requestResponseDto)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(InvalidAttributeValueException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         }catch(Exception e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -543,34 +548,34 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<Request>> moveRequest(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<RequestResponseDto>> moveRequest(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                             @ApiParam(value = "문서아이디")@PathVariable("requestId") String requestId,
                                                             @ApiParam(value= "parentId -> 목적지 부모의 아이디") @RequestBody RequestMoveDto requestMoveDto,
                                                             @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
-        ResponseDto<Request> responseDto;
+        ResponseDto<RequestResponseDto> responseDto;
 
         try{
-            Request request = requestService.moveRequest(groundId, requestId, requestMoveDto);
-            responseDto = ResponseDto.<Request>builder()
+            RequestResponseDto requestResponseDto = requestService.moveRequest(groundId, requestId, requestMoveDto);
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서를 이동했습니다.")
-                    .data(request)
+                    .data(requestResponseDto)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(InvalidAttributeValueException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         }catch(Exception e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -626,36 +631,39 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<Request>> updateRequest(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<RequestResponseDto>> updateRequest(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                               @ApiParam(value = "문서아이디")@PathVariable("requestId") String requestId,
                                                               @ApiParam(value = "변경하고 싶은 제목\n" +
                                                                       "title(필수) 없으면 422에러")@RequestBody RequestTitleDto requestTitleDto,
                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
-                                                              @AuthenticationPrincipal UserDetails userDetails) {
-        ResponseDto<Request> responseDto;
+                                                              HttpServletRequest request) {
+        ResponseDto<RequestResponseDto> responseDto;
+        ModelAndView modelAndView = (ModelAndView) request.getAttribute("modelAndView");
+        User user = (User) modelAndView.getModel().get("user");
+        UserDto userDto = user.convertToDto();
 
         try{
-            Request request = requestService.titleRequest(groundId, requestId, requestTitleDto, userDetails);
-            responseDto = ResponseDto.<Request>builder()
+            RequestResponseDto requestResponseDto = requestService.titleRequest(groundId, requestId, requestTitleDto, userDto);
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("문서의 제목을 수정했습니다.")
-                    .data(request)
+                    .data(requestResponseDto)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(InvalidAttributeValueException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         }catch(Exception e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -670,33 +678,33 @@ public class RequestController {
             @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
-    public ResponseEntity<ResponseDto<Request>> changeTemplate(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+    public ResponseEntity<ResponseDto<RequestResponseDto>> changeTemplate(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
                                                               @ApiParam(value = "문서 아이디")@PathVariable("requestId") String requestId,
                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
-        ResponseDto<Request> responseDto;
+        ResponseDto<RequestResponseDto> responseDto;
 
         try{
-            Request request = requestService.changeTemplate(groundId, requestId);
-            responseDto = ResponseDto.<Request>builder()
+            RequestResponseDto requestResponseDto = requestService.changeTemplate(groundId, requestId);
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("요청 문서 템플릿 여부 수정 완료")
-                    .data(request)
+                    .data(requestResponseDto)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         }catch(DocumentNotFoundException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
         }catch(InvalidAttributeValueException e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         }catch(Exception e){
-            responseDto = ResponseDto.<Request>builder()
+            responseDto = ResponseDto.<RequestResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();

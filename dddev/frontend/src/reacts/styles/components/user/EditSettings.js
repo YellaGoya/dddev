@@ -23,8 +23,8 @@ export const EditWrapper = styled.div`
 
   visibility: ${(props) => (props.$toggle ? 'visible' : 'hidden')};
 
-  background-color: ${(props) => (props.$toggle ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0)')};
-  backdrop-filter: blur(5px);
+  background-color: ${(props) => (props.$toggle ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0)')};
+  backdrop-filter: blur(3px);
   z-index: 100;
 
   transition: background-color 0.3s ease;
@@ -37,27 +37,45 @@ export const EditModalWrapper = styled.div`
   width: calc(100% - 20px);
   max-width: 500px;
   min-width: 355px;
-  height: calc(100% - 100px);
-  max-height: 800px;
-  min-height: 366px;
-  aspect-ratio: 3 / 4;
+  height: fit-content;
   transform: translateX(-50%);
+
+  border-radius: 0.75rem;
+
+  background-color: var(--bg-basic);
+
+  box-shadow:
+    rgba(0, 0, 0, 0.24) 0px 1px 1px,
+    rgba(0, 0, 0, 0.24) 0px 2px 2px,
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
+`;
+
+export const GradBoxWrapper = styled.div`
+  width: 100%;
+  height: fit-content;
+  max-height: calc(100vh - 140px);
+  min-height: 366px;
 
   & > div {
     width: calc(100% + 9px);
   }
 
   & > :first-child {
-    margin-top: 30px;
+    margin: 30px 0 20px 0;
   }
 
   overflow-x: hidden;
   overflow-y: scroll;
 
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-basic);
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--thumb-hover);
+    }
 
-  background-color: var(--bg-dark);
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: var(--font-rev);
+    }
+  }
 `;
 
 export const ButtonWrapper = styled.span`
@@ -89,4 +107,32 @@ export const CloseButton = styled.button`
   right: 2px;
   font-weight: 300;
   opacity: 0.9;
+`;
+
+export const GradBoxTop = styled.div`
+  position: absolute;
+  width: calc(100% - 40px);
+  max-width: 470px;
+  min-width: 325px;
+  top: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  height: 10px;
+
+  background: linear-gradient(0deg, var(--bg-basic-grad-bottom) 0%, var(--bg-basic-grad-top) 100%);
+`;
+
+export const GradBoxBottom = styled.div`
+  position: absolute;
+  width: calc(100% - 40px);
+  max-width: 470px;
+  min-width: 325px;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  height: 10px;
+
+  background: linear-gradient(180deg, var(--bg-basic-grad-top) 0%, var(--bg-basic-grad-bottom) 100%);
 `;

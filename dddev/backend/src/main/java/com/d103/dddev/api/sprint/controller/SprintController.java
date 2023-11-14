@@ -69,6 +69,33 @@ public class SprintController {
             List<SprintResponseDto> sprintList = sprintService.loadSprintList(groundId);
             responseDto = ResponseDto.<List<SprintResponseDto>>builder()
                     .code(HttpStatus.OK.value())
+                    .message("스프린트 목록을 불러왔습니다.")
+                    .data(sprintList)
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }catch(Exception e){
+            responseDto = ResponseDto.<List<SprintResponseDto>>builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(e.getMessage())
+                    .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/recent")
+    @ApiOperation(value = "가장 최근 생성한 sprint 들고오기")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "스프린트 존재하지 않음"),
+            @ApiResponse(code = 422, message = "잘못된 요청 데이터"),
+            @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
+    })
+    public ResponseEntity<ResponseDto<List<SprintResponseDto>>> loadRecentSprint(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
+                                                                                 @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+        ResponseDto<List<SprintResponseDto>> responseDto;
+
+        try{
+            List<SprintResponseDto> sprintList = sprintService.loadRecentSprint(groundId);
+            responseDto = ResponseDto.<List<SprintResponseDto>>builder()
+                    .code(HttpStatus.OK.value())
                     .message("스프린트를 불러왔습니다.")
                     .data(sprintList)
                     .build();

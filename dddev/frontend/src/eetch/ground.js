@@ -1,7 +1,7 @@
 import eetch from 'eetch/eetch';
 
 export const createGround = async ({ accessToken, refreshToken, name, repoId }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/repo/${repoId}`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/repo/${repoId}`;
   const options = {
     method: 'POST',
     headers: {
@@ -17,7 +17,7 @@ export const createGround = async ({ accessToken, refreshToken, name, repoId }) 
 };
 
 export const getGround = async ({ accessToken, refreshToken, groundId }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}`;
   const options = {
     method: 'GET',
     headers: {
@@ -32,7 +32,7 @@ export const getGround = async ({ accessToken, refreshToken, groundId }) => {
 };
 
 export const editGround = async ({ accessToken, refreshToken, groundId, name, focusTime, activeTime }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}`;
   const options = {
     method: 'PUT',
     headers: {
@@ -48,7 +48,7 @@ export const editGround = async ({ accessToken, refreshToken, groundId, name, fo
 };
 
 export const createDocument = async ({ accessToken, refreshToken, groundId, type, parentId, sprintId }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/create`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/create`;
   const options = {
     method: 'POST',
     headers: {
@@ -64,7 +64,7 @@ export const createDocument = async ({ accessToken, refreshToken, groundId, type
 };
 
 export const listDocument = async ({ accessToken, refreshToken, groundId, type, parentId }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/${type === 'target' ? '' : parentId + '/'}list`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${type === 'target' ? '' : parentId + '/'}list`;
   const options = {
     method: 'GET',
     headers: {
@@ -78,8 +78,39 @@ export const listDocument = async ({ accessToken, refreshToken, groundId, type, 
   return res.json();
 };
 
+export const linkDocument = async ({ accessToken, refreshToken, groundId, type, parentId, id }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}/connect`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ parentId }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
 export const treeDocument = async ({ accessToken, refreshToken, type, groundId }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/total`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/total`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const parentsList = async ({ accessToken, refreshToken, type, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/list`;
   const options = {
     method: 'GET',
     headers: {
@@ -94,7 +125,7 @@ export const treeDocument = async ({ accessToken, refreshToken, type, groundId }
 };
 
 export const detailDocument = async ({ accessToken, refreshToken, groundId, type, id }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/${id}`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}`;
   const options = {
     method: 'GET',
     headers: {
@@ -109,7 +140,7 @@ export const detailDocument = async ({ accessToken, refreshToken, groundId, type
 };
 
 export const editDocument = async ({ accessToken, refreshToken, groundId, type, id, title, content }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/${id}`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}`;
   const options = {
     method: 'PUT',
     headers: {
@@ -124,8 +155,88 @@ export const editDocument = async ({ accessToken, refreshToken, groundId, type, 
   return res.json();
 };
 
+export const statusDocument = async ({ accessToken, refreshToken, groundId, type, id, status }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}/status`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ status }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const senderDocument = async ({ accessToken, refreshToken, groundId, id, sender }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/request/${id}/sender`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ sendUserId: sender }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const receiverDocument = async ({ accessToken, refreshToken, groundId, id, receiver }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/request/${id}/receiver`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ receiveUserId: receiver }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const commentDocument = async ({ accessToken, refreshToken, groundId, id, comment }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/request/${id}/comment`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ comment }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const timeDocument = async ({ accessToken, refreshToken, groundId, type, id, focusTime, activeTime }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}/time`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ focusTime, activeTime }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
 export const titleDocument = async ({ accessToken, refreshToken, groundId, type, id, title }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/${id}/title`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}/title`;
   const options = {
     method: 'PUT',
     headers: {
@@ -141,7 +252,7 @@ export const titleDocument = async ({ accessToken, refreshToken, groundId, type,
 };
 
 export const deleteDocument = async ({ accessToken, refreshToken, groundId, type, id }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/${type}/${id}`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/${type}/${id}`;
   const options = {
     method: 'DELETE',
     headers: {
@@ -156,7 +267,7 @@ export const deleteDocument = async ({ accessToken, refreshToken, groundId, type
 };
 
 export const groundUsers = async ({ accessToken, refreshToken, groundId }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/users`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/users`;
   const options = {
     method: 'GET',
     headers: {
@@ -171,7 +282,7 @@ export const groundUsers = async ({ accessToken, refreshToken, groundId }) => {
 };
 
 export const groundUser = async ({ accessToken, refreshToken, groundId, email }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/user/${email}`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/user/${email}`;
   const options = {
     method: 'GET',
     headers: {
@@ -186,7 +297,7 @@ export const groundUser = async ({ accessToken, refreshToken, groundId, email })
 };
 
 export const groundOwn = async ({ accessToken, refreshToken, groundId }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/is-owner`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/is-owner`;
   const options = {
     method: 'GET',
     headers: {
@@ -201,7 +312,7 @@ export const groundOwn = async ({ accessToken, refreshToken, groundId }) => {
 };
 
 export const groundInvite = async ({ accessToken, refreshToken, groundId, githubId }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/invite/${githubId}`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/invite/${githubId}`;
   const options = {
     method: 'POST',
     headers: {
@@ -216,13 +327,150 @@ export const groundInvite = async ({ accessToken, refreshToken, groundId, github
 };
 
 export const groundOut = async ({ accessToken, refreshToken, groundId, githubId }) => {
-  const url = `https://k9d103.p.ssafy.io/ground/${groundId}/owner/user/${githubId}`;
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/owner/user/${githubId}`;
   const options = {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
       Authorization: accessToken,
     },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const createSprint = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const listSprint = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const listRequest = async ({ accessToken, refreshToken, groundId, filter }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/request/${filter}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const sprintIssues = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/issue/${sprintId}/sprint`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const recentSprint = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint/recent`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const startSprint = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint/${sprintId}/start`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const completeSprint = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint/${sprintId}/complete`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const connectSprint = async ({ accessToken, refreshToken, groundId, sprintId, issueId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/issue/${issueId}/sprint`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ sprintId }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const multiConnectSprint = async ({ accessToken, refreshToken, groundId, sprintId, issueList }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/issue/multi-sprint`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ sprintId, issueList }),
   };
 
   const res = await eetch(url, options, refreshToken);

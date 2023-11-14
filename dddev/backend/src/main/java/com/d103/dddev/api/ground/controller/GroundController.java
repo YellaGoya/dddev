@@ -173,6 +173,36 @@ public class GroundController {
 		}
 	}
 
+	@PostMapping("/{groundId}/token")
+	@ApiOperation(value = "그라운드 로그 토큰 생성", notes = "그라운드 로그 토큰 생성하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseDto<String>> createGroundToken(@ApiParam("groundId") @PathVariable Integer groundId,
+		@RequestHeader String Authorization, HttpServletRequest request) {
+		log.info("controller - createGroundToken :: 그라운드 로그 토큰 생성 진입");
+		ResponseDto<String> responseDto;
+		try {
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			User user = (User)mav.getModel().get("user");
+
+			responseDto = ResponseDto.<String>builder()
+				.code(HttpStatus.OK.value())
+				.message("그라운드 토크 생성 성공!")
+				.data(groundUserService.createGroundUserToken(groundId, user))
+				.build();
+
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<String>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	@GetMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 정보 조회", notes = "그라운드 정보를 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),

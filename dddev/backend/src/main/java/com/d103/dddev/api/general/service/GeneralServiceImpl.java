@@ -4,9 +4,11 @@ import com.d103.dddev.api.file.service.DocumentServiceImpl;
 import com.d103.dddev.api.general.collection.General;
 import com.d103.dddev.api.general.repository.GeneralRepository;
 import com.d103.dddev.api.general.repository.dto.requestDto.*;
-import com.d103.dddev.api.general.repository.dto.responseDto.GeneralStepResponseDto;
+import com.d103.dddev.api.general.repository.dto.responseDto.GeneralResponseDto;
+import com.d103.dddev.api.general.repository.dto.responseDto.GeneralTitleResponseDto;
 import com.d103.dddev.api.general.repository.dto.responseDto.GeneralTreeResponseDto;
-import com.d103.dddev.api.request.collection.Request;
+import com.d103.dddev.api.general.repository.dto.responseDto.GeneralUserResponseDto;
+import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.common.exception.document.DocumentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.TransactionException;
@@ -30,7 +32,7 @@ public class GeneralServiceImpl implements GeneralService{
     private final DocumentServiceImpl documentService;
 
     @Override
-    public General insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto, UserDetails userDetails) throws Exception{
+    public GeneralResponseDto insertGeneral(int groundId, GeneralInsertOneDto generalInsertOneDto, UserDto userDto) throws Exception{
         General insertGeneral = new General(); // DB에 저장될 문서
         General parent; // 저장될 문서의 부모
 
@@ -41,8 +43,8 @@ public class GeneralServiceImpl implements GeneralService{
         else{
             insertGeneral.setTitle(generalInsertOneDto.getTitle());
         }
-        insertGeneral.setAuthor(userDetails.getUsername());
-        insertGeneral.setModifier(userDetails.getUsername());
+        insertGeneral.setAuthor(userDto);
+        insertGeneral.setModifier(userDto);
 
         if(generalInsertOneDto.getParentId() == null){
             insertGeneral.setStep(1);
@@ -82,19 +84,19 @@ public class GeneralServiceImpl implements GeneralService{
             }
         }
 
-        return insertGeneral;
+        return convertToGeneralResponseDto(insertGeneral);
     }
 
     @Override
-    public List<General> insertGeneralsWithTitles(int groundId, GeneralInsertManyDto generalInsertManyDto, UserDetails userDetails) {
+    public List<GeneralResponseDto> insertGeneralsWithTitles(int groundId, GeneralInsertManyDto generalInsertManyDto, UserDto userDto) {
         List<General> list = new ArrayList<>();
         for(String title : generalInsertManyDto.getTitles()){
             General insertGeneral = General.builder()
                         .groundId(groundId)
                         .step(1)
                         .title(title)
-                        .author(userDetails.getUsername())
-                        .modifier(userDetails.getUsername())
+                        .author(userDto)
+                        .modifier(userDto)
                         .build();
             list.add(insertGeneral);
         }
@@ -103,12 +105,18 @@ public class GeneralServiceImpl implements GeneralService{
         }catch(Exception e){
             throw new TransactionException("문서 저장에 실패했습니다.");
         }
-        return list;
+        List<GeneralResponseDto> generalResponseDtoList = new ArrayList<>();
+        for(General general : list){
+            GeneralResponseDto generalResponseDto = convertToGeneralResponseDto(general);
+            generalResponseDtoList.add(generalResponseDto);
+        }
+        return generalResponseDtoList;
     }
 
     @Override
-    public General getGeneral(int groundId, String generalId) throws Exception{
-        return generalRepository.findById(generalId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다."));
+    public GeneralResponseDto getGeneral(int groundId, String generalId) throws Exception{
+        General general = generalRepository.findById(generalId).orElseThrow(()-> new DocumentNotFoundException("해당 문서가 존재하지 않습니다."));
+        return convertToGeneralResponseDto(general);
     }
 
     /**
@@ -128,34 +136,40 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public List<GeneralStepResponseDto> getStep1Generals(int groundId){
+    public List<GeneralTitleResponseDto> getStep1Generals(int groundId){
         List<General> generalList = generalRepository.findByGroundIdAndStep(groundId, 1).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
-        List<GeneralStepResponseDto> generalResponseDtoList = new ArrayList<>();
+        List<GeneralTitleResponseDto> generalResponseDtoList = new ArrayList<>();
         for (General general : generalList) {
-            GeneralStepResponseDto generalResponseDto = convertToGeneralStepResponseDto(general);
+            GeneralTitleResponseDto generalResponseDto = convertToGeneralStepResponseDto(general);
             generalResponseDtoList.add(generalResponseDto);
         }
         return generalResponseDtoList;
     }
 
     @Override
-    public List<General> getStep2Generals(int groundId){
-        return generalRepository.findByGroundIdAndStep(groundId, 2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+    public List<GeneralResponseDto> getStep2Generals(int groundId){
+        List<General> generalList = generalRepository.findByGroundIdAndStep(groundId, 2).orElseThrow(()->new TransactionException("문서들을 불러오는데 실패했습니다."));
+        List<GeneralResponseDto> generalResponseDtoList = new ArrayList<>();
+        for(General general : generalList){
+            GeneralResponseDto generalResponseDto = convertToGeneralResponseDto(general);
+            generalResponseDtoList.add(generalResponseDto);
+        }
+        return generalResponseDtoList;
     }
 
     @Override
-    public General updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDetails userDetails) throws Exception{
+    public GeneralResponseDto updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDto userDto) throws Exception{
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
         String title = generalUpdateDto.getTitle();
         String content = generalUpdateDto.getContent();
 
 
-        if(title == null && content == null) return loadGeneral;
+        if(title == null && content == null) return convertToGeneralResponseDto(loadGeneral);
         if(title != null) loadGeneral.setTitle(title);
         if(content != null) loadGeneral.setContent(content);
         loadGeneral.setUpdatedAt(LocalDateTime.now());
-        loadGeneral.setModifier(userDetails.getUsername());
+        loadGeneral.setModifier(userDto);
         try{
             generalRepository.save(loadGeneral);
         }catch(Exception e){
@@ -181,11 +195,11 @@ public class GeneralServiceImpl implements GeneralService{
             }
         }
 
-        return loadGeneral;
+        return convertToGeneralResponseDto(loadGeneral);
     }
 
     @Override
-    public General moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws Exception{
+    public GeneralResponseDto moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws Exception{
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("잘못된 문서 아이디입니다."));
         if(loadGeneral.getStep() == 1){
             throw new InvalidAttributeValueException("움직일 수 없는 문서입니다.");
@@ -215,7 +229,7 @@ public class GeneralServiceImpl implements GeneralService{
         }catch(Exception e){
             throw new TransactionException("문서를 저장하는데 실패했습니다.");
         }
-        return loadGeneral;
+        return convertToGeneralResponseDto(loadGeneral);
     }
 
 
@@ -267,7 +281,7 @@ public class GeneralServiceImpl implements GeneralService{
     }
 
     @Override
-    public General changeTemplate(int groundId, String generalId) throws Exception {
+    public GeneralResponseDto changeTemplate(int groundId, String generalId) throws Exception {
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(() -> new NoSuchElementException("요청 문서를 찾을 수 없습니다."));
         // isTemplate 값을 true면은 false로 false였다면 true로 바꾼다.
         if(loadGeneral.isTemplate()){
@@ -281,11 +295,11 @@ public class GeneralServiceImpl implements GeneralService{
         }catch(Exception e){
             throw new TransactionException("일반 문서 저장에 실패했습니다.");
         }
-        return loadGeneral;
+        return convertToGeneralResponseDto(loadGeneral);
     }
 
     @Override
-    public General titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) throws Exception{
+    public GeneralResponseDto titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) throws Exception{
         if(generalTitleDto.getTitle() == null) throw new InvalidAttributeValueException("제목이 없습니다.");
         General loadGeneral = generalRepository.findById(generalId).orElseThrow(()->new DocumentNotFoundException("해당 문서를 불러오는데 실패했습니다."));
         int step = loadGeneral.getStep();
@@ -315,7 +329,16 @@ public class GeneralServiceImpl implements GeneralService{
             }
         }
 
-        return loadGeneral;
+        return convertToGeneralResponseDto(loadGeneral);
+    }
+
+    @Override
+    public void deleteAllGeneralWhenGroundDelete(int groundId){
+        try{
+            generalRepository.deleteByGroundId(groundId);
+        }catch(Exception e){
+            throw new TransactionException("일반 문서들을 삭제하는데 실패했습니다.");
+        }
     }
 
     public boolean stepIsRange(int step){
@@ -343,8 +366,8 @@ public class GeneralServiceImpl implements GeneralService{
         return generalResponseDto;
     }
 
-    public GeneralStepResponseDto convertToGeneralStepResponseDto(General general) {
-        GeneralStepResponseDto generalStepResponseDto = new GeneralStepResponseDto();
+    public GeneralTitleResponseDto convertToGeneralStepResponseDto(General general) {
+        GeneralTitleResponseDto generalStepResponseDto = new GeneralTitleResponseDto();
         generalStepResponseDto.setId(general.getId());
 
         if(general.getTitle() == null){
@@ -355,6 +378,38 @@ public class GeneralServiceImpl implements GeneralService{
         }
 
         return generalStepResponseDto;
+    }
+
+    public GeneralResponseDto convertToGeneralResponseDto(General general){
+        GeneralResponseDto generalResponseDto = new GeneralResponseDto();
+        generalResponseDto.setId(general.getId());
+        generalResponseDto.setGroundId(general.getGroundId());
+        generalResponseDto.setParentId(general.getParentId());
+        generalResponseDto.setChildren(general.getChildren());
+        generalResponseDto.setTitle(general.getTitle());
+        generalResponseDto.setContent(generalResponseDto.getContent());
+        generalResponseDto.setStep(general.getStep());
+        generalResponseDto.setCreatedAt(general.getCreatedAt());
+        generalResponseDto.setUpdatedAt(general.getUpdatedAt());
+        generalResponseDto.setAuthor(convertToGeneralUserResponseDto(general.getAuthor()));
+        generalResponseDto.setModifier(convertToGeneralUserResponseDto(general.getModifier()));
+        generalResponseDto.setUnclassified(general.isUnclassified());
+        generalResponseDto.setTemplate(general.isTemplate());
+        return generalResponseDto;
+    }
+
+    public GeneralUserResponseDto convertToGeneralUserResponseDto(UserDto userDto){
+        if(userDto == null) return null;
+        GeneralUserResponseDto generalUserResponseDto = new GeneralUserResponseDto();
+        generalUserResponseDto.setId(userDto.getId());
+        generalUserResponseDto.setGithubId(userDto.getGithubId());
+        generalUserResponseDto.setNickname(userDto.getNickname());
+        generalUserResponseDto.setEmail(userDto.getEmail());
+        generalUserResponseDto.setStatusMsg(userDto.getStatusMsg());
+        if(userDto.getProfileDto() != null){
+            generalUserResponseDto.setFileName(userDto.getProfileDto().getFileName());
+        }
+        return generalUserResponseDto;
     }
 
 

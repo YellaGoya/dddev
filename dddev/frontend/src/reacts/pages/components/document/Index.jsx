@@ -94,9 +94,10 @@ const Index = () => {
 
   const RenderDocsTree = ({ doc, type }) => {
     const toggle = toggleDocs[doc.id] ?? true;
-    const [title, setTitle] = useState(doc.title === '' ? '새 문서' : doc.title);
+    const [title, setTitle] = useState(doc.title === '' ? '새 문서' : doc.title || '');
     const [onEdit, setOnEdit] = useState(false);
     const editRef = useRef(null);
+
     return (
       <s.TreeChild>
         <s.TreeName
@@ -116,7 +117,7 @@ const Index = () => {
               onClick={(event) => {
                 event.stopPropagation();
                 navigate(
-                  `/${groundId}/document/docs/${type === 'issue' ? (doc.step === 1 ? 'target' : doc.step === 2 ? 'check' : 'issue') : type}/${
+                  `/${groundId}/document/find/docs/${type === 'issue' ? (doc.step === 1 ? 'target' : doc.step === 2 ? 'check' : 'issue') : type}/${
                     doc.id
                   }`,
                 );
@@ -169,14 +170,14 @@ const Index = () => {
             }}
             onBlur={(event) => {
               if (event.target.value === '') setTitle(doc.title === '' ? '새 문서' : doc.title);
-              else titleDocument(type, doc.id, doc.step, event.target.value);
+              else titleDocument(type, doc.id, doc.step, title);
               editRef.current.style.display = 'none';
               setOnEdit(false);
             }}
             onKeyPress={(event) => {
               if (event.key === 'Enter') {
                 if (event.target.value === '') setTitle(doc.title === '' ? '새 문서' : doc.title);
-                else titleDocument(type, doc.id, doc.step, event.target.value);
+                else titleDocument(type, doc.id, doc.step, title);
                 event.target.blur();
               }
             }}

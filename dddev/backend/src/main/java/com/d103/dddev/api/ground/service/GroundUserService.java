@@ -14,6 +14,8 @@ public interface GroundUserService {
 
 	List<GroundUserDto> inviteMemberToGround(Ground ground, User newMember) throws Exception;
 
+	String createGroundUserToken(Integer groundId, User user) throws Exception;
+
 	GroundUser updateGroundOwner(Ground ground, User user) throws Exception;
 
 	Boolean checkIsGroundOwner(Integer groundId, Integer userId) throws Exception;

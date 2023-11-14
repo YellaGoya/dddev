@@ -32,7 +32,7 @@ export const DemoImg = styled.img`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 `;
 
 export const Description = styled.div`

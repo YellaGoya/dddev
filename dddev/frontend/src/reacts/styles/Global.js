@@ -41,17 +41,30 @@ export const Global = createGlobalStyle`
   ::-webkit-scrollbar-thumb {
     background-color: var(--font-basic);
     background-clip: padding-box;
-    border-right: 5px solid transparent;
+    border-right: 3px solid transparent;
     border-top: 20px solid transparent;
     border-bottom: 20px solid transparent;;
+    border-left: 3px solid transparent;
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background-color: var(--font-rev);
     background-clip: padding-box;
-    border-right: 5px solid transparent;
+    border-right: 3px solid transparent;
     border-top: 20px solid transparent;
     border-bottom: 20px solid transparent;
+    border-left: 3px solid transparent;
+  }
+
+  .reactModalOverlayCustom {
+    position: fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(3px);
+    transition: backdrop-filter 0.3s ease;
   }
 `;
 
@@ -87,7 +100,17 @@ export const Main = styled.main`
 
   overflow-x: hidden;
 
-  background-color: var(--bg-basic);
+  background-color: transparent;
+
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--thumb-hover);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: var(--font-rev);
+    }
+  }
 `;
 
 export const ContentWrapper = styled.section`

@@ -38,6 +38,8 @@ module.exports = {
         unnamedComponents: 'arrow-function',
       },
     ],
+    complexity: ['error', 25],
+    'no-negated-condition': 'off',
     'react/jsx-one-expression-per-line': 'off',
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',

@@ -2,21 +2,11 @@ import * as user from 'eetch/user';
 import * as repo from 'eetch/repo';
 import * as ground from 'eetch/ground';
 import * as test from 'eetch/test';
-// import * as notice from "apis/notice";
-// import * as question from "apis/question";
-// import * as statistics from "apis/statistics";
-// import * as test from "apis/test";
-// import * as user from "apis/user";
-// import * as history from "apis/history";
-// import * as practice from "apis/practice";
-
-// import { refresh } from "apis/user";
-// import { updateRefresh } from "redux/slice/userSlice";
 
 const eetch = async (url, options, refreshToken) => {
   const res = await fetch(url, options);
   if (res.status === 403) {
-    const newAccessToken = await fetch(`https://k9d103.p.ssafy.io/oauth/re-issue`, {
+    const newAccessToken = await fetch(`https://k9d103.p.ssafy.io:8001/oauth/re-issue`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -67,9 +57,16 @@ eetch.getGround = (values) => ground.getGround(values);
 eetch.editGround = (values) => ground.editGround(values);
 eetch.createDocument = (values) => ground.createDocument(values);
 eetch.listDocument = (values) => ground.listDocument(values);
+eetch.linkDocument = (values) => ground.linkDocument(values);
 eetch.treeDocument = (values) => ground.treeDocument(values);
+eetch.parentsList = (values) => ground.parentsList(values);
 eetch.detailDocument = (values) => ground.detailDocument(values);
 eetch.editDocument = (values) => ground.editDocument(values);
+eetch.statusDocument = (values) => ground.statusDocument(values);
+eetch.senderDocument = (values) => ground.senderDocument(values);
+eetch.receiverDocument = (values) => ground.receiverDocument(values);
+eetch.commentDocument = (values) => ground.commentDocument(values);
+eetch.timeDocument = (values) => ground.timeDocument(values);
 eetch.titleDocument = (values) => ground.titleDocument(values);
 eetch.deleteDocument = (values) => ground.deleteDocument(values);
 eetch.groundUsers = (values) => ground.groundUsers(values);
@@ -77,24 +74,14 @@ eetch.groundUser = (values) => ground.groundUser(values);
 eetch.groundOwn = (values) => ground.groundOwn(values);
 eetch.groundInvite = (values) => ground.groundInvite(values);
 eetch.groundOut = (values) => ground.groundOut(values);
-
-// eetch.valid = (values) => user.valid(values);
-// eetch.refresh = (values) => user.refresh(values);
-// eetch.signin = (values) => user.signin(values);
-// eetch.signup = (values) => user.signup(values);
-// eetch.signout = (values) => user.signout(values);
-// eetch.sendCode = (values) => user.sendCode(values);
-// eetch.unregist = (values) => user.unregist(values);
-// eetch.updatePw = (values) => user.updatePw(values);
-// eetch.resetPw = (values) => user.resetPw(values);
-// eetch.updateProfile = (values) => user.updateProfile(values);
-// eetch.mypage = (values) => user.mypage(values);
-// eetch.checkEmail = (values) => user.checkEmail(values);
-// eetch.checkCode = (values) => user.checkCode(values);
-// eetch.checkNickname = (values) => user.checkNickname(values);
-// eetch.reset = (values) => user.reset(values);
-// eetch.domain = (values) => user.domain(values);
-
-// eetch.continuous = (values) => history.continuous(values);
+eetch.createSprint = (values) => ground.createSprint(values);
+eetch.listSprint = (values) => ground.listSprint(values);
+eetch.sprintIssues = (values) => ground.sprintIssues(values);
+eetch.listRequest = (values) => ground.listRequest(values);
+eetch.recentSprint = (values) => ground.recentSprint(values);
+eetch.startSprint = (values) => ground.startSprint(values);
+eetch.completeSprint = (values) => ground.completeSprint(values);
+eetch.connectSprint = (values) => ground.connectSprint(values);
+eetch.multiConnectSprint = (values) => ground.multiConnectSprint(values);
 
 export default eetch;

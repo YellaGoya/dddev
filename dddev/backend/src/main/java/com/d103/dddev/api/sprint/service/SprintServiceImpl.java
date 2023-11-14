@@ -31,7 +31,7 @@ public class SprintServiceImpl implements SprintService{
     private final IssueService issueService;
 
     private final Integer OPEN = 1;
-    private final Integer CLOSE = 2;
+    private final Integer CLOSE = 3;
 
     /**
      * 스프린트를 생성하는 함수이다.<br/>
@@ -110,6 +110,16 @@ public class SprintServiceImpl implements SprintService{
     public SprintResponseDto loadSprint(int sprintId) throws Exception{
         SprintEntity sprintEntity = sprintRepository.findById(sprintId).orElseThrow(()-> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
         return convertToSprintResponseDto(sprintEntity);
+    }
+
+    @Override
+    public List<SprintResponseDto> loadRecentSprint(int sprintId) throws Exception {
+        List<SprintEntity> sprintEntityList = sprintRepository.findByGround_IdOrderByIdDesc(sprintId).orElseThrow(() -> new TransactionException("스프린트들을 불러오는데 실패했습니다."));
+        if(sprintEntityList.isEmpty()) return null;
+        List<SprintResponseDto> sprintResponseDtoList = new ArrayList<>();
+        SprintEntity recentSprint = sprintEntityList.get(0);
+        sprintResponseDtoList.add(convertToSprintResponseDto(recentSprint));
+        return sprintResponseDtoList;
     }
 
     @Override
@@ -214,6 +224,15 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
+    public void deleteAllSprintWhenGroundDelete(int groundId) throws Exception {
+        try{
+            sprintRepository.deleteByGround_Id(groundId);
+        }catch(Exception e){
+            throw new TransactionException("스프린트들을 삭제하는데 실패했습니다.");
+        }
+    }
+
+    @Override
     public Map<String, Integer> getSprintFocusTime(Integer sprintId) throws
         Exception {
         return issueService.getSprintFocusTime(sprintId);
@@ -264,7 +283,7 @@ public class SprintServiceImpl implements SprintService{
     }
 
     private Map<LocalDateTime, Integer> makeBurnDownChart(SprintEntity sprint) throws Exception {
-        Map<LocalDateTime, Integer> burnDown = new HashMap<>();
+        Map<LocalDateTime, Integer> burnDown = new TreeMap<>();
 
         // 시작점
         LocalDate startDate = sprint.getStartDate();
@@ -284,7 +303,7 @@ public class SprintServiceImpl implements SprintService{
     }
 
     private Map<LocalDateTime, Integer> makeBurnDownChart(List<BurnDown> burnDownList) throws Exception {
-        Map<LocalDateTime, Integer> burnDown = new HashMap<>();
+        Map<LocalDateTime, Integer> burnDown = new TreeMap<>();
         for(BurnDown b : burnDownList) {
             burnDown.put(b.getEndDate(), b.getRemainTime());
         }

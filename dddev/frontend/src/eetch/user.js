@@ -1,7 +1,7 @@
 import eetch from 'eetch/eetch';
 
 export const githubSync = async ({ code }) => {
-  const url = `https://k9d103.p.ssafy.io/oauth/sign-in?code=${code}`;
+  const url = `https://k9d103.p.ssafy.io:8001/oauth/sign-in?code=${code}`;
   const options = {
     method: 'GET',
     headers: {
@@ -33,7 +33,7 @@ export const githubSync = async ({ code }) => {
 };
 
 export const githubTokenRegist = async ({ accessToken, refreshToken, personalAccessToken }) => {
-  const url = `https://k9d103.p.ssafy.io/user/personal-access-token`;
+  const url = `https://k9d103.p.ssafy.io:8001/user/personal-access-token`;
   const options = {
     method: 'POST',
     headers: {
@@ -49,7 +49,7 @@ export const githubTokenRegist = async ({ accessToken, refreshToken, personalAcc
 };
 
 export const userEdit = async ({ accessToken, refreshToken, nickname, statusMsg }) => {
-  const url = `https://k9d103.p.ssafy.io/user`;
+  const url = `https://k9d103.p.ssafy.io:8001/user`;
   const options = {
     method: 'PUT',
     headers: {
@@ -65,7 +65,7 @@ export const userEdit = async ({ accessToken, refreshToken, nickname, statusMsg 
 };
 
 export const userInfo = async ({ accessToken, refreshToken }) => {
-  const url = `https://k9d103.p.ssafy.io/user`;
+  const url = `https://k9d103.p.ssafy.io:8001/user`;
   const options = {
     method: 'GET',
     headers: {
@@ -79,8 +79,22 @@ export const userInfo = async ({ accessToken, refreshToken }) => {
   return res.json();
 };
 
+export const userById = async ({ accessToken, refreshToken, githubId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/user/${githubId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+  return res.json();
+};
+
 export const userNickname = async ({ accessToken, refreshToken, nickname }) => {
-  const url = `https://k9d103.p.ssafy.io/user/nickname/duplicate/${nickname}`;
+  const url = `https://k9d103.p.ssafy.io:8001/user/nickname/duplicate/${nickname}`;
   const options = {
     method: 'GET',
     headers: {
@@ -95,7 +109,7 @@ export const userNickname = async ({ accessToken, refreshToken, nickname }) => {
 };
 
 export const userGrounds = async ({ accessToken, refreshToken }) => {
-  const url = `https://k9d103.p.ssafy.io/user/ground/list`;
+  const url = `https://k9d103.p.ssafy.io:8001/user/ground/list`;
   const options = {
     method: 'GET',
     headers: {
@@ -110,7 +124,7 @@ export const userGrounds = async ({ accessToken, refreshToken }) => {
 };
 
 export const changeLastGround = async ({ accessToken, refreshToken, groundId }) => {
-  const url = `https://k9d103.p.ssafy.io/user/last-ground/${groundId}`;
+  const url = `https://k9d103.p.ssafy.io:8001/user/last-ground/${groundId}`;
   const options = {
     method: 'PUT',
     headers: {
@@ -125,7 +139,7 @@ export const changeLastGround = async ({ accessToken, refreshToken, groundId }) 
 };
 
 export const userProfileImage = async ({ accessToken, refreshToken }) => {
-  const url = `https://k9d103.p.ssafy.io/user/profile`;
+  const url = `https://k9d103.p.ssafy.io:8001/user/profile`;
   const options = {
     method: 'GET',
     headers: {
@@ -140,7 +154,7 @@ export const userProfileImage = async ({ accessToken, refreshToken }) => {
 };
 
 export const userUploadImage = async ({ accessToken, refreshToken, formData }) => {
-  const url = `https://k9d103.p.ssafy.io/user/profile`;
+  const url = `https://k9d103.p.ssafy.io:8001/user/profile`;
   const options = {
     method: 'PUT',
     headers: {
@@ -155,7 +169,7 @@ export const userUploadImage = async ({ accessToken, refreshToken, formData }) =
 };
 
 export const userDeleteImage = async ({ accessToken, refreshToken }) => {
-  const url = `https://k9d103.p.ssafy.io/user/profile`;
+  const url = `https://k9d103.p.ssafy.io:8001/user/profile`;
   const options = {
     method: 'DELETE',
     headers: {

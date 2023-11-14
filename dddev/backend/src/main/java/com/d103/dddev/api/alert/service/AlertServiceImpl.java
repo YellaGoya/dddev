@@ -15,6 +15,7 @@ import javax.transaction.Transactional;
 import com.d103.dddev.api.alert.dto.*;
 import com.d103.dddev.api.alert.entity.AlertUserHistoryDocument;
 import com.d103.dddev.api.alert.entity.WebhookDataDocument;
+import com.d103.dddev.api.common.oauth2.utils.AesType;
 import com.d103.dddev.api.user.repository.dto.UserDto;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -130,7 +131,7 @@ public class AlertServiceImpl implements AlertService {
     public CreateWebhookResponseDto createWebhook(User user, Repository repository,
                                                   String type, String url) throws Exception {
 
-        String token = userService.decryptPersonalAccessToken(user.getPersonalAccessToken());
+        String token = userService.decryptPersonalAccessToken(user.getPersonalAccessToken(), AesType.PAT);
 
         HashMap<String, Object> body = new HashMap<>();
         HttpHeaders headers = new HttpHeaders();
@@ -585,7 +586,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     public void deleteWebhook(User user, Repository repository) throws Exception {
 
-        String token = userService.decryptPersonalAccessToken(user.getPersonalAccessToken());
+        String token = userService.decryptPersonalAccessToken(user.getPersonalAccessToken(), AesType.PAT);
         List<AlertEntity> alertEntityList = alertRepository.findByRepositoryId(repository.getId());
 
         if (alertEntityList.isEmpty()) {

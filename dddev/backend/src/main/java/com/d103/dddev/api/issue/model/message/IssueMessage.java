@@ -27,4 +27,10 @@ public class IssueMessage {
 
     public static String title() {return "이슈 문서 제목 수정 완료";
     }
+
+    public static String sprintList() { return "다중 이슈 문서 스프린트 연결 변경 완료";
+    }
+
+    public static String disconnectSprint() { return "스프린트 연결이 해제 되었습니다.";
+    }
 }

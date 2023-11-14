@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import * as s from 'reacts/styles/components/common/SelectTransparent';
 
-const Select = ({ label, list, select, selected }) => {
+const SelectTransparent = ({ label, list, select, selected, available = true }) => {
   const [toggle, setToggle] = useState(false);
   const [value, setValue] = useState(list ? list[0].name : '');
   const selRef = useRef();
@@ -23,9 +23,9 @@ const Select = ({ label, list, select, selected }) => {
   });
 
   return (
-    <s.SelectWrapper>
-      {label && <s.Label>{label}</s.Label>}
+    <s.SelectWrapper $available={available}>
       <s.Selected ref={selRef} $toggle={toggle} onClick={() => setToggle(!toggle)}>
+        {label && <s.Label>{label}</s.Label>}
         <p>{value}</p>
         <KeyboardArrowDownIcon />
       </s.Selected>
@@ -42,4 +42,4 @@ const Select = ({ label, list, select, selected }) => {
   );
 };
 
-export default Select;
+export default SelectTransparent;
