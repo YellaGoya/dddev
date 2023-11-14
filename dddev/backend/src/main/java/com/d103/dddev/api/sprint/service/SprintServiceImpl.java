@@ -281,12 +281,15 @@ public class SprintServiceImpl implements SprintService{
 
         // 완료된 이슈 리스트 (종료된 시간 순서대로) 불러오기
         List<Issue> issueDone = issueService.getSprintFocusIssueDoneAsc(sprint.getId());
+        System.out.println(issueDone);
 
         // 완료된 이슈 데이터 추가
         for(Issue i : issueDone) {
             totalFocusTime -= i.getFocusTime();
             burnDown.put(i.getEndDate(), totalFocusTime);
         }
+
+        System.out.println(burnDown);
 
         return burnDown;
     }
