@@ -13,15 +13,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
 public class RepositoryServiceImpl implements RepositoryService {
 	private String API_URL = "https://api.github.com";
@@ -37,17 +40,25 @@ public class RepositoryServiceImpl implements RepositoryService {
 	@Override
 	public List<RepositoryDto> getRepositoryListFromGithub(User user) throws Exception {
 		log.info("getRepositoryListFromGithub 진입");
+		// 기존 레포지토리 리스트
+		List<Repository> origRepoList = repositoryRepository.findByUser_IdOrderByRepoIdASC(user.getId());
+
 		RestTemplate restTemplate = new RestTemplate();
 
+		// 사용자 pat 가져오기
 		String personalAccessToken = userService.getPersonalAccessToken(user);
 
+		// repository list 불러올 url
 		String url = API_URL + REPO_REQUEST_URL;
 
+		// 헤더
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", "token " + personalAccessToken);
 
+		// entity
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
+		// get 요청
 		ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
 			url,
 			HttpMethod.GET,
@@ -56,8 +67,9 @@ public class RepositoryServiceImpl implements RepositoryService {
 			}
 		);
 
+		// api response
 		List<Map<String, Object>> repoMap = response.getBody();
-		List<RepositoryDto> repoList = new ArrayList<>();
+		List<RepositoryDto> newRepoList = new ArrayList<>();
 
 		log.info("repository db 저장 진입");
 		for (Map<String, Object> repo : repoMap) {
@@ -74,10 +86,46 @@ public class RepositoryServiceImpl implements RepositoryService {
 			Repository repositoryEntity = getAndUpdateRepository(repository.getRepoId(),
 					repository.getName()).orElseGet(() -> saveRepository(repository));
 
-
-			repoList.add(repositoryEntity.convertToDto());
+			newRepoList.add(repositoryEntity.convertToDto());
 		}
-		return repoList;
+
+		// TODO : github에서 삭제된 레포지토리가 있을 때 그거 구현하기. 근데 레포 지우기 전에 그라운드 싹다 날려야함 ㅇㅇ
+
+		// // 정렬 완료!
+		// Collections.sort(newRepoList);
+		//
+		// // flag
+		// Boolean[] flag = new Boolean[newRepoList.size()];
+		//
+		// // 기존거에서 수정있는지 확인!
+		// for(Repository r : origRepoList) {
+		// 	int index = Collections.binarySearch(newRepoList, r);
+		//
+		// 	if(index >= 0){
+		// 		Repository tmp = newRepoList.get(index);	// 새로 받아온거
+		// 		flag[index] = true;
+		// 		// 이름이 다를 경우
+		// 		if (!tmp.getName().equals(r.getName())) {
+		// 			r.setName(tmp.getName());
+		// 		}
+		//
+		// 		// 디폴트 브랜치가 다를 경우
+		// 		if(!tmp.getDefaultBranch().equals(r.getDefaultBranch())) {
+		// 			r.setDefaultBranch(tmp.getDefaultBranch());
+		// 		}
+		//
+		// 		// db에 저장
+		// 		repositoryRepository.saveAndFlush(r);
+		// 	} else {	// 존재하지 않으면 db에서 삭제하기
+		// 		repositoryRepository.delete(r);
+		// 	}
+		// }
+		//
+		// // 새로 생긴 repository가 있으면 db에 추가하기~!~!
+		// for()
+
+
+		return newRepoList;
 	}
 
 	/**

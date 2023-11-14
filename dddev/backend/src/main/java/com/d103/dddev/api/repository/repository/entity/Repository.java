@@ -29,7 +29,7 @@ import lombok.ToString;
 @DynamicInsert
 @AllArgsConstructor
 @NoArgsConstructor
-public class Repository {
+public class Repository implements Comparable<Repository> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,4 +66,8 @@ public class Repository {
 				.build();
 	}
 
+	@Override
+	public int compareTo(Repository o) {
+		return this.repoId - o.repoId;
+	}
 }
