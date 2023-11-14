@@ -333,7 +333,7 @@ export const EditorWrapper = styled.div`
       box-shadow:
         rgba(0, 0, 0, 0.24) 0px 1px 1px,
         rgba(0, 0, 0, 0.24) 0px 2px 2px,
-        rgba(0, 0, 0, 0.24) 0px 4px 4px;
+        rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
       /* &::before {
         width: 10px;
@@ -370,7 +370,7 @@ export const EditorWrapper = styled.div`
       box-shadow:
         rgba(0, 0, 0, 0.24) 0px 1px 1px,
         rgba(0, 0, 0, 0.24) 0px 2px 2px,
-        rgba(0, 0, 0, 0.24) 0px 4px 4px;
+        rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
       /* &::before {
         width: 10px;
@@ -441,7 +441,7 @@ export const InsertBottom = styled.button`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
   transition: background-color 0.15s ease;
 
@@ -545,7 +545,7 @@ export const SettingWrapper = styled.div`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
   & > .close-button {
     top: 7px;
@@ -713,7 +713,6 @@ export const ProfileImage = styled.img`
 
   transition: filter 0.3s ease;
   border-radius: 25px;
-  cursor: pointer;
 `;
 
 export const ChargeInfo = styled.span`
@@ -772,10 +771,12 @@ export const CommentWrapper = styled.div`
 
   background-color: var(--bg-lite);
 
+  display: ${({ status }) => (status !== 0 ? 'block' : 'none')};
+
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
   .quill {
     padding-top: 0px;
@@ -815,8 +816,6 @@ export const CommentWrapper = styled.div`
 `;
 
 export const CommentsWrapper = styled.div`
-  display: ${({ type }) => (type.type === 'request' ? 'block' : 'none')};
-
   position: relative;
   width: 100%;
   margin: 20px 0;
@@ -830,20 +829,41 @@ export const CommentsWrapper = styled.div`
     padding-top: 0px;
   }
 
+  .ql-toolbar.ql-snow {
+    display: none;
+  }
+
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 `;
 
 export const CommentAuthor = styled.span`
   position: absolute;
   top: 23px;
-  left: 15px;
+  left: 115px;
   display: flex;
   align-items: center;
   font-size: 0.9rem;
   font-weight: 300;
 
   opacity: 0.7;
+`;
+
+export const CommentImage = styled.img`
+  position: absolute;
+  top: 17px;
+  left: 15px;
+  width: 90px;
+  height: 30px;
+
+  margin-right: 10px;
+  border: 1px solid var(--border-dark);
+
+  //비율 유지
+  object-fit: cover;
+
+  transition: filter 0.3s ease;
+  border-radius: 25px;
 `;

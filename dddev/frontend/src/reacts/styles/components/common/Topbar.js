@@ -131,5 +131,5 @@ export const GradBox = styled.div`
   top: 0;
   right: 110px;
 
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  background: linear-gradient(90deg, var(--bg-dark-grad-bottom) 0%, var(--bg-dark-grad-top) 100%);
 `;
