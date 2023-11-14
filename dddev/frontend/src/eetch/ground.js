@@ -613,3 +613,18 @@ export const totalTime = async ({ accessToken, refreshToken, groundId, sprintId 
 
   return res.json();
 };
+
+export const issueToggle = async ({ accessToken, refreshToken, groundId, issueId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/issue/${issueId}/status/toggle`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};

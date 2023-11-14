@@ -92,5 +92,6 @@ eetch.focusCount = (values) => ground.focusCount(values);
 eetch.focusTime = (values) => ground.focusTime(values);
 eetch.totalCount = (values) => ground.totalCount(values);
 eetch.totalTime = (values) => ground.totalTime(values);
+eetch.issueToggle = (values) => ground.issueToggle(values);
 
 export default eetch;

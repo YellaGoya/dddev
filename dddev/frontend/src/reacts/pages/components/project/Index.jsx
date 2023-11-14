@@ -135,6 +135,28 @@ const Index = () => {
     }
   };
 
+  const toggleSprint = (issueId) => {
+    eetch
+      .issueToggle({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        issueId,
+      })
+      .then(() => {
+        console.log('toggle');
+        getLastSprint();
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
+
   const createSprint = () => {
     eetch
       .createSprint({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
@@ -272,8 +294,10 @@ const Index = () => {
   const IssueRow = ({ issue, type, handleCheck, multiSelect }) => {
     const [checked, setChecked] = useState(false);
 
+    console.log(issue.id);
+
     return (
-      <s.IssueRow $checked={multiSelect.includes(issue.id)} status={issue.status}>
+      <s.IssueRow $checked={multiSelect.includes(issue.id)} status={issue.status} type={type}>
         <td className="check-box">
           <CheckBoxRoundedIcon
             onClick={() => {
@@ -291,20 +315,20 @@ const Index = () => {
           {issue.title === '' ? '새 문서' : issue.title}
         </td>
         <td className="issue-status">
-          <span>{issue.status === 0 ? '해야 할 일' : issue.status === 1 ? '진행 중' : '완료'}</span>
+          <span onClick={() => toggleSprint(issue.id)}>{issue.status === 0 ? '해야 할 일' : issue.status === 1 ? '진행 중' : '완료'}</span>
         </td>
         <td className="focus-time">
           <span>{issue.focusTime}</span>
         </td>
         <td className="modifier">{issue.author}</td>
         {type === 'inIssue' ? (
-          <s.ConnectWrapper $available={multiSelect.length > 0}>
+          <s.ConnectWrapper className="connect-button" $available={multiSelect.length > 0}>
             <s.ConnectButton onClick={() => connectSprint(0, issue.id)}>
               <RemoveCircleOutlineRoundedIcon />
             </s.ConnectButton>
           </s.ConnectWrapper>
         ) : (
-          <s.ConnectWrapper $available={multiSelect.length > 0}>
+          <s.ConnectWrapper className="connect-button" $available={multiSelect.length > 0}>
             <s.ConnectButton onClick={() => connectSprint(lastSprint.id, issue.id)}>
               <AddCircleOutlineRoundedIcon />
             </s.ConnectButton>

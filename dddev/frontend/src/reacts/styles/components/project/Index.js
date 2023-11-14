@@ -113,12 +113,16 @@ export const IssueTable = styled.table`
 
 export const IssueBody = styled.tbody`
   & > tr {
-    & > div {
+    & > td.connect-button {
       display: ${(props) => (props.sprintstatus === 0 ? 'block' : 'none')};
     }
 
     & > td.check-box {
       display: ${(props) => (props.sprintstatus === 0 ? 'block' : 'none')};
+    }
+
+    &> td.issue-status {
+      pointer-events: ${(props) => (props.sprintstatus === 2 || props.type === 'backlog' ? 'none' : 'auto')})};
     }
 
     & > td.issue-title {
@@ -193,6 +197,7 @@ export const IssueRow = styled.tr`
   & > td.issue-status {
     font-size: 0.8rem;
     & > span {
+      cursor: pointer;
       display: inline-block;
 
       margin: 0;
