@@ -627,7 +627,10 @@ public class AlertServiceImpl implements AlertService {
         List<AlertListDto> alertListDto = alertRepository.findAlertEntityAndGroundName(groundId, user.getId());
 
         if(alertListDto.isEmpty()) {
-            throw new NoSuchElementException("getAlert :: 해당 그라운드에 사용자의 알림을 찾을 수 없습니다.");
+            AlertResponseDto alertResponse = AlertResponseDto.builder()
+                .userId(user.getId())
+                .build();
+            return alertResponse;
         }
 
         AlertResponseDto alertResponse = AlertResponseDto.builder().build();
