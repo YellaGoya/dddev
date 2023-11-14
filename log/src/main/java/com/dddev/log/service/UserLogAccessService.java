@@ -33,6 +33,7 @@ public class UserLogAccessService {
         //만약 group_id가 존재하면 1분당 로그 수 + 1
         UserLogAccess userLogAccess = temp.get();
         userLogAccess.increase();
+        log.info("{}의 접근은 60초 당 {}개", ground_id, userLogAccess.getCount());
         //비정상적인 로그 요청 횟수(특정 횟수)라는 판단이 들면 삭제
         if(userLogAccess.getCount() >= 1000) {
             //만약 첫 시도이면 -> docker로 첫 실행 시 로그 한 번에 많이 들어올 경우 대비

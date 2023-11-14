@@ -125,6 +125,7 @@ public class logController {
         // 문자열을 파일로 저장
         try{
             LocalDateTime localDateTime = LocalDateTime.now();
+            userLogAccessService.count(groundId);
             elasticSearchLogService.save(groundId, ElasticSearchLog.builder().localDateTime(localDateTime).log(logReq.getLog()).build());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                     "로그 저장 완료", new LogRes(localDateTime, logReq.getLog())));
