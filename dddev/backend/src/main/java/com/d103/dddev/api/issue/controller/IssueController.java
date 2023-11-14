@@ -252,4 +252,22 @@ public class IssueController {
             return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
         }
     }
+
+    @ApiOperation("상태 스위치")
+    @PutMapping("/{issueId}/status/toggle")
+    public ResponseEntity<IssueDto.Status.Response> issueStatusToggle(@PathVariable Integer groundId,
+                                                                @PathVariable String issueId,
+                                                                @AuthenticationPrincipal UserDetails userDetails,
+                                                                @RequestHeader String Authorization){
+        try{
+            log.info("상태 스위치");
+            IssueDto.Status.Response response = issueService.issueStatusToggle(issueId,userDetails);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
+
 }
