@@ -34,7 +34,7 @@ public class UserLogAccessService {
         UserLogAccess userLogAccess = temp.get();
         userLogAccess.increase();
         //비정상적인 로그 요청 횟수라는 판단이 들면 삭제
-        if(userLogAccess.getCount() >= 200) {
+        if(userLogAccess.getCount() >= 10000000L) {
             //토큰에서 삭제, ela에서 인덱스 삭제
             groundAuthService.deleteToken(ground_id);
             elasticSearchLogService.deleteIndex(ground_id);
