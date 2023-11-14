@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -8,71 +8,73 @@ import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 
-import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import Modal from 'reacts/pages/components/common/Modal';
 
-const toggleReducer = (state, action) => {
-  switch (action.type) {
-    case 'TOGGLE':
-      return { ...state, [action.id]: !state[action.id] };
-    case 'SET':
-      return { ...state, [action.id]: action.value };
-    default:
-      return state;
-  }
-};
-
+import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
+import ArrowCircleUpRoundedIcon from '@mui/icons-material/ArrowCircleUpRounded';
+import ArrowCircleDownRoundedIcon from '@mui/icons-material/ArrowCircleDownRounded';
+import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
+import RemoveCircleOutlineRoundedIcon from '@mui/icons-material/RemoveCircleOutlineRounded';
+import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
+import DirectionsRunRoundedIcon from '@mui/icons-material/DirectionsRunRounded';
 import * as s from 'reacts/styles/components/project/Index';
 const Index = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const params = useParams();
   const user = useSelector((state) => state.user);
-  const groundId = useSelector((state) => state.user.lastGround);
   const [lastSprint, setLastSprint] = useState(null);
-  const [toggleDocs, dispatchToggle] = useReducer(toggleReducer, {});
-  const [newDocId, setNewDocId] = useState(null);
-  const [moreLine, setMoreLine] = useState(false);
+  const [newSprintReady, setNewSprintReady] = useState(null);
+  const [startSprintReady, setStartSprintReady] = useState(null);
+  const [inSprint, setInSprint] = useState(null);
+  const [backlog, setBacklog] = useState(null);
 
-  const [sprintTree, setSprintTree] = useState([]);
-  const [noSprintTree, setNoSprintTree] = useState([]);
+  const [multiSelect, setMultiSelect] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const issues = await getTree();
-      setInitialToggleStates(issues);
-    };
-
-    fetchData();
-
-    listSprint();
-  }, [params.groundId]);
+  const [noIssue, setNoIssue] = useState(false);
 
   useEffect(() => {
-    console.log(lastSprint);
-  }, [lastSprint]);
+    console.log(multiSelect);
+  }, [multiSelect]);
 
-  const setInitialToggleStates = (tree) => {
-    if (tree)
-      tree.forEach((node) => {
-        dispatchToggle({ type: 'SET', id: node.id, value: node.step === 2 });
-        if (node.children) {
-          setInitialToggleStates(node.children);
-        }
-      });
+  const handleCheck = (id) => {
+    setMultiSelect((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((issueId) => issueId !== id);
+      }
+
+      return [...prev, id];
+    });
   };
 
-  const getTree = () => {
-    return eetch
-      .treeDocument({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId, type: 'target' })
+  const getLastSprint = () => {
+    eetch
+      .recentSprint({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
       .then((res) => {
-        setSprintTree(res.data);
-        setNoSprintTree(res.data);
-        return res.data;
+        const sprints = res.data;
+        if (sprints.length === 0) {
+          setNewSprintReady(true);
+        } else {
+          const recent = sprints[sprints.length - 1];
+          setLastSprint(recent);
+          setNewSprintReady(recent.status === 2);
+
+          const endDate = new Date(`${recent.endDate}T23:59:59`);
+          const now = new Date();
+
+          switch (recent.status) {
+            case 0:
+              if (endDate < now) {
+                setStartSprintReady(false);
+              } else setStartSprintReady(true);
+              break;
+            case 1:
+            case 2:
+            default:
+              setStartSprintReady(false);
+              break;
+          }
+        }
       })
       .catch((err) => {
         if (err.message === 'RefreshTokenExpired') {
@@ -82,77 +84,60 @@ const Index = () => {
           navigate(`/login`);
         }
       });
+  };
+
+  const connectSprint = (sprintId, issueId) => {
+    eetch
+      .connectSprint({
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        groundId: params.groundId,
+        sprintId,
+        issueId,
+      })
+      .then(() => {
+        getLastSprint();
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
+
+  const multiConnectSprint = (sprintId) => {
+    if (multiSelect.length > 1) {
+      setMultiSelect([]);
+      eetch
+        .multiConnectSprint({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId: params.groundId,
+          sprintId,
+          issueList: multiSelect,
+        })
+        .then(() => {
+          getLastSprint();
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+    }
   };
 
   const createSprint = () => {
-    console.log('create!');
     eetch
       .createSprint({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
-      .then((res) => console.log(res.data))
-      .catch((err) => {
-        if (err.message === 'RefreshTokenExpired') {
-          dispatch(logoutUser());
-          dispatch(setMenu(false));
-          dispatch(setMessage(false));
-          navigate(`/login`);
-        }
-      });
-  };
-
-  const listSprint = () => {
-    eetch
-      .listSprint({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
-      .then((res) => {
-        setLastSprint(res.data[res.data.length - 1].status === 0 && res.data[res.data.length - 1]);
-      })
-      .catch((err) => {
-        if (err.message === 'RefreshTokenExpired') {
-          dispatch(logoutUser());
-          dispatch(setMenu(false));
-          dispatch(setMessage(false));
-          navigate(`/login`);
-        }
-      });
-  };
-
-  const createChildDocmunet = (type, parentId, step) => {
-    if (type === 'issue') {
-      if (step === 1) {
-        type = 'check';
-      } else if (step === 2) {
-        type = 'issue';
-      }
-    }
-
-    eetch
-      .createDocument({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId, type, parentId })
-      .then((res) => {
-        getTree();
-        setNewDocId(res.data.id);
-      })
-      .catch((err) => {
-        if (err.message === 'RefreshTokenExpired') {
-          dispatch(logoutUser());
-          dispatch(setMenu(false));
-          dispatch(setMessage(false));
-          navigate(`/login`);
-        }
-      });
-  };
-
-  const titleDocument = (type, id, step, title) => {
-    if (type === 'issue') {
-      if (step === 1) {
-        type = 'target';
-      } else if (step === 2) {
-        type = 'check';
-      }
-    }
-
-    eetch
-      .titleDocument({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId, type, id, title })
       .then(() => {
-        getTree(type === 'request' || type === 'general' ? type : 'target');
+        getLastSprint();
       })
       .catch((err) => {
         if (err.message === 'RefreshTokenExpired') {
@@ -164,19 +149,29 @@ const Index = () => {
       });
   };
 
-  const deleteDocument = (type, id, step) => {
-    if (type === 'issue') {
-      if (step === 1) {
-        type = 'target';
-      } else if (step === 2) {
-        type = 'check';
-      }
-    }
+  const startSprint = () => {
+    if (inSprint.length === 0) setNoIssue(true);
+    else
+      eetch
+        .startSprint({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, sprintId: lastSprint.id })
+        .then(() => {
+          getLastSprint();
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+  };
 
+  const completeSprint = () => {
     eetch
-      .deleteDocument({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId, type, id })
+      .completeSprint({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, sprintId: lastSprint.id })
       .then(() => {
-        getTree(type === 'request' || type === 'general' ? type : 'target');
+        getLastSprint();
       })
       .catch((err) => {
         if (err.message === 'RefreshTokenExpired') {
@@ -188,145 +183,162 @@ const Index = () => {
       });
   };
 
-  const createRootDocmunet = (sprintId) => {
-    eetch
-      .createDocument({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId, type: 'target', sprintId })
-      .then((res) => {
-        getTree();
-        setNewDocId(res.data.id);
-      })
-      .catch((err) => {
-        if (err.message === 'RefreshTokenExpired') {
-          dispatch(logoutUser());
-          dispatch(setMenu(false));
-          dispatch(setMessage(false));
-          navigate(`/login`);
-        }
-      });
-  };
+  useEffect(() => {
+    if (lastSprint !== null)
+      eetch
+        .sprintIssues({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, sprintId: lastSprint.id })
+        .then((res) => {
+          console.log(res.data);
+          const issuesInSprint = [];
+          const issuesInBacklog = [];
+          res.data.forEach((issue) => {
+            if (issue.sprintId) issuesInSprint.push(issue);
+            else issuesInBacklog.push(issue);
+          });
 
-  const RenderDocsTree = ({ doc, type }) => {
-    const toggle = toggleDocs[doc.id] ?? true;
-    const [title, setTitle] = useState(doc.title === '' ? '새 문서' : doc.title || '');
-    const [onEdit, setOnEdit] = useState(false);
-    const editRef = useRef(null);
+          setInSprint(issuesInSprint);
+          setBacklog(issuesInBacklog);
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+  }, [lastSprint]);
+
+  useEffect(() => {
+    console.log(inSprint, backlog);
+  }, [backlog]);
+
+  useEffect(() => {
+    if (params.groundId) getLastSprint();
+  }, [params.groundId]);
+
+  const IssueRow = ({ issue, type, handleCheck, multiSelect }) => {
+    const [checked, setChecked] = useState(false);
 
     return (
-      <s.TreeChild>
-        <s.TreeName
-          $toggle={toggle}
-          $onEdit={onEdit}
-          $isEmpty={title === '새 문서'}
-          $isNew={doc.id === newDocId}
-          $isMore={doc.id === moreLine}
+      <s.IssueRow $checked={multiSelect.includes(issue.id)} status={issue.status}>
+        <CheckBoxRoundedIcon
           onClick={() => {
-            dispatchToggle({ type: 'TOGGLE', id: doc.id });
+            setChecked(!checked);
+            handleCheck(issue.id);
           }}
-        >
-          {doc.children && doc.children.length > 0 && <KeyboardArrowDownIcon className="foldSign" />}
-          <s.TitleWrapper>
-            <s.DocTitle
-              $onEdit={onEdit}
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate(
-                  `/${groundId}/document/docs/${type === 'issue' ? (doc.step === 1 ? 'target' : doc.step === 2 ? 'check' : 'issue') : type}/${
-                    doc.id
-                  }`,
-                );
-              }}
-            >
-              {title}
-            </s.DocTitle>
-            {doc.step < (type === 'issue' ? 3 : 2) && (
-              <LibraryAddIcon
-                className="addChild"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  dispatchToggle({ type: 'SET', id: doc.id, value: false });
-                  createChildDocmunet(type, doc.id, doc.step);
-                }}
-              />
-            )}
-          </s.TitleWrapper>
-
-          <MoreHorizIcon
-            className="moreButton"
-            onClick={(event) => {
-              event.stopPropagation();
-              setMoreLine(doc.id);
-            }}
-          />
-          <DriveFileRenameOutlineIcon
-            className="editName"
-            onClick={(event) => {
-              event.stopPropagation();
-              setOnEdit(true);
-              editRef.current.style.display = 'block';
-              editRef.current.focus();
-            }}
-          />
-          <RemoveCircleIcon
-            className="deleteDoc"
-            onClick={(event) => {
-              event.stopPropagation();
-              deleteDocument(type, doc.id, doc.step);
-            }}
-          />
-          <s.DocEdit
-            ref={editRef}
-            $onEdit={onEdit}
-            value={title}
-            onClick={(event) => event.stopPropagation()}
-            onChange={(event) => {
-              setTitle(event.target.value);
-            }}
-            onBlur={(event) => {
-              if (event.target.value === '') setTitle(doc.title === '' ? '새 문서' : doc.title);
-              else titleDocument(type, doc.id, doc.step, title);
-              editRef.current.style.display = 'none';
-              setOnEdit(false);
-            }}
-            onKeyPress={(event) => {
-              if (event.key === 'Enter') {
-                if (event.target.value === '') setTitle(doc.title === '' ? '새 문서' : doc.title);
-                else titleDocument(type, doc.id, doc.step, title);
-                event.target.blur();
-              }
-            }}
-          />
-        </s.TreeName>
-        <s.TreeParent $toggle={toggle}>
-          {doc.children && doc.children.map((child) => <RenderDocsTree key={child.id} doc={child} type={type} />)}
-        </s.TreeParent>
-      </s.TreeChild>
+        />
+        <td className="issue-title">{issue.title}</td>
+        <td className="issue-status">
+          <span>{issue.status === 0 ? '해야 할 일' : issue.status === 1 ? '진행 중' : '완료'}</span>
+        </td>
+        <td className="focus-time">
+          <span>{issue.focusTime}</span>
+        </td>
+        <td className="modifier">{issue.modifier}</td>
+        {type === 'inIssue' ? (
+          <s.ConnectWrapper $available={multiSelect.length > 0}>
+            <s.ConnectButton onClick={() => connectSprint(0, issue.id)}>
+              <RemoveCircleOutlineRoundedIcon />
+            </s.ConnectButton>
+          </s.ConnectWrapper>
+        ) : (
+          <s.ConnectWrapper $available={multiSelect.length > 0}>
+            <s.ConnectButton onClick={() => connectSprint(lastSprint.id, issue.id)}>
+              <AddCircleOutlineRoundedIcon />
+            </s.ConnectButton>
+          </s.ConnectWrapper>
+        )}
+      </s.IssueRow>
     );
   };
 
   return (
     <s.SprintWrapper>
-      <div onClick={createSprint}>스프린트 생성</div>
-      <div onClick={listSprint}>스프린트 리스트</div>
-      <div>
-        <s.TreeParent>
-          {sprintTree && sprintTree.length > 0 && sprintTree.map((doc) => <RenderDocsTree key={doc.id} doc={doc} type="target" />)}
-          <s.TreeChild>
-            <s.TreeName className="add-button" onClick={() => createRootDocmunet(lastSprint.id)}>
-              <AddRoundedIcon /> 새 문서 작성
-            </s.TreeName>
-          </s.TreeChild>
-        </s.TreeParent>
-      </div>
-      <div>
-        <s.TreeParent>
-          {noSprintTree && noSprintTree.length > 0 && noSprintTree.map((doc) => <RenderDocsTree key={doc.id} doc={doc} type="target" />)}
-          <s.TreeChild>
-            <s.TreeName className="add-button" onClick={() => createRootDocmunet()}>
-              <AddRoundedIcon /> 새 문서 작성
-            </s.TreeName>
-          </s.TreeChild>
-        </s.TreeParent>
-      </div>
+      <div>{newSprintReady ? '생성 가능' : '생성 불가능'}</div>
+      <div>{startSprintReady ? '시작 가능' : '시작 불가능'}</div>
+      {lastSprint !== null && (
+        <>
+          <s.RecentSprint>
+            <s.InfoWrapper>
+              <h1>스프린트 : {lastSprint.name}</h1>
+            </s.InfoWrapper>
+            <s.ButtonWrapper>
+              {lastSprint.status === 0 ? (
+                <s.StartButton onClick={startSprint}>
+                  <DirectionsRunRoundedIcon />
+                  스프린트 시작
+                </s.StartButton>
+              ) : lastSprint.status === 1 ? (
+                <s.EndButton onClick={completeSprint}>스프린트 종료</s.EndButton>
+              ) : (
+                <s.CreateButton onClick={createSprint}>스프린트 생성</s.CreateButton>
+              )}
+              {multiSelect.length > 0 && (
+                <>
+                  <s.SubmitButton onClick={() => multiConnectSprint(0)}>
+                    <ArrowCircleDownRoundedIcon /> 선택 이동
+                  </s.SubmitButton>
+                  <s.DeleteButton
+                    onClick={() => {
+                      setMultiSelect([]);
+                    }}
+                  >
+                    <HighlightOffRoundedIcon />
+                    선택 취소
+                  </s.DeleteButton>
+                </>
+              )}
+            </s.ButtonWrapper>
+            <s.IssueTable>
+              <s.IssueBody>
+                {inSprint !== null &&
+                  inSprint.map((issue) => (
+                    <IssueRow key={issue.id} issue={issue} type="inIssue" handleCheck={handleCheck} multiSelect={multiSelect} />
+                  ))}
+              </s.IssueBody>
+            </s.IssueTable>
+          </s.RecentSprint>
+          <s.Backlog>
+            <s.InfoWrapper>
+              <h1>백로그</h1>
+            </s.InfoWrapper>
+            <s.ButtonWrapper>
+              {multiSelect.length > 0 && (
+                <>
+                  <s.SubmitButton onClick={() => multiConnectSprint(lastSprint.id)}>
+                    <ArrowCircleUpRoundedIcon /> 선택 이동
+                  </s.SubmitButton>
+                  <s.DeleteButton
+                    onClick={() => {
+                      setMultiSelect([]);
+                    }}
+                  >
+                    <HighlightOffRoundedIcon />
+                    선택 취소
+                  </s.DeleteButton>
+                </>
+              )}
+            </s.ButtonWrapper>
+            <s.IssueTable>
+              <s.IssueBody>
+                {backlog !== null &&
+                  backlog.map((issue) => (
+                    <IssueRow key={issue.id} issue={issue} type="backlog" handleCheck={handleCheck} multiSelect={multiSelect} />
+                  ))}
+              </s.IssueBody>
+            </s.IssueTable>
+          </s.Backlog>
+        </>
+      )}
+      <Modal
+        isOpen={noIssue}
+        type="alarm"
+        message="* 해당 스프린트에 이슈가 존재하지 않습니다."
+        onRequestClose={() => {
+          setNoIssue(false);
+        }}
+      />
     </s.SprintWrapper>
   );
 };

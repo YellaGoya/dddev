@@ -32,7 +32,7 @@ const GroundCheck = () => {
       element: <Project />,
     },
     {
-      path: '/document/*',
+      path: '/document/:type/*',
       element: <Document />,
     },
   ]);

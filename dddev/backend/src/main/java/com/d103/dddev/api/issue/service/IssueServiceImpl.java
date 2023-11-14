@@ -361,6 +361,15 @@ public class IssueServiceImpl implements IssueService {
 	}
 
 	@Override
+	public void deleteAllIssuesWhenGroundDelete(int groundId) throws Exception {
+		try{
+			issueRepository.deleteByGroundId(groundId);
+		}catch(Exception e){
+			throw new TransactionException("이슈 문서들을 삭제하는데 실패했습니다.");
+		}
+	}
+
+	@Override
 	public Integer getSprintTotalFocusTime(Integer sprintId) throws Exception {
 		List<Issue> totalFocusTimeList = issueRepository.getSprintIssueList(sprintId);
 		Integer totalTime = 0;

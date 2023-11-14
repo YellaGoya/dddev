@@ -84,9 +84,9 @@ public class RequestController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<List<RequestResponseDto>>> insertRequestsWithTitles(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                                               @RequestBody RequestInsertManyDto requestInsertManyDto,
-                                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
-                                                                               HttpServletRequest request){
+                                                                                          @RequestBody RequestInsertManyDto requestInsertManyDto,
+                                                                                          @ApiParam(value = "인증 정보")@RequestHeader String Authorization,
+                                                                                          HttpServletRequest request){
         ResponseDto<List<RequestResponseDto>> responseDto;
         ModelAndView modelAndView = (ModelAndView) request.getAttribute("modelAndView");
         User user = (User) modelAndView.getModel().get("user");

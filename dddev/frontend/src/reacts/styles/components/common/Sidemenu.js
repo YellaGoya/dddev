@@ -25,7 +25,7 @@ export const PositionWrapper = styled.div`
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 `;
 
 export const MenuNav = styled.nav`
@@ -101,10 +101,12 @@ export const GroundList = styled.ul`
 
   border-radius: 0.5rem;
 
+  z-index: 7;
+
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
     rgba(0, 0, 0, 0.24) 0px 2px 2px,
-    rgba(0, 0, 0, 0.24) 0px 4px 4px;
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 
   & > .addGround {
     margin-top: 15px;
@@ -170,5 +172,105 @@ export const MenuButton = styled.button`
     width: 19px;
     height: 19px;
     margin-right: 4px;
+  }
+`;
+
+export const DivLine = styled.div`
+  position: absolute;
+  top: 270px;
+  width: calc(100% - 30px);
+  height: 1px;
+  margin: 0 15px;
+
+  background-color: var(--font-rev);
+  opacity: 0.1;
+`;
+
+export const TreeWrapper = styled.div`
+  position: absolute;
+  top: 295px;
+  width: 100%;
+  height: calc(100vh - 335px);
+  padding-bottom: 20px;
+  padding-top: 5px;
+
+  overflow-y: scroll;
+`;
+
+export const TreeGradBox = styled.div`
+  background: linear-gradient(0deg, var(--bg-lite-grad-bottom) 0%, var(--bg-lite-grad-top) 100%);
+  /* background-color: #fff; */
+  position: absolute;
+  width: 100%;
+  height: 10px;
+
+  top: 294px;
+`;
+
+export const GeneralList = styled.ul`
+  margin-left: 10px;
+  padding: 0;
+  list-style: none;
+`;
+
+export const GeneralItem = styled.li`
+  position: relative;
+  width: calc(100% - 20px);
+  height: fit-content;
+
+  cursor: pointer;
+
+  display: block;
+  align-items: center;
+`;
+
+export const childWrapper = styled.div`
+  position: relative;
+  display: ${({ $isToggle }) => ($isToggle ? 'block' : 'none')};
+
+  & > ul {
+    margin-left: 0;
+    & > li {
+      width: 100%;
+      & > div {
+        padding-left: 60px;
+      }
+    }
+  }
+`;
+
+export const GeneralName = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 3px 16px;
+  padding-left: 44px;
+
+  border-radius: 0.5rem;
+
+  & > p {
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+
+  &:hover {
+    background-color: var(--bg-lite-hover);
+  }
+
+  & > svg {
+    position: absolute;
+    top: 0;
+    left: 16px;
+    fill: var(--font-toggle);
+    transition: fill 0.3s ease;
+    &:hover {
+      fill: var(--font-rev);
+    }
   }
 `;

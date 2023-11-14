@@ -332,6 +332,15 @@ public class GeneralServiceImpl implements GeneralService{
         return convertToGeneralResponseDto(loadGeneral);
     }
 
+    @Override
+    public void deleteAllGeneralWhenGroundDelete(int groundId){
+        try{
+            generalRepository.deleteByGroundId(groundId);
+        }catch(Exception e){
+            throw new TransactionException("일반 문서들을 삭제하는데 실패했습니다.");
+        }
+    }
+
     public boolean stepIsRange(int step){
         return step>=1 && step<=2;
     }

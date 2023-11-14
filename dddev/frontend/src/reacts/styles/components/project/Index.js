@@ -1,198 +1,265 @@
 import styled from 'styled-components';
 
-export const SprintWrapper = styled.div``;
-
-export const TreeParent = styled.ul`
-  display: ${({ $toggle }) => ($toggle ? 'none' : 'block')};
-  padding-left: 12px;
-  list-style: none;
-`;
-
-export const TreeChild = styled.li`
-  position: relative;
-  margin: 2px 0;
-`;
-
-export const TitleWrapper = styled.div`
-  position: relative;
-  width: fit-content;
-  height: 21px;
-
-  max-width: calc(100% - 97px);
-`;
-
-export const DocTitle = styled.p`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: auto;
-
-  height: 21px;
-  margin: 0;
-`;
-
-export const DocEdit = styled.input`
-  position: absolute;
-  left: 28px;
-  top: 0;
-
-  border: none;
-  outline: none;
-  color: var(--font-on-edit);
-  font-size: 18px;
-  font-weight: 300;
-  background-color: transparent;
-
-  display: ${({ $onEdit }) => ($onEdit ? 'block' : 'none')};
-
-  width: calc(100% - 100px);
-  height: 27px;
-`;
-
-export const TreeName = styled.div`
-  position: relative;
-  width: 100%;
-
-  padding: 3px 0px 3px 30px;
-
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  cursor: pointer;
-
-  & > .foldSign {
-    position: absolute;
-    left: 0.3rem;
-    top: 0px;
-    fill: ${({ $toggle }) => ($toggle ? 'var(--font-rev)' : 'var(--font-toggle)')};
-    transform: ${({ $toggle }) => ($toggle ? 'rotate(-90deg)' : 'rotate(0deg)')};
-    transition:
-      transform 0.4s ease,
-      fill 0.4s ease;
+export const SprintWrapper = styled.div`
+  & > section {
+    width: 100%;
+    min-width: 340px;
+    max-width: 960px;
+    padding: 15px 10px;
+    border-radius: 0.75rem;
   }
+`;
+export const RecentSprint = styled.section`
+  background-color: var(--bg-lite);
+  border: 1px solid var(--border-basic);
+  margin: 0 auto;
+  margin-top: 30px;
+  margin-bottom: 10px;
+`;
+export const InfoWrapper = styled.div`
+  & > h1 {
+    font-size: 1.1rem;
+    padding: 0 5px;
+  }
+`;
 
-  svg {
-    fill: var(--font-editor-placeholder);
+export const ButtonWrapper = styled.div`
+  position: relative;
+  margin-top: 8px;
+  & > button {
+    border: none;
+    background-color: transparent;
+
+    padding: 5px 10px;
+    border-radius: 0.5rem;
+
+    font-size: 0.8rem;
+    font-weight: 400;
+
+    transition: background-color 0.2s ease;
+
+    cursor: pointer;
+
     &:hover {
-      fill: var(--font-rev);
+      background-color: var(--button-hover);
+    }
 
-      transition:
-        fill 0.2s ease,
-        top 0.3s ease,
-        opacity 0.2s ease;
+    display: flex;
+    align-items: center;
+    & > svg {
+      width: 21px;
+      height: 21px;
+      margin-right: 4px;
     }
   }
+`;
+
+export const CreateButton = styled.button``;
+export const StartButton = styled.button``;
+export const EndButton = styled.button``;
+
+export const Backlog = styled.section`
+  margin: 0 auto;
+
+  border: 1px solid var(--border-basic);
+`;
+
+export const IssueTable = styled.table`
+  width: calc(100%);
+  margin-top: 45px;
+  list-style: none;
+  border: none;
+
+  border-collapse: collapse;
+`;
+
+export const IssueBody = styled.tbody``;
+
+export const IssueRow = styled.tr`
+  width: 100%;
+  position: relative;
+  height: 31px;
+
+  transition: background-color 0.2s ease;
 
   &:hover {
     background-color: var(--bg-black);
-    border-radius: 4px;
 
-    .moreButton,
-    .editName,
-    .deleteDoc {
-      opacity: 1;
+    & > td:first-child {
+      border-radius: 0.75rem 0 0 0.75rem;
     }
 
-    .addChild {
-      opacity: 1;
-      display: ${({ $onEdit }) => ($onEdit ? 'hide' : 'show')};
+    & > svg {
+      opacity: 0.5;
     }
   }
 
-  .moreButton {
+  & > svg {
+    opacity: ${({ $checked }) => ($checked ? '1' : '0')};
+    fill: ${({ $checked }) => ($checked ? 'var(--font-toggle)' : 'var(--font-rev)')};
     position: absolute;
-    right: 9px;
-
-    width: 23px;
-    height: 23px;
-
-    fill: var(--font-editor-placeholder);
-    opacity: 0;
-    display: ${({ $isMore }) => ($isMore ? 'none' : 'block')};
-
-    transition: opacity 0.2s ease;
-    &:hover {
-      fill: var(--font-rev);
-    }
-  }
-
-  .editName {
-    position: absolute;
-    right: 38px;
-
-    width: 23px;
-    height: 23px;
-
-    display: block;
-    fill: var(--font-editor-placeholder);
-
-    opacity: 0;
-    transition:
-      opacity 0.2s ease,
-      fill 0.2s ease;
-
-    &:hover {
-      fill: var(--font-rev);
-    }
-
-    display: ${({ $isMore }) => ($isMore ? 'block' : 'none')};
-  }
-
-  .deleteDoc {
-    position: absolute;
-    right: 9px;
-
+    top: 5px;
+    left: 10px;
     width: 21px;
     height: 21px;
 
-    display: block;
-    fill: var(--font-editor-placeholder);
-
-    opacity: 0;
-    transition:
-      opacity 0.2s ease,
-      fill 0.2s ease;
-
-    display: ${({ $isMore }) => ($isMore ? 'block' : 'none')};
-
-    &:hover {
-      fill: var(--font-delete);
-    }
-  }
-
-  .addChild {
-    position: absolute;
-    width: 21px;
-    height: 21px;
-
-    display: ${({ $onEdit }) => ($onEdit ? 'none' : 'block')};
-
-    right: -1.5rem;
-    top: 0;
-
-    fill: var(--font-editor-placeholder);
-    opacity: 0;
     transition: opacity 0.2s ease;
 
+    cursor: pointer;
+
     &:hover {
-      fill: var(--font-rev);
+      opacity: 1;
     }
   }
 
-  & > div > p {
-    position: relative;
-    font-weight: 300;
-    margin: 0;
-
-    color: ${(props) => (props.$isEmpty ? (props.$isNew ? 'var(--font-new)' : 'var(--font-editor-placeholder)') : 'var(--font-rev)')};
-    opacity: ${({ $onEdit }) => ($onEdit ? '0' : '1')};
-    transition: color 0.2s ease;
-
-    &:hover {
-      text-decoration: underline;
-      text-underline-offset: 3px;
-
-      color: var(--font-rev);
+  @media (max-width: 600px) {
+    & > svg {
+      opacity: 0.5;
     }
+  }
+
+  & > td {
+    padding: 0 10px;
+    font-size: 0.9rem;
+    text-align: center;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    border: none;
+  }
+
+  & > td.issue-status {
+    font-size: 0.8rem;
+    & > span {
+      display: inline-block;
+
+      margin: 0;
+      padding: 3px 9px;
+      font-size: 0.8rem;
+
+      font-weight: ${(props) => (props.status === 2 ? '500' : '400')};
+      color: ${(props) => (props.status === 2 ? 'var(--font-basic)' : 'var(--font-rev)')};
+
+      border-radius: 0.25rem;
+
+      background-color: ${(props) => (props.status === 0 ? 'var(--button-lite)' : props.status === 1 ? 'var(--font-new)' : 'var(--font-toggle)')};
+    }
+  }
+
+  & > td.focus-time {
+    & > span {
+      display: inline-block;
+      width: 23px;
+      margin: 0;
+      padding: 3px;
+      font-size: 0.8rem;
+
+      border-radius: 0.25rem;
+
+      background-color: var(--button-lite);
+    }
+  }
+
+  & > td.issue-title {
+    border-radius: 0.5rem 0 0 0.5rem;
+    min-width: 300px;
+    width: 40%;
+    text-align: left;
+    padding-left: 40px;
+  }
+
+  & > td.modifier {
+    border-radius: 0 0.5rem 0.5rem 0;
+    width: 160px;
+    text-align: right;
+    padding-right: 40px;
+  }
+
+  @media (max-width: 650px) {
+    & > td.issue-title {
+      min-width: calc(100vw - 350px);
+      width: 40%;
+    }
+  }
+
+  @media (max-width: 550px) {
+    & > td.focus-time {
+      display: none;
+    }
+  }
+
+  @media (max-width: 500px) {
+    & > td.modifier {
+      max-width: calc(100vw - 300px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    & > td.issue-title {
+      min-width: 180px;
+      width: 40%;
+    }
+  }
+`;
+
+export const ConnectWrapper = styled.div`
+  display: ${({ $available }) => ($available ? 'none' : 'block')};
+  position: absolute;
+  top: 2px;
+  right: 7px;
+
+  &:hover {
+  }
+`;
+
+export const DeleteButton = styled.button`
+  position: absolute;
+  bottom: -40px;
+  right: 10px;
+
+  opacity: 0.5;
+
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  color: var(--font-toggle);
+  & > svg {
+    fill: var(--font-toggle);
+  }
+`;
+
+export const SubmitButton = styled.button`
+  position: absolute;
+  bottom: -40px;
+  right: 100px;
+
+  color: var(--font-toggle);
+  & > svg {
+    fill: var(--font-toggle);
+  }
+`;
+
+export const ConnectButton = styled.button`
+  padding: 3px;
+  border: none;
+  background-color: transparent;
+
+  cursor: pointer;
+  opacity: 0.5;
+
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  & > svg {
+    width: 21px;
+    height: 21px;
   }
 `;

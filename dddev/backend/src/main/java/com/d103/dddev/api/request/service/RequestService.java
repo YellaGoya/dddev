@@ -28,6 +28,7 @@ public interface RequestService {
     CommentResponseDto createComment(int groundId, String requestId, RequestCommentDto comment, UserDto user) throws Exception;
     RequestResponseDto moveRequest(int groundId, String requestId, RequestMoveDto requestMoveDto) throws Exception;
     void deleteRequest(int groundId, String requestId) throws Exception;
+    void deleteAllRequestWhenGroundDelete(int groundId) throws Exception;
     RequestResponseDto changeTemplate(int groundId, String requestId) throws Exception;
     RequestResponseDto titleRequest(int groundId, String requestId, RequestTitleDto requestTitleDto, UserDto userDto) throws Exception;
 }

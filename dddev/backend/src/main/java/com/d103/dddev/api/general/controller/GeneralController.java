@@ -85,9 +85,9 @@ public class GeneralController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<List<GeneralResponseDto>>> insertGeneralsWithTitles(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
-                                                                               @RequestBody GeneralInsertManyDto generalInsertManyDto,
-                                                                               @ApiParam(value = "인증 정보") @RequestHeader String Authorization,
-                                                                               HttpServletRequest request){
+                                                                                          @RequestBody GeneralInsertManyDto generalInsertManyDto,
+                                                                                          @ApiParam(value = "인증 정보") @RequestHeader String Authorization,
+                                                                                          HttpServletRequest request){
         ResponseDto<List<GeneralResponseDto>> responseDto;
         ModelAndView modelAndView = (ModelAndView) request.getAttribute("modelAndView");
         User user  = (User) modelAndView.getModel().get("user");
@@ -117,8 +117,8 @@ public class GeneralController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<GeneralResponseDto>> getGeneral(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
-                                                          @ApiParam(value = "문서 아이디") @PathVariable("generalId") String generalId,
-                                                          @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+                                                                      @ApiParam(value = "문서 아이디") @PathVariable("generalId") String generalId,
+                                                                      @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
         ResponseDto<GeneralResponseDto> responseDto;
 
         try{
@@ -151,7 +151,7 @@ public class GeneralController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<List<GeneralTreeResponseDto>>> getTreeGenerals(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
-                                                                                      @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+                                                                                     @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
         ResponseDto<List<GeneralTreeResponseDto>> responseDto;
 
         try{
@@ -205,7 +205,7 @@ public class GeneralController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<List<GeneralResponseDto>>> getStep2Generals(@ApiParam(value = "그라운드 아이디") @PathVariable("groundId") int groundId,
-                                                                       @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+                                                                                  @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
         ResponseDto<List<GeneralResponseDto>> responseDto;
 
         try{
@@ -232,10 +232,10 @@ public class GeneralController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<GeneralResponseDto>> updateGeneral(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                              @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
-                                                              @ApiParam(value = "title(필수 x), content(필수 x)")@RequestBody GeneralUpdateDto generalUpdateDto,
-                                                              @ApiParam(value = "인증 정보") @RequestHeader String Authorization,
-                                                              HttpServletRequest request){
+                                                                         @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
+                                                                         @ApiParam(value = "title(필수 x), content(필수 x)")@RequestBody GeneralUpdateDto generalUpdateDto,
+                                                                         @ApiParam(value = "인증 정보") @RequestHeader String Authorization,
+                                                                         HttpServletRequest request){
         ResponseDto<GeneralResponseDto> responseDto;
         ModelAndView modelAndView = (ModelAndView) request.getAttribute("modelAndView");
         User user = (User) modelAndView.getModel().get("user");
@@ -280,9 +280,9 @@ public class GeneralController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<GeneralResponseDto>> moveGeneral(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                            @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
-                                                            @ApiParam(value= "parentId -> 목적지 부모의 아이디") @RequestBody GeneralMoveDto generalMoveDto,
-                                                            @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
+                                                                       @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
+                                                                       @ApiParam(value= "parentId -> 목적지 부모의 아이디") @RequestBody GeneralMoveDto generalMoveDto,
+                                                                       @ApiParam(value = "인증 정보")@RequestHeader String Authorization) {
         ResponseDto<GeneralResponseDto> responseDto;
 
         try{
@@ -363,11 +363,11 @@ public class GeneralController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<GeneralResponseDto>> updateGeneral(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                              @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
-                                                              @ApiParam(value = "변경하고 싶은 제목\n" +
-                                                                      "title(필수) 없으면 422에러")@RequestBody GeneralTitleDto generalTitleDto,
-                                                              @AuthenticationPrincipal UserDetails userDetails,
-                                                              @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+                                                                         @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
+                                                                         @ApiParam(value = "변경하고 싶은 제목\n" +
+                                                                         "title(필수) 없으면 422에러")@RequestBody GeneralTitleDto generalTitleDto,
+                                                                         @AuthenticationPrincipal UserDetails userDetails,
+                                                                         @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
         ResponseDto<GeneralResponseDto> responseDto;
 
         try{
@@ -407,8 +407,8 @@ public class GeneralController {
             @ApiResponse(code = 500, message = "서버 or 데이터베이스 에러")
     })
     public ResponseEntity<ResponseDto<GeneralResponseDto>> changeTemplate(@ApiParam(value = "그라운드 아이디")@PathVariable("groundId") int groundId,
-                                                               @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
-                                                               @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
+                                                                          @ApiParam(value = "문서 아이디")@PathVariable("generalId") String generalId,
+                                                                          @ApiParam(value = "인증 정보")@RequestHeader String Authorization){
         ResponseDto<GeneralResponseDto> responseDto;
 
         try{
