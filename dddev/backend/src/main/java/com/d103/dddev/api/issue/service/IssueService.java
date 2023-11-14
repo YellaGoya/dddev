@@ -50,4 +50,6 @@ public interface IssueService  {
     IssueDto.List.Response issueBackLog(Integer groundId, Integer sprintId);
 
     IssueDto.SprintList.Response issueSprintList(IssueDto.SprintList.Request request, UserDetails userDetails);
+
+    IssueDto.Status.Response issueStatusToggle(String issueId, UserDetails userDetails);
 }

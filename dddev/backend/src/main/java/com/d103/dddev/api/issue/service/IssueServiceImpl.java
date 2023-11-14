@@ -346,7 +346,7 @@ public class IssueServiceImpl implements IssueService {
 		}
 		// 해야할 일 이슈들
 		List<Issue> todoIssues = issueRepository.findBySprintIdAndStatus(sprintId, 0);
-		for(Issue issue : proceedIssues){
+		for(Issue issue : todoIssues){
 			// 연결된 스프린트 없게 만들기
 			issue.setSprintId(0);
 			issue.setStatus(0);
@@ -562,5 +562,23 @@ public class IssueServiceImpl implements IssueService {
 				.code(HttpStatus.OK.value())
 				.build();
     }
+
+	@Override
+	public IssueDto.Status.Response issueStatusToggle(String issueId, UserDetails userDetails) {
+		Issue issue = issueRepository.findById(issueId)
+				.orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+		issue.setStatus((issue.getStatus() + 1) % 3);
+
+		issue.setModifier(userDetails.getUsername());
+
+		issueRepository.save(issue);
+
+		return IssueDto.Status.Response.builder()
+				.message(IssueMessage.status())
+				.code(HttpStatus.OK.value())
+				.data(issue)
+				.build();
+	}
 
 }
