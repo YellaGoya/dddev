@@ -390,6 +390,15 @@ public class RequestServiceImpl implements RequestService{
     }
 
     @Override
+    public void deleteAllRequestWhenGroundDelete(int groundId) throws Exception {
+        try{
+            requestRepository.deleteByGroundId(groundId);
+        }catch(Exception e){
+            throw new TransactionException("요청 문서들을 삭제하는데 실패했습니다.");
+        }
+    }
+
+    @Override
     public RequestResponseDto changeTemplate(int groundId, String requestId) throws Exception {
         Request loadRequest = requestRepository.findById(requestId).orElseThrow(() -> new NoSuchElementException("요청 문서를 찾을 수 없습니다."));
         // isTemplate 값을 true면은 false로 false였다면 true로 바꾼다.

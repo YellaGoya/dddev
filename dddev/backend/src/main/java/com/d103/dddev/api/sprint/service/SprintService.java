@@ -17,6 +17,7 @@ public interface SprintService {
     SprintResponseDto updateSprint(int sprintId, SprintUpdateDto sprintUpdateDto) throws Exception;
     void startSprint(int groundId, int sprintId) throws Exception;
     void completeSprint(int sprintId) throws Exception;
+    void deleteAllSprintWhenGroundDelete(int groundId) throws Exception;
 
     // 차트
     Map<LocalDateTime, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception;

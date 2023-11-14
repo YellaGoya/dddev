@@ -18,9 +18,9 @@ public interface GeneralService {
     List<GeneralTitleResponseDto> getStep1Generals(int groundId);
     List<GeneralResponseDto> getStep2Generals(int groundId);
     GeneralResponseDto updateGeneral(int groundId, String generalId, GeneralUpdateDto generalUpdateDto, UserDto userDto) throws Exception;
-
     GeneralResponseDto moveGeneral(int groundId, String generalId, GeneralMoveDto GeneralMoveDto) throws Exception;
     void deleteGeneral(int groundId, String generalId) throws Exception;
+    void deleteAllGeneralWhenGroundDelete(int groundId) throws Exception;
     GeneralResponseDto changeTemplate(int groundId, String generalId) throws Exception;
     GeneralResponseDto titleGeneral(int groundId, String generalId, GeneralTitleDto generalTitleDto, UserDetails userDetails) throws Exception;
 }

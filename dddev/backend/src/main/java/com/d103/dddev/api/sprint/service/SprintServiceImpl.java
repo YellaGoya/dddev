@@ -224,6 +224,15 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
+    public void deleteAllSprintWhenGroundDelete(int groundId) throws Exception {
+        try{
+            sprintRepository.deleteByGround_Id(groundId);
+        }catch(Exception e){
+            throw new TransactionException("스프린트들을 삭제하는데 실패했습니다.");
+        }
+    }
+
+    @Override
     public Map<String, Integer> getSprintFocusTime(Integer sprintId) throws
         Exception {
         return issueService.getSprintFocusTime(sprintId);
