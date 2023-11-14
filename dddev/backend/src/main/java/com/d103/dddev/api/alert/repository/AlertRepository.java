@@ -26,8 +26,8 @@ public interface AlertRepository extends JpaRepository<AlertEntity, Integer> {
 
 	List<AlertEntity> findByWebhookId(Integer webhookId);
 
-	@Query(value = "select a.id  from dddev.alert a join (select g.name, r.id from dddev.ground g join dddev.repository r on g.repository_id = r.id) gr on a.repository_id = gr.id where gr.id=? and a.user_id=?", nativeQuery = true)
-	List<Integer> findByGroupdIdAndUser_Id(Integer groundId, Integer userId);
+	@Query(value = "select a.id  from dddev.alert a join (select g.name, r.id from dddev.ground g join dddev.repository r on g.repository_id = r.id and g.id = ?) gr on a.repository_id = gr.id where a.user_id=?;", nativeQuery = true)
+	List<Integer> findByGroundIdAndUser_Id(Integer groundId, Integer userId);
 
 	List<AlertEntity> findByRepositoryId(Integer repositoryId);
 

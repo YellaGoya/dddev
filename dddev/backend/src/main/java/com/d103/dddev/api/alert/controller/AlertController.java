@@ -1,5 +1,6 @@
 package com.d103.dddev.api.alert.controller;
 
+import java.rmi.NoSuchObjectException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -55,29 +56,37 @@ public class AlertController {
             @ApiResponse(code = 406, message = "사용자 accessToken, 레포 id, 기기 토큰 오류"),
             @ApiResponse(code = 409, message = "알림 중복 생성 요청"),
             @ApiResponse(code = 500, message = "서버 오류")})
-    public ResponseEntity<ResponseDto<List<AlertResponseDto>>> createAlert(@RequestHeader("Authorization") String header,
+    public ResponseEntity<ResponseDto<AlertResponseDto>> createAlert(@RequestHeader("Authorization") String header,
                                                            @RequestBody CreateAlertRequestDto createAlertRequestDto) {
         try {
             Repository repository = groundService.getGroundInfo(createAlertRequestDto.getGroundId())
                     .orElseThrow(() -> new NoSuchElementException("createAlert :: 그라운드가 존재하지 않습니다."))
                     .getRepository();
 
-            alertService.createAlert(header, repository, createAlertRequestDto.getKeyword(), createAlertRequestDto.getType());
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            AlertResponseDto alertResponseDto = alertService.createAlert(createAlertRequestDto.getGroundId(), header, repository, createAlertRequestDto.getKeyword(), createAlertRequestDto.getType());
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("알림 생성 성공")
+                    .data(alertResponseDto)
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             log.error(e.getMessage());
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.NOT_ACCEPTABLE.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_ACCEPTABLE);
+        } catch (NoSuchObjectException e) {
+            log.error(e.getMessage());
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
+                .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                .message(e.getMessage())
+                .build();
+            return new ResponseEntity<>(responseDto, HttpStatus.UNPROCESSABLE_ENTITY);
         } catch (DuplicateRequestException e) {
             log.error(e.getMessage());
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.CONFLICT.value())
                     .message(e.getMessage())
                     .build();
@@ -85,7 +94,7 @@ public class AlertController {
         } catch (Exception e) {
             log.error(e.toString());
             log.error(e.getMessage());
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -157,13 +166,13 @@ public class AlertController {
     @ApiResponses(value = {
             @ApiResponse(code = 406, message = "알림 id 오류")
     })
-    public ResponseEntity<ResponseDto<List<AlertResponseDto>>> updateAlert(@RequestHeader String Authorization, @RequestBody UpdateAlertDto updateAlertDto,
+    public ResponseEntity<ResponseDto<AlertResponseDto>> updateAlert(@RequestHeader String Authorization, @RequestBody UpdateAlertDto updateAlertDto,
                                                                            @PathVariable(name = "groundId") Integer groundId, HttpServletRequest request) {
         try {
             ModelAndView mav = (ModelAndView) request.getAttribute("modelAndView");
             User user = (User) mav.getModel().get("user");
 
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("알림 수정 성공")
                     .data(alertService.updateAlert(user, updateAlertDto, groundId))
@@ -171,14 +180,14 @@ public class AlertController {
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             log.error(e.getMessage());
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.NOT_ACCEPTABLE.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             log.error(e.getMessage());
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
@@ -233,6 +242,8 @@ public class AlertController {
 
             AlertResponseDto alertListResponseDto = alertService.getAlert(user, groundId);
 
+            log.info("alertListResponseDto: {}", alertListResponseDto);
+
             ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                 .code(HttpStatus.OK.value())
                 .message("알림 조회 성공")
@@ -256,33 +267,33 @@ public class AlertController {
         }
     }
 
-    @DeleteMapping("/{alertId}")
+    @DeleteMapping("/{groundId}/{alertId}")
     @ApiOperation(value = "알림 삭제", notes = "커밋(푸시) 알림과 연결된 깃허브 웹훅을 삭제하는 API")
     @ApiResponses(value = {
             @ApiResponse(code = 406, message = "사용자 accessToken, 깃허브 id 오류")
     })
-    public ResponseEntity<ResponseDto<List<AlertResponseDto>>> deleteAlert(@RequestHeader String Authorization, @PathVariable(name = "alertId") Integer alertId,
+    public ResponseEntity<ResponseDto<AlertResponseDto>> deleteAlert(@RequestHeader String Authorization, @PathVariable(name = "groundId") Integer groundId, @PathVariable(name = "alertId") Integer alertId,
                                                                            HttpServletRequest request) {
         try {
             ModelAndView mav = (ModelAndView) request.getAttribute("modelAndView");
             User user = (User) mav.getModel().get("user");
 
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.OK.value())
                     .message("알림 삭제 성공")
-                    .data(alertService.deleteAlert(user, alertId))
+                    .data(alertService.deleteAlert(user, alertId, groundId))
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             log.error(e.getMessage());
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.NOT_ACCEPTABLE.value())
                     .message(e.getMessage())
                     .build();
             return new ResponseEntity<>(responseDto, HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             log.error(e.getMessage());
-            ResponseDto<List<AlertResponseDto>> responseDto = ResponseDto.<List<AlertResponseDto>>builder()
+            ResponseDto<AlertResponseDto> responseDto = ResponseDto.<AlertResponseDto>builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .message(e.getMessage())
                     .build();
