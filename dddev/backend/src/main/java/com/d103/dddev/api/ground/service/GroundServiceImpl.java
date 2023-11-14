@@ -10,6 +10,9 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import com.d103.dddev.api.general.service.GeneralService;
+import com.d103.dddev.api.issue.service.IssueService;
+import com.d103.dddev.api.request.service.RequestService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,6 +48,10 @@ public class GroundServiceImpl implements GroundService {
 	private final AlertService alertService;
 	private final SprintService sprintService;
 	private final UndefinedUtil undefinedUtil;
+	private final IssueService issueService;
+	private final RequestService requestService;
+	private final GeneralService generalService;
+
 	private final Integer DEFAULT_GROUND_FOCUS_TIME = 5;
 	private final Integer DEFAULT_GROUND_ACTIVE_TIME = 3;
 
@@ -253,13 +260,13 @@ public class GroundServiceImpl implements GroundService {
 		repositoryService.updateIsGround(repository, false);
 
 		// 이슈 삭제
-
-		// 문서 삭제
-
+		issueService.deleteAllIssuesWhenGroundDelete(ground.getId());
 		// 리퀘스트 삭제
-
+		requestService.deleteAllRequestWhenGroundDelete(ground.getId());
+		// 문서 삭제
+		generalService.deleteAllGeneralWhenGroundDelete(ground.getId());
 		// 스프린트 삭제
-
+		sprintService.deleteAllSprintWhenGroundDelete(ground.getId());
 		// 차트 데이터 삭제하기
 
 		// 그라운드 삭제 시 웹훅 모두 삭제

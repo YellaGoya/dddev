@@ -30,6 +30,7 @@ public interface IssueService  {
     IssueDto.Sprint.Response issueSprint(IssueDto.Sprint.Request request, String issueId, UserDetails userDetails);
     void changeIssuesStatusWhenSprintDelete(Integer sprintId) throws Exception;
     void changeIssuesStatusWhenSprintComplete(Integer sprintId) throws Exception;
+    void deleteAllIssuesWhenGroundDelete(int groundId) throws Exception;
 
     Integer getSprintTotalFocusTime(Integer sprintId) throws Exception;
 
