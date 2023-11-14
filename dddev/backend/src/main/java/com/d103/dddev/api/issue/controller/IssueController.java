@@ -170,7 +170,7 @@ public class IssueController {
 
     @ApiOperation("이슈 문서 스프린트 연결")
     @PutMapping("/{issueId}/sprint")
-    public ResponseEntity issueSprint(@PathVariable Integer groundId,
+    public ResponseEntity<IssueDto.Sprint.Response> issueSprint(@PathVariable Integer groundId,
                                       @PathVariable String issueId,
                                       @RequestBody IssueDto.Sprint.Request request,
                                       @AuthenticationPrincipal UserDetails userDetails,
@@ -228,6 +228,23 @@ public class IssueController {
         try{
             log.info("현재 소속 스프린트 및 스프린트 종료 된 이슈 제외 조회");
             IssueDto.List.Response response = issueService.issueBackLog(groundId, sprintId);
+            return Response.success(response);
+        }catch(NoSuchElementException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));
+        }catch(RuntimeException response){
+            return Response.error(Error.error(response.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @ApiOperation("다중 이슈 문서 스프린트 연결 변경")
+    @PutMapping("/multi-sprint")
+    public ResponseEntity<IssueDto.SprintList> issueSprint(@PathVariable Integer groundId,
+                                                           @RequestBody IssueDto.SprintList.Request request,
+                                                           @AuthenticationPrincipal UserDetails userDetails,
+                                                           @RequestHeader String Authorization){
+        try{
+            log.info("다중 이슈 문서 스프린트 연결 변경");
+            IssueDto.SprintList.Response response = issueService.issueSprintList(request,userDetails);
             return Response.success(response);
         }catch(NoSuchElementException response){
             return Response.error(Error.error(response.getMessage(),HttpStatus.BAD_REQUEST));

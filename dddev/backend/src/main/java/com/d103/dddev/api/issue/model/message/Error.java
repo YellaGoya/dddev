@@ -10,6 +10,10 @@ import javax.persistence.PrePersist;
 
 public class Error {
 
+    public static String NoSprint() {
+        return "스프린트가 존재하지 않습니다.";
+    }
+
     @Data
     @Builder
     public static class Response{

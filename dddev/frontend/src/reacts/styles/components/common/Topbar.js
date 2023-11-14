@@ -55,6 +55,8 @@ export const SelectedGround = styled.span`
   align-items: center;
   justify-content: center;
 
+  pointer-events: ${({ $available }) => ($available ? 'none' : 'auto')};
+  opacity: ${({ $available }) => ($available ? '0.5' : '1')};
   cursor: pointer;
 
   & > svg {
@@ -115,6 +117,7 @@ export const ProfileImage = styled.img`
   //비율 유지
   object-fit: cover;
 
+  border: 1px solid var(--border-dark);
   transition: filter 0.3s ease;
   border-radius: 25px;
   cursor: pointer;

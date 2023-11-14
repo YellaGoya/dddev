@@ -113,11 +113,13 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
-    public SprintResponseDto loadRecentSprint(int sprintId) throws Exception {
+    public List<SprintResponseDto> loadRecentSprint(int sprintId) throws Exception {
         List<SprintEntity> sprintEntityList = sprintRepository.findByGround_IdOrderByIdDesc(sprintId).orElseThrow(() -> new TransactionException("스프린트들을 불러오는데 실패했습니다."));
         if(sprintEntityList.isEmpty()) return null;
+        List<SprintResponseDto> sprintResponseDtoList = new ArrayList<>();
         SprintEntity recentSprint = sprintEntityList.get(0);
-        return convertToSprintResponseDto(recentSprint);
+        sprintResponseDtoList.add(convertToSprintResponseDto(recentSprint));
+        return sprintResponseDtoList;
     }
 
     @Override

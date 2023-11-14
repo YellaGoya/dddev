@@ -1,7 +1,7 @@
 import eetch from 'eetch/eetch';
 
 export const repoList = async ({ accessToken, refreshToken }) => {
-  const url = `https://k9d103.p.ssafy.io/repository/list`;
+  const url = `https://k9d103.p.ssafy.io:8001/repository/list`;
   const options = {
     method: 'GET',
     headers: {

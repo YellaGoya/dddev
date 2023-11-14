@@ -292,8 +292,16 @@ public class IssueServiceImpl implements IssueService {
 	@Override
 	public IssueDto.Sprint.Response issueSprint(IssueDto.Sprint.Request request, String issueId,
 		UserDetails userDetails) {
+		String message = IssueMessage.sprint();
+
 		Issue issue = issueRepository.findById(issueId)
 			.orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+		if(request.getSprintId() == 0){
+			message = IssueMessage.disconnectSprint();
+		}else{
+			sprintRepository.findById(request.getSprintId()).orElseThrow(() -> new NoSuchElementException(Error.NoSprint()));
+		}
 
 		issue.setSprintId(request.getSprintId());
 		issue.setModifier(userDetails.getUsername());
@@ -301,7 +309,7 @@ public class IssueServiceImpl implements IssueService {
 		issueRepository.save(issue);
 
 		return IssueDto.Sprint.Response.builder()
-			.message(IssueMessage.sprint())
+			.message(message)
 			.code(HttpStatus.OK.value())
 			.data(issue)
 			.build();
@@ -517,6 +525,32 @@ public class IssueServiceImpl implements IssueService {
 				.message(IssueMessage.list())
 				.code(HttpStatus.OK.value())
 				.data(result)
+				.build();
+    }
+
+    @Override
+    public IssueDto.SprintList.Response issueSprintList(IssueDto.SprintList.Request request, UserDetails userDetails) {
+		String message = IssueMessage.sprintList();
+
+		if(request.getSprintId() != 0){
+			sprintRepository.findById(request.getSprintId()).orElseThrow(() -> new NoSuchElementException(Error.NoSprint())); // 스프린트 존재 여부 판별
+		}else{
+			message = IssueMessage.disconnectSprint();
+		}
+
+		List<String> issueList = request.getIssueList();
+
+		for(String issueId : issueList){
+			Issue issue = issueRepository.findById(issueId)
+					.orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+			issue.setSprintId(request.getSprintId());
+			issueRepository.save(issue);
+		}
+
+        return IssueDto.SprintList.Response.builder()
+				.message(message)
+				.code(HttpStatus.OK.value())
 				.build();
     }
 

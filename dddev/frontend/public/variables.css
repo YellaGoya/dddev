@@ -12,18 +12,26 @@
   --bg-black: #000;
   --bg-basic: #0d1117;
   --bg-lite: #161b22;
+  --bg-lite-hover: #1f2630;
   --bg-dark: #010409;
   --hr-basic: #858585;
   --border-basic: #30363d;
   --border-focus: #6e7681;
   --border-cursor: #000;
+  --border-dark:#14181b;
+  --border-lite-hover: #242d39;
   --button-basic: #21262c;
+  --button-dark: #161b22;
+  --button-darker: #151b25;
+  --button-comment : #1f2630;
   --button-lite: #3d4752;
   --button-activated : #000;
+  --selection-setting: #151b25;
   --selection-bg: #6194c8;
   --selection-font: #fff;
   --code-highlight-bg: #3d4752;
   --code-highlight-font: #fff;
   --blockquote-bg: #161b22;
   --blockquote-hover: #2e3948;
+  --thumb-hover: #48576d;
 }

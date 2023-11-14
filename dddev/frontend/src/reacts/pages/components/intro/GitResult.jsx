@@ -62,6 +62,7 @@ const GitResult = () => {
                 groundsList,
                 groundsMap,
                 groundsMine,
+                githubId: res.githubId,
               }),
             );
 
