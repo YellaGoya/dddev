@@ -31,7 +31,7 @@ public class SprintServiceImpl implements SprintService{
     private final IssueService issueService;
 
     private final Integer OPEN = 1;
-    private final Integer CLOSE = 2;
+    private final Integer CLOSE = 3;
 
     /**
      * 스프린트를 생성하는 함수이다.<br/>
@@ -274,7 +274,7 @@ public class SprintServiceImpl implements SprintService{
     }
 
     private Map<LocalDateTime, Integer> makeBurnDownChart(SprintEntity sprint) throws Exception {
-        Map<LocalDateTime, Integer> burnDown = new HashMap<>();
+        Map<LocalDateTime, Integer> burnDown = new TreeMap<>();
 
         // 시작점
         LocalDate startDate = sprint.getStartDate();
@@ -283,7 +283,6 @@ public class SprintServiceImpl implements SprintService{
 
         // 완료된 이슈 리스트 (종료된 시간 순서대로) 불러오기
         List<Issue> issueDone = issueService.getSprintFocusIssueDoneAsc(sprint.getId());
-        System.out.println(issueDone);
 
         // 완료된 이슈 데이터 추가
         for(Issue i : issueDone) {
@@ -291,13 +290,11 @@ public class SprintServiceImpl implements SprintService{
             burnDown.put(i.getEndDate(), totalFocusTime);
         }
 
-        System.out.println(burnDown);
-
         return burnDown;
     }
 
     private Map<LocalDateTime, Integer> makeBurnDownChart(List<BurnDown> burnDownList) throws Exception {
-        Map<LocalDateTime, Integer> burnDown = new HashMap<>();
+        Map<LocalDateTime, Integer> burnDown = new TreeMap<>();
         for(BurnDown b : burnDownList) {
             burnDown.put(b.getEndDate(), b.getRemainTime());
         }
