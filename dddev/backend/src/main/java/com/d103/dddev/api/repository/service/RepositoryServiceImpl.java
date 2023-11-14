@@ -41,7 +41,7 @@ public class RepositoryServiceImpl implements RepositoryService {
 	public List<RepositoryDto> getRepositoryListFromGithub(User user) throws Exception {
 		log.info("getRepositoryListFromGithub 진입");
 		// 기존 레포지토리 리스트
-		List<Repository> origRepoList = repositoryRepository.findByUser_IdOrderByRepoIdASC(user.getId());
+		// List<Repository> origRepoList = repositoryRepository.findByUser_IdOrderByRepoIdASC(user.getId());
 
 		RestTemplate restTemplate = new RestTemplate();
 
