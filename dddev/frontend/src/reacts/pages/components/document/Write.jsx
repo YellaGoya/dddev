@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import Quill from 'quill';
 import * as Y from 'yjs';
 import { QuillBinding } from 'y-quill';
 import { WebsocketProvider } from 'y-websocket';
-import { useParams } from 'react-router-dom';
 
 import { setDoc } from 'redux/actions/doc';
 import { setMenu } from 'redux/actions/menu';
@@ -55,7 +54,7 @@ const Write = () => {
   const [settingToggle, setSettingToggle] = useState(false);
   const [title, setTitle] = useState('');
   const [step, setStep] = useState(1);
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState(0);
   const [receiver, setReceiver] = useState(null);
   const [sender, setSender] = useState(null);
   const [parents, setParents] = useState(null);
@@ -84,13 +83,15 @@ const Write = () => {
   };
 
   const SubmitComment = () => {
+    if (commentRef.current.getEditor().root.innerHTML === '<p><br></p>') return;
+
     eetch
       .commentDocument({
         accessToken: user.accessToken,
         refreshToken: user.refreshToken,
         groundId: params.groundId,
         type: params.type,
-        id: params.docId,
+        id: params.docId || params['*'],
         comment: commentRef.current.getEditor().root.innerHTML,
       })
       .then(() => {
@@ -133,7 +134,7 @@ const Write = () => {
         accessToken: user.accessToken,
         refreshToken: user.refreshToken,
         groundId: params.groundId,
-        id: params.docId,
+        id: params.docId || params['*'],
         receiver: item.githubId,
       })
       .then(() => {
@@ -155,7 +156,7 @@ const Write = () => {
         accessToken: user.accessToken,
         refreshToken: user.refreshToken,
         groundId: params.groundId,
-        id: params.docId,
+        id: params.docId || params['*'],
         sender: item.githubId,
       })
       .then(() => {
@@ -258,7 +259,7 @@ const Write = () => {
           refreshToken: user.refreshToken,
           groundId: params.groundId,
           type: params.type,
-          id: params.docId,
+          id: params.docId || params['*'],
           title,
         })
         .catch((err) => {
@@ -278,7 +279,7 @@ const Write = () => {
         refreshToken: user.refreshToken,
         groundId: params.groundId,
         type: params.type,
-        id: params.docId,
+        id: params.docId || params['*'],
         parentId,
       })
       .catch((err) => {
@@ -299,7 +300,7 @@ const Write = () => {
         refreshToken: user.refreshToken,
         groundId: params.groundId,
         type: params.type,
-        id: params.docId,
+        id: params.docId || params['*'],
       })
       .then(() => {
         navigate(-1);
@@ -321,7 +322,7 @@ const Write = () => {
         refreshToken: user.refreshToken,
         groundId: params.groundId,
         type: params.type,
-        id: params.docId,
+        id: params.docId || params['*'],
       })
       .then((res) => {
         setComments(res.data.comments);
@@ -355,7 +356,7 @@ const Write = () => {
           refreshToken: user.refreshToken,
           groundId: params.groundId,
           type: params.type,
-          id: params.docId,
+          id: params.docId || params['*'],
           content: innerHtmlRef.current,
         })
         .catch((err) => {
@@ -375,7 +376,7 @@ const Write = () => {
         refreshToken: user.refreshToken,
         groundId: params.groundId,
         type: params.type,
-        id: params.docId,
+        id: params.docId || params['*'],
         status,
       })
       .then(() => {
@@ -398,7 +399,7 @@ const Write = () => {
         refreshToken: user.refreshToken,
         groundId: params.groundId,
         type: params.type,
-        id: params.docId,
+        id: params.docId || params['*'],
         focusTime,
         activeTime,
       })
@@ -435,12 +436,30 @@ const Write = () => {
     };
   }, []);
 
+  const CommentsModules = useMemo(() => {
+    return {
+      toolbar: [],
+      markdownShortcuts: {},
+      syntax: {
+        highlight: (text) => hljs.highlightAuto(text).value,
+      },
+      keyboard: true,
+    };
+  }, []);
+
   if (!Quill.imports['modules/markdownShortcuts']) {
     Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
   }
 
   const insertBottom = () => {
     const editor = quillRef.current.getEditor();
+    const length = editor.getLength();
+
+    editor.insertText(length, '\n', Quill.sources.USER);
+  };
+
+  const insertCommentBottom = () => {
+    const editor = commentRef.current.getEditor();
     const length = editor.getLength();
 
     editor.insertText(length, '\n', Quill.sources.USER);
@@ -455,14 +474,16 @@ const Write = () => {
 
     return (
       <s.CommentsWrapper>
+        <s.CommentImage src={data.fileName ? `https://k9d103.p.ssafy.io/img/user/${data.fileName}` : userStockImage} />
         <s.CommentAuthor>{data.author}</s.CommentAuthor>
-        <ReactQuill ref={commentsRef} modules={modules} placeholder="추가 사항을 입력해주세요." />
+        <ReactQuill ref={commentsRef} modules={CommentsModules} placeholder="추가 사항을 입력해주세요." />
       </s.CommentsWrapper>
     );
   };
 
   useEffect(() => {
-    const roomName = `${params.docId || 'test'}`;
+    initRoom(false);
+    const roomName = `${params.docId || params['*'] || 'test'}`;
     const doc = new Y.Doc();
     const type = doc.getText('quill');
 
@@ -622,7 +643,7 @@ const Write = () => {
       binding.destroy();
       wsProvider.disconnect();
     };
-  }, [params.docId]);
+  }, [params.docId, params['*']]);
 
   return (
     <s.EditorWrapper status={status}>
@@ -734,10 +755,10 @@ const Write = () => {
           </div>
         ))}
 
-      {params.type === 'request' && status !== 0 && (
-        <s.CommentWrapper>
+      {params.type === 'request' && (
+        <s.CommentWrapper status={status}>
           <ReactQuill ref={commentRef} modules={modules} placeholder="추가 사항을 입력해주세요." />
-          <s.InsertBottom className="insert-button" status={status} onClick={insertBottom}>
+          <s.InsertBottom className="insert-button" status={status} onClick={insertCommentBottom}>
             <AddIcon />
           </s.InsertBottom>
           <PublishRoundedIcon onClick={SubmitComment} />

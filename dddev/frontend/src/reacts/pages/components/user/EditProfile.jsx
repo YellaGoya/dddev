@@ -174,12 +174,6 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
       <s.EditWrapper $toggle={toggle} onClick={() => setToggle(false)}>
         <s.EditModalWrapper onClick={(event) => event.stopPropagation()}>
           <s.GradBoxWrapper>
-            <s.ButtonWrapper>
-              <s.ProfileEditButton type="button" onClick={submitChange}>
-                적용
-              </s.ProfileEditButton>
-              <s.CloseButton onClick={() => setToggle(false)}>닫기</s.CloseButton>
-            </s.ButtonWrapper>
             <s.MessageWrapper>
               <s.EditImageWrapper ref={sizeRef}>
                 <s.ProfileImage

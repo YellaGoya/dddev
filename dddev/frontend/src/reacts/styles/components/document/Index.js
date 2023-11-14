@@ -228,7 +228,7 @@ export const TreeName = styled.div`
 
   .editName {
     position: absolute;
-    right: 38px;
+    right: 9px;
 
     width: 23px;
     height: 23px;
@@ -250,7 +250,7 @@ export const TreeName = styled.div`
 
   .deleteDoc {
     position: absolute;
-    right: 9px;
+    right: 38px;
 
     width: 21px;
     height: 21px;

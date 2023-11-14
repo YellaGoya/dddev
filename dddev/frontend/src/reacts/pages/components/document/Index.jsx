@@ -117,7 +117,7 @@ const Index = () => {
               onClick={(event) => {
                 event.stopPropagation();
                 navigate(
-                  `/${groundId}/document/docs/${type === 'issue' ? (doc.step === 1 ? 'target' : doc.step === 2 ? 'check' : 'issue') : type}/${
+                  `/${groundId}/document/find/docs/${type === 'issue' ? (doc.step === 1 ? 'target' : doc.step === 2 ? 'check' : 'issue') : type}/${
                     doc.id
                   }`,
                 );

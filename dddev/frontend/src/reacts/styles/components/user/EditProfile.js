@@ -23,8 +23,8 @@ export const EditWrapper = styled.div`
 
   visibility: ${(props) => (props.$toggle ? 'visible' : 'hidden')};
 
-  background-color: ${(props) => (props.$toggle ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0)')};
-  backdrop-filter: blur(5px);
+  background-color: ${(props) => (props.$toggle ? 'rgba(255, 255, 255, 0.05);' : 'rgba(0, 0, 0, 0)')};
+  backdrop-filter: blur(3px);
   z-index: 100;
 
   transition: background-color 0.3s ease;
@@ -41,9 +41,13 @@ export const EditModalWrapper = styled.div`
   transform: translateX(-50%);
 
   border-radius: 0.75rem;
-  border: 1px solid var(--border-basic);
 
-  background-color: var(--bg-dark);
+  background-color: var(--bg-basic);
+
+  box-shadow:
+    rgba(0, 0, 0, 0.24) 0px 1px 1px,
+    rgba(0, 0, 0, 0.24) 0px 2px 2px,
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
 `;
 
 export const GradBoxWrapper = styled.div`
@@ -57,7 +61,7 @@ export const GradBoxWrapper = styled.div`
   }
 
   & > :first-child {
-    margin: 30px 25px 10px 25px;
+    margin-top: 20px;
   }
 
   overflow-x: hidden;
@@ -212,9 +216,9 @@ export const LogoutButton = styled.button`
 export const DivLine = styled.span`
   position: relative;
   display: block;
-  width: calc(100% - 90px);
+  width: calc(100% - 50px);
   height: 1px;
-  margin: 50px;
+  margin: 50px 30px 50px 30px;
   background-color: var(--border-basic);
   opacity: 0.5;
 `;
@@ -230,7 +234,7 @@ export const GradBoxTop = styled.div`
 
   height: 10px;
 
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  background: linear-gradient(0deg, var(--bg-basic-grad-bottom) 0%, var(--bg-basic-grad-top) 100%);
 `;
 
 export const GradBoxBottom = styled.div`
@@ -244,5 +248,5 @@ export const GradBoxBottom = styled.div`
 
   height: 10px;
 
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  background: linear-gradient(180deg, var(--bg-basic-grad-top) 0%, var(--bg-basic-grad-bottom) 100%);
 `;
