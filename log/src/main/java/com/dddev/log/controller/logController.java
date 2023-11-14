@@ -44,6 +44,7 @@ public class logController {
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                     "토큰 저장 완료", null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
         }
     }
@@ -56,15 +57,17 @@ public class logController {
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/auth")
     public ResponseEntity<?> userAuth(
-            @ApiParam(value = "로그 기능 사용을 위한 토큰 유효성 체크", required = true)@RequestHeader String token) {
+            @ApiParam(value = "로그 기능 사용을 위한 토큰 유효성 체크", required = true) @RequestHeader String token) {
         try{
             groundAuthService.checkValid(token);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseVO<>(HttpStatus.ACCEPTED.value(),
                     "토큰 유효성 검증 완료", null));
         }catch (UserUnAuthException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "유효 하지 않은 토큰", null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     "서버 내부 에러", null));
         }
@@ -79,26 +82,30 @@ public class logController {
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("")
     public ResponseEntity<?> saveLog(
-            @ApiParam(value = "자동으로 저장 되는 로그", required = true) @RequestBody LogReq log,
+            @ApiParam(value = "자동으로 저장 되는 로그", required = true) @RequestBody LogReq logReq,
             @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String token) {
         // 문자열을 파일로 저장
         try{
             String ground_id = groundAuthService.checkValid(token);
             LocalDateTime localDateTime = LocalDateTime.now();
             userLogAccessService.count(ground_id);
-            elasticSearchLogService.save(ground_id, ElasticSearchLog.builder().localDateTime(localDateTime).log(log.getLog()).build());
+            elasticSearchLogService.save(ground_id, ElasticSearchLog.builder().localDateTime(localDateTime).log(logReq.getLog()).build());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
-                            "로그 저장 완료", new LogRes(localDateTime, log.getLog())));
+                            "로그 저장 완료", new LogRes(localDateTime, logReq.getLog())));
         }catch (UserUnAuthException.UnusualRequest e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseVO<>(HttpStatus.BAD_REQUEST.value(),
                     "비정상적인 많은 요청으로 Token을 삭제합니다. 재발급 받으세요.", null));
         }catch (UserUnAuthException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "유효 하지 않은 토큰", null));
         }catch (ElasticSearchException.NoIndexException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseVO<>(HttpStatus.CONFLICT.value(),
                     e.getMessage(), null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }
@@ -119,12 +126,15 @@ public class logController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     ground_id + " 인덱스 삭제 완료", null));
         }catch (ElasticSearchException.NoContentException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
                     e.getMessage(), null));
         }catch (ElasticSearchException.NoIndexException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     e.getMessage(), null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }
@@ -146,12 +156,15 @@ public class logController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, latestLogs));
         }catch (ElasticSearchException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }
@@ -173,12 +186,15 @@ public class logController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, latestLogs));
         }catch (ElasticSearchException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }
@@ -200,12 +216,15 @@ public class logController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, latestLogs));
         }catch (ElasticSearchException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }
@@ -231,12 +250,15 @@ public class logController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, latestLogs));
         }catch (ElasticSearchException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }
@@ -264,12 +286,15 @@ public class logController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, latestLogs));
         }catch (ElasticSearchException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }

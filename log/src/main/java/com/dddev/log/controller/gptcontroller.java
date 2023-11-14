@@ -79,15 +79,19 @@ public class gptcontroller {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (UserUnAuthGptException e) {
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseVO<>(HttpStatus.BAD_REQUEST.value(),
                     e.getMessage(), null));
         }catch (ElasticSearchException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }
@@ -109,12 +113,15 @@ public class gptcontroller {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (ElasticSearchException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }
