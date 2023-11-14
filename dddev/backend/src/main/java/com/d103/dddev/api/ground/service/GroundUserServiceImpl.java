@@ -33,6 +33,7 @@ import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.repository.entity.GroundUser;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
 import com.d103.dddev.api.user.repository.entity.User;
+import com.d103.dddev.api.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GroundUserServiceImpl implements GroundUserService {
 
 	private final GroundUserRepository groundUserRepository;
+	private final UserService userService;
 	private final AesUtil aesUtil;
 
 	@Value("${ip.log.server}")
@@ -76,6 +78,11 @@ public class GroundUserServiceImpl implements GroundUserService {
 
 		// 저장
 		groundUserRepository.saveAndFlush(newGroundUser);
+
+		// 만약 새로 초대된 유저의 last ground id가 null일 때 last ground id를 현재 그라운드로 바꾼다.
+		if(newMember.getLastGroundId() == null) {
+			userService.updateLastVisitedGround(ground.getId(), newMember);
+		}
 
 		// 그라운드 유저 리스트 조회
 		List<GroundUser> groundUserList = groundUserRepository.findByGround_Id(ground.getId());

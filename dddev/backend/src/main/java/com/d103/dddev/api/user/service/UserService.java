@@ -21,8 +21,8 @@ public interface UserService {
 
 	UserDto updateUserInfo(UserDto newUserDto, User user) throws Exception;	// 유저 닉네임 수정
 	UserDto updateProfile(MultipartFile file, User user) throws Exception;	// 유저 프로필 사진 수정
-	UserDto updateLastVisitedGround(Integer lastGroundId, User user) throws Exception;
-	UserDto savePersonalAccessToken(String personalAccessToken, User user) throws Exception;	// 유저 personal access token 수정
+	void updateLastVisitedGround(Integer lastGroundId, User user) throws Exception;
+	void savePersonalAccessToken(String personalAccessToken, User user) throws Exception;	// 유저 personal access token 수정
 
 	UserDto deleteProfile(User user) throws Exception;		// 유저 프로필 사진 삭제
 	void deleteUser(User user) throws Exception;	// 유저 탈퇴

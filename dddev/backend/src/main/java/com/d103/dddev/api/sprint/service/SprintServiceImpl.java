@@ -13,6 +13,8 @@ import com.d103.dddev.api.sprint.repository.SprintRepository;
 
 import com.d103.dddev.common.exception.sprint.SprintNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.TransactionException;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SprintServiceImpl implements SprintService{
     private final SprintRepository sprintRepository;
     private final GroundRepository groundRepository;
@@ -228,6 +231,7 @@ public class SprintServiceImpl implements SprintService{
         try{
             sprintRepository.deleteByGround_Id(groundId);
         }catch(Exception e){
+            log.error(e.getMessage());
             throw new TransactionException("스프린트들을 삭제하는데 실패했습니다.");
         }
     }

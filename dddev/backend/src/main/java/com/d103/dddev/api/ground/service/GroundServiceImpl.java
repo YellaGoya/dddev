@@ -26,6 +26,7 @@ import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.util.UndefinedUtil;
 import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
+import com.d103.dddev.api.sprint.repository.BurnDownRepository;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.service.SprintService;
 import com.d103.dddev.api.user.repository.entity.User;
@@ -41,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GroundServiceImpl implements GroundService {
 
 	private final GroundRepository groundRepository;
+	private final BurnDownRepository burnDownRepository;
 	private final GroundUserService groundUserService;
 	private final UserService userService;
 	private final ProfileService profileService;
@@ -192,6 +194,11 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
+	public void deleteBurnDownChart(Integer groundId) throws Exception {
+		burnDownRepository.deleteByGround_Id(groundId);
+	}
+
+	@Override
 	public Ground deleteGroundProfile(Ground ground) throws Exception {
 		log.info("service - deleteGroundProfile :: 그라운드 프로필 사진 삭제 진입");
 		// 그라운드 프로필 dto
@@ -230,16 +237,6 @@ public class GroundServiceImpl implements GroundService {
 		// 레포지토리 받아오기
 		Repository repository = ground.getRepository();
 
-		// 이슈 리스트 받아오기
-
-		// 문서 리스트 받아오기
-
-		// 리퀘스트 리스트 받아오기
-
-		// 스프린트 받아오기
-
-		// 차트 데이터 받아오기
-
 		// 그라운드 멤버 리스트 받아오기
 		List<GroundUser> groundMembers = groundUserService.getGroundMembers(ground.getId());
 
@@ -247,6 +244,17 @@ public class GroundServiceImpl implements GroundService {
 		for (GroundUser g : groundMembers) {
 			groundUserService.deleteGroundUser(g);
 		}
+
+		// 이슈 삭제
+		issueService.deleteAllIssuesWhenGroundDelete(ground.getId());
+		// 리퀘스트 삭제
+		requestService.deleteAllRequestWhenGroundDelete(ground.getId());
+		// 문서 삭제
+		generalService.deleteAllGeneralWhenGroundDelete(ground.getId());
+		// 스프린트 삭제
+		sprintService.deleteAllSprintWhenGroundDelete(ground.getId());
+		// 차트 데이터 삭제하기
+		this.deleteBurnDownChart(ground.getId());
 
 		// 그라운드 삭제
 		groundRepository.delete(ground);
@@ -258,16 +266,6 @@ public class GroundServiceImpl implements GroundService {
 
 		// 레포지토리 is_ground = false로 변경
 		repositoryService.updateIsGround(repository, false);
-
-		// 이슈 삭제
-		issueService.deleteAllIssuesWhenGroundDelete(ground.getId());
-		// 리퀘스트 삭제
-		requestService.deleteAllRequestWhenGroundDelete(ground.getId());
-		// 문서 삭제
-		generalService.deleteAllGeneralWhenGroundDelete(ground.getId());
-		// 스프린트 삭제
-		sprintService.deleteAllSprintWhenGroundDelete(ground.getId());
-		// 차트 데이터 삭제하기
 
 		// 그라운드 삭제 시 웹훅 모두 삭제
 		try {

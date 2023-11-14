@@ -131,14 +131,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDto updateLastVisitedGround(Integer lastGroundId, User user) throws Exception {
+	public void updateLastVisitedGround(Integer lastGroundId, User user) throws Exception {
 		log.info("service - modifylastVisitedGround :: 마지막으로 방문한 그라운드 수정 진입");
 		user.setLastGroundId(lastGroundId);
-		return userRepository.saveAndFlush(user).convertToDto();
+		userRepository.saveAndFlush(user);
 	}
 
 	@Override
-	public UserDto savePersonalAccessToken(String newPersonalAccessToken, User user) throws Exception {
+	public void savePersonalAccessToken(String newPersonalAccessToken, User user) throws Exception {
 		log.info("service - savePersonalAccessToken :: 사용자 personal access token 저장 진입");
 		String encrypted = encryptPersonalAccessToken(newPersonalAccessToken, AesType.PAT);
 
@@ -167,7 +167,7 @@ public class UserServiceImpl implements UserService {
 
 
 		user.updatePersonalAccessToken(encrypted);
-		return userRepository.saveAndFlush(user).convertToDto();
+		userRepository.saveAndFlush(user);
 	}
 
 	@Override

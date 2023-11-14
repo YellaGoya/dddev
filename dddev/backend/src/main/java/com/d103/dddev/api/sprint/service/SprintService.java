@@ -28,4 +28,5 @@ public interface SprintService {
     Map<String, Integer> getSprintFocusTimeCount(Integer sprintId) throws Exception;
     Map<String, Integer> getSprintActiveTimeCount(Integer sprintId) throws Exception;
     Map<String, Integer> getSprintTotalTimeCount(Integer sprintId) throws Exception;
+
 }

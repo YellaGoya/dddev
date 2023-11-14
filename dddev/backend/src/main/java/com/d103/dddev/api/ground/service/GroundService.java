@@ -33,6 +33,7 @@ public interface GroundService {
 	Ground updateGroundInfo(Ground newGround, Ground ground) throws Exception;
 	Ground updateGroundProfile(MultipartFile file, Ground ground) throws Exception;
 
+	void deleteBurnDownChart(Integer groundId) throws Exception;
 	Ground deleteGroundProfile(Ground ground) throws Exception;
 	void deleteMemberFromGround(Ground ground, User user) throws Exception;
 	void deleteGround(User user, Ground ground) throws Exception;
