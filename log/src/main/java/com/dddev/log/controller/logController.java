@@ -57,7 +57,7 @@ public class logController {
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/auth")
     public ResponseEntity<?> userAuth(
-            @ApiParam(value = "로그 기능 사용을 위한 토큰 유효성 체크", required = true) @RequestHeader String token) {
+            @ApiParam(value = "발급 받은 토큰", required = true) @RequestHeader String token) {
         try{
             groundAuthService.checkValid(token);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseVO<>(HttpStatus.ACCEPTED.value(),
@@ -83,7 +83,7 @@ public class logController {
     @PostMapping("")
     public ResponseEntity<?> saveLog(
             @ApiParam(value = "자동으로 저장 되는 로그", required = true) @RequestBody LogReq logReq,
-            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String token) {
+            @ApiParam(value = "발급 받은 토큰", required = true) @RequestHeader String token) {
         // 문자열을 파일로 저장
         try{
             String ground_id = groundAuthService.checkValid(token);
@@ -92,6 +92,42 @@ public class logController {
             elasticSearchLogService.save(ground_id, ElasticSearchLog.builder().localDateTime(localDateTime).log(logReq.getLog()).build());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                             "로그 저장 완료", new LogRes(localDateTime, logReq.getLog())));
+        }catch (UserUnAuthException.UnusualRequest e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseVO<>(HttpStatus.BAD_REQUEST.value(),
+                    "비정상적인 많은 요청으로 Token을 삭제합니다. 재발급 받으세요.", null));
+        }catch (UserUnAuthException e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
+                    "유효 하지 않은 토큰", null));
+        }catch (ElasticSearchException.NoIndexException e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseVO<>(HttpStatus.CONFLICT.value(),
+                    e.getMessage(), null));
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    e.getMessage(), null));
+        }
+    }
+
+    //로그 저장
+    @ApiOperation(value = "로그 저장 테스트")
+    @ApiResponses(
+            value = {@ApiResponse(code = 400, message = "로그 요청이 비정상적으로 많을 때"),
+                    @ApiResponse(code = 401, message = "토큰이 유효하지 않을 때"),
+                    @ApiResponse(code = 409, message = "저장된 Ground_ID가 없을 때"),
+                    @ApiResponse(code = 500, message = "서버 내부 오류")})
+    @PostMapping("test")
+    public ResponseEntity<?> testLog(
+            @ApiParam(value = "자동으로 저장 되는 로그", required = true) @RequestBody LogReq logReq,
+            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String groundId) {
+        // 문자열을 파일로 저장
+        try{
+            LocalDateTime localDateTime = LocalDateTime.now();
+            elasticSearchLogService.save(groundId, ElasticSearchLog.builder().localDateTime(localDateTime).log(logReq.getLog()).build());
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
+                    "로그 저장 완료", new LogRes(localDateTime, logReq.getLog())));
         }catch (UserUnAuthException.UnusualRequest e){
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseVO<>(HttpStatus.BAD_REQUEST.value(),
