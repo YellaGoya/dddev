@@ -515,7 +515,7 @@ public class IssueServiceImpl implements IssueService {
 		ArrayList<Issue> sprintIssueList = issueRepository.findAllByGroundIdAndSprintIdAndType(groundId, sprintId, "issue");
 
 		// 2. 스프린트에 속하지 않은 ground 이슈 목록 로딩
-		ArrayList<Issue> noSprintIssueList = issueRepository.findAllByGroundIdAndSprintIdAndTypeAndStatus(groundId, 0, "issue", 0);
+		ArrayList<Issue> noSprintIssueList = issueRepository.findAllByGroundIdAndSprintIdAndType(groundId, 0, "issue");
 
 		ArrayList<Issue> result = new ArrayList<>();
 
