@@ -260,7 +260,7 @@ public class SprintServiceImpl implements SprintService{
 
         SprintEntity sprintEntity = sprintRepository.findById(sprintId).orElseThrow(()-> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
 
-        Map<LocalDateTime, Integer> burnDown = new HashMap<>();
+        Map<LocalDateTime, Integer> burnDown = new TreeMap<>();
 
 
         if(sprintEntity.getStatus() == OPEN) {		// 진행중
