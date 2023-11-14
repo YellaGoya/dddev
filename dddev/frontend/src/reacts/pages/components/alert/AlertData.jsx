@@ -11,24 +11,24 @@ const AlertData = () => {
   // const [userDocIdList, setUserDocIdList] = useState([]);
   const [userAlertList, setUserAlertList] = useState([{}]);
   const [allAlertList, setAllAlertList] = useState([{}]);
+  // const [groundAlertList, setGroundAlertList] = useState([{}]);
 
   useEffect(() => {
-    console.log(userAlertList);
+    console.log('1 ', userAlertList);
   }, [userAlertList]);
 
   useEffect(() => {
-    console.log(allAlertList);
+    console.log('2 ', allAlertList);
   }, [allAlertList]);
 
   useEffect(() => {
-    console.log(user.accessToken);
     const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(user.githubId));
 
     // firestore 실시간 동기화, 문서 변경 발생 시 실행
     alertUserDataCollection.onSnapshot(
       (snapshot) => {
         const arr = [];
-        console.log(`Received query snapshot of size ${snapshot.size}`);
+        // console.log(`Received query snapshot of size ${snapshot.size}`);
 
         // 전체 알림에서 사용자가 받은 알림의 id를 받아옴
         snapshot.forEach((doc) => {
@@ -69,20 +69,27 @@ const AlertData = () => {
 
   const getAllDocs = async (grounds) => {
     const promises = grounds.map(({ id }) => {
-      console.log('id', id);
       return db
         .collection('webhookData')
-        .where('groundId', '==', `${id}`)
+        .where('groundId', '==', id)
         .get()
-        .then((res) => {
-          if (res.exists) {
-            const resData = res.data();
-            resData.nickname = resData.author.nickname;
-            console.log('resData ::', resData);
-            return resData;
-          }
+        .then(async (resList) => {
+          console.log('id', id);
+          console.log('size', resList.size);
+          const resListMap = resList.map((res) => {
+            if (res.exists) {
+              const resData = res.data();
+              resData.nickname = resData.author.nickname;
+              console.log('resData ::', resData);
+              return resData;
+            }
 
-          return null;
+            return null;
+          });
+
+          const eachResults = await Promise.all(resListMap);
+          const validEachResults = eachResults.filter((result) => result !== null);
+          return validEachResults;
         });
     });
 
@@ -98,6 +105,7 @@ const AlertData = () => {
         .doc(id)
         .get()
         .then((res) => {
+          console.log('res', res);
           if (res.exists) {
             const resData = res.data();
             resData.isRead = isRead;
@@ -163,7 +171,7 @@ const AlertData = () => {
             <div>
               {alert.id}
               {alert.alertType}
-              {alert.author.nickname}
+              {alert.nickname}
               {alert.branch}
               {alert.message}
               {alert.timestamp}
@@ -175,7 +183,7 @@ const AlertData = () => {
         );
       })}
       <div>전체 알림 내역</div>
-      {/* <div>{console.log('allAlertList :: ', allAlertList)}</div> */}
+      <div>{console.log('allAlertList :: ', allAlertList)}</div>
     </>
   );
 };
