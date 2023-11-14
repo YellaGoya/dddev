@@ -16,7 +16,6 @@ public class OpenAIRestTemplateConfig  {
     @Bean
     @Qualifier("openaiRestTemplate")
     public RestTemplate openaiRestTemplate() {
-
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getInterceptors().add((request, body, execution) -> {
             request.getHeaders().setContentType(MediaType.APPLICATION_JSON);

@@ -111,7 +111,7 @@ public class logController {
         }
     }
 
-    //로그 저장
+    //로그 저장 테스트
     @ApiOperation(value = "로그 저장 테스트")
     @ApiResponses(
             value = {@ApiResponse(code = 400, message = "로그 요청이 비정상적으로 많을 때"),

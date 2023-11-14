@@ -13,6 +13,7 @@ public class UserLogAccess {
     @Id
     private String groundId;
     private Integer count;
+    private Integer index;
 
     @TimeToLive
     private Long expiration;
