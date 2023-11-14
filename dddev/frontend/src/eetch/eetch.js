@@ -83,5 +83,14 @@ eetch.startSprint = (values) => ground.startSprint(values);
 eetch.completeSprint = (values) => ground.completeSprint(values);
 eetch.connectSprint = (values) => ground.connectSprint(values);
 eetch.multiConnectSprint = (values) => ground.multiConnectSprint(values);
+eetch.editSprint = (values) => ground.editSprint(values);
+eetch.deleteSprint = (values) => ground.deleteSprint(values);
+eetch.activeCount = (values) => ground.activeCount(values);
+eetch.activeTime = (values) => ground.activeTime(values);
+eetch.burnDown = (values) => ground.burnDown(values);
+eetch.focusCount = (values) => ground.focusCount(values);
+eetch.focusTime = (values) => ground.focusTime(values);
+eetch.totalCount = (values) => ground.totalCount(values);
+eetch.totalTime = (values) => ground.totalTime(values);
 
 export default eetch;

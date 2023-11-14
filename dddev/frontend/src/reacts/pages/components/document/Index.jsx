@@ -62,34 +62,35 @@ const Index = () => {
   };
 
   const getTree = (type) => {
-    return eetch
-      .treeDocument({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId, type })
-      .then((res) => {
-        if (res.data[0].title === '미분류') res.data.shift();
-        switch (type) {
-          case 'target':
-            setIssueTree(res.data);
-            break;
-          case 'request':
-            setRequestTree(res.data);
-            break;
-          case 'general':
-            setGeneralTree(res.data);
-            break;
-          default:
-            break;
-        }
+    if (groundId)
+      return eetch
+        .treeDocument({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId, type })
+        .then((res) => {
+          if (res.data[0].title === '미분류') res.data.shift();
+          switch (type) {
+            case 'target':
+              setIssueTree(res.data);
+              break;
+            case 'request':
+              setRequestTree(res.data);
+              break;
+            case 'general':
+              setGeneralTree(res.data);
+              break;
+            default:
+              break;
+          }
 
-        return res.data;
-      })
-      .catch((err) => {
-        if (err.message === 'RefreshTokenExpired') {
-          dispatch(logoutUser());
-          dispatch(setMenu(false));
-          dispatch(setMessage(false));
-          navigate(`/login`);
-        }
-      });
+          return res.data;
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
   };
 
   const RenderDocsTree = ({ doc, type }) => {

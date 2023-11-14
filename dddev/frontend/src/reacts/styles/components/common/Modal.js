@@ -1,16 +1,6 @@
 import Modal from 'react-modal';
 import styled from 'styled-components';
 
-export const ModalWrapper = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #000;
-
-  display: ${({ $isOpen }) => ($isOpen ? 'block' : 'none')};
-`;
 export const ModalChanger = styled(Modal)`
   position: fixed;
   top: 50%;
@@ -32,6 +22,10 @@ export const ModalChanger = styled(Modal)`
   & > p {
     color: var(--font-rev);
     text-align: center;
+  }
+
+  & > button.accept-button {
+    right: 70px;
   }
 `;
 

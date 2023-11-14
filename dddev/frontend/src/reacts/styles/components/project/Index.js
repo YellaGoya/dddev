@@ -19,7 +19,19 @@ export const RecentSprint = styled.section`
 export const InfoWrapper = styled.div`
   & > h1 {
     font-size: 1.1rem;
-    padding: 0 5px;
+    padding: 0 10px;
+  }
+`;
+
+export const GoalWrapper = styled.div`
+  margin-top: 5px;
+  margin-bottom: 15px;
+
+  & > p {
+    font-size: 0.9rem;
+    font-weight: 400;
+    padding: 0 10px;
+    margin: 0;
   }
 `;
 
@@ -54,9 +66,23 @@ export const ButtonWrapper = styled.div`
   }
 `;
 
-export const CreateButton = styled.button``;
-export const StartButton = styled.button``;
-export const EndButton = styled.button``;
+export const CreateButton = styled.button`
+  display: inline-block;
+`;
+export const StartButton = styled.button`
+  display: inline-block;
+`;
+export const EndButton = styled.button`
+  display: inline-block;
+`;
+export const EditButton = styled.button`
+  display: inline-block;
+  color: ${({ $onEdit }) => ($onEdit ? 'var(--font-new)' : 'var(--font-rev)')};
+  & > svg {
+    transition: none;
+    fill: ${({ $onEdit }) => ($onEdit ? 'var(--font-new)' : 'var(--font-rev)')};
+  }
+`;
 
 export const Backlog = styled.section`
   margin: 0 auto;
@@ -71,9 +97,39 @@ export const IssueTable = styled.table`
   border: none;
 
   border-collapse: collapse;
+
+  opacity: ${(props) => (props.status === 2 ? '0.35' : '1')};
+
+  & > tbody > tr {
+    &:hover {
+      background-color: ${(props) => (props.status === 2 ? 'transparent' : 'var(--bg-black)')};
+    }
+
+    & > td.issue-status {
+      pointer-events: ${(props) => (props.status === 2 ? 'none' : 'auto')};
+    }
+  }
 `;
 
-export const IssueBody = styled.tbody``;
+export const IssueBody = styled.tbody`
+  & > tr {
+    & > div {
+      display: ${(props) => (props.sprintstatus === 0 ? 'block' : 'none')};
+    }
+
+    & > td.check-box {
+      display: ${(props) => (props.sprintstatus === 0 ? 'block' : 'none')};
+    }
+
+    & > td.issue-title {
+      padding-left: ${(props) => (props.sprintstatus === 0 ? '35px' : '10px')};
+    }
+
+    & > td.modifier {
+      padding-right: ${(props) => (props.sprintstatus === 0 ? '40px' : '10px')};
+    }
+  }
+`;
 
 export const IssueRow = styled.tr`
   width: 100%;
@@ -89,31 +145,7 @@ export const IssueRow = styled.tr`
       border-radius: 0.75rem 0 0 0.75rem;
     }
 
-    & > svg {
-      opacity: 0.5;
-    }
-  }
-
-  & > svg {
-    opacity: ${({ $checked }) => ($checked ? '1' : '0')};
-    fill: ${({ $checked }) => ($checked ? 'var(--font-toggle)' : 'var(--font-rev)')};
-    position: absolute;
-    top: 5px;
-    left: 10px;
-    width: 21px;
-    height: 21px;
-
-    transition: opacity 0.2s ease;
-
-    cursor: pointer;
-
-    &:hover {
-      opacity: 1;
-    }
-  }
-
-  @media (max-width: 600px) {
-    & > svg {
+    & > td.check-box {
       opacity: 0.5;
     }
   }
@@ -128,6 +160,34 @@ export const IssueRow = styled.tr`
     text-overflow: ellipsis;
 
     border: none;
+  }
+
+  & > td.check-box {
+    position: absolute;
+    top: 4px;
+    left: 10px;
+    padding: 0;
+    opacity: ${({ $checked }) => ($checked ? '1' : '0')};
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    & > svg {
+      fill: ${({ $checked }) => ($checked ? 'var(--font-toggle)' : 'var(--font-rev)')};
+
+      width: 21px;
+      height: 21px;
+
+      cursor: pointer;
+    }
+  }
+
+  @media (max-width: 600px) {
+    & > td.check-box {
+      opacity: 0.5;
+    }
   }
 
   & > td.issue-status {
@@ -165,9 +225,15 @@ export const IssueRow = styled.tr`
   & > td.issue-title {
     border-radius: 0.5rem 0 0 0.5rem;
     min-width: 300px;
-    width: 40%;
+    width: 50%;
     text-align: left;
-    padding-left: 40px;
+
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
   }
 
   & > td.modifier {
@@ -204,14 +270,11 @@ export const IssueRow = styled.tr`
   }
 `;
 
-export const ConnectWrapper = styled.div`
+export const ConnectWrapper = styled.td`
   display: ${({ $available }) => ($available ? 'none' : 'block')};
   position: absolute;
   top: 2px;
-  right: 7px;
-
-  &:hover {
-  }
+  right: -3px;
 `;
 
 export const DeleteButton = styled.button`
@@ -262,4 +325,48 @@ export const ConnectButton = styled.button`
     width: 21px;
     height: 21px;
   }
+`;
+
+export const ThereIsNoSprint = styled.div`
+  margin: 30px 0;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  opacity: 0.5;
+`;
+
+export const ThereIsNothing = styled.div`
+  margin: 30px 0;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  opacity: 0.5;
+`;
+
+export const TitleInput = styled.input`
+  height: 24px;
+  background-color: transparent;
+
+  padding: 0 10px;
+  opacity: 0.5;
+
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  outline: none;
+`;
+
+export const GoalInput = styled.input`
+  margin-top: 2px;
+  margin-bottom: 5px;
+  height: 24px;
+  background-color: transparent;
+
+  padding: 0 10px;
+  opacity: 0.5;
+
+  font-size: 0.9rem;
+  font-weight: 400;
+  border: none;
+  outline: none;
 `;

@@ -18,9 +18,9 @@ import Input from 'reacts/pages/components/common/Input';
 
 import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import hljs from 'highlight.js';
-
 import userStockImage from 'assets/userStockImage.webp';
-// import KeyboardDoubleArrowRightRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowRightRounded';
+import Modal from 'reacts/pages/components/common/Modal';
+
 import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import SaveIcon from '@mui/icons-material/Save';
@@ -64,6 +64,8 @@ const Write = () => {
   const [activeTime, setActiveTime] = useState(0);
   const [users, setUsers] = useState(null);
   const [comments, setComments] = useState([]);
+  const [reqAlertOne, setReqAlertOne] = useState(false);
+  const [reqAlertTwo, setReqAlertTwo] = useState(false);
   const titleRef = useRef(null);
   const settingTitleRef = useRef(null);
   const statusRef = useRef(null);
@@ -246,7 +248,7 @@ const Write = () => {
     if (quillRef.current) {
       if (status === 0) {
         quillRef.current.getEditor().enable();
-      } else quillRef.current.getEditor().enable();
+      } else quillRef.current.getEditor().disable();
     }
   }, [status]);
 
@@ -369,7 +371,17 @@ const Write = () => {
         });
   };
 
-  const statusDocument = (status) => {
+  const statusDocument = (status, valid = true) => {
+    if (params.type === 'request' && status === 1 && valid) {
+      setReqAlertOne(true);
+      return;
+    }
+
+    if (params.type === 'request' && status === 2 && valid) {
+      setReqAlertTwo(true);
+      return;
+    }
+
     eetch
       .statusDocument({
         accessToken: user.accessToken,
@@ -764,6 +776,28 @@ const Write = () => {
           <PublishRoundedIcon onClick={SubmitComment} />
         </s.CommentWrapper>
       )}
+      <Modal
+        isOpen={reqAlertOne}
+        type="check"
+        message="* 진행 중으로 변경하면 수정이 불가능합니다."
+        accept={() => {
+          statusDocument(1, false);
+        }}
+        onRequestClose={() => {
+          setReqAlertOne(false);
+        }}
+      />
+      <Modal
+        isOpen={reqAlertTwo}
+        type="check"
+        message="* 완료 상태로 변경되면 아카이브 되어 삭제가 불가능합니다."
+        accept={() => {
+          statusDocument(2, false);
+        }}
+        onRequestClose={() => {
+          setReqAlertTwo(false);
+        }}
+      />
     </s.EditorWrapper>
   );
 };

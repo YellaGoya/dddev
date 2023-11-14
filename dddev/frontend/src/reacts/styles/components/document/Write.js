@@ -46,7 +46,7 @@ export const EditorWrapper = styled.div`
 
   .quill {
     padding-top: 0px;
-    /* pointer-events: ${({ status }) => (status === 0 ? 'auto' : 'none')}; */
+    pointer-events: ${({ status }) => (status === 0 ? 'auto' : 'none')};
   }
 
   .ql-toolbar.ql-snow {

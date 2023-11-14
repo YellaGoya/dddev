@@ -9,6 +9,7 @@ import { logoutUser } from 'redux/actions/user';
 
 import Write from 'reacts/pages/components/document/Write';
 import SelectTransparent from 'reacts/pages/components/common/SelectTransparent';
+import userStockImage from 'assets/userStockImage.webp';
 
 const sortList = [
   { id: 0, name: '전체', filter: 'step2' },
@@ -16,6 +17,8 @@ const sortList = [
   { id: 2, name: '진행 중', filter: 'proceed' },
   { id: 3, name: '완료', filter: 'done' },
 ];
+
+import FolderCopyRoundedIcon from '@mui/icons-material/FolderCopyRounded';
 
 import * as s from 'reacts/styles/components/document/Request';
 const Request = () => {
@@ -67,30 +70,45 @@ const Request = () => {
 
   return (
     <s.RequestWrapper>
-      <s.RequestListWrapper>
-        <SelectTransparent
-          label="필터"
-          list={sortList}
-          selected={sortList[0].name}
-          select={(item) => {
-            setFilter(item.filter);
-          }}
-        />
-        <s.RequestList>
-          {requestList.map((item) => (
-            <s.RequestItem key={item.id} onClick={() => navigate(`/${params.groundId}/document/request/${item.id}`)}>
-              <s.ItemWrapper>
-                <s.ItemAuthor>{item.author}</s.ItemAuthor>
-                <s.ItemTitle>{item.title === '' ? '새 문서' : item.title}</s.ItemTitle>
-              </s.ItemWrapper>
-            </s.RequestItem>
-          ))}
-        </s.RequestList>
-      </s.RequestListWrapper>
+      {requestList && requestList.length > 0 ? (
+        <>
+          <s.RequestListWrapper>
+            <SelectTransparent
+              label="필터"
+              list={sortList}
+              selected={sortList[0].name}
+              select={(item) => {
+                setFilter(item.filter);
+              }}
+            />
+            <s.RequestList>
+              {requestList.map((item) => (
+                <s.RequestItem key={item.id} onClick={() => navigate(`/${params.groundId}/document/request/${item.id}`)}>
+                  <s.ItemWrapper>
+                    <s.ItemAuthor>
+                      <s.ProfileImage src={item.author.fileName ? `https://k9d103.p.ssafy.io/img/user/${item.author.fileName}` : userStockImage} />
+                      {item.author.nickname}
+                    </s.ItemAuthor>
+                    <s.ItemTitle>{item.title === '' ? '새 문서' : item.title}</s.ItemTitle>
+                  </s.ItemWrapper>
+                </s.RequestItem>
+              ))}
+            </s.RequestList>
+          </s.RequestListWrapper>
 
-      <s.WriterWrapper>
-        <Write key={refreshKey} />
-      </s.WriterWrapper>
+          <s.WriterWrapper>
+            <Write key={refreshKey} />
+          </s.WriterWrapper>
+        </>
+      ) : (
+        <s.ThereIsNothing>
+          <h1>생성 된 요청이 없습니다.</h1>
+          <s.ToDocsButton>
+            문서 페이지로 이동
+            <FolderCopyRoundedIcon />
+          </s.ToDocsButton>
+        </s.ThereIsNothing>
+      )}
     </s.RequestWrapper>
   );
 };

@@ -5,6 +5,8 @@ export const InputWrapper = styled.div`
   margin-bottom: 1.5rem;
 
   display: ${({ $display }) => ($display ? 'block' : 'none')};
+
+  background-color: inherit;
 `;
 
 export const Label = styled.h2`
@@ -13,7 +15,8 @@ export const Label = styled.h2`
   top: -9px;
   padding: 0 5px;
   color: var(--font-border);
-  background-color: var(--bg-dark);
+
+  background-color: inherit;
 
   font-weight: 500;
   font-size: 0.8rem;
