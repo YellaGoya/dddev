@@ -563,4 +563,22 @@ public class IssueServiceImpl implements IssueService {
 				.build();
     }
 
+	@Override
+	public IssueDto.Status.Response issueStatusToggle(String issueId, UserDetails userDetails) {
+		Issue issue = issueRepository.findById(issueId)
+				.orElseThrow(() -> new NoSuchElementException(Error.NoSuchElementException()));
+
+		issue.setStatus((issue.getStatus() + 1) % 3);
+
+		issue.setModifier(userDetails.getUsername());
+
+		issueRepository.save(issue);
+
+		return IssueDto.Status.Response.builder()
+				.message(IssueMessage.status())
+				.code(HttpStatus.OK.value())
+				.data(issue)
+				.build();
+	}
+
 }
