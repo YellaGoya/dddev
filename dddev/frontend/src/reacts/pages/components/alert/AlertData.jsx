@@ -5,17 +5,14 @@ import { db } from 'fcm/firebaseConfig';
 
 const AlertData = () => {
   const user = useSelector((state) => state.user);
+  const githubId = useSelector((state) => state.user.githubId);
   const groundsMap = useSelector((state) => state.user.groundsMap);
 
   const [userAlertList, setUserAlertList] = useState([]);
   const [allAlertList, setAllAlertList] = useState([]);
 
   useEffect(() => {
-    const alertUserDataCollection = db
-      .collection('alertUserData')
-      .where('githubId', '==', Number(user.githubId))
-      .orderBy('timestamp', 'desc')
-      .limit(20);
+    const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(githubId)).orderBy('timestamp', 'desc').limit(20);
 
     // firestore 실시간 동기화, 문서 변경 발생 시 실행
     alertUserDataCollection.onSnapshot(
@@ -99,6 +96,21 @@ const AlertData = () => {
     setUserAlertList(validResults);
   };
 
+  // 깃허브 링크 연결 및 읽음 처리(사용자 구독 알림만)
+  const githubLinkClick = async (url, docId) => {
+    const docRef = db.collection('alertUserData').where('githubId', '==', Number(githubId)).where('id', '==', docId);
+
+    const snapshot = await docRef.get();
+
+    if (!snapshot.empty) {
+      snapshot.docs[0].ref.update({
+        isRead: true,
+      });
+    }
+
+    window.open(url, '_blank');
+  };
+
   return (
     <>
       <div>**********AlertData 컴포넌트 시작**********</div>
@@ -106,7 +118,7 @@ const AlertData = () => {
       {userAlertList.map((alert) => {
         return (
           <div key={alert.id}>
-            <div>
+            <div onClick={githubLinkClick(alert.url, alert.id)}>
               {alert.type}
               {alert.nickname}
               {alert.branch}
