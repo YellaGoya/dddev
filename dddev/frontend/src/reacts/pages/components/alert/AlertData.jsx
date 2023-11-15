@@ -73,8 +73,6 @@ const AlertData = () => {
     const promises = arr.map(({ id, isRead, keyword }) => {
       return db
         .collection('webhookData')
-        .orderBy('timestamp', 'desc')
-        .limit(10)
         .doc(id)
         .get()
         .then((res) => {
@@ -92,7 +90,7 @@ const AlertData = () => {
 
     const results = await Promise.all(promises);
     const validResults = results.filter((result) => result !== null);
-    // validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     setUserAlertList(validResults);
   };
 
