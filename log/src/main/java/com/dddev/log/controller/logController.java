@@ -183,26 +183,25 @@ public class logController {
     //전체 로그 불러오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 30개 씩 가져오는 API")
     @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 groundId가 존재하지 않을 때"),
+            value = {
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("")
     public ResponseEntity<ResponseVO<PageableRes>> getSizeLogFile(
             @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String groundId,
-            @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
-     {
-        try{
-            String result = "로그 불러오기 완료";
-            Page<ElasticSearchLog> latestLogs = elasticSearchLogService.getLatestLogs(groundId, page-1);
+            @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page){
+        String result = "로그 불러오기 완료";
+        try {
+            Page<ElasticSearchLog> latestLogs = elasticSearchLogService.getLatestLogs(groundId, page - 1);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
-                    result, new PageableRes(latestLogs.getNumber()+1, latestLogs.getTotalPages(),latestLogs.getContent())));
+                    result, new PageableRes(latestLogs.getNumber() + 1, latestLogs.getTotalPages(), latestLogs.getContent())));
+        }catch (NoSuchIndexException e){
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
+                        "불러 올 로그가 없습니다", new PageableRes(0, -1, null)));
         }catch (ElasticSearchException e){
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
                     e.getMessage(), null));
-        }catch (NoSuchIndexException e){
-            log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 ground id 접근입니다.", null));
         }catch (Exception e){
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -232,8 +231,8 @@ public class logController {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 ground id 접근입니다.", null));
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
+                    "불러 올 로그가 없습니다", new PageableRes(0, -1, null)));
         }catch (Exception e){
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -263,8 +262,8 @@ public class logController {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 ground id 접근입니다.", null));
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
+                    "불러 올 로그가 없습니다", new PageableRes(0, -1, null)));
         }catch (Exception e){
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -298,8 +297,8 @@ public class logController {
                     e.getMessage(), null));
         }catch (NoSuchIndexException e){
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 ground id 접근입니다.", null));
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
+                    "불러 올 로그가 없습니다", new PageableRes(0, -1, null)));
         }catch (Exception e){
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -334,8 +333,8 @@ public class logController {
                     e.getMessage(), null));
         } catch (NoSuchIndexException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
-                    "잘못된 ground id 접근입니다.", null));
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
+                    "불러 올 로그가 없습니다", new PageableRes(0, -1, null)));
         } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
