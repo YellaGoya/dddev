@@ -1,5 +1,7 @@
 package com.d103.dddev.api.alert.entity;
 
+import java.util.Date;
+
 import com.d103.dddev.api.user.repository.dto.UserDto;
 import com.d103.dddev.api.user.repository.entity.User;
 
@@ -22,7 +24,7 @@ public class WebhookDataDocument {
 	private UserDto author;
 	private String message;
 	private String branch;
-	private String timestamp;
+	private Date timestamp;
 	private String url;
 	private Integer groundId;
 }

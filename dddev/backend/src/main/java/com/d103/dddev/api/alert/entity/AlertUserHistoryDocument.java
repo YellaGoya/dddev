@@ -1,5 +1,6 @@
 package com.d103.dddev.api.alert.entity;
 
+import java.util.Date;
 import java.util.List;
 
 import com.d103.dddev.api.user.repository.dto.UserDto;
@@ -22,4 +23,5 @@ public class AlertUserHistoryDocument {
 	private String id;	// commit SHA / pull request id
 	private Boolean isRead;
 	private List<String> keyword;
+	private Date timestamp;
 }
