@@ -7,8 +7,8 @@ const AlertData = () => {
   const user = useSelector((state) => state.user);
   const groundsMap = useSelector((state) => state.user.groundsMap);
 
-  const [userAlertList, setUserAlertList] = useState([{}]);
-  const [allAlertList, setAllAlertList] = useState([{}]);
+  const [userAlertList, setUserAlertList] = useState([]);
+  const [allAlertList, setAllAlertList] = useState([]);
 
   useEffect(() => {
     const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(user.githubId));
@@ -36,7 +36,7 @@ const AlertData = () => {
   }, [user]);
 
   const getAllDocs = async (grounds) => {
-    console.log('grounds', grounds);
+    // console.log('grounds', grounds);
     const promises = grounds.map(({ id }) => {
       return db
         .collection('webhookData')

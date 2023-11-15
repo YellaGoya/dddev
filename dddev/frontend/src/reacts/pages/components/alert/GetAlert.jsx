@@ -12,12 +12,12 @@ const GetAlert = () => {
   const [keywords, setKeywords] = useState(['']);
   const [pushId, setPushId] = useState();
   const [pullRequestId, setPullRequestId] = useState();
-  // const [alertState, setAlertState] = useState({});
   const groundsMap = useSelector((state) => state.user.groundsMap);
   const [groundName, setGroundName] = useState('');
 
   useEffect(() => {
-    console.log('keywords: ', keywords);
+    // console.log('keywords: ', keywords);
+    // 버튼 없앨거면 여기에 updateAlert();
   }, [keywords]);
 
   useEffect(() => {
@@ -25,17 +25,13 @@ const GetAlert = () => {
   }, [user.accessToken, user.refreshToken]);
 
   useEffect(() => {
-    // console.log('user at', user.accessToken);
-    // console.log('map: ', user.groundsMap);
-    // console.log('list: ', user.groundsList);
-    // 그라운드 이름 불러오기
+    // 지금 그라운드 이름 불러오기
     const ground = groundsMap.find((ground) => ground.id === lastGround);
     setGroundName(ground.name);
     // 초기 상태를 설정하는 API 호출
     eetch
       .getAlert({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: lastGround })
       .then((res) => {
-        console.log('res:', res.data);
         setPushToggle(res.data.pushId !== null);
         setPullRequestToggle(res.data.pullRequestId !== null);
         setKeywords(res.data.keyword ? res.data.keyword : []);
@@ -45,11 +41,8 @@ const GetAlert = () => {
       .catch((err) => console.error(err));
   }, [user.accessToken, user.refreshToken]);
 
-  // console.log(user);
-  // console.log(lastGround);
-
   const updateAlert = () => {
-    console.log('update alert : ', keywords);
+    // console.log('update alert : ', keywords);
     // 키워드 수정되면 알림 수정
     eetch
       .updateAlert({
@@ -59,7 +52,6 @@ const GetAlert = () => {
         keyword: keywords,
       })
       .then((res) => {
-        console.log('res:', res.data);
         setPushToggle(res.data.pushId !== null);
         setPullRequestToggle(res.data.pullRequestId !== null);
         setKeywords(res.data.keyword ? res.data.keyword : []);
@@ -72,7 +64,7 @@ const GetAlert = () => {
     const toggle = type === 'push' ? pushToggle : pullRequestToggle;
     const setToggle = type === 'push' ? setPushToggle : setPullRequestToggle;
 
-    console.log('keyowrds', keywords);
+    // console.log('keyowrds', keywords);
 
     if (!toggle) {
       eetch
@@ -84,10 +76,7 @@ const GetAlert = () => {
           type,
         })
         .then((res) => {
-          // alertState(res.data);
-          console.log('create:', res);
           setToggle((toggle) => !toggle);
-          console.log('res:', res.data);
           setPushToggle(res.data.pushId !== null);
           setPullRequestToggle(res.data.pullRequestId !== null);
           setKeywords(res.data.keyword ? res.data.keyword : []);
@@ -95,7 +84,7 @@ const GetAlert = () => {
           setPullRequestId(res.data.pullRequestId);
         })
         .catch((err) => {
-          // 알림 허용을 안해서 422 에러가 뜨면 alert
+          // 알림 허용을 안해서 422 에러가 뜨면 알림 허용을 해야 한다고 안내하기
           console.log('createAlert err: ', err);
         });
     } else {
@@ -126,22 +115,13 @@ const GetAlert = () => {
       <label>
         그라운드 이름 : {groundName}
         Push 알림 토글:
-        <input
-          type="checkbox"
-          checked={pushToggle}
-          onChange={() => clickToggle('push', pushId)} // 'pushId' 대신 실제 id를 사용해야 합니다.
-        />
+        <input type="checkbox" checked={pushToggle} onChange={() => clickToggle('push', pushId)} />
       </label>
       <label>
         Pull Request 알림 토글:
-        <input
-          type="checkbox"
-          checked={pullRequestToggle}
-          onChange={() => clickToggle('pull_request', pullRequestId)} // 'pullRequestId' 대신 실제 id를 사용해야 합니다.
-        />
+        <input type="checkbox" checked={pullRequestToggle} onChange={() => clickToggle('pull_request', pullRequestId)} />
       </label>
       <label>
-        {' '}
         {(pushToggle || pullRequestToggle) && (
           <label>
             <Input label="키워드" array={keywords} enter={setKeywords} />
