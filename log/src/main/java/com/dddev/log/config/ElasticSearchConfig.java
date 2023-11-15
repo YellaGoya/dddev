@@ -19,7 +19,6 @@ public class ElasticSearchConfig extends AbstractElasticsearchConfiguration {
 
     @Override
     public RestHighLevelClient elasticsearchClient() {
-
         ClientConfiguration clientConfiguration = ClientConfiguration.builder()
                 .connectedTo("k9d103a.p.ssafy.io:9200")
                 .withBasicAuth(env.getProperty("elasticSearch.id"), env.getProperty("elasticSearch.password"))

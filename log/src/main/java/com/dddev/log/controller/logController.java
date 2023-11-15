@@ -44,7 +44,10 @@ public class logController {
     public ResponseEntity<ResponseVO<List<TokenRes>>> userAuthSave(
             @ApiParam(value = "로그 기능 사용을 위한 토큰 발급 시 저장", required = true) @RequestBody UserAuthReq userAuthReq) {
         try{
+            log.info("TOKEN : {}, /log/auth, POST 요청", userAuthReq.getToken());
             List<TokenRes> tokenResList = groundAuthService.save(userAuthReq.getToken());
+            log.info("{} 토큰 저장 정상적으로 완료", userAuthReq.getToken());
+            log.info("TOKEN : {}, /log/auth, POST 응답", userAuthReq.getToken());
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<List<TokenRes>>(HttpStatus.OK.value(),
                     "토큰 저장 완료", tokenResList));
         }catch (Exception e){
@@ -63,7 +66,10 @@ public class logController {
     public ResponseEntity<ResponseVO<?>> userAuth(
             @ApiParam(value = "발급 받은 토큰", required = true) @RequestHeader String token) {
         try{
+            log.info("TOKEN : {}, /log/auth, GET 요청", token);
             groundAuthService.checkValid(token);
+            log.info("{} 토큰 인증 완료", token);
+            log.info("TOKEN : {}, /log/auth, GET 응답", token);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseVO<>(HttpStatus.ACCEPTED.value(),
                     "토큰 유효성 검증 완료", null));
         }catch (UserUnAuthException e){
@@ -90,10 +96,14 @@ public class logController {
             @ApiParam(value = "발급 받은 토큰", required = true) @RequestHeader String token) {
         // 문자열을 파일로 저장
         try{
+            log.info("TOKEN : {}, /log, POST 요청", token);
             String groundId = groundAuthService.checkValid(token);
+            log.info("GROUND ID : {}, /log, POST 요청", groundId);
             LocalDateTime localDateTime = LocalDateTime.now();
             userLogAccessService.count(groundId);
             elasticSearchLogService.save(groundId, ElasticSearchLog.builder().localDateTime(localDateTime).log(logReq.getLog()).build());
+            log.info("GROUND ID : {}, 로그 {} 저장 완료 ", groundId, logReq.getLog());
+            log.info("GROUND ID : {}, /log, POST 응답", groundId);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                             "로그 저장 완료", new LogRes(localDateTime, logReq.getLog())));
         }catch (UserUnAuthException.UnusualRequest e){
@@ -122,15 +132,18 @@ public class logController {
                     @ApiResponse(code = 401, message = "토큰이 유효하지 않을 때"),
                     @ApiResponse(code = 409, message = "저장된 groundId가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
-    @PostMapping("test")
+    @PostMapping("/test")
     public ResponseEntity<ResponseVO<LogRes>> testLog(
             @ApiParam(value = "자동으로 저장 되는 로그", required = true) @RequestBody LogReq logReq,
             @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String groundId) {
         // 문자열을 파일로 저장
         try{
+            log.info("GROUND ID : {}, /log/test, POST 요청", groundId);
             LocalDateTime localDateTime = LocalDateTime.now();
             userLogAccessService.count(groundId);
             elasticSearchLogService.save(groundId, ElasticSearchLog.builder().localDateTime(localDateTime).log(logReq.getLog()).build());
+            log.info("GROUND ID : {}, 로그 {} 저장 완료 ", groundId, logReq.getLog());
+            log.info("GROUND ID : {}, /log/test, POST 응답", groundId);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<LogRes>(HttpStatus.CREATED.value(),
                     "로그 저장 완료", new LogRes(localDateTime, logReq.getLog())));
         }catch (UserUnAuthException.UnusualRequest e){
@@ -162,7 +175,10 @@ public class logController {
             @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String groundId) {
         // 문자열을 파일로 저장
         try{
+            log.info("GROUND ID : {}, /log, DELETE 요청", groundId);
             elasticSearchLogService.deleteIndex(groundId);
+            log.info("GROUND ID : {}, 인덱스 삭제 완료 ", groundId);
+            log.info("GROUND ID : {}, /log, DELETE 요청", groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     groundId + " 인덱스 삭제 완료", null));
         }catch (ElasticSearchException.NoContentException e){
@@ -191,7 +207,10 @@ public class logController {
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page){
         String result = "로그 불러오기 완료";
         try {
+            log.info("GROUND ID : {}, /log, GET 요청", groundId);
             Page<ElasticSearchLog> latestLogs = elasticSearchLogService.getLatestLogs(groundId, page - 1);
+            log.info("GROUND ID : {}, 전체 로그 요청, 전체 페이지 {} 중 페이지 {} 응답 ", groundId, latestLogs.getTotalPages(), latestLogs.getNumber() + 1);
+            log.info("GROUND ID : {}, /log, GET 응답", groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(latestLogs.getNumber() + 1, latestLogs.getTotalPages(), latestLogs.getContent())));
         }catch (NoSuchIndexException e){
@@ -221,8 +240,11 @@ public class logController {
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
     {
         try {
+            log.info("GROUND ID : {}, /keyword/{keyword}, GET 요청", groundId);
             String result = "로그 키워드 " + keyword + " 불러오기 완료";
             Page<ElasticSearchLog> keywordtLogs = elasticSearchLogService.getKeywordtLogs(groundId, keyword, page-1);
+            log.info("GROUND ID : {}, 키워드 {} 로그 요청 , 전체 페이지 {} 중 페이지 {} 응답 완료 ", groundId, keyword, keywordtLogs.getTotalPages(), keywordtLogs.getNumber() + 1);
+            log.info("GROUND ID : {}, /keyword/{keyword}, GET 요청", groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(keywordtLogs.getNumber()+1, keywordtLogs.getTotalPages(),keywordtLogs.getContent())));
         }catch (ElasticSearchException e){
@@ -252,8 +274,11 @@ public class logController {
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
     {
         try{
+            log.info("GROUND ID : {}, /regex, GET 요청", groundId);
             String result = "로그 정규표현식 " + regexp+ " 불러오기 완료";
             Page<ElasticSearchLog> regexptLogs = elasticSearchLogService.getRegexptLogs(groundId, regexp, page-1);
+            log.info("GROUND ID : {}, 정규표현식 {} 로그 요청 , 전체 페이지 {} 중 페이지 {} 응답 완료 ", groundId, regexp, regexptLogs.getTotalPages(), regexptLogs.getNumber() + 1);
+            log.info("GROUND ID : {}, /regex, GET 응답", groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(regexptLogs.getNumber()+1, regexptLogs.getTotalPages(),regexptLogs.getContent())));
         }catch (ElasticSearchException e){
@@ -284,11 +309,14 @@ public class logController {
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
     {
         try{
+            log.info("GROUND ID : {}, /time, GET 요청", groundId);
             String result = "로그 시간대 별로 불러오기 완료";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime startTime = LocalDateTime.parse(startDateTime, formatter);
             LocalDateTime endTime = LocalDateTime.parse(endDateTime, formatter);
             Page<ElasticSearchLog> timetLogs = elasticSearchLogService.getTimetLogs(groundId, startTime, endTime, page-1);
+            log.info("GROUND ID : {}, 시간 {} ~ {} 로그 요청 , 전체 페이지 {} 중 페이지 {} 응답 완료 ", groundId, startDateTime, endDateTime, timetLogs.getTotalPages(), timetLogs.getNumber() + 1);
+            log.info("GROUND ID : {}, /time, GET 응답", groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(timetLogs.getNumber()+1, timetLogs.getTotalPages(),timetLogs.getContent())));
         }catch (ElasticSearchException e){
@@ -320,11 +348,14 @@ public class logController {
             @ApiParam(value = "검색 키워드", required = true) @RequestParam String keyword,
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page) {
         try {
+            log.info("GROUND ID : {}, /timeandkeyword, GET 요청", groundId);
             String result = "로그 시간대 별 및 키워드 " + keyword + "로 불러오기 완료";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime startTime = LocalDateTime.parse(startDateTime, formatter);
             LocalDateTime endTime = LocalDateTime.parse(endDateTime, formatter);
             Page<ElasticSearchLog> timeAndKeywordLogs = elasticSearchLogService.getTimeAndKeywordLogs(groundId, startTime, endTime, keyword, page-1);
+            log.info("GROUND ID : {}, 시간 {} ~ {}, 키워드 {} 로그 요청 , 전체 페이지 {} 중 페이지 {} 응답 완료 ", groundId, startDateTime, endDateTime, keyword, timeAndKeywordLogs.getTotalPages(), timeAndKeywordLogs.getNumber() + 1);
+            log.info("GROUND ID : {}, /timeandkeyword, GET 응답", groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(timeAndKeywordLogs.getNumber()+1, timeAndKeywordLogs.getTotalPages(),timeAndKeywordLogs.getContent())));
         } catch (ElasticSearchException e) {

@@ -18,12 +18,12 @@ public class UserLogAccessService {
     private final ElasticSearchLogService elasticSearchLogService;
 
     //로그 요청에 따른 카운트 캐시
-    public void count(String ground_id){
-        Optional<UserLogAccess> temp = userLogAccessRepository.findById(ground_id);
+    public void count(String groundId){
+        Optional<UserLogAccess> temp = userLogAccessRepository.findById(groundId);
         //만약 groupt_id가 존재하지 않으면 redis에 생성
         if(!temp.isPresent()){
             userLogAccessRepository.save( UserLogAccess.builder()
-                                                                    .groundId(ground_id)
+                                                                    .groundId(groundId)
                                                                     .count(1)
                                                                     .index(0)
                                                                     .expiration(60L)
@@ -33,7 +33,7 @@ public class UserLogAccessService {
         //만약 group_id가 존재하면 1분당 로그 수 + 1
         UserLogAccess userLogAccess = temp.get();
         userLogAccess.increase();
-        log.info("{}의 접근은 60초 당 {}개", ground_id, userLogAccess.getCount());
+        log.warn("GROUND ID: {}, INDEX: {}, 로그 등록 URI 접근 최근 60초 {}번 접근", groundId, userLogAccess.getIndex(), userLogAccess.getCount());
         //비정상적인 로그 요청 횟수(특정 횟수)라는 판단이 들면 삭제
         if(userLogAccess.getCount() >= 1000) {
             //만약 첫 시도이면 -> docker로 첫 실행 시 로그 한 번에 많이 들어올 경우 대비
@@ -43,8 +43,9 @@ public class UserLogAccessService {
             }
             else{
                 //토큰에서 삭제, ela에서 인덱스 삭제
-                groundAuthService.deleteToken(ground_id);
-                elasticSearchLogService.deleteIndex(ground_id);
+                groundAuthService.deleteToken(groundId);
+                elasticSearchLogService.deleteIndex(groundId);
+                log.error("GROUND ID: {}, 로그 등록 URI 접근 최근 60초 1000번 이상 접근으로 비정상접근으로 판단, 등록된 모든 로그 삭제", groundId);
                 throw new UserUnAuthException.UnusualRequest("비정상적으로 많은 로그를 요청 중입니다. token을 재발급해주세요.");
             }
         }

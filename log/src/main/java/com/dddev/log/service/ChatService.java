@@ -49,7 +49,7 @@ public class ChatService {
             return "No response";
         }
         // return the first response
-        return response.getChoices().get(0).getMessage().getContent();
+        return response.getChoices().get(0).getMessage().getContent().replace("\\n", "\n");
     }
 
     //CHAT GPT에 로그 관련 질문
@@ -59,15 +59,15 @@ public class ChatService {
             throw new ElasticSearchException.NoIndexException("해당 인덱스가 없습니다.");
         }
         ChatReq request = new ChatReq(env.getProperty("openai.model"), prompt, "You're a log analysis expert. " +
-                "I know all the logs of any program. " +
-                "Kind and easy for developers trying to catch this error, let me know the solution. Tell me in Korean.");
+                "I know all the logs of any program. Kind and easy for developers trying to catch this error," +
+                " let me know the solution. Tell me Only in Korean.");
         // call the API
         ChatRes response = restTemplate.postForObject(env.getProperty("openai.api.url"), request, ChatRes.class);
         if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
             return "No response";
         }
         // return the first response
-        return response.getChoices().get(0).getMessage().getContent();
+        return response.getChoices().get(0).getMessage().getContent().replace("\\n", "\n");
     }
 
     //CHAT GPT에 정규표현식 관련 질문
@@ -83,7 +83,7 @@ public class ChatService {
             return "No response";
         }
         // return the first response
-        return response.getChoices().get(0).getMessage().getContent();
+        return response.getChoices().get(0).getMessage().getContent().replace("\\n", "\n");
     }
 
     //최근 로그 불러서 분석
@@ -100,16 +100,14 @@ public class ChatService {
         searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList()).forEach(a -> {
             temp.append(a.getLog()).append("\n");
         });
-
         ChatReq request = new ChatReq(env.getProperty("openai.model"), temp.toString(), "You're a log analysis expert. " +
                 "I know all the logs of any program. " +
-                "Kind and easy for developers trying to catch this error, let me know the solution. Tell me in Korean.");
-
+                "Kind and easy for developers trying to catch this error, let me know the solution. Tell me Only in Korean." +
+                "And put \\n in the right place to answer");
         ChatRes response = restTemplate.postForObject(env.getProperty("openai.api.url"), request, ChatRes.class);
         if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
             return "No response";
         }
-
-        return response.getChoices().get(0).getMessage().getContent();
+        return response.getChoices().get(0).getMessage().getContent().replace("\\n", "\n");
     }
 }

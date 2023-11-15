@@ -70,7 +70,6 @@ public class ElasticSearchLogService {
                             .withSort(fieldSort("localDateTime").order(DESC))
                             .withPageable(PageRequest.of(page, 30))
                             .build(), ElasticSearchLog.class, IndexCoordinates.of(groudId));
-//            if (searchHits.isEmpty()) throw new ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
             List<ElasticSearchLog> logs = searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
             long totalHits = searchHits.getTotalHits();
             return new PageImpl<>(logs, PageRequest.of(page, 30), totalHits);
@@ -82,16 +81,11 @@ public class ElasticSearchLogService {
 
     //정규표현식으로 가져오기
     public Page<ElasticSearchLog> getRegexptLogs(String groudId, String regexp, int page) throws NoSuchIndexException {
-        String expression = chatService.chatGptExp(regexp).trim();
-        if (expression.startsWith("/") && expression.endsWith("/"))
-        {
-            expression = expression.substring(1, expression.length() - 1);
-        }
-        System.out.println(expression);
         try {
+            log.info("요청한 정규표현식은 {}", regexp);
             SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
                     new NativeSearchQueryBuilder()
-                            .withQuery(regexpQuery("log", expression))
+                            .withQuery(regexpQuery("log", regexp))
                             .withSort(fieldSort("localDateTime").order(DESC))
                             .withPageable(PageRequest.of(page, 30))
                             .build(), ElasticSearchLog.class, IndexCoordinates.of(groudId));

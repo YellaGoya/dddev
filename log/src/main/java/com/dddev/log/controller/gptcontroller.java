@@ -40,9 +40,12 @@ public class gptcontroller {
                 throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
             }
             try {
+                log.info("GROUND ID : {}, /chat, POST 요청", groundId);
                 userGptAccessService.count(groundId);
                 String result = "일반 질문 분석 완료!";
-                String response = chatService.chatGpt(groundId, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
+                String response = chatService.chatGpt(groundId, chatGptReq.getQuestion());
+                log.info("GROUND ID : {}, 질문 {}에 대한 답변 완료", groundId, chatGptReq.getQuestion());
+                log.info("GROUND ID : {}, /chat, POST 응답", groundId);
                 return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                         result, response));
             }catch (UserUnAuthGptException e){
@@ -75,9 +78,12 @@ public class gptcontroller {
             throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
         }
         try{
+            log.info("GROUND ID : {}, /chat/analyze, POST 요청", groundId);
             userGptAccessService.count(groundId);
             String result = "사용자 로그 분석 완료!";
-            String response = chatService.chatGptLog(groundId, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
+            String response = chatService.chatGptLog(groundId, chatGptReq.getQuestion());
+            log.info("GROUND ID : {}, 로그 {}에 대한 답변 완료", groundId, chatGptReq.getQuestion());
+            log.info("GROUND ID : {}, /chat/analyze, POST 응답", groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (UserUnAuthGptException e) {
@@ -110,9 +116,12 @@ public class gptcontroller {
     public ResponseEntity<ResponseVO<String>> analyzeLogAuto(
             @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId) {
         try{
+            log.info("GROUND ID : {}, /chat/analyze, GET 요청", groundId);
             userGptAccessService.count(groundId);
             String result = "최근 로그를 불러 분석 완료";
-            String response = chatService.chatGptLogAuto(groundId).trim().replaceAll("\n", "");
+            String response = chatService.chatGptLogAuto(groundId);
+            log.info("GROUND ID : {}, 최근 로그 20개에 대한 답변 완료", groundId);
+            log.info("GROUND ID : {}, /chat/analyze, GET 응답", groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (ElasticSearchException e){
