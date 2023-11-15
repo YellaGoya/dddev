@@ -628,3 +628,38 @@ export const issueToggle = async ({ accessToken, refreshToken, groundId, issueId
 
   return res.json();
 };
+
+export const generateToken = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/token/`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const recentLog = async ({ groundId, page }) => {
+  const url = `http://k9d103a.p.ssafy.io:9999/log?page=${page}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      groundId,
+    },
+  };
+
+  const res = await fetch(url, options);
+
+  if (!res.ok) {
+    res.data = [];
+    return res.data;
+  }
+
+  return res.json();
+};

@@ -41,6 +41,7 @@ export const EditModalWrapper = styled.div`
   transform: translateX(-50%);
 
   border-radius: 0.75rem;
+  overflow: hidden;
 
   background-color: var(--bg-basic);
   border: 1px solid var(--border-setting);
@@ -57,6 +58,8 @@ export const GradBoxWrapper = styled.div`
   max-height: calc(100vh - 140px);
   min-height: 366px;
 
+  background-color: inherit;
+
   & > div {
     width: calc(100% + 9px);
   }
@@ -69,7 +72,6 @@ export const GradBoxWrapper = styled.div`
   overflow-y: scroll;
 
   &:hover {
-    // ul의 스크롤바 색상 파란색으로
     &::-webkit-scrollbar-thumb {
       background-color: var(--thumb-hover);
     }

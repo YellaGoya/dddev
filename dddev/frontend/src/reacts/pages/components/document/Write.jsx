@@ -66,6 +66,7 @@ const Write = () => {
   const [comments, setComments] = useState([]);
   const [reqAlertOne, setReqAlertOne] = useState(false);
   const [reqAlertTwo, setReqAlertTwo] = useState(false);
+  const [reRender, setReRender] = useState(false);
   const titleRef = useRef(null);
   const settingTitleRef = useRef(null);
   const statusRef = useRef(null);
@@ -246,7 +247,7 @@ const Write = () => {
   useEffect(() => {
     statusRef.current = status;
     if (quillRef.current) {
-      if (status === 0) {
+      if (!status) {
         quillRef.current.getEditor().enable();
       } else quillRef.current.getEditor().disable();
     }
@@ -374,11 +375,13 @@ const Write = () => {
   const statusDocument = (status, valid = true) => {
     if (params.type === 'request' && status === 1 && valid) {
       setReqAlertOne(true);
+      setReRender(!reRender);
       return;
     }
 
     if (params.type === 'request' && status === 2 && valid) {
       setReqAlertTwo(true);
+      setReRender(!reRender);
       return;
     }
 
@@ -499,7 +502,7 @@ const Write = () => {
     const doc = new Y.Doc();
     const type = doc.getText('quill');
 
-    const wsProvider = new WebsocketProvider('ws://34.64.243.47:6001', roomName, doc);
+    const wsProvider = new WebsocketProvider('wss://k9d103.p.ssafy.io:6000', roomName, doc);
     const editor = quillRef.current.getEditor();
     editor.format('font', 'Pretendard');
     const { container } = editor;
@@ -762,9 +765,9 @@ const Write = () => {
       {comments &&
         comments.length > 0 &&
         comments.map((comment) => (
-          <div key={comment.id}>
+          <s.Comment key={comment.id}>
             <CommentQuill data={comment} />
-          </div>
+          </s.Comment>
         ))}
 
       {params.type === 'request' && (
@@ -783,6 +786,7 @@ const Write = () => {
         accept={() => {
           statusDocument(1, false);
         }}
+        reRender={reRender}
         onRequestClose={() => {
           setReqAlertOne(false);
         }}
@@ -794,6 +798,7 @@ const Write = () => {
         accept={() => {
           statusDocument(2, false);
         }}
+        reRender={reRender}
         onRequestClose={() => {
           setReqAlertTwo(false);
         }}

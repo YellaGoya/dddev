@@ -64,7 +64,7 @@ const Sidemenu = () => {
   }, [groundId]);
 
   const GeneralItems = ({ doc }) => {
-    const [isToggle, setIsToggle] = useState(false);
+    const [isToggle, setIsToggle] = useState(true);
     return (
       <s.GeneralItem>
         <s.GeneralName onClick={() => setIsToggle(!isToggle)}>
@@ -126,18 +126,6 @@ const Sidemenu = () => {
             <ForumRoundedIcon />
             요청
           </s.MenuChild>
-          {/* <s.MenuChild to={`/${groundId}/document/issue`}>
-            <FlagRoundedIcon />
-            이슈
-          </s.MenuChild>
-          <s.MenuChild to={`/${groundId}/document/request`}>
-            <ForumRoundedIcon />
-            요청
-          </s.MenuChild>
-          <s.MenuChild to={`/${groundId}/document/general`}>
-            <AssignmentRoundedIcon />
-            일반
-          </s.MenuChild> */}
         </s.MenuNav>
 
         <s.GroundList $groundListToggle={groundListToggle}>

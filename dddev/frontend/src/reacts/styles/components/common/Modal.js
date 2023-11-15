@@ -6,7 +6,7 @@ export const ModalChanger = styled(Modal)`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: var(--bg-basic);
+  background: var(--bg-lite);
   color: #000;
   width: fit-content;
   max-width: 500px;

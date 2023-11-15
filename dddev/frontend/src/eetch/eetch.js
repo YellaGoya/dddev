@@ -93,5 +93,7 @@ eetch.focusTime = (values) => ground.focusTime(values);
 eetch.totalCount = (values) => ground.totalCount(values);
 eetch.totalTime = (values) => ground.totalTime(values);
 eetch.issueToggle = (values) => ground.issueToggle(values);
+eetch.generateToken = (values) => ground.generateToken(values);
+eetch.recentLog = (values) => ground.recentLog(values);
 
 export default eetch;

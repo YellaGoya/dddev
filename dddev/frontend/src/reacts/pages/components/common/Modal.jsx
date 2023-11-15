@@ -2,7 +2,13 @@ import * as s from 'reacts/styles/components/common/Modal';
 
 const ModalChanger = ({ isOpen, type, accept, message, onRequestClose }) => {
   return (
-    <s.ModalChanger isOpen={isOpen} contentLabel="Custom Modal" overlayClassName="reactModalOverlayCustom" onRequestClose={onRequestClose}>
+    <s.ModalChanger
+      ariaHideApp={false}
+      isOpen={isOpen}
+      contentLabel="Custom Modal"
+      overlayClassName="reactModalOverlayCustom"
+      onRequestClose={onRequestClose}
+    >
       <p>{message}</p>
       {type === 'check' && (
         <s.Button

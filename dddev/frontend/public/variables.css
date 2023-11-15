@@ -1,5 +1,6 @@
 :root {
   --font-basic: #000;
+  --font-lite: #222;
   --font-rev: #fff;
   --font-hover: #aaa;
   --font-editor-placeholder: #888;
@@ -18,9 +19,12 @@
   --bg-lite-grad-top: #161b22ff;
   --bg-lite-hover: #1f2630;
   --bg-liter: #293340;
+  --bg-liter-hover : #415166;
   --bg-dark: #010409;
   --bg-dark-grad-bottom: #01040900;
   --bg-dark-grad-top: #010409ff;
+  --bg-rev: #f2f2f2;
+  --bg-rev-hover : #e7e7e7;
   --hr-basic: #858585;
   --border-setting: #262c35;
   --border-basic: #30363d;

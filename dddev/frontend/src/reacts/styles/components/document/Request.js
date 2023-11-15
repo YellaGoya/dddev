@@ -21,10 +21,18 @@ export const RequestListWrapper = styled.div`
 `;
 
 export const WriterWrapper = styled.div`
-  position: absolute;
-  left: 285px;
-  top: 0;
-  width: calc(100% - 285px);
+  @media (max-width: 682px) {
+    position: relative;
+
+    padding: 0 15px 0 10px;
+  }
+  @media (min-width: 683px) {
+    position: absolute;
+    left: 285px;
+    padding: 0 15px 0 10px;
+    top: 0;
+    width: calc(100% - 285px);
+  }
 `;
 
 export const RequestList = styled.ul`

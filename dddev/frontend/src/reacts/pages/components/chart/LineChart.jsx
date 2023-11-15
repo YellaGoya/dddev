@@ -1,10 +1,10 @@
 import { ResponsiveLine } from '@nivo/line';
 
-const LineChart = ({ data /* see data tab */ }) => (
+const LineChart = ({ data, line = 0 }) => (
   <ResponsiveLine
     enableArea
     enablePointLabel
-    areaBaselineValue={21}
+    areaBaselineValue={line}
     data={data}
     theme={{
       text: {
