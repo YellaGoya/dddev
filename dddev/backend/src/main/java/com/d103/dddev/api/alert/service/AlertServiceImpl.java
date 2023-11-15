@@ -192,8 +192,10 @@ public class AlertServiceImpl implements AlertService {
 
 		// 커밋 정보 저장 (키워드 상관 없이 모든 커밋 리스트 저장)
 		for (CommitDataDto commitDataDto : pushWebhookDto.getCommits()) {
+			UserDto EmptyAuthor = UserDto.builder().nickname(commitDataDto.getAuthor().get("name")).email(commitDataDto.getAuthor().get("email")).build();
+			UserDto author = userService.getUserDtoWithEmail(commitDataDto.getAuthor().get("email")).orElse(EmptyAuthor);
 			saveWebhookData(pushWebhookDto.getRepository().getId(), commitDataDto.getId(),
-				commitDataDto.getAuthor().get("username"), commitDataDto.getMessage(), pushWebhookDto.getRef(),
+					author, commitDataDto.getMessage(), pushWebhookDto.getRef(),
 				Date.from(commitDataDto.getTimestamp().toInstant()), commitDataDto.getUrl(), "push");
 		}
 
@@ -333,12 +335,8 @@ public class AlertServiceImpl implements AlertService {
 		return alertDataRepo.addAlertUserData(alertUserHistoryDocument);
 	}
 
-	private String saveWebhookData(Integer gitRepoId, String id, String username, String message, String branch,
+	private String saveWebhookData(Integer gitRepoId, String id, UserDto author, String message, String branch,
 		Date timestamp, String url, String type) throws Exception {
-		UserDto emptyAuthor = UserDto.builder()
-			.nickname(username)
-			.build();
-		UserDto author = userService.getUserDtoWithName(username).orElse(emptyAuthor);
 		Integer groundId = alertRepository.findGroundIdWithGitRepoId(gitRepoId);
 		WebhookDataDocument webhookDataDocument = WebhookDataDocument.builder()
 			.author(author)
@@ -543,8 +541,11 @@ public class AlertServiceImpl implements AlertService {
 		String title = pullRequestWebhookDto.getPullRequest().getTitle();
 		String body = pullRequestWebhookDto.getPullRequest().getBody();
 
+		UserDto emptyAuthor = UserDto.builder().nickname(pullRequestDto.getUser().getLogin()).build();
+		UserDto userDto = userService.getUserDto(pullRequestDto.getUser().getId()).orElse(emptyAuthor);
+
 		saveWebhookData(pullRequestWebhookDto.getRepository().getId(), pullRequestDto.getId().toString(),
-			pullRequestDto.getUser().getLogin(), title, headBranch + "->" + baseBranch,
+				userDto, title, headBranch + "->" + baseBranch,
 			Date.from(pullRequestDto.getCreatedAt().toInstant()), url, "pull_request");
 
 		for (AlertUserKeyword alertUserKeyword : userKeywordList) {

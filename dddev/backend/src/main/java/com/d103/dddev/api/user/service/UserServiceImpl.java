@@ -63,6 +63,13 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public Optional<UserDto> getUserDtoWithEmail(String userEmail) throws Exception {
+		log.info("service - getUserInfo :: 사용자 정보 조회");
+		Optional<User> userOptional = userRepository.findByEmail(userEmail);
+		return userOptional.map(User::convertToDto);
+	}
+
+	@Override
 	public Optional<User> getUserEntity(Integer github_id) throws Exception {
 		return userRepository.findByGithubId(github_id);
 	}

@@ -13,7 +13,10 @@ import com.d103.dddev.api.user.repository.entity.User;
 public interface UserService {
 	Optional<UserDto> getUserDto(Integer github_id) throws Exception;	// 유저 정보 조회
 	Optional<UserDto> getUserDtoWithName(String userName) throws Exception;
-	Optional<User> getUserEntity(Integer github_id)throws Exception;
+
+    Optional<UserDto> getUserDtoWithEmail(String userEmail) throws Exception;
+
+    Optional<User> getUserEntity(Integer github_id)throws Exception;
 	byte[] getProfile(User user) throws Exception;	// 유저 프로필 사진 조회
 	List<GroundUser> getGroundList(User user) throws Exception;
 	String getPersonalAccessToken(User user) throws Exception;
