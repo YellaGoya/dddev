@@ -142,6 +142,7 @@ public class GroundServiceImpl implements GroundService {
 		return getLogEnv(ground.getId());
 	}
 
+	@Transactional
 	@Override
 	public void deleteLogEnv(Integer logEnvId) throws Exception {
 		log.info("service - deleteLogEnv :: 로그 환경 설정 삭제 진입");
