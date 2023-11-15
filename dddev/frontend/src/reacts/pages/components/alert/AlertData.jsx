@@ -1,25 +1,14 @@
-// import eetch from 'eetch/eetch';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-// import requestPermission from 'fcm/firebase-messaging.js';
+
 import { db } from 'fcm/firebaseConfig';
-// import eetch from 'eetch/eetch';
 
 const AlertData = () => {
   const user = useSelector((state) => state.user);
   const groundsMap = useSelector((state) => state.user.groundsMap);
-  // const [userDocIdList, setUserDocIdList] = useState([]);
+
   const [userAlertList, setUserAlertList] = useState([{}]);
   const [allAlertList, setAllAlertList] = useState([{}]);
-  // const [groundAlertList, setGroundAlertList] = useState([{}]);
-
-  useEffect(() => {
-    console.log('1 ', userAlertList);
-  }, [userAlertList]);
-
-  useEffect(() => {
-    console.log('2 ', allAlertList);
-  }, [allAlertList]);
 
   useEffect(() => {
     const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(user.githubId));
@@ -30,31 +19,11 @@ const AlertData = () => {
         const arr = [];
         // console.log(`Received query snapshot of size ${snapshot.size}`);
 
-        // 전체 알림에서 사용자가 받은 알림의 id를 받아옴
+        // 사용자가 받은 알림의 id를 받아옴
         snapshot.forEach((doc) => {
           arr.push(doc.data());
         });
 
-        // setUserDocIdList(arr);
-
-        // 전체 알림에서 id로 사용자가 받을 알림을 찾고
-        // const AlertList = [];
-        // arr.forEach(({ id, isRead, keyword }) => {
-        //   db.collection('webhookData')
-        //     .doc(id)
-        //     .get()
-        //     .then((res) => {
-        //       if (res.exists) {
-        //         const resData = res.data();
-        //         // 알림 읽었는지, 걸린 키워드 뭔지 추가해줌
-        //         resData.isRead = isRead;
-        //         resData.keyowrd = keyword;
-        //         AlertList.push(resData);
-        //         console.log('list', resData); // 화면에 출력하는 데이터
-        //       }
-        //     });
-        //   setUserAlertList(AlertList);
-        // });
         getUserDocs(arr);
       },
       (err) => {
@@ -62,25 +31,23 @@ const AlertData = () => {
       },
     );
 
-    // 전체 웹훅 발생 문서 조회 -> 최초 1번만
-    // db.collection('webhookData').where()
+    // 전체 웹훅 내역 조회
     getAllDocs(groundsMap);
   }, [user]);
 
   const getAllDocs = async (grounds) => {
+    console.log('grounds', grounds);
     const promises = grounds.map(({ id }) => {
       return db
         .collection('webhookData')
         .where('groundId', '==', id)
         .get()
         .then(async (resList) => {
-          console.log('id', id);
-          console.log('size', resList.size);
-          const resListMap = resList.map((res) => {
+          const resListMap = resList.docs.map((res) => {
             if (res.exists) {
               const resData = res.data();
               resData.nickname = resData.author.nickname;
-              console.log('resData ::', resData);
+
               return resData;
             }
 
@@ -90,11 +57,13 @@ const AlertData = () => {
           const eachResults = await Promise.all(resListMap);
           const validEachResults = eachResults.filter((result) => result !== null);
           return validEachResults;
-        });
+        })
+        .catch((err) => console.log(err));
     });
 
     const results = await Promise.all(promises);
-    const validResults = results.filter((result) => result !== null);
+    const validResults = results.flat().filter((result) => result !== null);
+    validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     setAllAlertList(validResults);
   };
 
@@ -105,7 +74,6 @@ const AlertData = () => {
         .doc(id)
         .get()
         .then((res) => {
-          console.log('res', res);
           if (res.exists) {
             const resData = res.data();
             resData.isRead = isRead;
@@ -120,56 +88,18 @@ const AlertData = () => {
 
     const results = await Promise.all(promises);
     const validResults = results.filter((result) => result !== null);
+    validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     setUserAlertList(validResults);
   };
 
-  // const getUserDocs = (arr) => {
-  //   const AlertList = [];
-  //   // for(const [id, isRead, keyword] of arr) {}
-  //   arr.map(({ id, isRead, keyword }) => {
-  //     db.collection('webhookData')
-  //       .doc(id)
-  //       .get()
-  //       .then((res) => {
-  //         if (res.exists) {
-  //           const resData = res.data();
-  //           // 알림 읽었는지, 걸린 키워드 뭔지 추가해줌
-  //           resData.isRead = isRead;
-  //           resData.keyowrd = keyword;
-  //           AlertList.push(resData);
-  //           console.log('list', resData); // 화면에 출력하는 데이터
-  //         }
-  //       })
-  //       .catch((err) => console.log(err));
-  //     setUserAlertList(AlertList);
-  //   });
-
-  //   // await Promise.all(promises);
-  // };
-
-  // {allAlertList.map((doc) => {
-  //   return (
-  //     <div key={doc.id}>
-  //       <div>
-  //         {doc.type}
-  //         {/* {doc.author.nickname} */}
-  //         {doc.branch}
-  //         {doc.message}
-  //         {doc.timestamp}
-  //         {doc.url}
-  //       </div>
-  //     </div>
-  //   );
-  // })}
   return (
     <>
+      <div>=========AlertData 컴포넌트 시작===========</div>
       <div>사용자 알림 내역</div>
       {userAlertList.map((alert) => {
-        // console.log('html map', alert);
         return (
           <div key={alert.id}>
             <div>
-              {alert.id}
               {alert.alertType}
               {alert.nickname}
               {alert.branch}
@@ -177,13 +107,25 @@ const AlertData = () => {
               {alert.timestamp}
               {alert.url}
               {alert.keyword}
-              {alert.isRead}
+              {String(alert.isRead)}
             </div>
           </div>
         );
       })}
       <div>전체 알림 내역</div>
-      <div>{console.log('allAlertList :: ', allAlertList)}</div>
+      {allAlertList.map((alert) => {
+        return (
+          <div key={alert.id}>
+            {alert.alertType}
+            {alert.nickname}
+            {alert.branch}
+            {alert.message}
+            {alert.timestamp}
+            {alert.url}
+          </div>
+        );
+      })}
+      <div>=========AlertData 컴포넌트 끝==========</div>
     </>
   );
 };

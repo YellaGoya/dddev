@@ -1,5 +1,5 @@
 // import eetch from 'eetch/eetch';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 // import Select from 'reacts/pages/components/common/SelectUser';
 import Input from 'reacts/pages/components/common/Input';
@@ -26,27 +26,28 @@ const CreateAlert = () => {
   //   userId: null,
   // };
 
-  useEffect(() => {
-    // 알림 리스트 조회
-    eetch
-      .alertList({
-        accessToken: user.accessToken,
-        refreshToken: user.refreshToken,
-      })
-      .then((res) => {
-        console.log(res);
-        // const arr = [];
-        // res.data.foreach(({ alertListRes }) => {
-        //   arr.push(alertListRes);
-        // });
-        setAlertList(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [user.accessToken, user.refreshToken]);
+  // useEffect(() => {
+  //   // 알림 조회
+  //   eetch
+  //     .alertList({
+  //       accessToken: user.accessToken,
+  //       refreshToken: user.refreshToken,
+  //     })
+  //     .then((res) => {
+  //       console.log(res);
+  //       // const arr = [];
+  //       // res.data.foreach(({ alertListRes }) => {
+  //       //   arr.push(alertListRes);
+  //       // });
+  //       setAlertList(res.data);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }, [user.accessToken, user.refreshToken]);
 
   const updateAlert = (groundName, keyword) => {
+    setKeywords(keyword);
     const groundId = groundsMap.find((ground) => ground.name === groundName);
 
     // 키워드 수정되면 알림 수정

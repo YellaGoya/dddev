@@ -1,6 +1,7 @@
 import eetch from 'eetch/eetch';
 
-const base = `http://localhost:8089`;
+const base = `https://k9d103.p.ssafy.io:8001`;
+// const base = `http://localhost:8000`;
 
 export const addDeviceToken = async ({ accessToken, refreshToken, deviceToken }) => {
   const url = base + `/user/device-token`;
@@ -39,7 +40,25 @@ export const alertList = async ({ accessToken, refreshToken }) => {
   return res;
 };
 
-export const createAlert = async ({ accessToken, refreshToken, repoId, keyword, type }) => {
+export const getAlert = async ({ accessToken, refreshToken, groundId }) => {
+  const url = base + `/alert-service/${groundId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+      'Authorization-refresh': refreshToken,
+    },
+  };
+
+  const res = await eetch(url, options);
+  // console.log('get alert res :: ', res);
+  if (!res.ok) throw new Error('gayeonNotGood');
+
+  return res.json();
+};
+
+export const createAlert = async ({ accessToken, refreshToken, groundId, keyword, type }) => {
   const url = base + `/alert-service/create-alert`;
   const options = {
     method: 'POST',
@@ -48,18 +67,18 @@ export const createAlert = async ({ accessToken, refreshToken, repoId, keyword, 
       Authorization: accessToken,
       'Authorization-refresh': refreshToken,
     },
-    body: JSON.stringify({ repoId, keyword, type }),
+    body: JSON.stringify({ groundId, keyword, type }),
   };
 
   const res = await eetch(url, options);
-  // console.log('alertList res :: ', res);
+  // console.log('createAlert res :: ', res.data);
   if (!res.ok) throw new Error('gayeonNotGood');
 
-  return res;
+  return res.json();
 };
 
-export const updateAlert = async ({ accessToken, refreshToken, alertId, keyword, type }) => {
-  const url = base + `/alert-service/${alertId}`;
+export const updateAlert = async ({ accessToken, refreshToken, groundId, keyword }) => {
+  const url = base + `/alert-service/${groundId}`;
   const options = {
     method: 'PUT',
     headers: {
@@ -67,18 +86,18 @@ export const updateAlert = async ({ accessToken, refreshToken, alertId, keyword,
       Authorization: accessToken,
       'Authorization-refresh': refreshToken,
     },
-    body: JSON.stringify({ keyword, type }),
+    body: JSON.stringify({ keyword }),
   };
 
   const res = await eetch(url, options);
   // console.log('alertList res :: ', res);
-  if (!res.ok) throw new Error('gayeonNotGood');
+  // if (!res.ok) throw new Error('gayeonNotGood');
 
-  return res;
+  return res.json();
 };
 
-export const deleteAlert = async ({ accessToken, refreshToken, alertId }) => {
-  const url = base + `/alert-service/${alertId}`;
+export const deleteAlert = async ({ accessToken, refreshToken, groundId, alertId }) => {
+  const url = base + `/alert-service/${groundId}/${alertId}`;
   const options = {
     method: 'DELETE',
     headers: {
@@ -92,7 +111,7 @@ export const deleteAlert = async ({ accessToken, refreshToken, alertId }) => {
   // console.log('alertList res :: ', res);
   if (!res.ok) throw new Error('gayeonNotGood');
 
-  return res;
+  return res.json();
 };
 
 export const userGroundsExample = async ({ accessToken, refreshToken }) => {
