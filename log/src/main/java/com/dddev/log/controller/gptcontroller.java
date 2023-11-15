@@ -7,10 +7,7 @@ import com.dddev.log.exception.ElasticSearchException;
 import com.dddev.log.exception.UserUnAuthGptException;
 import com.dddev.log.service.ChatService;
 import com.dddev.log.service.UserGptAccessService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.NoSuchIndexException;
@@ -35,14 +32,16 @@ public class gptcontroller {
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("")
-    public ResponseEntity<?> chat(@RequestHeader String ground_id, @RequestBody ChatGptReq chatGptReq) {
+    public ResponseEntity<?> chat(
+            @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId,
+            @ApiParam(value = "GPT에게 할 질문", required = true)  @RequestBody ChatGptReq chatGptReq) {
             if (chatGptReq.getQuestion().equals("")) {
                 throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
             }
             try {
-                userGptAccessService.count(ground_id);
+                userGptAccessService.count(groundId);
                 String result = "일반 질문 분석 완료!";
-                String response = chatService.chatGpt(ground_id, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
+                String response = chatService.chatGpt(groundId, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
                 return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                         result, response));
             }catch (UserUnAuthGptException e){
@@ -68,14 +67,16 @@ public class gptcontroller {
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("/analyze")
-    public ResponseEntity<?> analzeLog(@RequestHeader String ground_id, @RequestBody ChatGptReq chatGptReq) {
+    public ResponseEntity<?> analzeLog(
+            @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId,
+            @ApiParam(value = "GPT에게 할 질문", required = true)  @RequestBody ChatGptReq chatGptReq) {
         if (chatGptReq.getQuestion().equals("")) {
             throw new ChatGptException.IncorrectQuestion("질문을 입력해주세요.");
         }
         try{
-            userGptAccessService.count(ground_id);
+            userGptAccessService.count(groundId);
             String result = "사용자 로그 분석 완료!";
-            String response = chatService.chatGptLog(ground_id, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
+            String response = chatService.chatGptLog(groundId, chatGptReq.getQuestion()).trim().replaceAll("\n", "");
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (UserUnAuthGptException e) {
@@ -105,11 +106,12 @@ public class gptcontroller {
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/analyze")
-    public ResponseEntity<?> analyzeLogAuto(@RequestHeader String ground_id) {
+    public ResponseEntity<?> analyzeLogAuto(
+            @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId) {
         try{
-            userGptAccessService.count(ground_id);
+            userGptAccessService.count(groundId);
             String result = "최근 로그를 불러 분석 완료";
-            String response = chatService.chatGptLogAuto(ground_id).trim().replaceAll("\n", "");
+            String response = chatService.chatGptLogAuto(groundId).trim().replaceAll("\n", "");
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
         }catch (ElasticSearchException e){
