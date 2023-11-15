@@ -35,26 +35,26 @@ public class ElasticSearchLogService {
     private final ChatService chatService;
 
     //로그 등록
-    public void save(String groupId, ElasticSearchLog elasticSearchLog){
-        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(groupId));
+    public void save(String groudId, ElasticSearchLog elasticSearchLog){
+        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(groudId));
         // 인덱스가 존재하지 않으면 동적으로 인덱스를 생성
         if (!indexOperations.exists()) {
             indexOperations.create();
         }
         IndexQuery indexQuery = new IndexQuery();
         indexQuery.setObject(elasticSearchLog);
-        elasticsearchOperations.index(indexQuery, IndexCoordinates.of(groupId));
+        elasticsearchOperations.index(indexQuery, IndexCoordinates.of(groudId));
     }
 
 
     //전체 로그 불러오기
-    public Page<ElasticSearchLog> getLatestLogs(String groupId, int page) throws NoSuchIndexException {
+    public Page<ElasticSearchLog> getLatestLogs(String groudId, int page) throws NoSuchIndexException {
         SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
                 new NativeSearchQueryBuilder()
                         .withQuery(matchAllQuery())
                         .withSort(fieldSort("localDateTime").order(DESC))
                         .withPageable(PageRequest.of(page, 30))
-                        .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
+                        .build(), ElasticSearchLog.class, IndexCoordinates.of(groudId));
         List<ElasticSearchLog> logs = searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
         long totalHits = searchHits.getTotalHits();
         return new PageImpl<>(logs, PageRequest.of(page, 30), totalHits);
@@ -62,14 +62,14 @@ public class ElasticSearchLogService {
 
 
     //인덱스별 키워드 가져오기
-    public Page<ElasticSearchLog> getKeywordtLogs(String groupId, String keyword, int page) throws NoSuchIndexException {
+    public Page<ElasticSearchLog> getKeywordtLogs(String groudId, String keyword, int page) throws NoSuchIndexException {
         try {
             SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
                     new NativeSearchQueryBuilder()
                             .withQuery(queryStringQuery("*" + keyword + "*").field("log"))
                             .withSort(fieldSort("localDateTime").order(DESC))
                             .withPageable(PageRequest.of(page, 30))
-                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
+                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groudId));
 //            if (searchHits.isEmpty()) throw new ElasticSearchException.NoContentException("저장된 로그가 없습니다.");
             List<ElasticSearchLog> logs = searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
             long totalHits = searchHits.getTotalHits();
@@ -81,7 +81,7 @@ public class ElasticSearchLogService {
     }
 
     //정규표현식으로 가져오기
-    public Page<ElasticSearchLog> getRegexptLogs(String groupId, String regexp, int page) throws NoSuchIndexException {
+    public Page<ElasticSearchLog> getRegexptLogs(String groudId, String regexp, int page) throws NoSuchIndexException {
         String expression = chatService.chatGptExp(regexp).trim();
         if (expression.startsWith("/") && expression.endsWith("/"))
         {
@@ -94,7 +94,7 @@ public class ElasticSearchLogService {
                             .withQuery(regexpQuery("log", expression))
                             .withSort(fieldSort("localDateTime").order(DESC))
                             .withPageable(PageRequest.of(page, 30))
-                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
+                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groudId));
             List<ElasticSearchLog> logs = searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
             long totalHits = searchHits.getTotalHits();
             return new PageImpl<>(logs, PageRequest.of(page, 30), totalHits);
@@ -105,7 +105,7 @@ public class ElasticSearchLogService {
     }
 
     //시간대별로 가져오기
-    public Page<ElasticSearchLog> getTimetLogs(String groupId, LocalDateTime startDateTime, LocalDateTime endDateTime, int page) throws NoSuchIndexException {
+    public Page<ElasticSearchLog> getTimetLogs(String groudId, LocalDateTime startDateTime, LocalDateTime endDateTime, int page) throws NoSuchIndexException {
         try {
             SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
                     new NativeSearchQueryBuilder()
@@ -115,7 +115,7 @@ public class ElasticSearchLogService {
                             )
                             .withSort(fieldSort("localDateTime").order(DESC))
                             .withPageable(PageRequest.of(page, 30))
-                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
+                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groudId));
             List<ElasticSearchLog> logs = searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
             long totalHits = searchHits.getTotalHits();
             return new PageImpl<>(logs, PageRequest.of(page, 30), totalHits);
@@ -126,16 +126,16 @@ public class ElasticSearchLogService {
     }
 
     //인덱스 삭제
-    public void deleteIndex(String ground_id) {
-        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(ground_id));
+    public void deleteIndex(String groudId) {
+        IndexOperations indexOperations = elasticsearchOperations.indexOps(IndexCoordinates.of(groudId));
         if (!indexOperations.exists()) {
             throw new ElasticSearchException.NoIndexException("해당 인덱스가 없습니다.");
         }
-        elasticsearchOperations.indexOps(IndexCoordinates.of(ground_id)).delete();
+        elasticsearchOperations.indexOps(IndexCoordinates.of(groudId)).delete();
     }
 
     //시간대별로 가져오기
-    public Page<ElasticSearchLog> getTimeAndKeywordLogs(String groupId, LocalDateTime startDateTime, LocalDateTime endDateTime, String keyword, int page) throws NoSuchIndexException {
+    public Page<ElasticSearchLog> getTimeAndKeywordLogs(String groudId, LocalDateTime startDateTime, LocalDateTime endDateTime, String keyword, int page) throws NoSuchIndexException {
         try {
             SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
                     new NativeSearchQueryBuilder()
@@ -148,7 +148,7 @@ public class ElasticSearchLogService {
                             )
                             .withSort(fieldSort("localDateTime").order(DESC))
                             .withPageable(PageRequest.of(page, 30))
-                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groupId));
+                            .build(), ElasticSearchLog.class, IndexCoordinates.of(groudId));
             List<ElasticSearchLog> logs = searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
             long totalHits = searchHits.getTotalHits();
             return new PageImpl<>(logs, PageRequest.of(page, 30), totalHits);

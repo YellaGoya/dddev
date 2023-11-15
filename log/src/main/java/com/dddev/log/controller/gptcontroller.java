@@ -32,7 +32,7 @@ public class gptcontroller {
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("")
-    public ResponseEntity<?> chat(
+    public ResponseEntity<ResponseVO<String>> chat(
             @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId,
             @ApiParam(value = "GPT에게 할 질문", required = true)  @RequestBody ChatGptReq chatGptReq) {
             if (chatGptReq.getQuestion().equals("")) {
@@ -67,7 +67,7 @@ public class gptcontroller {
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("/analyze")
-    public ResponseEntity<?> analzeLog(
+    public ResponseEntity<ResponseVO<String>> analzeLog(
             @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId,
             @ApiParam(value = "GPT에게 할 질문", required = true)  @RequestBody ChatGptReq chatGptReq) {
         if (chatGptReq.getQuestion().equals("")) {
@@ -106,7 +106,7 @@ public class gptcontroller {
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/analyze")
-    public ResponseEntity<?> analyzeLogAuto(
+    public ResponseEntity<ResponseVO<String>> analyzeLogAuto(
             @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId) {
         try{
             userGptAccessService.count(groundId);

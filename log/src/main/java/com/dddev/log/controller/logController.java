@@ -59,7 +59,7 @@ public class logController {
                     @ApiResponse(code = 401, message = "유효하지 않은 토큰"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/auth")
-    public ResponseEntity<?> userAuth(
+    public ResponseEntity<ResponseVO<?>> userAuth(
             @ApiParam(value = "발급 받은 토큰", required = true) @RequestHeader String token) {
         try{
             groundAuthService.checkValid(token);
@@ -84,15 +84,15 @@ public class logController {
                     @ApiResponse(code = 409, message = "저장된 Ground_ID가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("")
-    public ResponseEntity<?> saveLog(
+    public ResponseEntity<ResponseVO<?>> saveLog(
             @ApiParam(value = "자동으로 저장 되는 로그", required = true) @RequestBody LogReq logReq,
             @ApiParam(value = "발급 받은 토큰", required = true) @RequestHeader String token) {
         // 문자열을 파일로 저장
         try{
-            String ground_id = groundAuthService.checkValid(token);
+            String groundId = groundAuthService.checkValid(token);
             LocalDateTime localDateTime = LocalDateTime.now();
-            userLogAccessService.count(ground_id);
-            elasticSearchLogService.save(ground_id, ElasticSearchLog.builder().localDateTime(localDateTime).log(logReq.getLog()).build());
+            userLogAccessService.count(groundId);
+            elasticSearchLogService.save(groundId, ElasticSearchLog.builder().localDateTime(localDateTime).log(logReq.getLog()).build());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                             "로그 저장 완료", new LogRes(localDateTime, logReq.getLog())));
         }catch (UserUnAuthException.UnusualRequest e){
@@ -119,7 +119,7 @@ public class logController {
     @ApiResponses(
             value = {@ApiResponse(code = 400, message = "로그 요청이 비정상적으로 많을 때"),
                     @ApiResponse(code = 401, message = "토큰이 유효하지 않을 때"),
-                    @ApiResponse(code = 409, message = "저장된 Ground_ID가 없을 때"),
+                    @ApiResponse(code = 409, message = "저장된 groundId가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @PostMapping("test")
     public ResponseEntity<ResponseVO<LogRes>> testLog(
@@ -154,16 +154,16 @@ public class logController {
     //인덱스 삭제
     @ApiOperation(value = "인덱스 삭제 API")
     @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
+            value = {@ApiResponse(code = 401, message = "header의 groundId가 존재하지 않을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @DeleteMapping("")
     public ResponseEntity<ResponseVO<?>> deleteLog(
-            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String ground_id) {
+            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String groundId) {
         // 문자열을 파일로 저장
         try{
-            elasticSearchLogService.deleteIndex(ground_id);
+            elasticSearchLogService.deleteIndex(groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
-                    ground_id + " 인덱스 삭제 완료", null));
+                    groundId + " 인덱스 삭제 완료", null));
         }catch (ElasticSearchException.NoContentException e){
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),
@@ -182,16 +182,16 @@ public class logController {
     //전체 로그 불러오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 30개 씩 가져오는 API")
     @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
+            value = {@ApiResponse(code = 401, message = "header의 groundId가 존재하지 않을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("")
     public ResponseEntity<ResponseVO<PageableRes>> getSizeLogFile(
-            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String ground_id,
+            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String groundId,
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
      {
         try{
             String result = "로그 불러오기 완료";
-            Page<ElasticSearchLog> latestLogs = elasticSearchLogService.getLatestLogs(ground_id, page-1);
+            Page<ElasticSearchLog> latestLogs = elasticSearchLogService.getLatestLogs(groundId, page-1);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(latestLogs.getNumber()+1, latestLogs.getTotalPages(),latestLogs.getContent())));
         }catch (ElasticSearchException e){
@@ -212,17 +212,17 @@ public class logController {
     //인덱스별 정해진 키워드 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 키워드로 가져오는 API")
     @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
+            value = {@ApiResponse(code = 401, message = "header의 groundId가 존재하지 않을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/keyword/{keyword}")
     public ResponseEntity<ResponseVO<PageableRes>> getKeywordLogFile(
-            @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String ground_id,
+            @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId,
             @ApiParam(value = "검색 할 키워드", required = true)  @PathVariable("keyword") String keyword,
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
     {
         try {
             String result = "로그 키워드 " + keyword + " 불러오기 완료";
-            Page<ElasticSearchLog> keywordtLogs = elasticSearchLogService.getKeywordtLogs(ground_id, keyword, page-1);
+            Page<ElasticSearchLog> keywordtLogs = elasticSearchLogService.getKeywordtLogs(groundId, keyword, page-1);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(keywordtLogs.getNumber()+1, keywordtLogs.getTotalPages(),keywordtLogs.getContent())));
         }catch (ElasticSearchException e){
@@ -243,17 +243,17 @@ public class logController {
     //인덱스별 정규표현식으로 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 정규표현식으로 가져오는 API")
     @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
+            value = {@ApiResponse(code = 401, message = "header의 groundId가 존재하지 않을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/regexp")
     public ResponseEntity<ResponseVO<PageableRes>> getRegexpLogFile(
-            @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String ground_id,
+            @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId,
             @ApiParam(value = "검색 할 정규표현식", required = true)  @RequestParam String regexp,
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
     {
         try{
             String result = "로그 정규표현식 " + regexp+ " 불러오기 완료";
-            Page<ElasticSearchLog> regexptLogs = elasticSearchLogService.getRegexptLogs(ground_id, regexp, page-1);
+            Page<ElasticSearchLog> regexptLogs = elasticSearchLogService.getRegexptLogs(groundId, regexp, page-1);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(regexptLogs.getNumber()+1, regexptLogs.getTotalPages(),regexptLogs.getContent())));
         }catch (ElasticSearchException e){
@@ -274,11 +274,11 @@ public class logController {
     //인덱스별 시작 시간 끝 시간으로 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로 요청하는 시작 시간과 끝 시간으로 가져오는 API")
     @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
+            value = {@ApiResponse(code = 401, message = "header의 groundId가 존재하지 않을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/time")
     public ResponseEntity<ResponseVO<PageableRes>> getTimeLogFile(
-            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String ground_id,
+            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String groundId,
             @ApiParam(value = "검색 시작 날짜와 시간 (yyyy-MM-dd'T'HH:mm:ss)", required = true) @RequestParam String startDateTime,
             @ApiParam(value = "검색 종료 날짜와 시간 (yyyy-MM-dd'T'HH:mm:ss)", required = true)  @RequestParam String endDateTime,
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
@@ -288,7 +288,7 @@ public class logController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime startTime = LocalDateTime.parse(startDateTime, formatter);
             LocalDateTime endTime = LocalDateTime.parse(endDateTime, formatter);
-            Page<ElasticSearchLog> timetLogs = elasticSearchLogService.getTimetLogs(ground_id, startTime, endTime, page-1);
+            Page<ElasticSearchLog> timetLogs = elasticSearchLogService.getTimetLogs(groundId, startTime, endTime, page-1);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(timetLogs.getNumber()+1, timetLogs.getTotalPages(),timetLogs.getContent())));
         }catch (ElasticSearchException e){
@@ -309,12 +309,12 @@ public class logController {
     //인덱스별 시작 시간 끝 시간으로 키워드로 가져오기
     @ApiOperation(value = "저장된 로그를 최신 순으로, 요청하는 시작 시간과 끝 시간 그리고 키워드로 가져오는 API")
     @ApiResponses(
-            value = {@ApiResponse(code = 401, message = "header의 group_id가 존재하지 않을 때"),
+            value = {@ApiResponse(code = 401, message = "header의 groundId가 존재하지 않을 때"),
                     @ApiResponse(code = 404, message = "저장된 로그가 없을 때"),
                     @ApiResponse(code = 500, message = "서버 내부 오류")})
     @GetMapping("/timeandkeyword")
     public ResponseEntity<ResponseVO<PageableRes>> getTimeAndKeywordLogFile(
-            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String ground_id,
+            @ApiParam(value = "그라운드 ID", required = true) @RequestHeader String groundId,
             @ApiParam(value = "검색 시작 날짜와 시간 (yyyy-MM-dd'T'HH:mm:ss)", required = true)  @RequestParam String startDateTime,
             @ApiParam(value = "검색 종료 날짜와 시간 (yyyy-MM-dd'T'HH:mm:ss)", required = true) @RequestParam String endDateTime,
             @ApiParam(value = "검색 키워드", required = true) @RequestParam String keyword,
@@ -324,7 +324,7 @@ public class logController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime startTime = LocalDateTime.parse(startDateTime, formatter);
             LocalDateTime endTime = LocalDateTime.parse(endDateTime, formatter);
-            Page<ElasticSearchLog> timeAndKeywordLogs = elasticSearchLogService.getTimeAndKeywordLogs(ground_id, startTime, endTime, keyword, page-1);
+            Page<ElasticSearchLog> timeAndKeywordLogs = elasticSearchLogService.getTimeAndKeywordLogs(groundId, startTime, endTime, keyword, page-1);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, new PageableRes(timeAndKeywordLogs.getNumber()+1, timeAndKeywordLogs.getTotalPages(),timeAndKeywordLogs.getContent())));
         } catch (ElasticSearchException e) {
