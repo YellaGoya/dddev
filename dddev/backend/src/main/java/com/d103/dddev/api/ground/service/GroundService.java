@@ -1,12 +1,15 @@
 package com.d103.dddev.api.ground.service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.d103.dddev.api.ground.repository.dto.LogEnvDto;
 import com.d103.dddev.api.ground.repository.entity.Ground;
+import com.d103.dddev.api.ground.repository.entity.LogEnv;
 import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.user.repository.entity.User;
 
@@ -15,6 +18,11 @@ public interface GroundService {
 
 	Optional<Ground> getGroundByRepoId(Integer repoId) throws Exception;
 	Optional<Ground> getGroundInfo(Integer groundId) throws Exception;
+
+	// 로그 env
+	List<LogEnvDto> getLogEnv(Integer groundId) throws Exception;
+	List<LogEnvDto> createLogEnv(Ground ground, LogEnvDto newLogEnv) throws Exception;
+	void deleteLogEnv(Integer logEnvId) throws Exception;
 
 
 	Map<LocalDate, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception;

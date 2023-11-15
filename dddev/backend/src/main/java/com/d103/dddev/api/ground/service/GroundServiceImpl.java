@@ -1,6 +1,7 @@
 package com.d103.dddev.api.ground.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -16,8 +17,11 @@ import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.general.service.GeneralService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
+import com.d103.dddev.api.ground.repository.LogEnvRepository;
+import com.d103.dddev.api.ground.repository.dto.LogEnvDto;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.repository.entity.GroundUser;
+import com.d103.dddev.api.ground.repository.entity.LogEnv;
 import com.d103.dddev.api.issue.service.IssueService;
 import com.d103.dddev.api.issue.util.UndefinedUtil;
 import com.d103.dddev.api.repository.repository.entity.Repository;
@@ -38,6 +42,8 @@ public class GroundServiceImpl implements GroundService {
 
 	private final GroundRepository groundRepository;
 	private final BurnDownRepository burnDownRepository;
+	private final LogEnvRepository logEnvRepository;
+
 	private final GroundUserService groundUserService;
 	private final UserService userService;
 	private final ProfileService profileService;
@@ -108,6 +114,38 @@ public class GroundServiceImpl implements GroundService {
 	public Optional<Ground> getGroundInfo(Integer groundId) throws Exception {
 		log.info("service - getGroundInfo :: 그라운드 조회 진입");
 		return groundRepository.findById(groundId);
+	}
+
+	@Override
+	public List<LogEnvDto> getLogEnv(Integer groundId) throws Exception {
+		log.info("service - getLogEnv :: 로그 환경 설정 조회 진입");
+		List<LogEnv> logEnvEntityList = logEnvRepository.findByGround_Id(groundId);
+		List<LogEnvDto> logEnvDtoList = new ArrayList<>();
+
+		for(LogEnv l : logEnvEntityList) {
+			logEnvDtoList.add(l.convertToDto());
+		}
+
+		return logEnvDtoList;
+	}
+
+	@Override
+	public List<LogEnvDto> createLogEnv(Ground ground, LogEnvDto newLogEnv) throws Exception {
+		log.info("service - createLogEnv :: 로그 환경 설정 생성 진입");
+		LogEnv logEnv = LogEnv.builder()
+			.ground(ground)
+			.type(newLogEnv.getType())
+			.value(newLogEnv.getValue())
+			.build();
+
+		logEnvRepository.saveAndFlush(logEnv);
+		return getLogEnv(ground.getId());
+	}
+
+	@Override
+	public void deleteLogEnv(Integer logEnvId) throws Exception {
+		log.info("service - deleteLogEnv :: 로그 환경 설정 삭제 진입");
+		logEnvRepository.deleteById(logEnvId);
 	}
 
 	@Override

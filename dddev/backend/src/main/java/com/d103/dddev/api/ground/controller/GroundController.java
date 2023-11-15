@@ -25,9 +25,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.d103.dddev.api.common.ResponseDto;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
+import com.d103.dddev.api.ground.repository.dto.LogEnvDto;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.service.GroundService;
 import com.d103.dddev.api.ground.service.GroundUserService;
+import com.d103.dddev.api.issue.model.message.Response;
 import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.entity.User;
@@ -202,6 +204,39 @@ public class GroundController {
 		}
 	}
 
+	@PostMapping("/{groundId}/log-env")
+	@ApiOperation(value = "로그 환경 설정 생성 API", notes = "로그 환경 설정 생성하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseDto<List<LogEnvDto>>> createLogEnv(@ApiParam("groundId") @PathVariable Integer groundId,
+		@RequestHeader String Authorization,
+		@ApiParam(name = "logEnv", value = "type과 value만 넣기") @RequestBody LogEnvDto newLogEnv,
+		HttpServletRequest request) {
+		log.info("controller - createLogEnv :: 로그 환경 설정 생성 진입");
+		ResponseDto<List<LogEnvDto>> responseDto;
+		try {
+			ModelAndView mav = (ModelAndView)request.getAttribute("modelAndView");
+			Ground ground = (Ground)mav.getModel().get("ground");
+
+			responseDto = ResponseDto.<List<LogEnvDto>>builder()
+				.code(HttpStatus.OK.value())
+				.message("로그 환경 설정 생성 성공!")
+				.data(groundService.createLogEnv(ground, newLogEnv))
+				.build();
+
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<List<LogEnvDto>>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	@GetMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 정보 조회", notes = "그라운드 정보를 조회하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
@@ -367,6 +402,34 @@ public class GroundController {
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseDto = ResponseDto.<List<GroundUserDto>>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/{groundId}/log-env")
+	@ApiOperation(value = "로그 환경 설정 조회 API", notes = "로그 환경 설정 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseDto<List<LogEnvDto>>> getLogEnv(@ApiParam(value = "groundId") @PathVariable Integer groundId,
+		@RequestHeader String Authorization, HttpServletRequest request) {
+		log.info("controller - getLogEnv :: 로그 환경 설정 조회 진입");
+		ResponseDto<List<LogEnvDto>> responseDto;
+		try {
+			responseDto = ResponseDto.<List<LogEnvDto>>builder()
+				.code(HttpStatus.OK.value())
+				.message("로그 환경 설정 조회 성공!")
+				.data(groundService.getLogEnv(groundId))
+				.build();
+
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<List<LogEnvDto>>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
@@ -702,6 +765,32 @@ public class GroundController {
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseDto = ResponseDto.<Ground>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@DeleteMapping("/{groundId}/log-env/{logEnvId}")
+	@ApiOperation(value = "로그 환경 설정 삭제 API", notes = "로그 환경 설정 삭제하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"),
+		@ApiResponse(code = 406, message = "존재하지 않는 사용자 혹은 그라운드의 오너가 아님"), @ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseDto<Void>> deleteLogEnv(@ApiParam("groundId") @PathVariable Integer groundId,
+		@ApiParam("logEnvId") @PathVariable Integer logEnvId, @RequestHeader String Authorization) {
+		log.info("controller - deleteLogEnv :: 로그 환경 설정 삭제 API 진입");
+		ResponseDto<Void> responseDto;
+		try {
+			responseDto = ResponseDto.<Void>builder()
+				.code(HttpStatus.OK.value())
+				.message("로그 환경 설정 삭제 성공!")
+				.build();
+
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<Void>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();
