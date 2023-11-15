@@ -11,13 +11,16 @@ const AlertData = () => {
   const [allAlertList, setAllAlertList] = useState([]);
 
   useEffect(() => {
-    const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(user.githubId));
+    const alertUserDataCollection = db
+      .collection('alertUserData')
+      .where('githubId', '==', Number(user.githubId))
+      .orderBy('timestamp', 'desc')
+      .limit(20);
 
     // firestore 실시간 동기화, 문서 변경 발생 시 실행
     alertUserDataCollection.onSnapshot(
       (snapshot) => {
         const arr = [];
-        // console.log(`Received query snapshot of size ${snapshot.size}`);
 
         // 사용자가 받은 알림의 id를 받아옴
         snapshot.forEach((doc) => {
@@ -36,11 +39,12 @@ const AlertData = () => {
   }, [user]);
 
   const getAllDocs = async (grounds) => {
-    // console.log('grounds', grounds);
     const promises = grounds.map(({ id }) => {
       return db
         .collection('webhookData')
         .where('groundId', '==', id)
+        .orderBy('timestamp', 'desc')
+        .limit(20)
         .get()
         .then(async (resList) => {
           const resListMap = resList.docs.map((res) => {
@@ -62,8 +66,9 @@ const AlertData = () => {
     });
 
     const results = await Promise.all(promises);
-    const validResults = results.flat().filter((result) => result !== null);
-    validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    let validResults = results.flat().filter((result) => result !== null);
+    // validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    validResults = validResults.slice(0, 20);
     setAllAlertList(validResults);
   };
 
@@ -71,6 +76,8 @@ const AlertData = () => {
     const promises = arr.map(({ id, isRead, keyword }) => {
       return db
         .collection('webhookData')
+        .orderBy('timestamp', 'desc')
+        .limit(20)
         .doc(id)
         .get()
         .then((res) => {
@@ -88,23 +95,23 @@ const AlertData = () => {
 
     const results = await Promise.all(promises);
     const validResults = results.filter((result) => result !== null);
-    validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    // validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     setUserAlertList(validResults);
   };
 
   return (
     <>
-      <div>=========AlertData 컴포넌트 시작===========</div>
+      <div>**********AlertData 컴포넌트 시작**********</div>
       <div>사용자 알림 내역</div>
       {userAlertList.map((alert) => {
         return (
           <div key={alert.id}>
             <div>
-              {alert.alertType}
+              {alert.type}
               {alert.nickname}
               {alert.branch}
               {alert.message}
-              {alert.timestamp}
+              {alert.timestamp.toDate().toString()}
               {alert.url}
               {alert.keyword}
               {String(alert.isRead)}
@@ -116,16 +123,16 @@ const AlertData = () => {
       {allAlertList.map((alert) => {
         return (
           <div key={alert.id}>
-            {alert.alertType}
+            {alert.type}
             {alert.nickname}
             {alert.branch}
             {alert.message}
-            {alert.timestamp}
+            {alert.timestamp.toDate().toString()}
             {alert.url}
           </div>
         );
       })}
-      <div>=========AlertData 컴포넌트 끝==========</div>
+      <div>**********AlertData 컴포넌트 끝**********</div>
     </>
   );
 };

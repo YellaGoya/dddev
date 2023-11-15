@@ -16,7 +16,6 @@ const GetAlert = () => {
   const [groundName, setGroundName] = useState('');
 
   useEffect(() => {
-    // console.log('keywords: ', keywords);
     // 버튼 없앨거면 여기에 updateAlert();
   }, [keywords]);
 
@@ -42,7 +41,6 @@ const GetAlert = () => {
   }, [user.accessToken, user.refreshToken]);
 
   const updateAlert = () => {
-    // console.log('update alert : ', keywords);
     // 키워드 수정되면 알림 수정
     eetch
       .updateAlert({
@@ -63,8 +61,6 @@ const GetAlert = () => {
   const clickToggle = (type, id) => {
     const toggle = type === 'push' ? pushToggle : pullRequestToggle;
     const setToggle = type === 'push' ? setPushToggle : setPullRequestToggle;
-
-    // console.log('keyowrds', keywords);
 
     if (!toggle) {
       eetch
