@@ -28,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/log")
 @Slf4j
+@CrossOrigin(originPatterns = {"https://k9d103.p.ssafy.io","http://localhost:3000","https://k9d103.p.ssafy.io:8001"})
 public class logController {
 
     private final ElasticSearchLogService elasticSearchLogService;
