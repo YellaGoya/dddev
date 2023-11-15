@@ -487,7 +487,7 @@ const Write = () => {
     const doc = new Y.Doc();
     const type = doc.getText('quill');
 
-    const wsProvider = new WebsocketProvider('ws://34.64.243.47:6001', roomName, doc);
+    const wsProvider = new WebsocketProvider('https://k9d103.p.ssafy.io:6000', roomName, doc);
     const editor = quillRef.current.getEditor();
     editor.format('font', 'Pretendard');
     const { container } = editor;
