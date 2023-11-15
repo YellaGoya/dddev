@@ -43,6 +43,7 @@ export const EditModalWrapper = styled.div`
   border-radius: 0.75rem;
 
   background-color: var(--bg-basic);
+  border: 1px solid var(--border-setting);
 
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,

@@ -4,6 +4,7 @@ export const Title = styled.h1`
   color: var(--font-rev);
   font-weight: 500;
   padding: 25px 0 0 25px;
+  margin-bottom: 30px;
 `;
 
 export const DemoArticle = styled.article`
