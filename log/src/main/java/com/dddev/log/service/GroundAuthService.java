@@ -1,6 +1,7 @@
 package com.dddev.log.service;
 
 import com.dddev.log.config.AesUtil;
+import com.dddev.log.dto.res.TokenRes;
 import com.dddev.log.entity.GroundAuth;
 import com.dddev.log.exception.UserUnAuthException;
 import com.dddev.log.repository.GroundAuthRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +25,7 @@ public class GroundAuthService {
     private final AesUtil aesUtil;
 
     //토큰 저장
-    public void save(String token) throws Exception {
+    public List<TokenRes> save(String token) throws Exception {
         String str = aesUtil.aes256Decrypt(token);
         Map<String, Integer> userInfo = aesUtil.getUserInfo(str);
         Integer groundId = userInfo.get("groundId");
@@ -36,6 +38,15 @@ public class GroundAuthService {
         GroundAuth groundAuth = new GroundAuth(userId, groundId, token);
         groundAuth.setLocalDateTime(LocalDateTime.now());
         groundAuthRepository.save(groundAuth);
+        List<TokenRes> tokenResList = new ArrayList<>();
+        groundAuths.forEach(a -> {
+            tokenResList.add(TokenRes.builder()
+                            .groundId(a.getGroundId())
+                            .token(a.getToken())
+                            .userId(a.getUserId())
+                            .build());
+        });
+        return tokenResList;
     }
 
      // 토큰으로 유효성 체크 및 그라운드 아이디 반환

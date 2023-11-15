@@ -21,11 +21,8 @@ public class GroundAuth {
     private Long id;
 
     private Integer userId;
-
     private Integer groundId;
-
     private String token;
-
     private LocalDateTime localDateTime;
 
     public GroundAuth(Integer userId, Integer groundId, String token) {
