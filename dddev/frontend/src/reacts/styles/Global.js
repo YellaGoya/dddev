@@ -88,15 +88,8 @@ export const Main = styled.main`
 
   flex-grow: 1;
   min-width: 280px;
-  @media (min-width: 600px) {
-    margin-left: 9px;
-    overflow-y: scroll;
-  }
-
-  @media (max-width: 599px) {
-    margin-left: 0;
-    overflow-y: auto;
-  }
+  margin-left: 9px;
+  overflow-y: scroll;
 
   overflow-x: hidden;
 

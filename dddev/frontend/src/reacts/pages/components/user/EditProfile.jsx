@@ -20,6 +20,7 @@ const testDummy = [
   { id: 1, name: 'test1' },
   { id: 2, name: 'test2' },
 ];
+
 const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();

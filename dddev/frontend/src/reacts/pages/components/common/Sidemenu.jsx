@@ -11,10 +11,10 @@ import { updateUser } from 'redux/actions/user';
 
 import EditSettings from 'reacts/pages/components/user/EditSettings';
 
+import DomainRoundedIcon from '@mui/icons-material/DomainRounded';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
-import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
 import FreeBreakfastRoundedIcon from '@mui/icons-material/FreeBreakfastRounded';
 import FolderCopyRoundedIcon from '@mui/icons-material/FolderCopyRounded';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
@@ -47,23 +47,24 @@ const Sidemenu = () => {
   }, [menuToggle]);
 
   useEffect(() => {
-    eetch
-      .treeDocument({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId, type: 'general' })
-      .then((res) => {
-        setGenerals(res.data);
-      })
-      .catch((err) => {
-        if (err.message === 'RefreshTokenExpired') {
-          dispatch(logoutUser());
-          dispatch(setMenu(false));
-          dispatch(setMessage(false));
-          navigate(`/login`);
-        }
-      });
+    if (groundId)
+      eetch
+        .treeDocument({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId, type: 'general' })
+        .then((res) => {
+          setGenerals(res.data);
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
   }, [groundId]);
 
   const GeneralItems = ({ doc }) => {
-    const [isToggle, setIsToggle] = useState(false);
+    const [isToggle, setIsToggle] = useState(true);
     return (
       <s.GeneralItem>
         <s.GeneralName onClick={() => setIsToggle(!isToggle)}>
@@ -109,9 +110,9 @@ const Sidemenu = () => {
             <AutoAwesomeRoundedIcon />
             프로젝트
           </s.MenuCategory>
-          <s.MenuChild to={`/${groundId}/project/chart`}>
-            <BarChartRoundedIcon />
-            차트
+          <s.MenuChild to={`/${groundId}`}>
+            <DomainRoundedIcon />
+            메인
           </s.MenuChild>
           <s.MenuChild to={`/${groundId}/project/log`}>
             <FreeBreakfastRoundedIcon />
@@ -125,18 +126,6 @@ const Sidemenu = () => {
             <ForumRoundedIcon />
             요청
           </s.MenuChild>
-          {/* <s.MenuChild to={`/${groundId}/document/issue`}>
-            <FlagRoundedIcon />
-            이슈
-          </s.MenuChild>
-          <s.MenuChild to={`/${groundId}/document/request`}>
-            <ForumRoundedIcon />
-            요청
-          </s.MenuChild>
-          <s.MenuChild to={`/${groundId}/document/general`}>
-            <AssignmentRoundedIcon />
-            일반
-          </s.MenuChild> */}
         </s.MenuNav>
 
         <s.GroundList $groundListToggle={groundListToggle}>

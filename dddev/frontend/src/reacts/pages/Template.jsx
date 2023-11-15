@@ -1,7 +1,7 @@
 import { useRoutes } from 'react-router-dom';
 import AlertData from './components/alert/AlertData';
-// import CreateAlert from './components/alert/CreateAlert';
 import Redirect from './components/alert/Redirect';
+import GetAlert from './components/alert/GetAlert';
 
 const Template = () => {
   const routes = useRoutes([
@@ -13,7 +13,7 @@ const Template = () => {
   return (
     <>
       <AlertData />
-      {/* <CreateAlert /> */}
+      <GetAlert />
       {routes}
     </>
   );

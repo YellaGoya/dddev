@@ -6,6 +6,7 @@ import eetch from 'eetch/eetch';
 import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { loginUser } from 'redux/actions/user';
+import { updateUser } from 'redux/actions/user';
 import { logoutUser } from 'redux/actions/user';
 import Input from 'reacts/pages/components/common/Input';
 
@@ -24,6 +25,7 @@ const GitResult = () => {
 
   const [pat, setPat] = useState('');
   const [patMessage, setPatMessage] = useState(null);
+  const [tmp, setTmp] = useState(null);
   const navigate = useNavigate();
 
   const submitPat = () => {
@@ -31,6 +33,7 @@ const GitResult = () => {
       .githubTokenRegist({ accessToken: user.accessToken, refreshToken: user.refreshToken, personalAccessToken: pat })
       .then(() => {
         setPatMessage(null);
+        dispatch(loginUser(tmp));
         navigate('/');
       })
       .catch(() => {
@@ -48,13 +51,17 @@ const GitResult = () => {
         eetch
           .userGrounds({ accessToken: res.accessToken })
           .then((grounds) => {
+            setNickname(res.nickname);
+            setRole(res.role);
+
             const groundsList = grounds.data.map((ground) => {
               return ground.ground.id;
             });
             const groundsMap = grounds.data.map((ground) => ground.ground);
             const groundsMine = grounds.data.filter((ground) => ground.isOwner === true).map((ground) => ground.ground);
-            dispatch(
-              loginUser({
+
+            if (res.role === 'GUEST') {
+              setTmp({
                 accessToken: res.accessToken,
                 accessExp: res.accessExp,
                 refreshToken: res.refreshToken,
@@ -63,13 +70,29 @@ const GitResult = () => {
                 groundsMap,
                 groundsMine,
                 githubId: res.githubId,
-              }),
-            );
+              });
+              dispatch(
+                updateUser({
+                  accessToken: res.accessToken,
+                  refreshToken: res.refreshToken,
+                }),
+              );
+            } else {
+              dispatch(
+                loginUser({
+                  accessToken: res.accessToken,
+                  accessExp: res.accessExp,
+                  refreshToken: res.refreshToken,
+                  lastGround: res.lastGround,
+                  groundsList,
+                  groundsMap,
+                  groundsMine,
+                  githubId: res.githubId,
+                }),
+              );
 
-            setNickname(res.nickname);
-            setRole(res.role);
-
-            if (res.role === 'USER') navigate('/');
+              navigate('/');
+            }
           })
           .catch((err) => {
             if (err.message === 'RefreshTokenExpired') {

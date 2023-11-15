@@ -3,15 +3,20 @@ import { useState, useRef, useEffect } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import * as s from 'reacts/styles/components/common/SelectTransparent';
 
-const SelectTransparent = ({ label, list, select, selected, available = true }) => {
+const SelectTransparent = ({ label, list, select, selected, available = true }, check = false) => {
   const [toggle, setToggle] = useState(false);
   const [value, setValue] = useState(list ? list[0].name : '');
   const selRef = useRef();
 
   const selectHandler = (item) => {
-    if (select) select(item);
-    setValue(item.name);
-    setToggle(false);
+    if (check) {
+      if (select(item)) setValue(item.name);
+      setToggle(false);
+    } else {
+      if (select) select(item);
+      setValue(item.name);
+      setToggle(false);
+    }
   };
 
   useEffect(() => {

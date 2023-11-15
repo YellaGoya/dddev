@@ -41,8 +41,10 @@ export const EditModalWrapper = styled.div`
   transform: translateX(-50%);
 
   border-radius: 0.75rem;
+  overflow: hidden;
 
   background-color: var(--bg-basic);
+  border: 1px solid var(--border-setting);
 
   box-shadow:
     rgba(0, 0, 0, 0.24) 0px 1px 1px,
@@ -55,6 +57,8 @@ export const GradBoxWrapper = styled.div`
   height: fit-content;
   max-height: calc(100vh - 140px);
   min-height: 366px;
+
+  background-color: inherit;
 
   & > div {
     width: calc(100% + 9px);

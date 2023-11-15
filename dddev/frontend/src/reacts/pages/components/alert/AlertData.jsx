@@ -1,60 +1,29 @@
-// import eetch from 'eetch/eetch';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-// import requestPermission from 'fcm/firebase-messaging.js';
+
 import { db } from 'fcm/firebaseConfig';
-// import eetch from 'eetch/eetch';
 
 const AlertData = () => {
   const user = useSelector((state) => state.user);
+  const githubId = useSelector((state) => state.user.githubId);
   const groundsMap = useSelector((state) => state.user.groundsMap);
-  // const [userDocIdList, setUserDocIdList] = useState([]);
-  const [userAlertList, setUserAlertList] = useState([{}]);
-  const [allAlertList, setAllAlertList] = useState([{}]);
+
+  const [userAlertList, setUserAlertList] = useState([]);
+  const [allAlertList, setAllAlertList] = useState([]);
 
   useEffect(() => {
-    console.log(userAlertList);
-  }, [userAlertList]);
-
-  useEffect(() => {
-    console.log(allAlertList);
-  }, [allAlertList]);
-
-  useEffect(() => {
-    console.log(user.accessToken);
-    const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(user.githubId));
+    const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(githubId)).orderBy('timestamp', 'desc').limit(20);
 
     // firestore 실시간 동기화, 문서 변경 발생 시 실행
     alertUserDataCollection.onSnapshot(
       (snapshot) => {
         const arr = [];
-        console.log(`Received query snapshot of size ${snapshot.size}`);
 
-        // 전체 알림에서 사용자가 받은 알림의 id를 받아옴
+        // 사용자가 받은 알림의 id를 받아옴
         snapshot.forEach((doc) => {
           arr.push(doc.data());
         });
 
-        // setUserDocIdList(arr);
-
-        // 전체 알림에서 id로 사용자가 받을 알림을 찾고
-        // const AlertList = [];
-        // arr.forEach(({ id, isRead, keyword }) => {
-        //   db.collection('webhookData')
-        //     .doc(id)
-        //     .get()
-        //     .then((res) => {
-        //       if (res.exists) {
-        //         const resData = res.data();
-        //         // 알림 읽었는지, 걸린 키워드 뭔지 추가해줌
-        //         resData.isRead = isRead;
-        //         resData.keyowrd = keyword;
-        //         AlertList.push(resData);
-        //         console.log('list', resData); // 화면에 출력하는 데이터
-        //       }
-        //     });
-        //   setUserAlertList(AlertList);
-        // });
         getUserDocs(arr);
       },
       (err) => {
@@ -62,32 +31,41 @@ const AlertData = () => {
       },
     );
 
-    // 전체 웹훅 발생 문서 조회 -> 최초 1번만
-    // db.collection('webhookData').where()
+    // 전체 웹훅 내역 조회
     getAllDocs(groundsMap);
   }, [user]);
 
   const getAllDocs = async (grounds) => {
     const promises = grounds.map(({ id }) => {
-      console.log('id', id);
       return db
         .collection('webhookData')
-        .where('groundId', '==', `${id}`)
+        .where('groundId', '==', id)
+        .orderBy('timestamp', 'desc')
+        .limit(20)
         .get()
-        .then((res) => {
-          if (res.exists) {
-            const resData = res.data();
-            resData.nickname = resData.author.nickname;
-            console.log('resData ::', resData);
-            return resData;
-          }
+        .then(async (resList) => {
+          const resListMap = resList.docs.map((res) => {
+            if (res.exists) {
+              const resData = res.data();
+              resData.nickname = resData.author.nickname;
 
-          return null;
-        });
+              return resData;
+            }
+
+            return null;
+          });
+
+          const eachResults = await Promise.all(resListMap);
+          const validEachResults = eachResults.filter((result) => result !== null);
+          return validEachResults;
+        })
+        .catch((err) => console.log(err));
     });
 
     const results = await Promise.all(promises);
-    const validResults = results.filter((result) => result !== null);
+    let validResults = results.flat().filter((result) => result !== null);
+    // validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    validResults = validResults.slice(0, 20);
     setAllAlertList(validResults);
   };
 
@@ -95,6 +73,8 @@ const AlertData = () => {
     const promises = arr.map(({ id, isRead, keyword }) => {
       return db
         .collection('webhookData')
+        .orderBy('timestamp', 'desc')
+        .limit(20)
         .doc(id)
         .get()
         .then((res) => {
@@ -112,70 +92,59 @@ const AlertData = () => {
 
     const results = await Promise.all(promises);
     const validResults = results.filter((result) => result !== null);
+    // validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     setUserAlertList(validResults);
   };
 
-  // const getUserDocs = (arr) => {
-  //   const AlertList = [];
-  //   // for(const [id, isRead, keyword] of arr) {}
-  //   arr.map(({ id, isRead, keyword }) => {
-  //     db.collection('webhookData')
-  //       .doc(id)
-  //       .get()
-  //       .then((res) => {
-  //         if (res.exists) {
-  //           const resData = res.data();
-  //           // 알림 읽었는지, 걸린 키워드 뭔지 추가해줌
-  //           resData.isRead = isRead;
-  //           resData.keyowrd = keyword;
-  //           AlertList.push(resData);
-  //           console.log('list', resData); // 화면에 출력하는 데이터
-  //         }
-  //       })
-  //       .catch((err) => console.log(err));
-  //     setUserAlertList(AlertList);
-  //   });
+  // 깃허브 링크 연결 및 읽음 처리(사용자 구독 알림만)
+  const githubLinkClick = async (url, docId) => {
+    const docRef = db.collection('alertUserData').where('githubId', '==', Number(githubId)).where('id', '==', docId);
 
-  //   // await Promise.all(promises);
-  // };
+    const snapshot = await docRef.get();
 
-  // {allAlertList.map((doc) => {
-  //   return (
-  //     <div key={doc.id}>
-  //       <div>
-  //         {doc.type}
-  //         {/* {doc.author.nickname} */}
-  //         {doc.branch}
-  //         {doc.message}
-  //         {doc.timestamp}
-  //         {doc.url}
-  //       </div>
-  //     </div>
-  //   );
-  // })}
+    if (!snapshot.empty) {
+      snapshot.docs[0].ref.update({
+        isRead: true,
+      });
+    }
+
+    window.open(url, '_blank');
+  };
+
   return (
     <>
+      <div>**********AlertData 컴포넌트 시작**********</div>
       <div>사용자 알림 내역</div>
       {userAlertList.map((alert) => {
-        // console.log('html map', alert);
         return (
           <div key={alert.id}>
-            <div>
-              {alert.id}
-              {alert.alertType}
-              {alert.author.nickname}
+            <div onClick={githubLinkClick(alert.url, alert.id)}>
+              {alert.type}
+              {alert.nickname}
               {alert.branch}
               {alert.message}
-              {alert.timestamp}
+              {alert.timestamp.toDate().toString()}
               {alert.url}
               {alert.keyword}
-              {alert.isRead}
+              {String(alert.isRead)}
             </div>
           </div>
         );
       })}
       <div>전체 알림 내역</div>
-      {/* <div>{console.log('allAlertList :: ', allAlertList)}</div> */}
+      {allAlertList.map((alert) => {
+        return (
+          <div key={alert.id}>
+            {alert.type}
+            {alert.nickname}
+            {alert.branch}
+            {alert.message}
+            {alert.timestamp.toDate().toString()}
+            {alert.url}
+          </div>
+        );
+      })}
+      <div>**********AlertData 컴포넌트 끝**********</div>
     </>
   );
 };
