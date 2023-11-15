@@ -1,28 +1,34 @@
 package com.d103.dddev.api.sprint.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.WeekFields;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.TreeMap;
+
+import org.hibernate.TransactionException;
+import org.springframework.stereotype.Service;
+
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.service.IssueService;
 import com.d103.dddev.api.sprint.repository.BurnDownRepository;
+import com.d103.dddev.api.sprint.repository.SprintRepository;
 import com.d103.dddev.api.sprint.repository.dto.requestDto.SprintUpdateDto;
 import com.d103.dddev.api.sprint.repository.dto.responseDto.SprintResponseDto;
 import com.d103.dddev.api.sprint.repository.entity.BurnDown;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
-import com.d103.dddev.api.sprint.repository.SprintRepository;
-
 import com.d103.dddev.common.exception.sprint.SprintNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.hibernate.TransactionException;
-import org.springframework.stereotype.Service;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.WeekFields;
-import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -195,22 +201,20 @@ public class SprintServiceImpl implements SprintService{
             List<Issue> issueDone = issueService.getSprintFocusIssueDoneAsc(sprint.getId());
 
             // 초기 시간 입력
-            Integer totalFocusTime = sprint.getTotalFocusTime();
             burnDownRepository.save(BurnDown.builder()
                     .ground(ground)
                     .sprint(sprint)
-                    .endDate(sprint.getStartDate().atStartOfDay())
-                    .remainTime(totalFocusTime)
+                    .endDate(sprint.getStartDate())
+                    .time(sprint.getTotalFocusTime())
                     .build());
 
             // 차트 db에 저장
             for(Issue i : issueDone) {
-                totalFocusTime -= i.getFocusTime();
                 burnDownRepository.save(BurnDown.builder()
                         .ground(ground)
                         .sprint(sprint)
-                        .endDate(i.getEndDate())
-                        .remainTime(totalFocusTime)
+                        .endDate(i.getEndDate().toLocalDate())
+                        .time(i.getFocusTime())
                         .build());
             }
 
@@ -269,11 +273,11 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
-    public Map<LocalDateTime, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception {
+    public Map<LocalDate, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception {
 
         SprintEntity sprintEntity = sprintRepository.findById(sprintId).orElseThrow(()-> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
 
-        Map<LocalDateTime, Integer> burnDown = new TreeMap<>();
+        Map<LocalDate, Integer> burnDown = new TreeMap<>();
 
 
         if(sprintEntity.getStatus() == OPEN) {		// 진행중
@@ -286,31 +290,54 @@ public class SprintServiceImpl implements SprintService{
         return burnDown;
     }
 
-    private Map<LocalDateTime, Integer> makeBurnDownChart(SprintEntity sprint) throws Exception {
-        Map<LocalDateTime, Integer> burnDown = new TreeMap<>();
+    private Map<LocalDate, Integer> makeBurnDownChart(SprintEntity sprint) throws Exception {
+        Map<LocalDate, Integer> burnDown = new TreeMap<>();
 
         // 시작점
         LocalDate startDate = sprint.getStartDate();
         Integer totalFocusTime = sprint.getTotalFocusTime();
-        burnDown.put(startDate.atStartOfDay(), totalFocusTime);
+        burnDown.put(startDate, totalFocusTime);
 
         // 완료된 이슈 리스트 (종료된 시간 순서대로) 불러오기
         List<Issue> issueDone = issueService.getSprintFocusIssueDoneAsc(sprint.getId());
 
         // 완료된 이슈 데이터 추가
+        LocalDate key = null;
+        Integer time = 0;
         for(Issue i : issueDone) {
-            totalFocusTime -= i.getFocusTime();
-            burnDown.put(i.getEndDate(), totalFocusTime);
+            System.out.println(i.getEndDate().toLocalDate() + " " + i.getFocusTime());
+            if(key == null) {
+                key = i.getEndDate().toLocalDate();
+                time = i.getFocusTime();
+            } else if(key.equals(i.getEndDate().toLocalDate())) {
+                time += i.getFocusTime();
+            } else {
+                burnDown.put(key, time);
+                key = i.getEndDate().toLocalDate();
+                time = i.getFocusTime();
+            }
         }
-
+        burnDown.put(key, time);
         return burnDown;
     }
 
-    private Map<LocalDateTime, Integer> makeBurnDownChart(List<BurnDown> burnDownList) throws Exception {
-        Map<LocalDateTime, Integer> burnDown = new TreeMap<>();
+    private Map<LocalDate, Integer> makeBurnDownChart(List<BurnDown> burnDownList) throws Exception {
+        Map<LocalDate, Integer> burnDown = new TreeMap<>();
+        LocalDate key = null;
+        Integer time = 0;
         for(BurnDown b : burnDownList) {
-            burnDown.put(b.getEndDate(), b.getRemainTime());
+            if(key == null) {
+                key = b.getEndDate();
+                time = b.getTime();
+            } else if(key.equals(b.getEndDate())) {
+                time += b.getTime();
+            } else {
+                burnDown.put(key, time);
+                key = b.getEndDate();
+                time = b.getTime();
+            }
         }
+        burnDown.put(key, time);
         return burnDown;
     }
 

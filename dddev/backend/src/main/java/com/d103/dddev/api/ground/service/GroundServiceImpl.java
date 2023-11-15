@@ -1,8 +1,6 @@
 package com.d103.dddev.api.ground.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -10,28 +8,25 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
-import com.d103.dddev.api.general.service.GeneralService;
-import com.d103.dddev.api.issue.service.IssueService;
-import com.d103.dddev.api.request.service.RequestService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.d103.dddev.api.alert.service.AlertService;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
+import com.d103.dddev.api.general.service.GeneralService;
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.repository.entity.GroundUser;
-import com.d103.dddev.api.issue.model.document.Issue;
+import com.d103.dddev.api.issue.service.IssueService;
 import com.d103.dddev.api.issue.util.UndefinedUtil;
 import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
+import com.d103.dddev.api.request.service.RequestService;
 import com.d103.dddev.api.sprint.repository.BurnDownRepository;
-import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.api.sprint.service.SprintService;
 import com.d103.dddev.api.user.repository.entity.User;
 import com.d103.dddev.api.user.service.UserService;
-import com.google.type.DateTime;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -148,7 +143,7 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
-	public Map<LocalDateTime, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception {
+	public Map<LocalDate, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception {
 		return sprintService.getSprintBurnDownChart(sprintId);
 	}
 

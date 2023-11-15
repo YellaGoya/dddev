@@ -1,12 +1,11 @@
 package com.d103.dddev.api.sprint.service;
 
-import com.d103.dddev.api.sprint.repository.dto.requestDto.SprintUpdateDto;
-import com.d103.dddev.api.sprint.repository.dto.responseDto.SprintResponseDto;
-import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+
+import com.d103.dddev.api.sprint.repository.dto.requestDto.SprintUpdateDto;
+import com.d103.dddev.api.sprint.repository.dto.responseDto.SprintResponseDto;
 
 public interface SprintService {
     SprintResponseDto createSprint(int groundId);
@@ -20,7 +19,7 @@ public interface SprintService {
     void deleteAllSprintWhenGroundDelete(int groundId) throws Exception;
 
     // 차트
-    Map<LocalDateTime, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception;
+    Map<LocalDate, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception;
     Map<String, Integer> getSprintFocusTime(Integer sprintId) throws Exception;
     Map<String, Integer> getSprintActiveTime(Integer sprintId) throws Exception;
     Map<String, Integer> getSprintTotalTime(Integer sprintId) throws Exception;

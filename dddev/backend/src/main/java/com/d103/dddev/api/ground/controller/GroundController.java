@@ -1,6 +1,6 @@
 package com.d103.dddev.api.ground.controller;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -24,15 +24,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.d103.dddev.api.common.ResponseDto;
-import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.repository.dto.GroundUserDto;
+import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.service.GroundService;
 import com.d103.dddev.api.ground.service.GroundUserService;
 import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.entity.User;
 import com.d103.dddev.api.user.service.UserService;
-import com.google.type.DateTime;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -549,14 +548,14 @@ public class GroundController {
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
 		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
 		@ApiResponse(code = 500, message = "내부 오류")})
-	ResponseEntity<ResponseDto<Map<LocalDateTime, Integer>>> getBurnDownChart(
+	ResponseEntity<ResponseDto<Map<LocalDate, Integer>>> getBurnDownChart(
 		@ApiParam("그라운드 아이디") @PathVariable Integer groundId,
 		@ApiParam("스프린트 아이디") @PathVariable Integer sprintId, @RequestHeader String Authorization,
 		HttpServletRequest request) {
 		log.info("controller - getBurnDownChart :: 번다운 차트 데이터 조회 진입");
-		ResponseDto<Map<LocalDateTime, Integer>> responseDto;
+		ResponseDto<Map<LocalDate, Integer>> responseDto;
 		try {
-			responseDto = ResponseDto.<Map<LocalDateTime, Integer>>builder()
+			responseDto = ResponseDto.<Map<LocalDate, Integer>>builder()
 				.code(HttpStatus.OK.value())
 				.message("번다운 차트 데이터 조회 성공!")
 				.data(groundService.getSprintBurnDownChart(sprintId))
@@ -564,7 +563,7 @@ public class GroundController {
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			responseDto = ResponseDto.<Map<LocalDateTime, Integer>>builder()
+			responseDto = ResponseDto.<Map<LocalDate, Integer>>builder()
 				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
 				.message(e.getMessage())
 				.build();

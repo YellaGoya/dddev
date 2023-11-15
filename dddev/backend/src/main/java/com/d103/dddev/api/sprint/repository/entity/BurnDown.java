@@ -1,6 +1,6 @@
 package com.d103.dddev.api.sprint.repository.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,9 +41,8 @@ public class BurnDown {
 	private SprintEntity sprint;
 
 	@Column(name = "end_date")
-	private LocalDateTime endDate;
+	private LocalDate endDate;
 
-	@Column(name = "remain_time")
-	private Integer remainTime;
+	private Integer time;
 
 }
