@@ -37,6 +37,7 @@ export const TextButton = styled.button`
   }
 
   & > svg {
+    margin-left: 5px;
     width: 21px;
     height: 21px;
   }

@@ -356,6 +356,37 @@ export const createSprint = async ({ accessToken, refreshToken, groundId }) => {
   return res.json();
 };
 
+export const editSprint = async ({ accessToken, refreshToken, groundId, sprintId, goal, name }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint/${sprintId}`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ goal, name }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const deleteSprint = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint/${sprintId}`;
+  const options = {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
 export const listSprint = async ({ accessToken, refreshToken, groundId }) => {
   const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/sprint`;
   const options = {
@@ -474,6 +505,161 @@ export const multiConnectSprint = async ({ accessToken, refreshToken, groundId, 
   };
 
   const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const activeCount = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/chart/active-count/${sprintId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const activeTime = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/chart/active-time/${sprintId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const burnDown = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/chart/burn-down/${sprintId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const focusCount = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/chart/focus-count/${sprintId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const focusTime = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/chart/focus-time/${sprintId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const totalCount = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/chart/total-count/${sprintId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const totalTime = async ({ accessToken, refreshToken, groundId, sprintId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/chart/total-time/${sprintId}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const issueToggle = async ({ accessToken, refreshToken, groundId, issueId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/issue/${issueId}/status/toggle`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const generateToken = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/token/`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const recentLog = async ({ groundId, page }) => {
+  const url = `http://k9d103a.p.ssafy.io:9999/log?page=${page}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      groundId,
+    },
+  };
+
+  const res = await fetch(url, options);
+
+  if (!res.ok) {
+    res.data = [];
+    return res.data;
+  }
 
   return res.json();
 };

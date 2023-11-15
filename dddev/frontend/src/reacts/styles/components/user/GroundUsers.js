@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export const UsersWrapper = styled.div`
   position: relative;
   margin-bottom: 1.5rem;
+  background-color: inherit;
 `;
 
 export const Label = styled.div`
@@ -11,7 +12,7 @@ export const Label = styled.div`
   top: -9px;
   padding: 0 5px;
   color: var(--font-border);
-  background-color: var(--bg-dark);
+  background-color: inherit;
 
   font-weight: 500;
   font-size: 0.8rem;
@@ -66,6 +67,9 @@ export const User = styled.li`
   display: flex;
   align-items: center;
 
+  overflow: hidden;
+  white-space: nowrap;
+
   &:hover {
     background-color: var(--bg-lite-hover);
 
@@ -89,13 +93,19 @@ export const User = styled.li`
     right: 10px;
     font-weight: 200;
     opacity: 0.5;
+
+    @media (max-width: 475px) {
+      display: none;
+    }
   }
 `;
 
 export const RemoveButton = styled.button`
   position: absolute;
   right: 10px;
-
+  @media (max-width: 475px) {
+    display: none;
+  }
   background-color: transparent;
   border: none;
 

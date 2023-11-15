@@ -195,6 +195,16 @@ export const TreeWrapper = styled.div`
   padding-top: 5px;
 
   overflow-y: scroll;
+
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--thumb-hover);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: var(--font-rev);
+    }
+  }
 `;
 
 export const TreeGradBox = styled.div`

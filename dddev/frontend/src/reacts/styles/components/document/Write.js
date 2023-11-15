@@ -4,6 +4,8 @@ export const EditorWrapper = styled.div`
   position: relative;
   min-width: 340px;
   max-width: 960px;
+  width: calc(100% + 18px);
+  transform: translateX(-9px);
 
   margin: 0 auto;
 
@@ -44,16 +46,15 @@ export const EditorWrapper = styled.div`
     white-space: pre-line;
   }
 
-  .quill {
-    padding-top: 0px;
-    /* pointer-events: ${({ status }) => (status === 0 ? 'auto' : 'none')}; */
+  & > .quill {
+    pointer-events: ${({ status }) => (!status ? 'auto' : 'none')};
   }
 
   .ql-toolbar.ql-snow {
     width: 375px;
     padding-bottom: 20px;
 
-    display: ${({ status }) => (status === 0 ? 'block' : 'none')};
+    display: ${({ status }) => (!status ? 'block' : 'none')};
   }
 
   .ql-toolbar .ql-stroke {
@@ -349,10 +350,6 @@ export const EditorWrapper = styled.div`
         border-top: 3px solid transparent;
         border-bottom: 3px solid transparent;
       }
-
-      &:hover {
-        border-radius: 0px 3px 3px 0px;
-      }
     }
 
     blockquote {
@@ -638,6 +635,7 @@ export const ParentWrapper = styled.div`
 `;
 
 export const AttributeWrapper = styled.div`
+  background-color: inherit;
   & > div {
     margin-bottom: 30px;
     & > div {
@@ -761,13 +759,25 @@ export const RequestDescription = styled.p`
   margin: 0;
 `;
 
+export const Comment = styled.div`
+  width: calc(100% - 30px);
+  margin: 0 15px;
+`;
+
 export const CommentWrapper = styled.div`
   position: relative;
-  width: 100%;
-  margin: 100px 0;
+  width: calc(100% - 30px);
+  margin: 100px 15px;
   padding: 10px 0 15px 0;
 
-  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+
+  @media (max-width: 400px) {
+    margin: 100px 0;
+    width: 100%;
+  }
+
+  border-radius: 0.5rem;
 
   background-color: var(--bg-lite);
 
