@@ -27,4 +27,5 @@ public class WebhookDataDocument {
 	private Date timestamp;
 	private String url;
 	private Integer groundId;
+	private String type;
 }

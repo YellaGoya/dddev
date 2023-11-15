@@ -194,7 +194,7 @@ public class AlertServiceImpl implements AlertService {
 		for (CommitDataDto commitDataDto : pushWebhookDto.getCommits()) {
 			saveWebhookData(pushWebhookDto.getRepository().getId(), commitDataDto.getId(),
 				commitDataDto.getAuthor().get("username"), commitDataDto.getMessage(), pushWebhookDto.getRef(),
-				Date.from(commitDataDto.getTimestamp().toInstant()), commitDataDto.getUrl());
+				Date.from(commitDataDto.getTimestamp().toInstant()), commitDataDto.getUrl(), "push");
 		}
 
 		for (AlertUserKeyword alertUserKeyword : userKeyowrdList) {
@@ -334,7 +334,7 @@ public class AlertServiceImpl implements AlertService {
 	}
 
 	private String saveWebhookData(Integer gitRepoId, String id, String username, String message, String branch,
-		Date timestamp, String url) throws Exception {
+		Date timestamp, String url, String type) throws Exception {
 		UserDto emptyAuthor = UserDto.builder()
 			.nickname(username)
 			.build();
@@ -348,6 +348,7 @@ public class AlertServiceImpl implements AlertService {
 			.url(url)
 			.timestamp(timestamp)
 			.groundId(groundId)
+			.type(type)
 			.build();
 
 		return alertDataRepo.addWebhookData(webhookDataDocument);
@@ -544,7 +545,7 @@ public class AlertServiceImpl implements AlertService {
 
 		saveWebhookData(pullRequestWebhookDto.getRepository().getId(), pullRequestDto.getId().toString(),
 			pullRequestDto.getUser().getLogin(), title, headBranch + "->" + baseBranch,
-			Date.from(pullRequestDto.getCreatedAt().toInstant()), url);
+			Date.from(pullRequestDto.getCreatedAt().toInstant()), url, "pull_request");
 
 		for (AlertUserKeyword alertUserKeyword : userKeywordList) {
 
