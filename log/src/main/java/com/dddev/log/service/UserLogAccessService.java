@@ -36,7 +36,7 @@ public class UserLogAccessService {
         userLogAccess.increase();
         log.info("GROUND ID: {}, INDEX: {}, 로그 등록 URI 접근 최근 60초 {}번 접근, 남은 시간 {}초", groundId, userLogAccess.getIndex(), userLogAccess.getCount(), userLogAccess.getExpiration());
         //비정상적인 로그 요청 횟수(특정 횟수)라는 판단이 들면 삭제
-        if(userLogAccess.getCount() >= 50) {
+        if(userLogAccess.getCount() >= 1000) {
             //만약 첫 시도이면 -> docker로 첫 실행 시 로그 한 번에 많이 들어올 경우 대비
             if(userLogAccess.getIndex() == 0) {
                 userLogAccess.setCount(0);
