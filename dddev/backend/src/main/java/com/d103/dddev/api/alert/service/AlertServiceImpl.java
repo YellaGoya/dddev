@@ -238,6 +238,8 @@ public class AlertServiceImpl implements AlertService {
 
 					commitMessageList.add(commitMsg);
 
+					saveAlertUserData(alertUserKeyword.getUser(), commitDataDto.getId(), keywordSet, Date.from(commitDataDto.getTimestamp().toInstant()));
+
 				} else {    // 키워드 지정 시 검색
 					for (String keyword : alertUserKeyword.getKeyword()) {
 
@@ -271,18 +273,20 @@ public class AlertServiceImpl implements AlertService {
 						}
 
 					} // 키워드
+
+					// 사용자별 조회를 위한 데이터 저장
+					// 구독 키워드가 있다면 키워드에 걸려야 저장
+					if(!keywordSet.isEmpty())	saveAlertUserData(alertUserKeyword.getUser(), commitDataDto.getId(), keywordSet, Date.from(commitDataDto.getTimestamp().toInstant()));
 				}
 
 				// fcm 전송 시 읽음 처리를 위한 id 추가
 				idKeywordMap.put(commitDataDto.getId(), keywordSet);
 
-				// 사용자별 조회를 위한 데이터 저장
-				saveAlertUserData(alertUserKeyword.getUser(), commitDataDto.getId(), keywordSet, Date.from(commitDataDto.getTimestamp().toInstant()));
 
 			}    // 커밋 리스트
 
 			if (!changedFileList.isEmpty() && !commitMessageList.isEmpty()) {
-				title = "❗ 커밋 메시지가 발생했습니다 ❗\n❗ 파일이 변경되었습니다 ❗";
+				title = "❗ 키워드 알림이 발생했습니다 ❗";
 				if (isKeyword)
 					content = "키워드 " + String.join(",", keywordSet) + " 발생!!";
 				// 응답, 보낸 알림 제목, 보낸 알림 내용, 수신자, 발신자, 발생 브랜치, 비교 url, 알림 타입
@@ -537,7 +541,7 @@ public class AlertServiceImpl implements AlertService {
 
 		String headBranch = pullRequestWebhookDto.getPullRequest().getHead().getRef();
 		String baseBranch = pullRequestWebhookDto.getPullRequest().getBase().getRef();
-		String url = pullRequestWebhookDto.getPullRequest().getUrl();
+		String url = pullRequestWebhookDto.getPullRequest().getHtmlUrl();
 		String title = pullRequestWebhookDto.getPullRequest().getTitle();
 		String body = pullRequestWebhookDto.getPullRequest().getBody();
 
