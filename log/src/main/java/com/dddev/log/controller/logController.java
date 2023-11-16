@@ -19,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.elasticsearch.NoSuchIndexException;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -274,6 +276,7 @@ public class logController {
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
     {
         try{
+            regexp = UriUtils.decode(regexp, "UTF-8");
             log.info("GROUND ID : {}, /regex, GET 요청", groundId);
             String result = "로그 정규표현식 " + regexp+ " 불러오기 완료";
             Page<ElasticSearchLog> regexptLogs = elasticSearchLogService.getRegexptLogs(groundId, regexp, page-1);
