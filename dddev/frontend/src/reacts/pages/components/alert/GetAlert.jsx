@@ -1,22 +1,27 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Input from 'reacts/pages/components/common/Input';
-import eetch from 'eetch/eetch';
 import requestPermission from 'fcm/firebase-messaging.js';
 
-const GetAlert = () => {
+import eetch from 'eetch/eetch';
+import { setMenu } from 'redux/actions/menu';
+import { setMessage } from 'redux/actions/menu';
+import { logoutUser } from 'redux/actions/user';
+
+import * as s from 'reacts/styles/components/alert/GetAlert';
+const GetAlert = ({ groundId }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  const lastGround = useSelector((state) => state.user.lastGround);
   const [pushToggle, setPushToggle] = useState(false);
   const [pullRequestToggle, setPullRequestToggle] = useState(false);
-  const [keywords, setKeywords] = useState(['']);
+  const [keywords, setKeywords] = useState(null);
   const [pushId, setPushId] = useState();
   const [pullRequestId, setPullRequestId] = useState();
-  const groundsMap = useSelector((state) => state.user.groundsMap);
-  const [groundName, setGroundName] = useState('');
 
   useEffect(() => {
-    // 버튼 없앨거면 여기에 updateAlert();
+    if (pushToggle || pullRequestToggle) updateAlert();
   }, [keywords]);
 
   useEffect(() => {
@@ -24,12 +29,8 @@ const GetAlert = () => {
   }, [user.accessToken, user.refreshToken]);
 
   useEffect(() => {
-    // 지금 그라운드 이름 불러오기
-    const ground = groundsMap.find((ground) => ground.id === lastGround);
-    setGroundName(ground.name);
-    // 초기 상태를 설정하는 API 호출
     eetch
-      .getAlert({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: lastGround })
+      .getAlert({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId })
       .then((res) => {
         setPushToggle(res.data.pushId !== null);
         setPullRequestToggle(res.data.pullRequestId !== null);
@@ -38,24 +39,68 @@ const GetAlert = () => {
         setPullRequestId(res.data.pullRequestId);
       })
       .catch((err) => console.error(err));
-  }, [user.accessToken, user.refreshToken]);
+  }, [groundId]);
 
   const updateAlert = () => {
-    // 키워드 수정되면 알림 수정
     eetch
       .updateAlert({
         accessToken: user.accessToken,
         refreshToken: user.refreshToken,
-        groundId: lastGround,
+        groundId,
         keyword: keywords,
       })
       .then((res) => {
         setPushToggle(res.data.pushId !== null);
         setPullRequestToggle(res.data.pullRequestId !== null);
-        setKeywords(res.data.keyword ? res.data.keyword : []);
         setPushId(res.data.pushId);
         setPullRequestId(res.data.pullRequestId);
       });
+  };
+
+  const removeToggle = () => {
+    if (pushToggle) {
+      eetch
+        .deleteAlert({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId,
+          alertId: pushId,
+        })
+        .then((res) => {
+          setPushToggle(res.data.pushId !== null);
+          setPushId(res.data.pushId);
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+    }
+
+    if (pullRequestToggle) {
+      eetch
+        .deleteAlert({
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          groundId,
+          alertId: pullRequestId,
+        })
+        .then((res) => {
+          setPullRequestToggle(res.data.pullRequestId !== null);
+          setPullRequestId(res.data.pullRequestId);
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+    }
   };
 
   const clickToggle = (type, id) => {
@@ -67,12 +112,11 @@ const GetAlert = () => {
         .createAlert({
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
-          groundId: Number(lastGround),
+          groundId,
           keyword: keywords,
           type,
         })
         .then((res) => {
-          setToggle((toggle) => !toggle);
           setPushToggle(res.data.pushId !== null);
           setPullRequestToggle(res.data.pullRequestId !== null);
           setKeywords(res.data.keyword ? res.data.keyword : []);
@@ -80,15 +124,19 @@ const GetAlert = () => {
           setPullRequestId(res.data.pullRequestId);
         })
         .catch((err) => {
-          // 알림 허용을 안해서 422 에러가 뜨면 알림 허용을 해야 한다고 안내하기
-          console.log('createAlert err: ', err);
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
         });
     } else {
       eetch
         .deleteAlert({
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
-          groundId: Number(lastGround),
+          groundId,
           alertId: id,
         })
         .then((res) => {
@@ -100,35 +148,31 @@ const GetAlert = () => {
           setPullRequestId(res.data.pullRequestId);
         })
         .catch((err) => {
-          console.log(err);
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
         });
     }
   };
 
   return (
-    <div>
-      <div>=============getAlert 컴포넌트 시작============</div>
-      <label>
-        그라운드 이름 : {groundName}
-        Push 알림 토글:
-        <input type="checkbox" checked={pushToggle} onChange={() => clickToggle('push', pushId)} />
-      </label>
-      <label>
-        Pull Request 알림 토글:
-        <input type="checkbox" checked={pullRequestToggle} onChange={() => clickToggle('pull_request', pullRequestId)} />
-      </label>
-      <label>
-        {(pushToggle || pullRequestToggle) && (
-          <label>
-            <Input label="키워드" array={keywords} enter={setKeywords} />
-            <div type="button" onClick={updateAlert}>
-              키워드수정
-            </div>
-          </label>
-        )}
-      </label>
-      <div>=============getAlert 컴포넌트 끝============</div>
-    </div>
+    <s.OutWrapper>
+      <s.AlarmTitle>알림 설정</s.AlarmTitle>
+      <s.ButtonWrapper>
+        <s.Button $toggle={pushToggle} checked={pushToggle} onClick={() => clickToggle('push', pushId)}>
+          푸쉬
+        </s.Button>
+        <s.Button $toggle={pullRequestToggle} checked={pullRequestToggle} onClick={() => clickToggle('pull_request', pullRequestId)}>
+          풀 / 리퀘스트
+        </s.Button>
+        <s.Button onClick={removeToggle}>삭제</s.Button>
+      </s.ButtonWrapper>
+
+      {(pushToggle || pullRequestToggle) && <Input label="키워드" array={keywords} enter={setKeywords} />}
+    </s.OutWrapper>
   );
 };
 

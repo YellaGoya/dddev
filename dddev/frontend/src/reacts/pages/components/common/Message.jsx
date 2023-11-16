@@ -1,22 +1,16 @@
 import EditProfile from 'reacts/pages/components/user/EditProfile';
+import UserAlertData from 'reacts/pages/components/alert/UserAlertData';
 
+import ManageAccountsRoundedIcon from '@mui/icons-material/ManageAccountsRounded';
 import * as s from 'reacts/styles/components/common/Message';
 const Message = ({ messageToggle, editToggle, setEditToggle, userInfo, setUserInfo }) => {
   return (
     <s.Message $toggle={messageToggle}>
-      <p onClick={() => setEditToggle(!editToggle)}>openEdit</p>
-      <ul>
-        <li>sda</li>
-        <li>sda</li>
-        <li>sda</li>
-        <li>sda</li>
-        <li>sda</li>
-        <li>sda</li>
-        <li>sda</li>
-        <li>sda</li>
-        <li>sda</li>
-        <li>sda</li>
-      </ul>
+      <span onClick={() => setEditToggle(!editToggle)}>
+        <ManageAccountsRoundedIcon />
+        계정 설정
+      </span>
+      <UserAlertData />
       {editToggle && <EditProfile toggle={editToggle} setToggle={setEditToggle} userInfo={userInfo} setUserInfo={setUserInfo} />}
     </s.Message>
   );

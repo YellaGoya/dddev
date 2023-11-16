@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
+import { updateUser } from 'redux/actions/user';
 import { db } from 'fcm/firebaseConfig';
 
+import * as s from 'reacts/styles/components/alert/UserAlertData';
 const UserAlertData = () => {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const githubId = useSelector((state) => state.user.githubId);
 
@@ -28,7 +31,7 @@ const UserAlertData = () => {
         console.log(`snapshot error: ${err}`);
       },
     );
-  }, [user]);
+  }, [user.githubId]);
 
   const getUserDocs = async (arr) => {
     const promises = arr.map(({ id, isRead, keyword }) => {
@@ -52,12 +55,11 @@ const UserAlertData = () => {
     const results = await Promise.all(promises);
     const validResults = results.filter((result) => result !== null);
     validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    dispatch(updateUser({ unread: validResults.filter((res) => res.isRead === false).length }));
     setUserAlertList(validResults);
   };
 
-  // 깃허브 링크 연결 및 읽음 처리(사용자 구독 알림만)
   const githubLinkClick = async (url, docId) => {
-    // console.log('docId : ', docId);
     const docRef = db.collection('alertUserData').where('githubId', '==', Number(githubId)).where('id', '==', docId);
 
     const snapshot = await docRef.get();
@@ -72,26 +74,27 @@ const UserAlertData = () => {
   };
 
   return (
-    <>
-      <div>**********User AlertData 컴포넌트 시작**********</div>
-      <div>사용자 알림 내역</div>
+    <s.UserAlertList>
       {userAlertList.map((alert) => {
         return (
-          <div key={alert.id}>
-            <div onClick={() => githubLinkClick(alert.url, alert.id)}>
-              {alert.type}
-              {alert.nickname}
-              {alert.branch}
-              {alert.message}
-              {/* {alert.timestamp.toDate().toString()} */}
-              {/* {alert.url} */}
-              {alert.keyword}
-              {String(alert.isRead)}
-            </div>
-          </div>
+          <s.UserAlertItem key={alert.id}>
+            <s.AlertTag>{alert.type}</s.AlertTag>
+            {'>'}
+            <s.AlertTag>{alert.branch}</s.AlertTag>
+            {alert.keyword && alert.keyword.length > 0 && (
+              <>
+                {'>'}
+                <s.AlertTag>{alert.keyword}</s.AlertTag>
+              </>
+            )}
+
+            <s.AlertContent $read={alert.isRead} onClick={() => githubLinkClick(alert.url, alert.id)}>
+              {alert.nickname} : {alert.message}
+            </s.AlertContent>
+          </s.UserAlertItem>
         );
       })}
-    </>
+    </s.UserAlertList>
   );
 };
 

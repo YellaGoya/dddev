@@ -23,10 +23,27 @@ export const Message = styled.div`
     visibility 0.5s ease,
     right 0.5s ease,
     opacity 0.5s ease;
-`;
 
-export const EditProfile = styled.div`
-  width: 100%;
-  height: 800px;
-  background-color: aqua;
+  padding-top: 50px;
+
+  & > span {
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+
+    position: absolute;
+    right: 15px;
+    top: 10px;
+
+    border-radius: 0.5rem;
+
+    &:hover {
+      background-color: var(--bg-lite);
+    }
+
+    cursor: pointer;
+    & > svg {
+      margin-right: 5px;
+    }
+  }
 `;

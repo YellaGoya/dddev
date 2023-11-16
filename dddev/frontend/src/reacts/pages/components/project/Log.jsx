@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -16,7 +16,8 @@ import ConfirmationNumberRoundedIcon from '@mui/icons-material/ConfirmationNumbe
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-
+import SubtitlesRoundedIcon from '@mui/icons-material/SubtitlesRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import * as s from 'reacts/styles/components/project/Log';
 
 const FilterList = [
@@ -39,6 +40,9 @@ const Log = () => {
   const [filter, setFilter] = useState({ id: 'keyword', name: '키워드' });
   const [value, setValue] = useState('');
   const [listToggle, setListToggle] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [gptToggle, setGptToggle] = useState(false);
+  const gptAnswerRef = useRef(null);
 
   const generateToken = () => {
     eetch
@@ -57,16 +61,29 @@ const Log = () => {
   };
 
   const askGpt = (log) => {
-    console.log(log);
-    const question = `src/reacts/pages/components/project/Log.jsx
-    Line 46:48:  Unexpected string concatenation of literals  no-useless-concat`;
+    if (isLoading) return;
+    setIsLoading(true);
+    setGptToggle(true);
+
     eetch
-      .gptSolution({ groundId: params.groundId, question })
+      .gptSolution({ groundId: params.groundId, question: log })
       .then((res) => {
-        console.log(res);
+        // res.data 문자열 중 백틱 3개로 감싸진 것들은 코드블럭으로 인식하여 백틱을 <pre>로 치환
+        res.data = res.data.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
+        // res.data 문자열 중 백틱 1개로 감싸진 것들은 코드로 인식하여 백틱을 <code>로 치환
+
+        gptAnswerRef.current.innerHTML = res.data;
+        // setGptAnswer(res.data);
+        setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+        setIsLoading(false);
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
       });
   };
 
@@ -251,131 +268,156 @@ const Log = () => {
   };
 
   return (
-    <s.LogWrapper>
-      <s.LogInstructionWrapper $toggle={instToggle}>
-        <s.LogTitle $toggle={instToggle} onClick={() => setInstToggle(!instToggle)}>
-          * 서버 로그 수집 메뉴얼
-          <KeyboardArrowDownIcon />
-        </s.LogTitle>
-        <h2>
-          1. 서버 로그 API 토큰 발급.
-          <s.GenerateButton onClick={generateToken}>
-            <ConfirmationNumberRoundedIcon />
-            토큰 발급
-          </s.GenerateButton>
-        </h2>
-        <h2>2. 수집 할 서버에서 다음 명령어로 스크립트 파일을 저장.</h2>
-        <pre>
-          # 도커 컨테이너 환경
-          <br />
-          wget -O dddevLogDocker.sh http://k9d103a.p.ssafy.io/dddevLogDocker
-          <br />
-          <br />
-          # 리눅스 환경
-          <br />
-          wget -O dddevLogSystem.sh http://k9d103a.p.ssafy.io/dddevLogSystem
-        </pre>
-        <h2>3. 스크립트 파일 관리자 권한으로 실행 및 설치.</h2>
-        <pre>
-          # 도커 컨테이너 환경, 컨테이너 명, 로그 API 토큰
-          <br />
-          {`sudo sh dddevLogDocker.sh {containername} {token} &`}
-          <br />
-          <br />
-          # 리눅스 환경, 로그 파일 경로, 로그 API 토큰
-          <br />
-          {`sudo sh dddevLogSystem.sh {logPath} {token} &`}
-        </pre>
-        <h2>4. bg 명령어를 입력하여 백그라운드 실행.</h2>
-        <pre>bg</pre>
-        <h2>* 도커 환경은 재시작시 해쉬 값이 변경 되므로 종료 후 스크립트 재실행 필요.</h2>
-        <h2>* 로그 분석 서비스 종료 명령어.</h2>
-        <pre>{`sudo pkill -f "dddev|python3"`}</pre>
-      </s.LogInstructionWrapper>
-      <s.LogListWrapper>
-        <s.LogListTitle $toggle={listToggle} onClick={() => setListToggle(!listToggle)}>
-          <TerminalIcon />
-          서버 전체 로그 <p>{date}</p>
-          <KeyboardArrowDownIcon className="log-fold" />
-        </s.LogListTitle>
-        {logs && (
-          <s.LogList $toggle={listToggle}>
-            {logs.map((log) => {
-              return (
-                <s.LogItem key={log.localDateTime}>
-                  <p>{log.log}</p>
-                  <s.GPTButton
-                    onClick={() => {
-                      askGpt(log.log);
-                    }}
-                  >
-                    <SmartToyIcon />
-                    AI 솔루션
-                  </s.GPTButton>
+    <>
+      <s.LogWrapper>
+        <s.LogInstructionWrapper $toggle={instToggle}>
+          <s.LogTitle $toggle={instToggle} onClick={() => setInstToggle(!instToggle)}>
+            * 서버 로그 수집 메뉴얼
+            <KeyboardArrowDownIcon />
+          </s.LogTitle>
+          <h2>
+            1. 서버 로그 API 토큰 발급.
+            <s.GenerateButton onClick={generateToken}>
+              <ConfirmationNumberRoundedIcon />
+              토큰 발급
+            </s.GenerateButton>
+          </h2>
+          <h2>2. 수집 할 서버에서 다음 명령어로 스크립트 파일을 저장.</h2>
+          <pre>
+            # 도커 컨테이너 환경
+            <br />
+            wget -O dddevLogDocker.sh http://k9d103a.p.ssafy.io/dddevLogDocker
+            <br />
+            <br />
+            # 리눅스 환경
+            <br />
+            wget -O dddevLogSystem.sh http://k9d103a.p.ssafy.io/dddevLogSystem
+          </pre>
+          <h2>3. 스크립트 파일 관리자 권한으로 실행 및 설치.</h2>
+          <pre>
+            # 도커 컨테이너 환경, 컨테이너 명, 로그 API 토큰
+            <br />
+            {`sudo sh dddevLogDocker.sh {containername} {token} &`}
+            <br />
+            <br />
+            # 리눅스 환경, 로그 파일 경로, 로그 API 토큰
+            <br />
+            {`sudo sh dddevLogSystem.sh {logPath} {token} &`}
+          </pre>
+          <h2>4. bg 명령어를 입력하여 백그라운드 실행.</h2>
+          <pre>bg</pre>
+          <h2>* 도커 환경은 재시작시 해쉬 값이 변경 되므로 종료 후 스크립트 재실행 필요.</h2>
+          <h2>* 로그 분석 서비스 종료 명령어.</h2>
+          <pre>{`sudo pkill -f "dddev|python3"`}</pre>
+        </s.LogInstructionWrapper>
+        <s.LogListWrapper>
+          <s.LogListTitle $toggle={listToggle} onClick={() => setListToggle(!listToggle)}>
+            <TerminalIcon />
+            서버 전체 로그 <p>{date}</p>
+            <KeyboardArrowDownIcon className="log-fold" />
+          </s.LogListTitle>
+          {logs && (
+            <s.LogList $toggle={listToggle}>
+              {logs.map((log) => {
+                return (
+                  <s.LogItem key={log.localDateTime}>
+                    <p>{log.log}</p>
+                    <s.GPTButton
+                      onClick={() => {
+                        askGpt(log.log);
+                      }}
+                    >
+                      <SmartToyIcon />
+                      AI 솔루션
+                    </s.GPTButton>
+                  </s.LogItem>
+                );
+              })}
+              {maximumPage > pageNumber && (
+                <s.LogItem className="load-more">
+                  <s.LogMoreButton onClick={() => loadMore()}>
+                    <p>이전 로그</p>
+                    <MoreVertIcon />
+                  </s.LogMoreButton>
                 </s.LogItem>
-              );
-            })}
-            {maximumPage > pageNumber && (
-              <s.LogItem className="load-more">
-                <s.LogMoreButton onClick={() => loadMore()}>
-                  <p>이전 로그</p>
-                  <MoreVertIcon />
-                </s.LogMoreButton>
-              </s.LogItem>
-            )}
-          </s.LogList>
-        )}
-      </s.LogListWrapper>
-      <s.DivLine />
-      <s.CustomAddWrapper>
-        <s.LogListTitle>
-          <LocalOfferIcon />
-          로그 필터 추가
-        </s.LogListTitle>
-        <s.InputWrapper>
-          <SelectTransparent label="등록 타입" list={FilterList} select={setFilter} selected={filter.name} />
-          <s.ValueInput
-            value={value}
-            onChange={(event) => {
-              setValue(event.target.value);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
+              )}
+            </s.LogList>
+          )}
+        </s.LogListWrapper>
+        <s.DivLine />
+        <s.CustomAddWrapper>
+          <s.LogListTitle>
+            <LocalOfferIcon />
+            로그 필터 추가
+          </s.LogListTitle>
+          <s.InputWrapper>
+            <SelectTransparent label="등록 타입" list={FilterList} select={setFilter} selected={filter.name} />
+            <s.ValueInput
+              value={value}
+              onChange={(event) => {
+                setValue(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  if (value.length > 0) {
+                    addFilter();
+                  }
+                }
+              }}
+            />
+            <s.CustomAddButton
+              onClick={() => {
                 if (value.length > 0) {
                   addFilter();
                 }
-              }
-            }}
-          />
-          <s.CustomAddButton
-            onClick={() => {
-              if (value.length > 0) {
-                addFilter();
-              }
-            }}
-          >
-            등록
-          </s.CustomAddButton>
-        </s.InputWrapper>
+              }}
+            >
+              등록
+            </s.CustomAddButton>
+          </s.InputWrapper>
 
-        {filters &&
-          filters.length > 0 &&
-          filters.map((filter) => (
-            <s.Customs key={filter.id + filter.value + 'remove'} onClick={() => removeFilter(filter.id)}>
-              {filter.value}
-            </s.Customs>
-          ))}
-      </s.CustomAddWrapper>
-      {filters && filters.length > 0 && filters.map((filter) => <GetLogs key={filter.id + filter.value} filter={filter} />)}
-      <Modal
-        isOpen={tokenSuccess}
-        type="alarm"
-        message="* 토큰 발급 완료."
-        onRequestClose={() => {
-          setTokenSuccess(false);
-        }}
-      />
-    </s.LogWrapper>
+          {filters &&
+            filters.length > 0 &&
+            filters.map((filter) => (
+              <s.Customs key={filter.id + filter.value + 'remove'} onClick={() => removeFilter(filter.id)}>
+                {filter.value}
+              </s.Customs>
+            ))}
+        </s.CustomAddWrapper>
+        {filters && filters.length > 0 && filters.map((filter) => <GetLogs key={filter.id + filter.value} filter={filter} />)}
+
+        <Modal
+          isOpen={tokenSuccess}
+          type="alarm"
+          message="* 토큰 발급 완료."
+          onRequestClose={() => {
+            setTokenSuccess(false);
+          }}
+        />
+      </s.LogWrapper>
+      <s.GPTWrapper $loading={isLoading} $toggle={gptToggle}>
+        <s.GPTTitle>
+          <SubtitlesRoundedIcon />
+          {isLoading ? 'AI 답변 대기 중' : 'AI 답변 완료'}
+        </s.GPTTitle>
+        <s.GPTCloseButton $toggle={!isLoading} onClick={() => setGptToggle(false)}>
+          <CloseRoundedIcon />
+        </s.GPTCloseButton>
+
+        <div className="lds-grid">
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+        </div>
+        <s.GPTAnswerWrapper ref={gptAnswerRef} $loading={isLoading} />
+      </s.GPTWrapper>
+    </>
   );
 };
 

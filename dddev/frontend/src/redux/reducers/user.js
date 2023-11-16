@@ -10,6 +10,7 @@ const initialState = {
   groundsMap: null,
   groundsMine: null,
   githubId: null,
+  unread: 0,
 };
 
 const userReducer = (state = initialState, action) => {
@@ -42,6 +43,7 @@ const userReducer = (state = initialState, action) => {
         groundsMap: action.payload.groundsMap || state.groundsMap,
         groundsMine: action.payload.groundsMine || state.groundsMine,
         githubId: action.payload.githubId || state.githubId,
+        unread: action.payload.unread || state.unread,
       };
 
     default:
