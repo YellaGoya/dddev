@@ -580,6 +580,17 @@ public class IssueServiceImpl implements IssueService {
 
 		issue.setStatus((issue.getStatus() + 1) % 3);
 
+		if(issue.getStatus() == 0){
+			// 모두 제거
+			issue.setStartDate(null);
+			issue.setEndDate(null);
+		}else if(issue.getStatus() == 1){
+			issue.setStartDate(LocalDateTime.now()); // 시작일 추가
+			issue.setEndDate(null); // 혹시모를 종료일 제거
+		}else if(issue.getStatus() == 2){
+			issue.setEndDate(LocalDateTime.now()); // 종료일만 추가
+		}
+
 		issue.setModifier(userDetails.getUsername());
 
 		issueRepository.save(issue);
