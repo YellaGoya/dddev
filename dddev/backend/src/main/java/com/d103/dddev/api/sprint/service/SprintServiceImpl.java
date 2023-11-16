@@ -2,7 +2,6 @@ package com.d103.dddev.api.sprint.service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +18,14 @@ import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.issue.model.document.Issue;
 import com.d103.dddev.api.issue.service.IssueService;
+import com.d103.dddev.api.sprint.TimeType;
 import com.d103.dddev.api.sprint.repository.BurnDownRepository;
-import com.d103.dddev.api.sprint.repository.ChartDataRepository;
+import com.d103.dddev.api.ground.repository.ChartDataRepository;
 import com.d103.dddev.api.sprint.repository.SprintRepository;
 import com.d103.dddev.api.sprint.repository.dto.requestDto.SprintUpdateDto;
 import com.d103.dddev.api.sprint.repository.dto.responseDto.SprintResponseDto;
 import com.d103.dddev.api.sprint.repository.entity.BurnDown;
-import com.d103.dddev.api.sprint.repository.entity.ChartData;
+import com.d103.dddev.api.ground.repository.entity.ChartData;
 import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 import com.d103.dddev.common.exception.sprint.SprintNotFoundException;
 
@@ -194,6 +194,16 @@ public class SprintServiceImpl implements SprintService {
 		}
 
 		sprint.setTotalFocusTime(totalFocusTime);
+
+		// 스프린트에 올라간 이슈들의 총 시간 합을 불러온다
+		Integer totalTime = totalFocusTime;
+		try {
+			totalTime += issueService.getSprintTotalActiveTime(sprintId);
+		} catch (Exception e) {
+			throw new TransactionException("startSprint :: 스프린트 전체 시간 계산에 실패했습니다");
+		}
+
+		sprint.setTotalTime(totalTime);
 		try {
 			sprintRepository.save(sprint);
 		} catch (Exception e) {
@@ -206,8 +216,6 @@ public class SprintServiceImpl implements SprintService {
 		SprintEntity sprint = sprintRepository.findById(sprintId)
 			.orElseThrow(() -> new SprintNotFoundException("존재하지 않는 스프린트입니다."));
 		sprint.setStatus(2);
-
-		issueService.changeIssuesStatusWhenSprintComplete(sprintId);
 
 		Ground ground = sprint.getGround();
 
@@ -243,33 +251,23 @@ public class SprintServiceImpl implements SprintService {
 			// 완료/미완료된 집중시간 합
 			Map<String, Integer> sprintFocusTime = issueService.getSprintFocusTime(sprintId);
 
-			// 완료/미완료된 집중시간 개수
-			Map<String, Integer> sprintFocusTimeCount = issueService.getSprintFocusTimeCount(sprintId);
-
 			// 완료/미완료된 연구시간 합
 			Map<String, Integer> sprintActiveTime = issueService.getSprintActiveTime(sprintId);
 
-			// 완료/미완료된 연구시간 개수
-			Map<String, Integer> sprintActiveTimeCount = issueService.getSprintActiveTimeCount(sprintId);
 
 			// 완료 집중시간 차트 데이터
-			makeChartData(ground, sprint, FOCUS, true, sprintFocusTime.get("done"), sprintFocusTimeCount.get("done"));
-
-			// 미완료 집중시간 차트 데이터
-			makeChartData(ground, sprint, FOCUS, false, sprintFocusTime.get("undone"),
-				sprintFocusTimeCount.get("undone"));
+			makeChartData(ground, sprint, TimeType.FOCUS, sprintFocusTime.get("done"));
 
 			// 완료 연구시간 차트 데이터
-			makeChartData(ground, sprint, ACTIVE, true, sprintActiveTime.get("done"),
-				sprintActiveTimeCount.get("done"));
+			makeChartData(ground, sprint, TimeType.ACTIVE, sprintActiveTime.get("done"));
 
-			// 미완료 연구시간 차트 데이터
-			makeChartData(ground, sprint, ACTIVE, false, sprintActiveTime.get("undone"),
-				sprintActiveTimeCount.get("undone"));
 
 		} catch (Exception e) {
 			throw new TransactionException("completeSprint :: 차트 데이터 저장 실패");
 		}
+
+		// 이슈 상태 변경하기
+		issueService.changeIssuesStatusWhenSprintComplete(sprintId);
 
 		try {
 			sprintRepository.save(sprint);
@@ -278,15 +276,12 @@ public class SprintServiceImpl implements SprintService {
 		}
 	}
 
-	private void makeChartData(Ground ground, SprintEntity sprint, String timeType, Boolean isDone, Integer time,
-		Integer count) {
+	private void makeChartData(Ground ground, SprintEntity sprint, TimeType timeType, Integer time) {
 		ChartData chartData = ChartData.builder()
 			.ground(ground)
 			.sprint(sprint)
 			.timeType(timeType)
-			.isDone(isDone)
 			.time(time)
-			.count(count)
 			.build();
 
 		chartDataRepository.saveAndFlush(chartData);

@@ -26,7 +26,11 @@ public interface IssueRepository extends MongoRepository<Issue, String> {
 
 	// 스프린트의 모든 focus time 이슈 불러오기
 	@Query("{ 'sprint_id' : ?0, 'focus_time' : { $gt : 0 } }")
-	List<Issue> getSprintIssueList(Integer sprintId);
+	List<Issue> getSprintFocusIssueList(Integer sprintId);
+
+	// 스프린트의 모든 active time 이슈 불러오기
+	@Query("{ 'sprint_id': ?0, 'active_time' : { $gt : 0 } }")
+	List<Issue> getSprintActiveIssueList(Integer sprintId);
 
 	// 스프린트의 완료된 집중시간 이슈 리스트 불러오기
 	@Query("{ 'sprint_id' : ?0, 'status' : 2, 'focus_time' : { $gt : 0 } }")

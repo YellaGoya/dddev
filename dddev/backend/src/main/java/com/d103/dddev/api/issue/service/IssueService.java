@@ -33,6 +33,7 @@ public interface IssueService  {
     void deleteAllIssuesWhenGroundDelete(int groundId) throws Exception;
 
     Integer getSprintTotalFocusTime(Integer sprintId) throws Exception;
+    Integer getSprintTotalActiveTime(Integer sprintId) throws Exception;
 
     List<Issue> getSprintFocusIssueDoneAsc(Integer sprintId) throws Exception;
     Map<String, Integer> getSprintFocusTime(Integer sprintId) throws Exception;

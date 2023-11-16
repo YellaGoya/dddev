@@ -1,7 +1,9 @@
-package com.d103.dddev.api.sprint.repository.entity;
+package com.d103.dddev.api.ground.repository.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -9,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.d103.dddev.api.ground.repository.entity.Ground;
+import com.d103.dddev.api.sprint.TimeType;
+import com.d103.dddev.api.sprint.repository.entity.SprintEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,18 +38,14 @@ public class ChartData {
 	@JoinColumn(name = "ground_id")
 	private Ground ground;
 
-
 	@ManyToOne
 	@JoinColumn(name = "sprint_id")
 	private SprintEntity sprint;
 
 	@Column(name = "time_type")
-	private String timeType;
-
-	@Column(name = "is_done")
-	private Boolean isDone;
+	@Enumerated(EnumType.STRING)
+	private TimeType timeType;
 
 	private Integer time;
 
-	private Integer count;
 }
