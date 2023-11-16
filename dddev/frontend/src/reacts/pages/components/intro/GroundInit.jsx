@@ -96,7 +96,7 @@ const GroundInit = () => {
       ) : (
         <>
           <s.Title>
-            아직 깃헙 리포지터리가 <br />
+            아직 GitHub 리포지터리가 <br />
             없으신가요?
           </s.Title>
           <s.TextLink href="https://github.com/">

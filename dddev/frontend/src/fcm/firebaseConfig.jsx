@@ -3,8 +3,6 @@ import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/messaging';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: 'AIzaSyD1HPZuKiyZOvTJMyqUhf1dv6wkJaRRaKM',
   authDomain: 'dddev-1e0d5.firebaseapp.com',
@@ -22,7 +20,3 @@ const auth = firebase.auth();
 const messaging = firebase.messaging();
 
 export { auth, db, messaging };
-
-// export const firestore = firebase.firestore();
-
-// export const firebaseAppEx = firebase.initializeApp(firebaseConfig);

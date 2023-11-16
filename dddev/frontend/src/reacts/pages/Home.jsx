@@ -120,19 +120,6 @@ const Home = () => {
   useEffect(() => {
     if (selectedSprint) {
       eetch
-        .focusAverage({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          if (err.message === 'RefreshTokenExpired') {
-            dispatch(logoutUser());
-            dispatch(setMenu(false));
-            dispatch(setMessage(false));
-            navigate(`/login`);
-          }
-        });
-      eetch
         .activeCount({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, sprintId: selectedSprint.id })
         .then((res) => {
           setActiveCount(res.data);
@@ -373,7 +360,7 @@ const Home = () => {
           </s.RequestGrid>
         </s.RequestWrapper>
         <s.AlarmWrapper>
-          <s.AlarmTitle>깃헙 알림 리스트</s.AlarmTitle>
+          <s.AlarmTitle>GitHub 알림 리스트</s.AlarmTitle>
           <AlertData />
         </s.AlarmWrapper>
       </s.DocsWrapper>

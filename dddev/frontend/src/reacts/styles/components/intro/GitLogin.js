@@ -7,7 +7,6 @@ export const FlightWrapper = styled.article`
   align-items: center;
   justify-content: center;
 
-  //세로로 정렬
   @media (max-width: 729px) {
     flex-direction: column;
   }

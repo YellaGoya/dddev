@@ -43,11 +43,13 @@ const Log = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [gptToggle, setGptToggle] = useState(false);
   const gptAnswerRef = useRef(null);
+  const generatedTokenRef = useRef(null);
 
   const generateToken = () => {
     eetch
       .generateToken({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
-      .then(() => {
+      .then((res) => {
+        generatedTokenRef.current = res.data;
         setTokenSuccess(true);
       })
       .catch((err) => {
@@ -68,12 +70,9 @@ const Log = () => {
     eetch
       .gptSolution({ groundId: params.groundId, question: log })
       .then((res) => {
-        // res.data 문자열 중 백틱 3개로 감싸진 것들은 코드블럭으로 인식하여 백틱을 <pre>로 치환
         res.data = res.data.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
-        // res.data 문자열 중 백틱 1개로 감싸진 것들은 코드로 인식하여 백틱을 <code>로 치환
 
         gptAnswerRef.current.innerHTML = res.data;
-        // setGptAnswer(res.data);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -140,7 +139,12 @@ const Log = () => {
         getFilter();
       })
       .catch((err) => {
-        console.log(err);
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
       });
   };
 
@@ -389,7 +393,9 @@ const Log = () => {
         <Modal
           isOpen={tokenSuccess}
           type="alarm"
-          message="* 토큰 발급 완료."
+          message={`* 토근 발급 완료.
+          
+          ${generatedTokenRef.current}`}
           onRequestClose={() => {
             setTokenSuccess(false);
           }}

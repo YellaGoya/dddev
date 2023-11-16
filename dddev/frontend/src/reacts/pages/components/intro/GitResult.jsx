@@ -126,7 +126,7 @@ const GitResult = () => {
           <s.ImgWrapper>
             <s.DemoImg src={demo1} />
           </s.ImgWrapper>
-          <s.Description>깃헙 사용자 프로필에서 &apos;설정&apos;을 눌러 이동합니다.</s.Description>
+          <s.Description>GitHub 사용자 프로필에서 &apos;설정&apos;을 눌러 이동합니다.</s.Description>
         </s.DemoArticle>
         <s.DivLine />
         <s.DemoArticle>

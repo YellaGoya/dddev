@@ -52,30 +52,14 @@ const Index = () => {
       .recentSprint({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
       .then((res) => {
         const sprints = res.data;
-        if (sprints.length === 0) {
-          // setNewSprintReady(true);
-        } else {
+        if (sprints.length !== 0) {
           const recent = sprints[sprints.length - 1];
           setLastSprint(recent);
-          // setNewSprintReady(recent.status === 2);
 
           const endDate = new Date(`${recent.endDate}T23:59:59`);
           const now = new Date();
 
           setDeprecated(endDate < now);
-
-          // switch (recent.status) {
-          //   case 0:
-          //     if (endDate < now) {
-          //       setStartSprintReady(false);
-          //     } else setStartSprintReady(true);
-          //     break;
-          //   case 1:
-          //   case 2:
-          //   default:
-          //     setStartSprintReady(false);
-          //     break;
-          // }
         }
       })
       .catch((err) => {
@@ -144,7 +128,6 @@ const Index = () => {
         issueId,
       })
       .then(() => {
-        console.log('toggle');
         getLastSprint();
       })
       .catch((err) => {
@@ -293,8 +276,6 @@ const Index = () => {
 
   const IssueRow = ({ issue, type, handleCheck, multiSelect }) => {
     const [checked, setChecked] = useState(false);
-
-    console.log(issue.id);
 
     return (
       <s.IssueRow $checked={multiSelect.includes(issue.id)} status={issue.status} type={type}>
