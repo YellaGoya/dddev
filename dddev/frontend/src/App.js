@@ -12,7 +12,7 @@ import Ground from 'reacts/pages/Ground';
 import GroundCheck from 'layouts/GroundCheck';
 import Redirect from 'reacts/pages/Redirect';
 
-import Template from 'reacts/pages/Template';
+import Alert from 'reacts/pages/Alert';
 
 import { Global } from 'reacts/styles/Global';
 
@@ -26,7 +26,7 @@ const Routing = memo(() => {
     },
     {
       path: '/temp/*',
-      element: <Template />,
+      element: <Alert />,
     },
     {
       path: '/',

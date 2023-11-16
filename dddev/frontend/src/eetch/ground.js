@@ -39,7 +39,7 @@ export const editGround = async ({ accessToken, refreshToken, groundId, name, fo
       'Content-Type': 'application/json',
       Authorization: accessToken,
     },
-    body: JSON.stringify({ name, focusTime, activeTime }),
+    body: JSON.stringify({ name, focusTime: Number(focusTime), activeTime: Number(activeTime) }),
   };
 
   const res = await eetch(url, options, refreshToken);
@@ -227,7 +227,7 @@ export const timeDocument = async ({ accessToken, refreshToken, groundId, type, 
       'Content-Type': 'application/json',
       Authorization: accessToken,
     },
-    body: JSON.stringify({ focusTime, activeTime }),
+    body: JSON.stringify({ focusTime: Number(focusTime), activeTime: Number(activeTime) }),
   };
 
   const res = await eetch(url, options, refreshToken);
@@ -683,12 +683,13 @@ export const keywordLog = async ({ groundId, keyword, page }) => {
 };
 
 export const regexLog = async ({ groundId, regex, page }) => {
-  const url = `http://k9d103a.p.ssafy.io:9999/log/regexp?page=${page}&regexp=${regex}`;
+  const url = `http://k9d103a.p.ssafy.io:9999/log/regexp?page=${page}`;
   const options = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       groundId,
+      regexp: encodeURIComponent(regex),
     },
   };
 

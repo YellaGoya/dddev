@@ -56,7 +56,6 @@ export const GradBoxWrapper = styled.div`
   width: 100%;
   height: fit-content;
   max-height: calc(100vh - 140px);
-  min-height: 366px;
 
   background-color: inherit;
 
@@ -139,4 +138,12 @@ export const GradBoxBottom = styled.div`
   height: 10px;
 
   background: linear-gradient(180deg, var(--bg-basic-grad-top) 0%, var(--bg-basic-grad-bottom) 100%);
+`;
+
+export const DivLine = styled.div`
+  width: calc(100% - 700px);
+  height: 1px;
+  margin: 0 auto;
+  margin-bottom: 30px;
+  background-color: var(--border-setting);
 `;

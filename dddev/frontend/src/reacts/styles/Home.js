@@ -336,6 +336,19 @@ export const RequestCard = styled.div`
     background-color: var(--bg-lite);
   }
 
+  &.no-request {
+    //내부 svg 중앙으로
+    height: 150px;
+    & > svg {
+      width: 48px;
+      height: 48px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+
   cursor: pointer;
 `;
 

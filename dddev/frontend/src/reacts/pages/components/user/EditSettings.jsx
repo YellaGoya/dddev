@@ -12,6 +12,7 @@ import { updateUser } from 'redux/actions/user';
 
 import Input from 'reacts/pages/components/common/Input';
 import GroundUsers from 'reacts/pages/components/user/GroundUsers';
+import GetAlert from 'reacts/pages/components/alert/GetAlert';
 
 import SelectTransparent from 'reacts/pages/components/common/SelectTransparent';
 
@@ -22,18 +23,18 @@ const EditSettings = ({ toggle, setToggle }) => {
   const user = useSelector((state) => state.user);
   const groundsMine = useSelector((state) => state.user.groundsMine);
   const [selected, setSelected] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0] : null);
-  const [selectedName, setSelectedName] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0].name : '');
-  const [groundName, setGroundName] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0].name : '');
-  const [focusTime, setFocusTime] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0].focusTime : '');
-  const [activeTime, setActiveTime] = useState(user.groundsMine && user.groundsMine[0] ? user.groundsMine[0].activeTime : '');
+  const [groundName, setGroundName] = useState();
+  const [focusTime, setFocusTime] = useState();
+  const [activeTime, setActiveTime] = useState();
+
+  useEffect(()=> {console.log(selected)},[selected]);
 
   useEffect(() => {
     if (toggle) {
       eetch
         .userGrounds({ accessToken: user.accessToken, refreshToken: user.refreshToken })
         .then((grounds) => {
-          const groundsMap = grounds.data.filter((ground) => ground.isOwner === true).map((ground) => ground.ground);
-          groundsMine.current = groundsMap;
+          const groundsMap = grounds.data.map((ground) => {const newGround = ground.ground; newGround.isOwner = ground.isOwner; return newGround;});
           dispatch(
             updateUser({
               groundsMine: groundsMap,
@@ -52,13 +53,10 @@ const EditSettings = ({ toggle, setToggle }) => {
   }, [toggle]);
 
   useEffect(() => {
-    if (user.groundsMine && user.groundsMine[0]) {
-      setSelected(user.groundsMine[0]);
-      setSelectedName(user.groundsMine[0].name);
-      setGroundName(user.groundsMine[0].name);
-      setFocusTime(user.groundsMine[0].focusTime);
-      setActiveTime(user.groundsMine[0].activeTime);
+    if (user.groundsMine) {
+      setSelected(user.groundsMine.filter((ground) => ground.id === user.lastGround)[0]);
     }
+
   }, [user.groundsMine]);
 
   const submitChange = () => {
@@ -72,7 +70,7 @@ const EditSettings = ({ toggle, setToggle }) => {
         activeTime,
       })
       .then(() => {
-        setSelectedName(groundName);
+        // setSelectedName(groundName);
         eetch
           .userGrounds({ accessToken: user.accessToken, refreshToken: user.refreshToken })
           .then((grounds) => {
@@ -117,17 +115,21 @@ const EditSettings = ({ toggle, setToggle }) => {
       <s.EditWrapper $toggle={toggle} onClick={() => setToggle(false)}>
         <s.EditModalWrapper onClick={(event) => event.stopPropagation()}>
           <s.GradBoxWrapper>
-            {groundsMine && groundsMine.length > 0 ? (
+            {selected && groundsMine && groundsMine.length > 0  ? (
               <>
-                <SelectTransparent label="그라운드" list={groundsMine} select={setSelected} selected={selectedName} />
-                <Input label="그라운드 명" data={groundName} setData={setGroundName} refPing={selected} />
+                <SelectTransparent label="그라운드" list={groundsMine} select={setSelected} selected={selected.name} />
+                {selected.isOwner && <><Input label="그라운드 명" data={groundName} setData={setGroundName} refPing={selected} />
                 <Input label="집중시간" data={focusTime} setData={setFocusTime} />
                 <Input label="활동시간" data={activeTime} setData={setActiveTime} />
                 <GroundUsers selected={selected} />
+                <s.DivLine /></>}
+                
+                <GetAlert groundId={selected.id}/>
                 <s.ButtonWrapper>
-                  <s.ProfileEditButton type="button" onClick={submitChange}>
+                  {selected.isOwner && <s.ProfileEditButton type="button" onClick={submitChange}>
                     적용
-                  </s.ProfileEditButton>
+                  </s.ProfileEditButton>}
+                  
                   <s.CloseButton onClick={() => setToggle(false)}>닫기</s.CloseButton>
                 </s.ButtonWrapper>
               </>

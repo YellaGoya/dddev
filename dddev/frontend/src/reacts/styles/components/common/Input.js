@@ -84,7 +84,7 @@ export const Message = styled.p`
 export const ArrayList = styled.ul`
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 10px 25px 0 25px;
 
   & > li {
     display: inline-block;
@@ -96,8 +96,18 @@ export const ArrayFixed = styled.li`
 `;
 
 export const ArrayItem = styled.li`
-  margin: 0 4px;
-  padding: 0;
+  margin: 4px;
+  margin-bottom: 4px;
+  padding: 3px 6px;
+  line-height: 1.2rem;
+
+  background-color: var(--font-on-edit);
+  color: var(--font-basic);
+
+  border-radius: 0.5rem;
+
+  font-size: 0.85rem;
+  margin-right: 7px;
 
   cursor: pointer;
 `;

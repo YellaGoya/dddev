@@ -181,11 +181,10 @@ export const LogListTitle = styled.h1`
 export const LogList = styled.ul`
   list-style: none;
   padding: 0 5px;
-  max-height: 500px;
   overflow-y: auto;
   overflow-x: hidden;
   transition: height 0.45s ease;
-  height: ${({ $toggle }) => ($toggle ? '500px' : '0px')};
+  max-height: ${({ $toggle }) => ($toggle ? '500px' : '0px')};
 
   &:hover {
     &::-webkit-scrollbar-thumb {
@@ -319,27 +318,59 @@ export const InputWrapper = styled.div`
   position: relative;
   width: 100%;
 
-  //내부 div 들을 가로로 줄세우기
-  display: flex;
-  flex-direction: row;
-
-  & > div {
-    width: calc(40% - 39px);
-    height: 40px;
+  @media (min-width: 600px) {
+    display: flex;
+    flex-direction: row;
 
     & > div {
-      width: 100%;
+      width: calc(40% - 39px);
+      height: fit-content;
       margin: 0;
-      border: 1px solid var(--border-basic);
 
-      & > svg {
-        right: 15px;
+      & > div {
+        width: 100%;
+        margin: 0;
+        border: 1px solid var(--border-basic);
+
+        & > svg {
+          right: 15px;
+        }
+      }
+
+      & > ul {
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+  }
+
+  @media (max-width: 599px) {
+    & > div {
+      width: 100%;
+      height: fit-content;
+      margin: 0;
+
+      & > div {
+        width: 100%;
+        margin: 0;
+        border: 1px solid var(--border-basic);
+
+        & > svg {
+          right: 15px;
+        }
+      }
+
+      & > ul {
+        margin-left: 0;
+        margin-right: 0;
       }
     }
 
-    & > ul {
+    & > input {
+      width: calc(100% - 63px);
       margin-left: 0;
-      margin-right: 0;
+
+      margin-bottom: 10px;
     }
   }
 `;
@@ -382,10 +413,15 @@ export const Customs = styled.span`
   width: fit-content;
   height: fit-content;
 
+  //줄 높이
+  line-height: 1.8rem;
+
   background-color: var(--font-toggle);
   color: var(--font-basic);
 
   border-radius: 0.5rem;
+
+  overflow: hidden;
 
   cursor: pointer;
 
@@ -395,4 +431,221 @@ export const Customs = styled.span`
 
   font-size: 0.85rem;
   margin-right: 7px;
+`;
+
+export const GPTWrapper = styled.div`
+  position: fixed;
+  width: calc(100% - 30px);
+  max-width: 650px;
+  height: ${({ $loading }) => ($loading ? '174px' : 'fit-content')};
+
+  display: ${({ $toggle }) => ($toggle ? 'block' : 'none')};
+  visibility: ${({ $toggle }) => ($toggle ? 'visible' : 'hidden')};
+  opacity: ${({ $toggle }) => ($toggle ? '1' : '0')};
+  transition:
+    visibility 0.2s ease,
+    opacity 0.2s ease;
+
+  right: 15px;
+  bottom: 30px;
+
+  border-radius: 0.75rem;
+  border-bottom-right-radius: 0;
+
+  box-shadow:
+    rgba(0, 0, 0, 0.24) 0px 1px 1px,
+    rgba(0, 0, 0, 0.24) 0px 2px 2px,
+    rgba(0, 0, 0, 0.24) 0px 4px 6px;
+
+  background-color: var(--bg-liter);
+
+  .lds-grid {
+    display: ${({ $loading }) => ($loading ? 'block' : 'none')};
+    visibility: ${({ $loading }) => ($loading ? 'visible' : 'hidden')};
+    opacity: ${({ $loading }) => ($loading ? '1' : '0')};
+    transition:
+      visibility 0.2s ease,
+      opacity 0.2s ease;
+
+    position: relative;
+    width: 80px;
+    height: 80px;
+
+    margin: 0 auto;
+  }
+  .lds-grid div {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    animation: lds-grid 1.2s linear infinite;
+  }
+  .lds-grid div:nth-child(1) {
+    top: 8px;
+    left: 8px;
+    animation-delay: 0s;
+  }
+  .lds-grid div:nth-child(2) {
+    top: 8px;
+    left: 32px;
+    animation-delay: -0.4s;
+  }
+  .lds-grid div:nth-child(3) {
+    top: 8px;
+    left: 56px;
+    animation-delay: -0.8s;
+  }
+  .lds-grid div:nth-child(4) {
+    top: 32px;
+    left: 8px;
+    animation-delay: -0.4s;
+  }
+  .lds-grid div:nth-child(5) {
+    top: 32px;
+    left: 32px;
+    animation-delay: -0.8s;
+  }
+  .lds-grid div:nth-child(6) {
+    top: 32px;
+    left: 56px;
+    animation-delay: -1.2s;
+  }
+  .lds-grid div:nth-child(7) {
+    top: 56px;
+    left: 8px;
+    animation-delay: -0.8s;
+  }
+  .lds-grid div:nth-child(8) {
+    top: 56px;
+    left: 32px;
+    animation-delay: -1.2s;
+  }
+  .lds-grid div:nth-child(9) {
+    top: 56px;
+    left: 56px;
+    animation-delay: -1.6s;
+  }
+  @keyframes lds-grid {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.25;
+    }
+  }
+`;
+
+export const GPTTitle = styled.h1`
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 10px 15px;
+
+  display: flex;
+  align-items: center;
+
+  & > svg {
+    margin-right: 5px;
+  }
+`;
+
+export const GPTCloseButton = styled.button`
+  width: 27px;
+  height: 27px;
+
+  & > svg {
+    width: 21px;
+    height: 21px;
+    transform: translateY(1px);
+  }
+
+  visibility: ${({ $toggle }) => ($toggle ? 'visible' : 'hidden')};
+  opacity: ${({ $toggle }) => ($toggle ? '1' : '0')};
+
+  transition: all 0.2s ease;
+
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.25rem;
+
+  &:hover {
+    background-color: var(--bg-liter-hover);
+  }
+
+  padding: 0;
+
+  position: absolute;
+  right: 10px;
+  top: 10px;
+`;
+
+export const GPTAnswerWrapper = styled.div`
+  white-space: pre-wrap;
+  word-break: break-all;
+
+  max-height: calc(100vh - 200px);
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  width: 100%;
+  height: fit-content;
+  padding: 15px;
+
+  display: ${({ $loading }) => ($loading ? 'none' : 'block')};
+
+  visibility: ${({ $loading }) => ($loading ? 'hidden' : 'visible')};
+  opacity: ${({ $loading }) => ($loading ? '0' : '1')};
+  transition:
+    visibility 0.2s ease,
+    opacity 0.2s ease;
+
+  border-radius: 0.75rem;
+
+  margin-top: 10px;
+
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.25rem;
+
+  margin-bottom: 30px;
+
+  & > pre {
+    font-size: 0.9rem;
+    & > span {
+      font-size: 0.9rem;
+    }
+    font-family: 'consolas', 'gulim';
+    width: auto;
+    margin: 0px 10px 15px 10px;
+
+    overflow-x: auto;
+
+    padding: 30px 20px 30px 20px;
+    border-radius: 4px;
+
+    background-color: var(--bg-lite);
+
+    box-shadow:
+      rgba(0, 0, 0, 0.24) 0px 1px 1px,
+      rgba(0, 0, 0, 0.24) 0px 2px 2px,
+      rgba(0, 0, 0, 0.24) 0px 4px 6px;
+
+    /* &::before {
+        width: 10px;
+      } */
+
+    &::-webkit-scrollbar {
+      height: 9px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-clip: padding-box;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 3px solid transparent;
+      border-bottom: 3px solid transparent;
+    }
+  }
 `;
