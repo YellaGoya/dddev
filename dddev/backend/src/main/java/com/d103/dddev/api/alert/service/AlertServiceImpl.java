@@ -193,7 +193,7 @@ public class AlertServiceImpl implements AlertService {
 		// 커밋 정보 저장 (키워드 상관 없이 모든 커밋 리스트 저장)
 		for (CommitDataDto commitDataDto : pushWebhookDto.getCommits()) {
 			UserDto EmptyAuthor = UserDto.builder().nickname(commitDataDto.getAuthor().get("name")).email(commitDataDto.getAuthor().get("email")).build();
-			UserDto author = userService.getUserDtoWithEmail(commitDataDto.getAuthor().get("email")).orElse(EmptyAuthor);
+			UserDto author = userService.getUserDtoWithName(commitDataDto.getAuthor().get("name")).orElse(EmptyAuthor);
 			saveWebhookData(pushWebhookDto.getRepository().getId(), commitDataDto.getId(),
 					author, commitDataDto.getMessage(), pushWebhookDto.getRef(),
 				Date.from(commitDataDto.getTimestamp().toInstant()), commitDataDto.getUrl(), "push");
