@@ -249,12 +249,14 @@ const Home = () => {
           <s.TimeGrid>
             <s.TimeCard>
               <s.TimeCardPieWrapper>
-                <PieChart data={valuePie} endAngle={(focusTime.done / (focusTime.undone + focusTime.done)) * 360} />
-                <s.TimeCardPiePercent>{Math.round((focusTime.done / (focusTime.undone + focusTime.done)) * 100) + '%'}</s.TimeCardPiePercent>
+                <PieChart data={valuePie} endAngle={(Number(focusTime.done) / (Number(focusTime.undone) + Number(focusTime.done))) * 360} />
+                <s.TimeCardPiePercent>
+                  {Math.round((Number(focusTime.done) / (Number(focusTime.undone) + Number(focusTime.done))) * 100) + '%'}
+                </s.TimeCardPiePercent>
               </s.TimeCardPieWrapper>
-              <s.TimeCardInfo>총 {focusTime.done + focusTime.undone}시간 중</s.TimeCardInfo>
+              <s.TimeCardInfo>총 {Number(focusTime.done) + Number(focusTime.undone)}시간 중</s.TimeCardInfo>
               <s.TimeCardDesc>{focusTime.done}시간 완료</s.TimeCardDesc>
-              {focusTime.undone + focusTime.done === 0 && (
+              {Number(focusTime.undone) + Number(focusTime.done) === 0 && (
                 <s.NoContentBlur>
                   <s.NoContentInfo>* 데이터 부족</s.NoContentInfo>
                 </s.NoContentBlur>
@@ -263,8 +265,10 @@ const Home = () => {
             </s.TimeCard>
             <s.TimeCard>
               <s.TimeCardPieWrapper>
-                <PieChart data={valuePie} endAngle={(activeTime.done / (activeTime.undone + activeTime.done)) * 360} />
-                <s.TimeCardPiePercent>{Math.round((activeTime.done / (activeTime.undone + activeTime.done)) * 100) + '%'}</s.TimeCardPiePercent>
+                <PieChart data={valuePie} endAngle={(Number(activeTime.done) / (Number(activeTime.undone) + Number(activeTime.done))) * 360} />
+                <s.TimeCardPiePercent>
+                  {Math.round((Number(activeTime.done) / (Number(activeTime.undone) + Number(activeTime.done))) * 100) + '%'}
+                </s.TimeCardPiePercent>
               </s.TimeCardPieWrapper>
               <s.TimeCardInfo>총 {activeTime.done + activeTime.undone}시간 중</s.TimeCardInfo>
               <s.TimeCardDesc>{activeTime.done}시간 완료</s.TimeCardDesc>
@@ -277,12 +281,14 @@ const Home = () => {
             </s.TimeCard>
             <s.TimeCard>
               <s.TimeCardPieWrapper>
-                <PieChart data={valuePie} endAngle={(totalTime.done / (totalTime.undone + totalTime.done)) * 360} />
-                <s.TimeCardPiePercent>{Math.round((totalTime.done / (totalTime.undone + totalTime.done)) * 100) + '%'}</s.TimeCardPiePercent>
+                <PieChart data={valuePie} endAngle={(Number(totalTime.done) / (Number(totalTime.undone) + Number(totalTime.done))) * 360} />
+                <s.TimeCardPiePercent>
+                  {Math.round((Number(totalTime.done) / (Number(totalTime.undone) + Number(totalTime.done))) * 100) + '%'}
+                </s.TimeCardPiePercent>
               </s.TimeCardPieWrapper>
-              <s.TimeCardInfo>총 {totalTime.done + totalTime.undone}시간 중</s.TimeCardInfo>
+              <s.TimeCardInfo>총 {Number(totalTime.done) + Number(totalTime.undone)}시간 중</s.TimeCardInfo>
               <s.TimeCardDesc>{totalTime.done}시간 완료</s.TimeCardDesc>
-              {totalTime.undone + totalTime.done === 0 && (
+              {Number(totalTime.undone) + Number(totalTime.done) === 0 && (
                 <s.NoContentBlur>
                   <s.NoContentInfo>* 데이터 부족</s.NoContentInfo>
                 </s.NoContentBlur>
@@ -318,11 +324,11 @@ const Home = () => {
               <s.IssueHighLight>
                 {totalCount.done + totalCount.undone}
                 <s.IssueText>
-                  {'(' + focusCount.done + focusCount.undone} + {activeCount.done + activeCount.undone + ')'}
+                  {'(' + (Number(focusCount.done) + Number(activeCount.done))} + {Number(focusCount.undone) + Number(activeCount.undone) + ')'}
                 </s.IssueText>
               </s.IssueHighLight>
             </s.IssueCountCard>
-            {focusCount.done + focusCount.undone + activeCount.done + activeCount.undone === 0 && (
+            {Number(focusCount.done) + Number(focusCount.undone) + Number(activeCount.done) + Number(activeCount.undone) === 0 && (
               <s.NoContentBlur>
                 <s.NoContentInfo>* 데이터 부족</s.NoContentInfo>
               </s.NoContentBlur>
