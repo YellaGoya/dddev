@@ -657,9 +657,112 @@ export const recentLog = async ({ groundId, page }) => {
   const res = await fetch(url, options);
 
   if (!res.ok) {
-    res.data = [];
-    return res.data;
+    throw new Error(`${res.status} 에러`);
   }
+
+  return res.json();
+};
+
+export const keywordLog = async ({ groundId, keyword, page }) => {
+  const url = `http://k9d103a.p.ssafy.io:9999/log/keyword/${keyword}?page=${page}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      groundId,
+    },
+  };
+
+  const res = await fetch(url, options);
+
+  if (!res.ok) {
+    throw new Error(`${res.status} 에러`);
+  }
+
+  return res.json();
+};
+
+export const regexLog = async ({ groundId, regex, page }) => {
+  const url = `http://k9d103a.p.ssafy.io:9999/log/regexp?page=${page}&regexp=${regex}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      groundId,
+    },
+  };
+
+  const res = await fetch(url, options);
+
+  if (!res.ok) {
+    throw new Error(`${res.status} 에러`);
+  }
+
+  return res.json();
+};
+
+export const gptSolution = async ({ groundId, question }) => {
+  const url = `http://k9d103a.p.ssafy.io:9999/chat/analyze`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      groundId,
+    },
+    body: JSON.stringify({ question }),
+  };
+
+  const res = await fetch(url, options);
+
+  if (!res.ok) {
+    throw new Error(`${res.status} 에러`);
+  }
+
+  return res.json();
+};
+
+export const addFilter = async ({ accessToken, refreshToken, groundId, type, value }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/log-env`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({ type, value }),
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const getFilter = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/log-env`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};
+
+export const removeFilter = async ({ accessToken, refreshToken, groundId, id }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/log-env/${id}`;
+  const options = {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
 
   return res.json();
 };
