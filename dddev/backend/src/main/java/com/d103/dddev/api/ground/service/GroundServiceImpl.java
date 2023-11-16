@@ -16,9 +16,11 @@ import com.d103.dddev.api.alert.service.AlertService;
 import com.d103.dddev.api.file.repository.dto.ProfileDto;
 import com.d103.dddev.api.file.service.ProfileService;
 import com.d103.dddev.api.general.service.GeneralService;
+import com.d103.dddev.api.ground.repository.ChartDataRepository;
 import com.d103.dddev.api.ground.repository.GroundRepository;
 import com.d103.dddev.api.ground.repository.LogEnvRepository;
 import com.d103.dddev.api.ground.repository.dto.LogEnvDto;
+import com.d103.dddev.api.ground.repository.entity.ChartData;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.repository.entity.GroundUser;
 import com.d103.dddev.api.ground.repository.entity.LogEnv;
@@ -27,6 +29,7 @@ import com.d103.dddev.api.issue.util.UndefinedUtil;
 import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.request.service.RequestService;
+import com.d103.dddev.api.sprint.TimeType;
 import com.d103.dddev.api.sprint.repository.BurnDownRepository;
 import com.d103.dddev.api.sprint.service.SprintService;
 import com.d103.dddev.api.user.repository.entity.User;
@@ -43,6 +46,7 @@ public class GroundServiceImpl implements GroundService {
 	private final GroundRepository groundRepository;
 	private final BurnDownRepository burnDownRepository;
 	private final LogEnvRepository logEnvRepository;
+	private final ChartDataRepository chartDataRepository;
 
 	private final GroundUserService groundUserService;
 	private final UserService userService;
@@ -122,7 +126,7 @@ public class GroundServiceImpl implements GroundService {
 		List<LogEnv> logEnvEntityList = logEnvRepository.findByGround_Id(groundId);
 		List<LogEnvDto> logEnvDtoList = new ArrayList<>();
 
-		for(LogEnv l : logEnvEntityList) {
+		for (LogEnv l : logEnvEntityList) {
 			logEnvDtoList.add(l.convertToDto());
 		}
 
@@ -142,6 +146,7 @@ public class GroundServiceImpl implements GroundService {
 		return getLogEnv(ground.getId());
 	}
 
+	@Transactional
 	@Override
 	public void deleteLogEnv(Integer logEnvId) throws Exception {
 		log.info("service - deleteLogEnv :: 로그 환경 설정 삭제 진입");
@@ -181,6 +186,59 @@ public class GroundServiceImpl implements GroundService {
 	}
 
 	@Override
+	public Double getGroundFocusTimeDoneAvg(Integer groundId) throws Exception {
+		log.info("service - getGroundFocusTimeDoneAvg :: 그라운드 완료 집중시간 평균 비율 진입");
+		List<ChartData> focusDataList = chartDataRepository.findByGround_IdAndTimeType(groundId, TimeType.FOCUS);
+		Integer total = 0;
+		Integer focusTotal = 0;
+
+		for(ChartData data : focusDataList) {
+			total += data.getSprint().getTotalFocusTime();
+			focusTotal += data.getTime();
+		}
+
+		if(total == 0) return null;
+		return Double.valueOf(focusTotal) / total;
+	}
+
+	@Override
+	public Double getGroundActiveTimeDoneAvg(Integer groundId) throws Exception {
+		log.info("service - getGroundActiveTimeDoneAvg :: 그라운드 완료 연구시간 평균 비율 진입");
+		List<ChartData> activeDataList = chartDataRepository.findByGround_IdAndTimeType(groundId, TimeType.ACTIVE);
+		Integer total = 0;
+		Integer activeTotal = 0;
+
+		for(ChartData data : activeDataList) {
+			total += (data.getSprint().getTotalTime() - data.getSprint().getTotalFocusTime());
+			activeTotal += data.getTime();
+		}
+
+		if(total == 0) return null;
+		return Double.valueOf(activeTotal) / total;
+	}
+
+	@Override
+	public Double getGroundTotalTimeDoneAvg(Integer groundId) throws Exception {
+		log.info("service - getGroundActiveTimeDoneAvg :: 그라운드 전체 완료시간 평균 비율 진입");
+		List<ChartData> focusDataList = chartDataRepository.findByGround_IdAndTimeType(groundId, TimeType.FOCUS);
+		List<ChartData> activeDataList = chartDataRepository.findByGround_IdAndTimeType(groundId, TimeType.ACTIVE);
+		Integer total = 0;
+		Integer doneTotal = 0;
+
+		for(ChartData data : focusDataList) {
+			total += data.getSprint().getTotalTime();
+			doneTotal += data.getTime();
+		}
+
+		for(ChartData data : activeDataList) {
+			doneTotal += data.getTime();
+		}
+
+		if(total == 0) return null;
+		return Double.valueOf(doneTotal) / total;
+	}
+
+	@Override
 	public Map<LocalDate, Integer> getSprintBurnDownChart(Integer sprintId) throws Exception {
 		return sprintService.getSprintBurnDownChart(sprintId);
 	}
@@ -189,15 +247,15 @@ public class GroundServiceImpl implements GroundService {
 	public Ground updateGroundInfo(Ground newGround, Ground ground) throws Exception {
 		log.info("service - updateGroundInfo :: 그라운드 이름 수정 진입");
 		// dto 업데이트하기
-		if(newGround.getName() != null) {
+		if (newGround.getName() != null) {
 			ground.setName(newGround.getName());
 		}
 
-		if(newGround.getFocusTime() != null) {
+		if (newGround.getFocusTime() != null) {
 			ground.setFocusTime(newGround.getFocusTime());
 		}
 
-		if(newGround.getActiveTime() != null) {
+		if (newGround.getActiveTime() != null) {
 			ground.setActiveTime(newGround.getActiveTime());
 		}
 

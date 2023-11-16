@@ -29,7 +29,6 @@ import com.d103.dddev.api.ground.repository.dto.LogEnvDto;
 import com.d103.dddev.api.ground.repository.entity.Ground;
 import com.d103.dddev.api.ground.service.GroundService;
 import com.d103.dddev.api.ground.service.GroundUserService;
-import com.d103.dddev.api.issue.model.message.Response;
 import com.d103.dddev.api.repository.repository.entity.Repository;
 import com.d103.dddev.api.repository.service.RepositoryService;
 import com.d103.dddev.api.user.repository.entity.User;
@@ -634,6 +633,87 @@ public class GroundController {
 		}
 	}
 
+	@GetMapping("/{groundId}/chart/avg/focus")
+	@ApiOperation(value = "그라운드 차트 - 완료 집중시간 평균 조회", notes = "그라운드 차트 - 완료 집중시간 평균을 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseDto<Double>> getFocusDoneAvg(@ApiParam("groundId") @PathVariable Integer groundId,
+		@RequestHeader String Authorization) {
+		log.info("controller - getFocusDoneAvg :: 완료 집중시간 평균 조회 진입");
+		ResponseDto<Double> responseDto;
+		try {
+			responseDto = ResponseDto.<Double>builder()
+				.code(HttpStatus.OK.value())
+				.message("완료 집중시간 평균 조회 성공!")
+				.data(groundService.getGroundFocusTimeDoneAvg(groundId))
+				.build();
+
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<Double>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/{groundId}/chart/avg/active")
+	@ApiOperation(value = "그라운드 차트 - 완료 연구시간 평균 조회", notes = "그라운드 차트 - 완료 연구시간 평균을 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseDto<Double>> getActiveDoneAvg(@ApiParam("groundId") @PathVariable Integer groundId,
+		@RequestHeader String Authorization) {
+		log.info("controller - getFocusDoneAvg :: 완료 연구시간 평균 조회 진입");
+		ResponseDto<Double> responseDto;
+		try {
+			responseDto = ResponseDto.<Double>builder()
+				.code(HttpStatus.OK.value())
+				.message("완료 연구시간 평균 조회 성공!")
+				.data(groundService.getGroundActiveTimeDoneAvg(groundId))
+				.build();
+
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<Double>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/{groundId}/chart/avg/total")
+	@ApiOperation(value = "그라운드 차트 - 전체 완료 시간 평균 조회", notes = "그라운드 차트 - 전체 완료 시간 평균을 조회하는 API")
+	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
+		@ApiResponse(code = 403, message = "access token 오류"), @ApiResponse(code = 406, message = "존재하지 않는 사용자"),
+		@ApiResponse(code = 500, message = "내부 오류")})
+	ResponseEntity<ResponseDto<Double>> getTotalDoneAvg(@ApiParam("groundId") @PathVariable Integer groundId,
+		@RequestHeader String Authorization) {
+		log.info("controller - getFocusDoneAvg :: 전체 완료 시간 평균 조회 진입");
+		ResponseDto<Double> responseDto;
+		try {
+			responseDto = ResponseDto.<Double>builder()
+				.code(HttpStatus.OK.value())
+				.message("전체 완료 시간 평균 조회 성공!")
+				.data(groundService.getGroundTotalTimeDoneAvg(groundId))
+				.build();
+
+			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<Double>builder()
+				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	@PutMapping("/{groundId}")
 	@ApiOperation(value = "그라운드 정보 수정", notes = "그라운드 정보를 수정하는 API")
 	@ApiResponses(value = {@ApiResponse(code = 400, message = "해당 그라운드의 멤버가 아닌 사용자"),
@@ -782,12 +862,20 @@ public class GroundController {
 		log.info("controller - deleteLogEnv :: 로그 환경 설정 삭제 API 진입");
 		ResponseDto<Void> responseDto;
 		try {
+			groundService.deleteLogEnv(logEnvId);
 			responseDto = ResponseDto.<Void>builder()
 				.code(HttpStatus.OK.value())
 				.message("로그 환경 설정 삭제 성공!")
 				.build();
 
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<Void>builder()
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseDto = ResponseDto.<Void>builder()
