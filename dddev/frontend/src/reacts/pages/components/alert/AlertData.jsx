@@ -6,43 +6,40 @@ import { db } from 'fcm/firebaseConfig';
 import * as s from 'reacts/styles/components/alert/AlertData';
 const AlertData = () => {
   const user = useSelector((state) => state.user);
-  const groundsMap = useSelector((state) => state.user.groundsMap);
+  const groundId = useSelector((state) => state.user.lastGround);
 
   const [allAlertList, setAllAlertList] = useState([]);
 
   useEffect(() => {
     // 전체 웹훅 내역 조회
-    getAllDocs(groundsMap);
+    getAllDocs(groundId);
   }, [user]);
 
-  const getAllDocs = async (grounds) => {
-    const promises = grounds.map(({ id }) => {
-      return db
-        .collection('webhookData')
-        .where('groundId', '==', id)
-        .orderBy('timestamp', 'desc')
-        .limit(20)
-        .get()
-        .then(async (resList) => {
-          const resListMap = resList.docs.map((res) => {
-            if (res.exists) {
-              const resData = res.data();
-              resData.nickname = resData.author.nickname;
-              return resData;
-            }
+  const getAllDocs = async (groundId) => {
+    const results = await db
+      .collection('webhookData')
+      .where('groundId', '==', groundId)
+      .orderBy('timestamp', 'desc')
+      .limit(20)
+      .get()
+      .then(async (resList) => {
+        const resListMap = resList.docs.map((res) => {
+          if (res.exists) {
+            const resData = res.data();
+            resData.nickname = resData.author.nickname;
+            return resData;
+          }
 
-            return null;
-          });
+          return [];
+        });
 
-          const eachResults = await Promise.all(resListMap);
-          const validEachResults = eachResults.filter((result) => result !== null);
-          return validEachResults;
-        })
-        .catch((err) => console.log(err));
-    });
+        const eachResults = await Promise.all(resListMap);
+        const validEachResults = eachResults.filter((result) => result !== null);
+        return validEachResults;
+      })
+      .catch((err) => console.log(err));
 
-    const results = await Promise.all(promises);
-    let validResults = results.flat().filter((result) => result !== null);
+    let validResults = results.filter((result) => result !== null);
     validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     validResults = validResults.slice(0, 10);
     setAllAlertList(validResults);
