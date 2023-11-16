@@ -1,7 +1,7 @@
 import * as user from 'eetch/user';
 import * as repo from 'eetch/repo';
 import * as ground from 'eetch/ground';
-import * as test from 'eetch/test';
+import * as alert from 'eetch/alert';
 
 const eetch = async (url, options, refreshToken) => {
   const res = await fetch(url, options);
@@ -30,14 +30,12 @@ const eetch = async (url, options, refreshToken) => {
   return res;
 };
 
-eetch.addDeviceToken = (values) => test.addDeviceToken(values);
-eetch.alertList = (values) => test.alertList(values);
-eetch.createAlert = (values) => test.createAlert(values);
-eetch.updateAlert = (values) => test.updateAlert(values);
-eetch.deleteAlert = (values) => test.deleteAlert(values);
-// eetch.userGroundsExample = (values) => test.userGroundsExample(values);
-// eetch.groundUsersExample = (values) => test.groundUsersExample(values);
-eetch.getAlert = (values) => test.getAlert(values);
+eetch.addDeviceToken = (values) => alert.addDeviceToken(values);
+eetch.alertList = (values) => alert.alertList(values);
+eetch.createAlert = (values) => alert.createAlert(values);
+eetch.updateAlert = (values) => alert.updateAlert(values);
+eetch.deleteAlert = (values) => alert.deleteAlert(values);
+eetch.getAlert = (values) => alert.getAlert(values);
 
 eetch.githubSync = (values) => user.githubSync(values);
 eetch.githubTokenRegist = (values) => user.githubTokenRegist(values);

@@ -16,7 +16,6 @@ export const addDeviceToken = async ({ accessToken, refreshToken, deviceToken })
   };
 
   const res = await eetch(url, options);
-  // console.log(res.message);
   if (!res.ok) throw new Error('gayeonNotGood');
 
   return res;
@@ -34,7 +33,6 @@ export const alertList = async ({ accessToken, refreshToken }) => {
   };
 
   const res = await eetch(url, options);
-  // console.log('alertList res :: ', res);
   if (!res.ok) throw new Error('gayeonNotGood');
 
   return res;
@@ -52,7 +50,6 @@ export const getAlert = async ({ accessToken, refreshToken, groundId }) => {
   };
 
   const res = await eetch(url, options);
-  // console.log('get alert res :: ', res);
   if (!res.ok) throw new Error('gayeonNotGood');
 
   return res.json();
@@ -71,7 +68,6 @@ export const createAlert = async ({ accessToken, refreshToken, groundId, keyword
   };
 
   const res = await eetch(url, options);
-  // console.log('createAlert res :: ', res.data);
   if (!res.ok) throw new Error('gayeonNotGood');
 
   return res.json();
@@ -90,7 +86,6 @@ export const updateAlert = async ({ accessToken, refreshToken, groundId, keyword
   };
 
   const res = await eetch(url, options);
-  // console.log('alertList res :: ', res);
   // if (!res.ok) throw new Error('gayeonNotGood');
 
   return res.json();
@@ -108,7 +103,6 @@ export const deleteAlert = async ({ accessToken, refreshToken, groundId, alertId
   };
 
   const res = await eetch(url, options);
-  // console.log('alertList res :: ', res);
   if (!res.ok) throw new Error('gayeonNotGood');
 
   return res.json();
