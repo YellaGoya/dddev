@@ -29,6 +29,7 @@ public class UserGptAccessService {
                                                                     .count(1)
                                                                     .expiration(3600L)
                                                                     .build());
+            log.info("GROUND ID: {} GPT 사용 URI 접근", groundId);
             return;
         }
         //만약 group_id가 존재하면 1분당 로그 수 + 1

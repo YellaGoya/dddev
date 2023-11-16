@@ -48,11 +48,11 @@ public class logController {
             List<TokenRes> tokenResList = groundAuthService.save(userAuthReq.getToken());
             log.info("{} 토큰 저장 정상적으로 완료", userAuthReq.getToken());
             log.info("TOKEN : {}, /log/auth, POST 응답", userAuthReq.getToken());
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<List<TokenRes>>(HttpStatus.OK.value(),
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     "토큰 저장 완료", tokenResList));
         }catch (Exception e){
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<List<TokenRes>>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
         }
     }
 
@@ -144,23 +144,23 @@ public class logController {
             elasticSearchLogService.save(groundId, ElasticSearchLog.builder().localDateTime(localDateTime).log(logReq.getLog()).build());
             log.info("GROUND ID : {}, 로그 {} 저장 완료 ", groundId, logReq.getLog());
             log.info("GROUND ID : {}, /log/test, POST 응답", groundId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<LogRes>(HttpStatus.CREATED.value(),
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseVO<>(HttpStatus.CREATED.value(),
                     "로그 저장 완료", new LogRes(localDateTime, logReq.getLog())));
         }catch (UserUnAuthException.UnusualRequest e){
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseVO<LogRes>(HttpStatus.BAD_REQUEST.value(),
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseVO<>(HttpStatus.BAD_REQUEST.value(),
                     "비정상적인 많은 요청으로 Token을 삭제합니다. 재발급 받으세요.", null));
         }catch (UserUnAuthException e){
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<LogRes>(HttpStatus.UNAUTHORIZED.value(),
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseVO<>(HttpStatus.UNAUTHORIZED.value(),
                     "유효 하지 않은 토큰", null));
         }catch (ElasticSearchException.NoIndexException e){
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseVO<LogRes>(HttpStatus.CONFLICT.value(),
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseVO<>(HttpStatus.CONFLICT.value(),
                     e.getMessage(), null));
         }catch (Exception e){
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<LogRes>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseVO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(), null));
         }
     }

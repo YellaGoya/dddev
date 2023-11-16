@@ -124,6 +124,9 @@ public class gptcontroller {
             log.info("GROUND ID : {}, /chat/analyze, GET 응답", groundId);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseVO<>(HttpStatus.OK.value(),
                     result, response));
+        }catch (UserUnAuthGptException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseVO<>(HttpStatus.BAD_REQUEST.value(),
+                    e.getMessage(), null));
         }catch (ElasticSearchException e){
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseVO<>(HttpStatus.NOT_FOUND.value(),

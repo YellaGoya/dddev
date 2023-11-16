@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatGptReq {
-    @ApiModelProperty(value = "질문", example = "~~~가 뭐야?")
+    @ApiModelProperty(value = "질문", example = "SSAFY에 대해서 알려줘.")
     private String question;
 }
