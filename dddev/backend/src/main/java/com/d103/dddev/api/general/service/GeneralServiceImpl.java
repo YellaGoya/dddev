@@ -387,7 +387,7 @@ public class GeneralServiceImpl implements GeneralService{
         generalResponseDto.setParentId(general.getParentId());
         generalResponseDto.setChildren(general.getChildren());
         generalResponseDto.setTitle(general.getTitle());
-        generalResponseDto.setContent(generalResponseDto.getContent());
+        generalResponseDto.setContent(general.getContent());
         generalResponseDto.setStep(general.getStep());
         generalResponseDto.setCreatedAt(general.getCreatedAt());
         generalResponseDto.setUpdatedAt(general.getUpdatedAt());
