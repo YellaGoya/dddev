@@ -122,7 +122,7 @@ public class GroundServiceImpl implements GroundService {
 		List<LogEnv> logEnvEntityList = logEnvRepository.findByGround_Id(groundId);
 		List<LogEnvDto> logEnvDtoList = new ArrayList<>();
 
-		for(LogEnv l : logEnvEntityList) {
+		for (LogEnv l : logEnvEntityList) {
 			logEnvDtoList.add(l.convertToDto());
 		}
 
@@ -142,6 +142,7 @@ public class GroundServiceImpl implements GroundService {
 		return getLogEnv(ground.getId());
 	}
 
+	@Transactional
 	@Override
 	public void deleteLogEnv(Integer logEnvId) throws Exception {
 		log.info("service - deleteLogEnv :: 로그 환경 설정 삭제 진입");
@@ -189,15 +190,15 @@ public class GroundServiceImpl implements GroundService {
 	public Ground updateGroundInfo(Ground newGround, Ground ground) throws Exception {
 		log.info("service - updateGroundInfo :: 그라운드 이름 수정 진입");
 		// dto 업데이트하기
-		if(newGround.getName() != null) {
+		if (newGround.getName() != null) {
 			ground.setName(newGround.getName());
 		}
 
-		if(newGround.getFocusTime() != null) {
+		if (newGround.getFocusTime() != null) {
 			ground.setFocusTime(newGround.getFocusTime());
 		}
 
-		if(newGround.getActiveTime() != null) {
+		if (newGround.getActiveTime() != null) {
 			ground.setActiveTime(newGround.getActiveTime());
 		}
 

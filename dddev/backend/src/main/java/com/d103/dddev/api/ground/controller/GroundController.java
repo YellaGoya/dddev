@@ -782,12 +782,20 @@ public class GroundController {
 		log.info("controller - deleteLogEnv :: 로그 환경 설정 삭제 API 진입");
 		ResponseDto<Void> responseDto;
 		try {
+			groundService.deleteLogEnv(logEnvId);
 			responseDto = ResponseDto.<Void>builder()
 				.code(HttpStatus.OK.value())
 				.message("로그 환경 설정 삭제 성공!")
 				.build();
 
 			return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			log.error(e.getMessage());
+			responseDto = ResponseDto.<Void>builder()
+				.code(HttpStatus.NOT_ACCEPTABLE.value())
+				.message(e.getMessage())
+				.build();
+			return new ResponseEntity<>(responseDto, HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			responseDto = ResponseDto.<Void>builder()
