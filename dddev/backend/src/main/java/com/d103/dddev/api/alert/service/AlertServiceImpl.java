@@ -273,6 +273,11 @@ public class AlertServiceImpl implements AlertService {
 							keywordSet.add(keyword);
 						}
 
+						String branch = pushWebhookDto.getRef();
+						if(branch.contains(keyword)) {
+							keywordSet.add(keyword);
+						}
+
 					} // 키워드
 
 					// 사용자별 조회를 위한 데이터 저장
@@ -315,6 +320,18 @@ public class AlertServiceImpl implements AlertService {
 				title = "❗ 커밋 메시지가 발생했습니다 ❗";
 				if (isKeyword)
 					content = "키워드 " + String.join(",", keywordSet) + " 발생!!";
+
+				// 응답, 보낸 알림 제목, 보낸 알림 내용, 수신자, 발신자, 발생 브랜치, 비교 url, 알림 타입
+				String docId = saveAlertData(title, content, alertUserKeyword.getUser(), sender,
+					pushWebhookDto.getRef(), pushWebhookDto.getCompare(), "push", keywordSet, commitMessageList, null,
+					repository, idKeywordMap);
+
+				fcmResponseDto = sendAlert(alertUserKeyword.getUser(), title, content, pushWebhookDto.getCompare(),
+					docId);
+			} else if (!keywordSet.isEmpty()) {
+				title = "❗ 푸시가 발생했습니다 ❗";
+				if (isKeyword)
+					content = "브랜치에 키워드 " + String.join(",", keywordSet) + " 발생!!";
 
 				// 응답, 보낸 알림 제목, 보낸 알림 내용, 수신자, 발신자, 발생 브랜치, 비교 url, 알림 타입
 				String docId = saveAlertData(title, content, alertUserKeyword.getUser(), sender,
@@ -586,6 +603,10 @@ public class AlertServiceImpl implements AlertService {
 				}
 
 				if (body != null && body.contains(keyword)) {
+					keywordSet.add(keyword);
+				}
+
+				if(headBranch.contains(keyword) || baseBranch.contains(keyword)) {
 					keywordSet.add(keyword);
 				}
 
