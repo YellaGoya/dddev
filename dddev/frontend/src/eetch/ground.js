@@ -645,7 +645,7 @@ export const generateToken = async ({ accessToken, refreshToken, groundId }) => 
 };
 
 export const recentLog = async ({ groundId, page }) => {
-  const url = `http://k9d103a.p.ssafy.io:9999/log?page=${page}`;
+  const url = `https://k9d103a.p.ssafy.io:10000/log?page=${page}`;
   const options = {
     method: 'GET',
     headers: {
@@ -664,7 +664,7 @@ export const recentLog = async ({ groundId, page }) => {
 };
 
 export const keywordLog = async ({ groundId, keyword, page }) => {
-  const url = `http://k9d103a.p.ssafy.io:9999/log/keyword/${keyword}?page=${page}`;
+  const url = `https://k9d103a.p.ssafy.io:10000/log/keyword/${keyword}?page=${page}`;
   const options = {
     method: 'GET',
     headers: {
@@ -683,7 +683,7 @@ export const keywordLog = async ({ groundId, keyword, page }) => {
 };
 
 export const regexLog = async ({ groundId, regex, page }) => {
-  const url = `http://k9d103a.p.ssafy.io:9999/log/regexp?page=${page}`;
+  const url = `https://k9d103a.p.ssafy.io:10000/log/regexp?page=${page}`;
   const options = {
     method: 'GET',
     headers: {
@@ -703,7 +703,7 @@ export const regexLog = async ({ groundId, regex, page }) => {
 };
 
 export const gptSolution = async ({ groundId, question }) => {
-  const url = `http://k9d103a.p.ssafy.io:9999/chat/analyze`;
+  const url = `https://k9d103a.p.ssafy.io:10000/chat/analyze`;
   const options = {
     method: 'POST',
     headers: {

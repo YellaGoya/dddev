@@ -9,6 +9,7 @@ import { logoutUser } from 'redux/actions/user';
 
 import PieChart from 'reacts/pages/components/chart/PieChart';
 import LineChart from 'reacts/pages/components/chart/LineChart';
+import AlertData from 'reacts/pages/components/alert/AlertData';
 
 import AddCommentRoundedIcon from '@mui/icons-material/AddCommentRounded';
 
@@ -352,6 +353,10 @@ const Home = () => {
             )}
           </s.RequestGrid>
         </s.RequestWrapper>
+        <s.AlarmWrapper>
+          <s.AlarmTitle>깃헙 알림 리스트</s.AlarmTitle>
+          <AlertData />
+        </s.AlarmWrapper>
       </s.DocsWrapper>
     </s.DashWrapper>
   );

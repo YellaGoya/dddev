@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 
 import { db } from 'fcm/firebaseConfig';
 
+import * as s from 'reacts/styles/components/alert/AlertData';
 const AlertData = () => {
   const user = useSelector((state) => state.user);
   const groundsMap = useSelector((state) => state.user.groundsMap);
@@ -53,26 +54,19 @@ const AlertData = () => {
   };
 
   return (
-    <>
-      <div>**********AlertData 컴포넌트 시작**********</div>
-
-      <div>전체 알림 내역</div>
+    <s.AlarmList>
       {allAlertList.map((alert) => {
         return (
-          <div key={alert.id}>
-            <div onClick={() => githubLinkClick(alert.url)}>
-              {alert.type}
-              {alert.nickname}
-              {alert.branch}
-              {alert.message}
-              {/* {alert.timestamp.toDate().toString()}
-            {alert.url} */}
-            </div>
-          </div>
+          <s.AlarmItem key={alert.id}>
+            <span onClick={() => githubLinkClick(alert.url)}>
+              <s.AlertTag>{alert.type}</s.AlertTag>
+              <s.AlertTag>{alert.branch}</s.AlertTag>
+              <s.Username className="user">{alert.nickname}</s.Username> <s.UserMessage className="user">: {alert.message}</s.UserMessage>
+            </span>
+          </s.AlarmItem>
         );
       })}
-      <div>**********AlertData 컴포넌트 끝**********</div>
-    </>
+    </s.AlarmList>
   );
 };
 

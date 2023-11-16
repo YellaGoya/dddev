@@ -46,4 +46,13 @@ export const Message = styled.div`
       margin-right: 5px;
     }
   }
+
+  & > h1 {
+    position: absolute;
+
+    left: 30px;
+    top: 16px;
+
+    font-size: 1.2rem;
+  }
 `;
