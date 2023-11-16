@@ -87,7 +87,7 @@ const GroundInit = () => {
       {repositories.length > 0 ? (
         <>
           <s.Title>사용 가능한 그라운드가 없어요. (☍д⁰)</s.Title>
-          <SelectTransparent label="리포지터리" list={repositories} select={setRepository} />
+          <SelectTransparent label="리포지터리" list={repositories} select={setRepository} selected={repository.name} />
           <s.TextButton onClick={createGround}>
             시작하기
             <AddHomeIcon />

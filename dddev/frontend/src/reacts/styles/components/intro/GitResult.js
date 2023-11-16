@@ -1,5 +1,26 @@
 import styled from 'styled-components';
 
+export const Wrapper = styled.div`
+  background-color: inherit;
+  margin: 0 auto;
+  padding-bottom: 100px;
+  & > svg {
+    display: block;
+    margin: 0 auto;
+    margin-top: 100px;
+    width: 4rem;
+    height: 4rem;
+
+    border-radius: 1rem;
+
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--bg-lite-hover);
+    }
+  }
+`;
+
 export const Title = styled.h1`
   color: var(--font-rev);
   font-weight: 500;

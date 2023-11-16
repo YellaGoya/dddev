@@ -1,4 +1,3 @@
-// import { useNavigate } from 'react-router-dom';
 import * as s from 'reacts/styles/components/intro/GitLogin';
 const clientId = 'Iv1.5fdeb1bff3f8eedc';
 const redirectUri = 'http://localhost:3000/login/github';

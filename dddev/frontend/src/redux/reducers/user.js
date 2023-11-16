@@ -33,7 +33,6 @@ const userReducer = (state = initialState, action) => {
       return initialState;
 
     case UPDATE_USER:
-      console.log('hello', action.payload);
       return {
         ...state,
         accessToken: action.payload.accessToken || state.accessToken,

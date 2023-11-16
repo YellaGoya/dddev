@@ -100,5 +100,6 @@ eetch.gptSolution = (values) => ground.gptSolution(values);
 eetch.addFilter = (values) => ground.addFilter(values);
 eetch.getFilter = (values) => ground.getFilter(values);
 eetch.removeFilter = (values) => ground.removeFilter(values);
+eetch.focusAverage = (values) => ground.focusAverage(values);
 
 export default eetch;

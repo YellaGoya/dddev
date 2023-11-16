@@ -767,3 +767,18 @@ export const removeFilter = async ({ accessToken, refreshToken, groundId, id }) 
 
   return res.json();
 };
+
+export const focusAverage = async ({ accessToken, refreshToken, groundId }) => {
+  const url = `https://k9d103.p.ssafy.io:8001/ground/${groundId}/chart/avg/focus`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  };
+
+  const res = await eetch(url, options, refreshToken);
+
+  return res.json();
+};

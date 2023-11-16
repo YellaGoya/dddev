@@ -120,6 +120,19 @@ const Home = () => {
   useEffect(() => {
     if (selectedSprint) {
       eetch
+        .focusAverage({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+      eetch
         .activeCount({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, sprintId: selectedSprint.id })
         .then((res) => {
           setActiveCount(res.data);

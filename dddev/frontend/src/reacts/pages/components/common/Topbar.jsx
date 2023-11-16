@@ -32,10 +32,6 @@ const Topbar = () => {
   const paths = window.location.pathname.split('/');
 
   useEffect(() => {
-    console.log('user', user.unread);
-  }, [user.unread]);
-
-  useEffect(() => {
     const pathNames = [];
     if (paths[4] !== 'docs') dispatch(setDoc({ docTitle: null }));
 
