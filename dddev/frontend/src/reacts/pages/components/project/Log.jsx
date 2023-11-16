@@ -8,10 +8,22 @@ import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 import Modal from 'reacts/pages/components/common/Modal';
 
+import SelectTransparent from '../common/SelectTransparent';
+
+import TerminalIcon from '@mui/icons-material/Terminal';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ConfirmationNumberRoundedIcon from '@mui/icons-material/ConfirmationNumberRounded';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+
 import * as s from 'reacts/styles/components/project/Log';
+
+const FilterList = [
+  { id: 'keyword', name: '키워드' },
+  { id: 'regex', name: '정규식' },
+];
+
 const Log = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -22,6 +34,11 @@ const Log = () => {
   const [logs, setLogs] = useState(null);
   const [maximumPage, setMaximumPage] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
+  const [date, setDate] = useState(null);
+  const [filters, setFilters] = useState(null);
+  const [filter, setFilter] = useState({ id: 'keyword', name: '키워드' });
+  const [value, setValue] = useState('');
+  const [listToggle, setListToggle] = useState(true);
 
   const generateToken = () => {
     eetch
@@ -39,6 +56,20 @@ const Log = () => {
       });
   };
 
+  const askGpt = (log) => {
+    console.log(log);
+    const question = `src/reacts/pages/components/project/Log.jsx
+    Line 46:48:  Unexpected string concatenation of literals  no-useless-concat`;
+    eetch
+      .gptSolution({ groundId: params.groundId, question })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const loadMore = () => {
     getList(pageNumber + 1);
     setPageNumber(pageNumber + 1);
@@ -48,6 +79,8 @@ const Log = () => {
     eetch
       .recentLog({ groundId: params.groundId, page: n })
       .then((res) => {
+        const date = '(' + new Date().toLocaleString('ko-kr') + ')';
+        setDate(date);
         if (n === 1) {
           setMaximumPage(res.data.pageSize);
           setLogs(res.data.logs);
@@ -65,9 +98,157 @@ const Log = () => {
       });
   };
 
+  const getFilter = () => {
+    eetch
+      .getFilter({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
+      .then((res) => {
+        setFilters(res.data);
+      })
+      .catch((err) => {
+        if (err.message === 'RefreshTokenExpired') {
+          dispatch(logoutUser());
+          dispatch(setMenu(false));
+          dispatch(setMessage(false));
+          navigate(`/login`);
+        }
+      });
+  };
+
+  const addFilter = () => {
+    eetch
+      .addFilter({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, type: filter.id, value })
+      .then(() => {
+        setValue('');
+        getList();
+        getFilter();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const removeFilter = (id) => {
+    eetch
+      .removeFilter({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, id })
+      .then(() => {
+        getList();
+        getFilter();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   useEffect(() => {
     getList();
+    getFilter();
   }, [params.groundId]);
+
+  const GetLogs = ({ filter }) => {
+    const [logs, setLogs] = useState([]);
+    const [maximumPage, setMaximumPage] = useState(0);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [date, setDate] = useState(null);
+    const [listToggle, setListToggle] = useState(false);
+
+    const getKeywordList = (keyword, n = 1) => {
+      eetch
+        .keywordLog({ groundId: params.groundId, keyword, page: n })
+        .then((res) => {
+          const date = '(' + new Date().toLocaleString('ko-kr') + ')';
+          setDate(date);
+          if (n === 1) {
+            setMaximumPage(res.data.pageSize);
+            setLogs(res.data.logs);
+          } else {
+            setLogs([...logs, ...res.data.logs]);
+          }
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+    };
+
+    const getRegexList = (regex, n = 1) => {
+      eetch
+        .regexLog({ groundId: params.groundId, regex, page: n })
+        .then((res) => {
+          const date = '(' + new Date().toLocaleString('ko-kr') + ')';
+          setDate(date);
+          if (n === 1) {
+            setMaximumPage(res.data.pageSize);
+            setLogs(res.data.logs);
+          } else {
+            setLogs([...logs, ...res.data.logs]);
+          }
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
+    };
+
+    const loadMore = () => {
+      if (filter.type === 'keyword') getKeywordList(filter.value, pageNumber + 1);
+      else getRegexList(filter.value, pageNumber + 1);
+      setPageNumber(pageNumber + 1);
+    };
+
+    useEffect(() => {
+      if (filter.type === 'keyword') {
+        getKeywordList(filter.value);
+      } else {
+        getRegexList(filter.value);
+      }
+    }, [filter]);
+
+    return (
+      <s.LogListWrapper>
+        <s.LogListTitle $toggle={listToggle} onClick={() => setListToggle(!listToggle)}>
+          <TerminalIcon />
+          {filter.type === 'keyword' ? '키워드 : ' : '정규식 : '}
+          {filter.value} <p>{date}</p>
+          <KeyboardArrowDownIcon className="log-fold" />
+        </s.LogListTitle>
+        {logs && (
+          <s.LogList $toggle={listToggle}>
+            {logs.map((log) => {
+              return (
+                <s.LogItem key={log.localDateTime}>
+                  <p>{log.log}</p>
+                  <s.GPTButton
+                    onClick={() => {
+                      askGpt(log.log);
+                    }}
+                  >
+                    <SmartToyIcon />
+                    AI 솔루션
+                  </s.GPTButton>
+                </s.LogItem>
+              );
+            })}
+            {maximumPage > pageNumber && (
+              <s.LogItem className="load-more">
+                <s.LogMoreButton onClick={() => loadMore()}>
+                  <p>이전 로그</p>
+                  <MoreVertIcon />
+                </s.LogMoreButton>
+              </s.LogItem>
+            )}
+          </s.LogList>
+        )}
+      </s.LogListWrapper>
+    );
+  };
 
   return (
     <s.LogWrapper>
@@ -112,12 +293,28 @@ const Log = () => {
         <pre>{`sudo pkill -f "dddev|python3"`}</pre>
       </s.LogInstructionWrapper>
       <s.LogListWrapper>
-        <s.LogListTitle>서버 로그 분석</s.LogListTitle>
+        <s.LogListTitle $toggle={listToggle} onClick={() => setListToggle(!listToggle)}>
+          <TerminalIcon />
+          서버 전체 로그 <p>{date}</p>
+          <KeyboardArrowDownIcon className="log-fold" />
+        </s.LogListTitle>
         {logs && (
-          <s.LogList>
-            {logs.map((log) => (
-              <s.LogItem key={log.localDateTime}>{log.log}</s.LogItem>
-            ))}
+          <s.LogList $toggle={listToggle}>
+            {logs.map((log) => {
+              return (
+                <s.LogItem key={log.localDateTime}>
+                  <p>{log.log}</p>
+                  <s.GPTButton
+                    onClick={() => {
+                      askGpt(log.log);
+                    }}
+                  >
+                    <SmartToyIcon />
+                    AI 솔루션
+                  </s.GPTButton>
+                </s.LogItem>
+              );
+            })}
             {maximumPage > pageNumber && (
               <s.LogItem className="load-more">
                 <s.LogMoreButton onClick={() => loadMore()}>
@@ -129,6 +326,47 @@ const Log = () => {
           </s.LogList>
         )}
       </s.LogListWrapper>
+      <s.DivLine />
+      <s.CustomAddWrapper>
+        <s.LogListTitle>
+          <LocalOfferIcon />
+          로그 필터 추가
+        </s.LogListTitle>
+        <s.InputWrapper>
+          <SelectTransparent label="등록 타입" list={FilterList} select={setFilter} selected={filter.name} />
+          <s.ValueInput
+            value={value}
+            onChange={(event) => {
+              setValue(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                if (value.length > 0) {
+                  addFilter();
+                }
+              }
+            }}
+          />
+          <s.CustomAddButton
+            onClick={() => {
+              if (value.length > 0) {
+                addFilter();
+              }
+            }}
+          >
+            등록
+          </s.CustomAddButton>
+        </s.InputWrapper>
+
+        {filters &&
+          filters.length > 0 &&
+          filters.map((filter) => (
+            <s.Customs key={filter.id + filter.value + 'remove'} onClick={() => removeFilter(filter.id)}>
+              {filter.value}
+            </s.Customs>
+          ))}
+      </s.CustomAddWrapper>
+      {filters && filters.length > 0 && filters.map((filter) => <GetLogs key={filter.id + filter.value} filter={filter} />)}
       <Modal
         isOpen={tokenSuccess}
         type="alarm"

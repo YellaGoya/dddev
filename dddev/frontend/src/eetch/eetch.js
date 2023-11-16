@@ -96,5 +96,11 @@ eetch.totalTime = (values) => ground.totalTime(values);
 eetch.issueToggle = (values) => ground.issueToggle(values);
 eetch.generateToken = (values) => ground.generateToken(values);
 eetch.recentLog = (values) => ground.recentLog(values);
+eetch.keywordLog = (values) => ground.keywordLog(values);
+eetch.regexLog = (values) => ground.regexLog(values);
+eetch.gptSolution = (values) => ground.gptSolution(values);
+eetch.addFilter = (values) => ground.addFilter(values);
+eetch.getFilter = (values) => ground.getFilter(values);
+eetch.removeFilter = (values) => ground.removeFilter(values);
 
 export default eetch;

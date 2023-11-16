@@ -96,6 +96,7 @@ const AlertData = () => {
 
   // 깃허브 링크 연결 및 읽음 처리(사용자 구독 알림만)
   const githubLinkClick = async (url, docId) => {
+    // console.log('docId : ', docId);
     const docRef = db.collection('alertUserData').where('githubId', '==', Number(githubId)).where('id', '==', docId);
 
     const snapshot = await docRef.get();
@@ -116,13 +117,13 @@ const AlertData = () => {
       {userAlertList.map((alert) => {
         return (
           <div key={alert.id}>
-            <div onClick={githubLinkClick(alert.url, alert.id)}>
+            <div onClick={() => githubLinkClick(alert.url, alert.id)}>
               {alert.type}
               {alert.nickname}
               {alert.branch}
               {alert.message}
-              {alert.timestamp.toDate().toString()}
-              {alert.url}
+              {/* {alert.timestamp.toDate().toString()} */}
+              {/* {alert.url} */}
               {alert.keyword}
               {String(alert.isRead)}
             </div>
@@ -137,8 +138,8 @@ const AlertData = () => {
             {alert.nickname}
             {alert.branch}
             {alert.message}
-            {alert.timestamp.toDate().toString()}
-            {alert.url}
+            {/* {alert.timestamp.toDate().toString()}
+            {alert.url} */}
           </div>
         );
       })}
