@@ -270,7 +270,7 @@ public class logController {
     @GetMapping("/regexp")
     public ResponseEntity<ResponseVO<PageableRes>> getRegexpLogFile(
             @ApiParam(value = "그라운드 ID", required = true)  @RequestHeader String groundId,
-            @ApiParam(value = "검색 할 정규표현식", required = true)  @RequestParam String regexp,
+            @ApiParam(value = "검색 할 정규표현식", required = true)  @RequestHeader String regexp,
             @ApiParam(value = "페이지 번호 (1부터 시작)", defaultValue = "1") @RequestParam(name = "page", defaultValue = "1") int page)
     {
         try{
