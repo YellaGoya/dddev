@@ -2,6 +2,7 @@ package com.dddev.log.service;
 
 import com.dddev.log.dto.ElasticSearchLog;
 import com.dddev.log.exception.ElasticSearchException;
+import io.lettuce.core.ScriptOutputType;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchStatusException;
@@ -19,7 +20,9 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -82,16 +85,19 @@ public class ElasticSearchLogService {
     //정규표현식으로 가져오기
     public Page<ElasticSearchLog> getRegexptLogs(String groudId, String regexp, int page) throws NoSuchIndexException {
         try {
-            log.info("요청한 정규표현식은 {}", regexp);
             SearchHits<ElasticSearchLog> searchHits = elasticsearchOperations.search(
                     new NativeSearchQueryBuilder()
-                            .withQuery(regexpQuery("log", regexp))
+                            .withQuery(matchAllQuery())
                             .withSort(fieldSort("localDateTime").order(DESC))
-                            .withPageable(PageRequest.of(page, 30))
+                            .withPageable(PageRequest.of(0, 10000))
                             .build(), ElasticSearchLog.class, IndexCoordinates.of(groudId));
             List<ElasticSearchLog> logs = searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
-            long totalHits = searchHits.getTotalHits();
-            return new PageImpl<>(logs, PageRequest.of(page, 30), totalHits);
+            List<ElasticSearchLog> result = logs.stream()
+                    .filter(logEntry -> Pattern.matches(regexp, logEntry.getLog()))
+                    .collect(Collectors.toList());
+            int start = (int) PageRequest.of(page, 30).getOffset();
+            int end = Math.min((start + PageRequest.of(page, 30).getPageSize()), result.size());
+            return new PageImpl<>(result.subList(start, end), PageRequest.of(page, 30), result.size());
         }catch (ElasticsearchStatusException e){
             log.info(e.getMessage());
             throw new ElasticSearchException.NoIndexException("해당 하는 그룹 id는 없습니다.");
