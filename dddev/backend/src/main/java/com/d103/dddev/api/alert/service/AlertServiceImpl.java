@@ -541,7 +541,7 @@ public class AlertServiceImpl implements AlertService {
 
 		String headBranch = pullRequestWebhookDto.getPullRequest().getHead().getRef();
 		String baseBranch = pullRequestWebhookDto.getPullRequest().getBase().getRef();
-		String url = pullRequestWebhookDto.getPullRequest().getUrl();
+		String url = pullRequestWebhookDto.getPullRequest().getHtmlUrl();
 		String title = pullRequestWebhookDto.getPullRequest().getTitle();
 		String body = pullRequestWebhookDto.getPullRequest().getBody();
 
