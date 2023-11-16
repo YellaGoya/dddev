@@ -93,7 +93,7 @@ export const Main = styled.main`
 
   overflow-x: hidden;
 
-  background-color: transparent;
+  background-color: var(--bg-basic);
 
   &:hover {
     &::-webkit-scrollbar-thumb {
@@ -109,8 +109,7 @@ export const Main = styled.main`
 export const ContentWrapper = styled.section`
   position: relative;
   max-width: 960px;
-  min-height: calc(100vh - 35px);
+  height: calc(100vh - 35px);
 
   margin: 0 auto;
-  background-color: var(--bg-basic);
 `;

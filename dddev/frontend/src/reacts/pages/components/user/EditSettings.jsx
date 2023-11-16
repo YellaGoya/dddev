@@ -27,8 +27,6 @@ const EditSettings = ({ toggle, setToggle }) => {
   const [focusTime, setFocusTime] = useState();
   const [activeTime, setActiveTime] = useState();
 
-  useEffect(()=> {console.log(selected)},[selected]);
-
   useEffect(() => {
     if (toggle) {
       eetch

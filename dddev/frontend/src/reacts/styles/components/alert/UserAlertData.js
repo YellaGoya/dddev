@@ -18,6 +18,10 @@ export const UserAlertItem = styled.li`
   &:hover {
     background-color: var(--bg-lite);
   }
+
+  & > p {
+    margin: 5px;
+  }
 `;
 
 export const AlertTag = styled.span`

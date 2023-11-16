@@ -40,6 +40,7 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
     dispatch(setMenu(false));
     dispatch(setMessage(false));
     navigate(`/login`);
+    setToggle(false);
   };
 
   const nicknameValid = (data, setMessage) => {
@@ -194,15 +195,14 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
             <Input
               label="깃헙 엑세스 토큰 변경"
               holder={userInfo.personalAccessToken && userInfo.personalAccessToken.substr(0, 10).concat(' ···')}
-              data={pat}
+              data={pat && pat}
               setData={setPat}
               enter={submitPat}
               click={submitPat}
               message={patMessage}
             />
-            <Input label="닉네임" data={nickname} setData={setNickname} valid={nicknameValid} />
-            <Input label="상태 메시지" data={statusMsg} setData={setStatusMsg} />
-            <s.DivLine />
+            <Input label="닉네임" data={nickname && nickname} setData={setNickname} valid={nicknameValid} />
+            <Input label="상태 메시지" data={statusMsg && statusMsg} setData={setStatusMsg} />
             <s.ButtonWrapper>
               <s.ProfileEditButton type="button" onClick={submitChange}>
                 적용

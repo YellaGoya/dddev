@@ -6,6 +6,7 @@ import * as s from 'reacts/styles/components/common/Message';
 const Message = ({ messageToggle, editToggle, setEditToggle, userInfo, setUserInfo }) => {
   return (
     <s.Message $toggle={messageToggle}>
+      <h1>구독 알림</h1>
       <span onClick={() => setEditToggle(!editToggle)}>
         <ManageAccountsRoundedIcon />
         계정 설정
