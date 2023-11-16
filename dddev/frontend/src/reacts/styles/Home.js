@@ -283,6 +283,8 @@ export const DocsWrapper = styled.section`
     left: 500px;
     width: calc(100% - 500px);
     padding-left: 21px;
+    height: calc(100vh - 35px);
+    overflow-y: auto;
   }
 
   /* background-color: lightblue; */
@@ -334,6 +336,19 @@ export const RequestCard = styled.div`
 
   &:hover {
     background-color: var(--bg-lite);
+  }
+
+  &.no-request {
+    //내부 svg 중앙으로
+    height: 150px;
+    & > svg {
+      width: 48px;
+      height: 48px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
 
   cursor: pointer;
@@ -399,4 +414,20 @@ export const DivLine = styled.div`
   height: 1px;
 
   background-color: var(--border-basic);
+`;
+
+export const AlarmTitle = styled.h1`
+  margin-bottom: 10px;
+  margin-left: 2px;
+
+  @media (min-width: 1229px) {
+    margin-top: 10px;
+  }
+`;
+
+export const AlarmWrapper = styled.div`
+  width: 100%;
+  border-radius: 0.75rem;
+  height: fit-content;
+  padding-bottom: 30px;
 `;

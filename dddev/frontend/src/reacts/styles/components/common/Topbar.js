@@ -92,6 +92,10 @@ export const PorfileButtonWrapper = styled.div`
     > svg {
       opacity: 1;
     }
+
+    & > span {
+      opacity: 0;
+    }
   }
 
   & > svg {
@@ -99,12 +103,25 @@ export const PorfileButtonWrapper = styled.div`
     width: 30px;
     height: 30px;
 
-    top: 50%;
+    top: calc(50% + 1px);
     right: 50%;
 
     transform: translate(50%, -50%) scaleX(-1);
     transition: opacity 0.3s ease;
     opacity: 0;
+
+    cursor: pointer;
+  }
+
+  & > span {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    padding: 2px 12px 3px 12px;
+    border-radius: 11px;
+    background-color: var(--font-new);
+    font-size: 0.8rem;
+    transition: opacity 0.3s ease;
 
     cursor: pointer;
   }

@@ -371,10 +371,20 @@ public class IssueServiceImpl implements IssueService {
 
 	@Override
 	public Integer getSprintTotalFocusTime(Integer sprintId) throws Exception {
-		List<Issue> totalFocusTimeList = issueRepository.getSprintIssueList(sprintId);
+		List<Issue> totalFocusTimeList = issueRepository.getSprintFocusIssueList(sprintId);
 		Integer totalTime = 0;
 		for(Issue i : totalFocusTimeList) {
 			totalTime += i.getFocusTime();
+		}
+		return totalTime;
+	}
+
+	@Override
+	public Integer getSprintTotalActiveTime(Integer sprintId) throws Exception {
+		List<Issue> totalActiveTimeList = issueRepository.getSprintActiveIssueList(sprintId);
+		Integer totalTime = 0;
+		for(Issue i : totalActiveTimeList) {
+			totalTime += i.getActiveTime();
 		}
 		return totalTime;
 	}

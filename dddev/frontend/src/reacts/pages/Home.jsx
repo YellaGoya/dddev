@@ -9,6 +9,9 @@ import { logoutUser } from 'redux/actions/user';
 
 import PieChart from 'reacts/pages/components/chart/PieChart';
 import LineChart from 'reacts/pages/components/chart/LineChart';
+import AlertData from 'reacts/pages/components/alert/AlertData';
+
+import AddCommentRoundedIcon from '@mui/icons-material/AddCommentRounded';
 
 import DirectionsRunRoundedIcon from '@mui/icons-material/DirectionsRunRounded';
 import GradingRoundedIcon from '@mui/icons-material/GradingRounded';
@@ -331,21 +334,29 @@ const Home = () => {
         <s.RequestWrapper>
           <s.RequestTitle>최근 요청 문서</s.RequestTitle>
           <s.RequestGrid>
-            {requests.length > 0
-              ? requests.map((request) => (
-                  <s.RequestCard key={request.id} onClick={() => navigate(`/${params.groundId}/document/find/docs/request/${request.id}`)}>
-                    <s.RequestStatus status={request.status}>
-                      {request.status === 0 ? '해야 할 일' : request.status === 1 ? '진행 중' : '완료'}
-                    </s.RequestStatus>
-                    <s.RequestName>{request.title === '' ? '새 문서' : request.title}</s.RequestName>
-                    <s.RequestDate>{request.updatedAt.substring(0, 10)}</s.RequestDate>
-                    <s.RequestUserName>{request.modifier.nickname}</s.RequestUserName>
-                    <s.RequestUserEmail>{request.modifier.email}</s.RequestUserEmail>
-                  </s.RequestCard>
-                ))
-              : null}
+            {requests.length > 0 ? (
+              requests.map((request) => (
+                <s.RequestCard key={request.id} onClick={() => navigate(`/${params.groundId}/document/find/docs/request/${request.id}`)}>
+                  <s.RequestStatus status={request.status}>
+                    {request.status === 0 ? '해야 할 일' : request.status === 1 ? '진행 중' : '완료'}
+                  </s.RequestStatus>
+                  <s.RequestName>{request.title === '' ? '새 문서' : request.title}</s.RequestName>
+                  <s.RequestDate>{request.updatedAt.substring(0, 10)}</s.RequestDate>
+                  <s.RequestUserName>{request.modifier.nickname}</s.RequestUserName>
+                  <s.RequestUserEmail>{request.modifier.email}</s.RequestUserEmail>
+                </s.RequestCard>
+              ))
+            ) : (
+              <s.RequestCard className="no-request" onClick={() => navigate(`/${params.groundId}/document/find`)}>
+                <AddCommentRoundedIcon />
+              </s.RequestCard>
+            )}
           </s.RequestGrid>
         </s.RequestWrapper>
+        <s.AlarmWrapper>
+          <s.AlarmTitle>깃헙 알림 리스트</s.AlarmTitle>
+          <AlertData />
+        </s.AlarmWrapper>
       </s.DocsWrapper>
     </s.DashWrapper>
   );

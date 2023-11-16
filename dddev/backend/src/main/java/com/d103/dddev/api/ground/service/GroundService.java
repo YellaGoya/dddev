@@ -34,6 +34,10 @@ public interface GroundService {
 	Map<String, Integer> getSprintActiveTimeCount(Integer sprintId) throws Exception;
 	Map<String, Integer> getSprintTotalTimeCount(Integer sprintId) throws Exception;
 
+	Double getGroundFocusTimeDoneAvg(Integer groundId) throws Exception;
+	Double getGroundActiveTimeDoneAvg(Integer groundId) throws Exception;
+	Double getGroundTotalTimeDoneAvg(Integer groundId) throws Exception;
+
 	Ground updateGroundInfo(Ground newGround, Ground ground) throws Exception;
 	Ground updateGroundProfile(MultipartFile file, Ground ground) throws Exception;
 
