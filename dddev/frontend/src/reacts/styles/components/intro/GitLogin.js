@@ -7,6 +7,11 @@ export const FlightWrapper = styled.article`
   align-items: center;
   justify-content: center;
 
+  //세로로 정렬
+  @media (max-width: 729px) {
+    flex-direction: column;
+  }
+
   z-index: 2;
 `;
 
@@ -17,13 +22,11 @@ export const BiImage = styled.img`
   width: 100vw;
   height: 100vh;
 
-  //이미지 블러 10px
-  filter: blur(5px);
+  filter: blur(5px)
   //이미지 색상 흐릿하게
   opacity: 0.7;
 
   pointer-events: none;
-  //비율 유지
   object-fit: cover;
   z-index: -1;
 `;
@@ -38,6 +41,8 @@ export const DescWrapper = styled.div`
   }
 
   & > p.powered {
+    width: 375px;
+    text-align: center;
     position: fixed;
     bottom: 15px;
     left: 50%;
@@ -51,7 +56,13 @@ export const DescWrapper = styled.div`
 export const GithubLoginButton = styled.button`
   width: 270px;
   height: 50px;
+
   margin-left: 100px;
+
+  @media (max-width: 729px) {
+    margin-top: 50px;
+    margin-left: 0;
+  }
   transform: translateY(10px);
 
   border-radius: 0.75rem;

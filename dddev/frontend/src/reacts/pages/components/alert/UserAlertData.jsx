@@ -55,7 +55,15 @@ const UserAlertData = () => {
     const results = await Promise.all(promises);
     const validResults = results.filter((result) => result !== null);
     validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    dispatch(updateUser({ unread: validResults.filter((res) => res.isRead === false).length }));
+    const unread = validResults.filter((res) => {
+      return res.isRead === false;
+    }).length;
+
+    dispatch(
+      updateUser({
+        unread: unread ? unread : 0,
+      }),
+    );
     setUserAlertList(validResults);
   };
 

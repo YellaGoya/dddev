@@ -286,12 +286,12 @@ const Log = () => {
           <pre>
             # 도커 컨테이너 환경
             <br />
-            wget -O dddevLogDocker.sh http://k9d103a.p.ssafy.io/dddevLogDocker
+            wget -O dddevLogDocker.sh https://k9d103a.p.ssafy.io/dddevLogDocker
             <br />
             <br />
             # 리눅스 환경
             <br />
-            wget -O dddevLogSystem.sh http://k9d103a.p.ssafy.io/dddevLogSystem
+            wget -O dddevLogSystem.sh https://k9d103a.p.ssafy.io/dddevLogSystem
           </pre>
           <h2>3. 스크립트 파일 관리자 권한으로 실행 및 설치.</h2>
           <pre>

@@ -32,6 +32,10 @@ const Topbar = () => {
   const paths = window.location.pathname.split('/');
 
   useEffect(() => {
+    console.log('user', user.unread);
+  }, [user.unread]);
+
+  useEffect(() => {
     const pathNames = [];
     if (paths[4] !== 'docs') dispatch(setDoc({ docTitle: null }));
 
@@ -136,7 +140,7 @@ const Topbar = () => {
       <s.PorfileButtonWrapper onClick={() => dispatch(setMessage(!messageToggle))}>
         <s.ProfileImage src={userInfo.profileDto ? `https://k9d103.p.ssafy.io/img/user/${userInfo.profileDto.fileName}` : userStockImage} />
         <ReviewsRoundedIcon />
-        <span>{user.unread}</span>
+        <span>{user.unread ? user.unread : '-'}</span>
       </s.PorfileButtonWrapper>
       <Message messageToggle={messageToggle} editToggle={editToggle} setEditToggle={setEditToggle} userInfo={userInfo} setUserInfo={setUserInfo} />
       <s.GradBox />
