@@ -25,7 +25,6 @@ export const logoutUser = () => {
 };
 
 export const updateUser = ({ accessToken, accessExp, refreshToken, lastGround, groundsList, groundsMap, groundsMine, githubId, unread }) => {
-  console.log('here', unread);
   return {
     type: UPDATE_USER,
     payload: {

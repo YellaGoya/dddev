@@ -63,12 +63,12 @@ const Home = () => {
   const user = useSelector((state) => state.user);
   const [sprintList, setSprintList] = useState([]);
   const [selectedSprint, setSelectedSprint] = useState(null);
-  const [activeCount, setActiveCount] = useState({ done: 17, undone: 34 });
-  const [activeTime, setActiveTime] = useState({ done: 50, undone: 121 });
-  const [focusCount, setFocusCount] = useState({ done: 10, undone: 74 });
-  const [focusTime, setFocusTime] = useState({ done: 28, undone: 189 });
-  const [totalCount, setTotalCount] = useState({ done: 27, undone: 108 });
-  const [totalTime, setTotalTime] = useState({ done: 78, undone: 310 });
+  const [activeCount, setActiveCount] = useState({ done: 0, undone: 0 });
+  const [activeTime, setActiveTime] = useState({ done: 0, undone: 0 });
+  const [focusCount, setFocusCount] = useState({ done: 0, undone: 0 });
+  const [focusTime, setFocusTime] = useState({ done: 0, undone: 0 });
+  const [totalCount, setTotalCount] = useState({ done: 0, undone: 0 });
+  const [totalTime, setTotalTime] = useState({ done: 0, undone: 0 });
   const [burnDown, setBurnDown] = useState(null);
   const [lineArea, setLineArea] = useState(null);
 
@@ -119,6 +119,19 @@ const Home = () => {
 
   useEffect(() => {
     if (selectedSprint) {
+      eetch
+        .focusAverage({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          if (err.message === 'RefreshTokenExpired') {
+            dispatch(logoutUser());
+            dispatch(setMenu(false));
+            dispatch(setMessage(false));
+            navigate(`/login`);
+          }
+        });
       eetch
         .activeCount({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, sprintId: selectedSprint.id })
         .then((res) => {

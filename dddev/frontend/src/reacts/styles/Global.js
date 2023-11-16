@@ -13,11 +13,13 @@ export const Global = createGlobalStyle`
 
   html {
     font-size: 18px;
+    overflow-y: hidden;
   }
 
   body {
     margin: 0;
     background-color: var(--bg-basic);
+
   }
 
   body, button, input{
@@ -42,8 +44,8 @@ export const Global = createGlobalStyle`
     background-color: var(--font-basic);
     background-clip: padding-box;
     border-right: 3px solid transparent;
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;;
+    border-top: 73px solid transparent;
+    border-bottom: 73px solid transparent;;
     border-left: 3px solid transparent;
   }
 
@@ -51,8 +53,8 @@ export const Global = createGlobalStyle`
     background-color: var(--font-rev);
     background-clip: padding-box;
     border-right: 3px solid transparent;
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;
+    border-top: 73px solid transparent;
+    border-bottom: 73px solid transparent;;
     border-left: 3px solid transparent;
   }
 
@@ -90,7 +92,6 @@ export const Main = styled.main`
   min-width: 280px;
   margin-left: 9px;
   overflow-y: scroll;
-
   overflow-x: hidden;
 
   background-color: var(--bg-basic);
@@ -110,6 +111,8 @@ export const ContentWrapper = styled.section`
   position: relative;
   max-width: 960px;
   height: calc(100vh - 35px);
+
+  background-color: inherit;
 
   margin: 0 auto;
 `;

@@ -14,8 +14,9 @@ import demo1 from 'assets/demos/demo1.webp';
 import demo2 from 'assets/demos/demo2.webp';
 import demo3 from 'assets/demos/demo3.webp';
 import demo4 from 'assets/demos/demo4.webp';
-import demo5 from 'assets/demos/demo5.webp';
+import demo5 from 'assets/demos/demo5_2.webp';
 
+import AirlineStopsIcon from '@mui/icons-material/AirlineStops';
 import * as s from 'reacts/styles/components/intro/GitResult';
 const GitResult = () => {
   const dispatch = useDispatch();
@@ -27,6 +28,11 @@ const GitResult = () => {
   const [patMessage, setPatMessage] = useState(null);
   const [tmp, setTmp] = useState(null);
   const navigate = useNavigate();
+
+  const scrollTop = () => {
+    const topElement = document.getElementById('lr-top');
+    topElement.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const submitPat = () => {
     eetch
@@ -103,15 +109,15 @@ const GitResult = () => {
             }
           });
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
+        navigate(`/login`);
       });
   }, [dispatch, navigate]);
 
   return (
     role === 'GUEST' && (
-      <>
-        <s.Title>
+      <s.Wrapper>
+        <s.Title id="lr-top">
           {nickname}님의 <br />
           Personal Access Token 등록
         </s.Title>
@@ -156,7 +162,8 @@ const GitResult = () => {
             repo 관련 옵션을 모두 허용, 토근을 발급합니다.
           </s.Description>
         </s.DemoArticle>
-      </>
+        <AirlineStopsIcon onClick={scrollTop} />
+      </s.Wrapper>
     )
   );
 };

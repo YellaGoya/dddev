@@ -34,7 +34,6 @@ export const ChartWrapper = styled.section`
   }
 
   &:hover {
-    // ul의 스크롤바 색상 파란색으로
     &::-webkit-scrollbar-thumb {
       background-color: var(--thumb-hover);
     }
@@ -287,7 +286,16 @@ export const DocsWrapper = styled.section`
     overflow-y: auto;
   }
 
-  /* background-color: lightblue; */
+  &:hover {
+    // ul의 스크롤바 색상 파란색으로
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--thumb-hover);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: var(--font-rev);
+    }
+  }
 `;
 
 export const RequestWrapper = styled.div`
