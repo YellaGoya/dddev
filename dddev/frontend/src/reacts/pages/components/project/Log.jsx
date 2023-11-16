@@ -102,7 +102,6 @@ const Log = () => {
     eetch
       .getFilter({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId })
       .then((res) => {
-        console.log(res);
         setFilters(res.data);
       })
       .catch((err) => {
@@ -176,7 +175,6 @@ const Log = () => {
     };
 
     const getRegexList = (regex, n = 1) => {
-      console.log(filter.type);
       eetch
         .regexLog({ groundId: params.groundId, regex, page: n })
         .then((res) => {
