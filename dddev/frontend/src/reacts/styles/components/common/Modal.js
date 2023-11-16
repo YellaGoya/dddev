@@ -22,6 +22,9 @@ export const ModalChanger = styled(Modal)`
   & > p {
     color: var(--font-rev);
     text-align: center;
+    word-break: break-all;
+    //개행문자 처리
+    white-space: pre-line;
   }
 
   & > button.accept-button {

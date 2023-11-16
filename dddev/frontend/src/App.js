@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { BrowserRouter, useRoutes, useLocation, Navigate } from 'react-router-dom';
-// import { Provider } from 'react-redux';
 import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from 'redux/store';

@@ -68,7 +68,6 @@ const EditSettings = ({ toggle, setToggle }) => {
         activeTime,
       })
       .then(() => {
-        // setSelectedName(groundName);
         eetch
           .userGrounds({ accessToken: user.accessToken, refreshToken: user.refreshToken })
           .then((grounds) => {

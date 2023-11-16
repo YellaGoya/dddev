@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import eetch from 'eetch/eetch';
 import Input from 'reacts/pages/components/common/Input';
-// import Select from 'reacts/pages/components/common/SelectUser';
 
 import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
@@ -15,11 +14,6 @@ import PhotoFilterIcon from '@mui/icons-material/PhotoFilter';
 import MeetingRoomRoundedIcon from '@mui/icons-material/MeetingRoomRounded';
 
 import * as s from 'reacts/styles/components/user/EditProfile';
-
-// const testDummy = [
-//   { id: 1, name: 'test1' },
-//   { id: 2, name: 'test2' },
-// ];
 
 const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
   const dispatch = useDispatch();

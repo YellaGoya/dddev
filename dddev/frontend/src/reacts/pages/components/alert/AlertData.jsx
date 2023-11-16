@@ -11,7 +11,6 @@ const AlertData = () => {
   const [allAlertList, setAllAlertList] = useState([]);
 
   useEffect(() => {
-    // 전체 웹훅 내역 조회
     getAllDocs(groundsMap);
   }, [user]);
 
@@ -48,7 +47,6 @@ const AlertData = () => {
     setAllAlertList(validResults);
   };
 
-  // 깃허브 링크 연결
   const githubLinkClick = async (url) => {
     window.open(url, '_blank');
   };
