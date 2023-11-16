@@ -238,7 +238,7 @@ public class AlertServiceImpl implements AlertService {
 
 					commitMessageList.add(commitMsg);
 
-					log.info("receivePushWebhook :: 키워드 null, 사용자 알림 내역 저장");
+					log.info("receivePushWebhook :: 키워드 null, 사용자: {} 알림 내역 저장", alertUserKeyword.getUser().getGithubId());
 					saveAlertUserData(alertUserKeyword.getUser(), commitDataDto.getId(), keywordSet, Date.from(commitDataDto.getTimestamp().toInstant()));
 
 				} else {    // 키워드 지정 시 검색
@@ -278,7 +278,7 @@ public class AlertServiceImpl implements AlertService {
 					// 사용자별 조회를 위한 데이터 저장
 					// 구독 키워드가 있다면 키워드에 걸려야 저장
 					if(!keywordSet.isEmpty())	{
-						log.info("receivePushWebhook :: 키워드: {}, 사용자 알림 내역 저장", keywordSet);
+						log.info("receivePushWebhook :: 키워드: {}, 사용자: {} 알림 내역 저장", keywordSet, alertUserKeyword.getUser().getGithubId());
 						saveAlertUserData(alertUserKeyword.getUser(), commitDataDto.getId(), keywordSet, Date.from(commitDataDto.getTimestamp().toInstant()));
 					}
 				}
@@ -588,7 +588,7 @@ public class AlertServiceImpl implements AlertService {
 			} // 키워드
 
 			// 사용자 알림 내역 조회를 위한 데이터 저장
-			log.info("receivePullRequestWebhook :: 키워드: {}, 사용자 알림 내역 저장", keywordSet);
+			log.info("receivePullRequestWebhook :: 키워드: {}, 사용자: {} 알림 내역 저장", keywordSet, alertUserKeyword.getUser().getGithubId());
 			saveAlertUserData(alertUserKeyword.getUser(), pullRequestDto.getId().toString(), keywordSet, Date.from(pullRequestDto.getCreatedAt().toInstant()));
 
 			idKeywordMap.put(pullRequestWebhookDto.getPullRequest().getId().toString(), keywordSet);
