@@ -3,7 +3,7 @@ import * as s from 'reacts/styles/components/intro/GitLogin';
 // const redirectUri = 'http://localhost:3000/login/github';
 import LoginBi from 'assets/loginBi.png';
 const clientId = 'Iv1.be0efb5e5a6b95fa';
-const redirectUri = 'https://k9d103.p.ssafy.io:8001/login/github';
+const redirectUri = 'https://k9d103.p.ssafy.io/login/github';
 
 const loginUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user`;
 import GitHubIcon from '@mui/icons-material/GitHub';
