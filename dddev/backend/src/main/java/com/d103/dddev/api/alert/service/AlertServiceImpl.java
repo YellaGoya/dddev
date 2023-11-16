@@ -533,6 +533,10 @@ public class AlertServiceImpl implements AlertService {
 		PullRequestDto pullRequestDto = pullRequestWebhookDto.getPullRequest();
 		FcmResponseDto fcmResponseDto = null;
 
+		if(!pullRequestWebhookDto.getAction().equals("opened")) {
+			return;
+		}
+
 		Repository repository = repositoryService.getRepository(pullRequestWebhookDto.getRepository().getId())
 			.orElse(null);
 
