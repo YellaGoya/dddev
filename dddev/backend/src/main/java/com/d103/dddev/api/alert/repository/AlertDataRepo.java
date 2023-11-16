@@ -1,12 +1,17 @@
 package com.d103.dddev.api.alert.repository;
 
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
 import com.d103.dddev.api.alert.entity.AlertHistoryDocument;
 import com.d103.dddev.api.alert.entity.AlertUserHistoryDocument;
 import com.d103.dddev.api.alert.entity.WebhookDataDocument;
+import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.cloud.FirestoreClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,9 +57,20 @@ public class AlertDataRepo {
 
 	public String addAlertUserData(AlertUserHistoryDocument alertUserHistoryDocument) throws Exception{
 		// Firestore FIRE_STORE = FirestoreClient.getFirestore();
+		try {
+			// log.info("addAlertUserData :: 중복 알림 저장입니다!!");
+			ApiFuture<QuerySnapshot> future = FIRE_STORE.collection(ALERT_USER_NAME)
+				.whereEqualTo("id", alertUserHistoryDocument.getId())
+				.whereEqualTo("githubId", alertUserHistoryDocument.getGithubId())
+				.get();
+			List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+			if(!documents.isEmpty())	return documents.get(0).getId();
+		} catch (Exception e) {
+			log.error("addAlertUserData :: {}", e.getMessage());
+		}
 		DocumentReference document = FIRE_STORE.collection(ALERT_USER_NAME).document();
 		document.set(alertUserHistoryDocument);
-		// log.info("새로운 문서 - 웹훅 데이터 - 가 추가되었습니다. document id: {}", document.getId()	);
+		log.info("새로운 문서 - 웹훅 데이터 - 가 추가되었습니다. document id: {}", document.getId()	);
 		return document.getId();
 	}
 }
