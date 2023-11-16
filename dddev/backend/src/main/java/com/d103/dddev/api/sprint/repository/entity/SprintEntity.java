@@ -30,4 +30,6 @@ public class SprintEntity {
     private Ground ground;
     @Column(name = "total_focus_time")
     private Integer totalFocusTime;
+    @Column(name = "total_time")
+    private Integer totalTime;
 }

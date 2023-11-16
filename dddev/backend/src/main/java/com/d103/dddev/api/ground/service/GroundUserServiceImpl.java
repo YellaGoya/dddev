@@ -104,7 +104,6 @@ public class GroundUserServiceImpl implements GroundUserService {
 
 		// 토큰 암호화
 		String encryptToken = aesUtil.aes256Encrypt(token, AesType.LOG);
-		System.out.println(encryptToken);
 
 		// uri
 		String uri = LOG_SERVER_URI+"/log/auth";
