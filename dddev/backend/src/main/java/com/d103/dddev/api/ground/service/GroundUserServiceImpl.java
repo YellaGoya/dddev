@@ -128,7 +128,7 @@ public class GroundUserServiceImpl implements GroundUserService {
 			}
 		);
 
-		return (String)response.getBody().get("message");
+		return encryptToken;
 	}
 
 	/**
