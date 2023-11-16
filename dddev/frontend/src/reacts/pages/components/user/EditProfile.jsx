@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import eetch from 'eetch/eetch';
 import Input from 'reacts/pages/components/common/Input';
-// import Select from 'reacts/pages/components/common/SelectUser';
 
 import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
@@ -15,11 +14,6 @@ import PhotoFilterIcon from '@mui/icons-material/PhotoFilter';
 import MeetingRoomRoundedIcon from '@mui/icons-material/MeetingRoomRounded';
 
 import * as s from 'reacts/styles/components/user/EditProfile';
-
-// const testDummy = [
-//   { id: 1, name: 'test1' },
-//   { id: 2, name: 'test2' },
-// ];
 
 const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
   const dispatch = useDispatch();
@@ -193,7 +187,7 @@ const EditProfile = ({ toggle, setToggle, userInfo, setUserInfo }) => {
               <s.descriptionMessage>{imgMessage}</s.descriptionMessage>
             </s.MessageWrapper>
             <Input
-              label="깃헙 엑세스 토큰 변경"
+              label="GitHub 엑세스 토큰 변경"
               holder={userInfo.personalAccessToken && userInfo.personalAccessToken.substr(0, 10).concat(' ···')}
               data={pat && pat}
               setData={setPat}

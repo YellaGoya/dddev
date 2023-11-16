@@ -41,7 +41,6 @@ export const EditorWrapper = styled.div`
       'Segoe UI Symbol',
       sans-serif;
 
-    //입력된 텍스트가 넓이를 넘어가면 다음 줄로 넘어감
     overflow: hidden;
     white-space: pre-line;
   }
@@ -443,8 +442,8 @@ export const InsertBottom = styled.button`
   transition: background-color 0.15s ease;
 
   cursor: pointer;
-  pointer-events: ${({ status }) => (status === 0 ? 'auto' : 'none')};
-  opacity: ${({ status }) => (status === 0 ? '1' : '0.3')};
+  pointer-events: ${({ status }) => (status ? 'none' : 'auto')};
+  opacity: ${({ status }) => (status ? '0.3' : '1')};
 
   &:hover {
     background-color: var(--button-lite);
@@ -590,8 +589,6 @@ export const SettingWrapper = styled.div`
       'Segoe UI Emoji',
       'Segoe UI Symbol',
       sans-serif;
-
-    //입력된 텍스트가 넓이를 넘어가면 다음 줄로 넘어감
     overflow: hidden;
     white-space: pre-line;
   }
@@ -706,7 +703,6 @@ export const ProfileImage = styled.img`
   margin-right: 10px;
   border: 1px solid var(--border-dark);
 
-  //비율 유지
   object-fit: cover;
 
   transition: filter 0.3s ease;
@@ -871,7 +867,6 @@ export const CommentImage = styled.img`
   margin-right: 10px;
   border: 1px solid var(--border-dark);
 
-  //비율 유지
   object-fit: cover;
 
   transition: filter 0.3s ease;

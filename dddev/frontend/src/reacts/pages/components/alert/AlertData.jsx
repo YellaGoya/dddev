@@ -45,7 +45,6 @@ const AlertData = () => {
     setAllAlertList(validResults);
   };
 
-  // 깃허브 링크 연결
   const githubLinkClick = async (url) => {
     window.open(url, '_blank');
   };

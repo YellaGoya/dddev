@@ -15,12 +15,10 @@ const UserAlertData = () => {
   useEffect(() => {
     const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(githubId)).orderBy('timestamp', 'desc').limit(10);
 
-    // firestore 실시간 동기화, 문서 변경 발생 시 실행
     alertUserDataCollection.onSnapshot(
       (snapshot) => {
         const arr = [];
 
-        // 사용자가 받은 알림의 id를 받아옴
         snapshot.forEach((doc) => {
           arr.push(doc.data());
         });

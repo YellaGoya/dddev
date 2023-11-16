@@ -508,11 +508,11 @@ const Write = () => {
     const { container } = editor;
 
     const intervalId = setInterval(() => {
-      if (lastEditorRef.current === wsProvider.awareness.clientID && statusRef.current === 0) {
+      if (lastEditorRef.current === wsProvider.awareness.clientID && !statusRef.current) {
         if (document.activeElement !== titleRef.current && document.activeElement !== settingTitleRef.current) initRoom(false);
         editDocument();
       }
-    }, 5000);
+    }, 3000);
 
     const ping = (noise) => {
       wsProvider.awareness.setLocalStateField('pinged', {
@@ -756,7 +756,7 @@ const Write = () => {
           </>
         ) : null}
       </s.SettingWrapper>
-      {status === 0 && (
+      {!status && (
         <s.InsertBottom className="insert-button" status={status} onClick={insertBottom}>
           <AddIcon />
         </s.InsertBottom>

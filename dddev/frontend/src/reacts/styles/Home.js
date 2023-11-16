@@ -287,7 +287,6 @@ export const DocsWrapper = styled.section`
   }
 
   &:hover {
-    // ul의 스크롤바 색상 파란색으로
     &::-webkit-scrollbar-thumb {
       background-color: var(--thumb-hover);
     }
@@ -347,7 +346,6 @@ export const RequestCard = styled.div`
   }
 
   &.no-request {
-    //내부 svg 중앙으로
     height: 150px;
     & > svg {
       width: 48px;

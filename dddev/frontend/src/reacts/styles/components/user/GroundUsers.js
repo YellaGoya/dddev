@@ -43,7 +43,6 @@ export const Users = styled.ul`
   overflow-y: scroll;
 
   &:hover {
-    // ul의 스크롤바 색상 파란색으로
     &::-webkit-scrollbar-thumb {
       background-color: var(--thumb-hover);
     }
@@ -139,7 +138,6 @@ export const ProfileImage = styled.img`
   margin-right: 10px;
   border: 1px solid var(--border-dark);
 
-  //비율 유지
   object-fit: cover;
 
   transition: filter 0.3s ease;

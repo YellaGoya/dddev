@@ -225,7 +225,6 @@ export const LogItem = styled.li`
   }
 
   &.load-more {
-    //내부 컨텐츠 수직으로 1줄 정렬
     display: flex;
     align-items: center;
     justify-content: center;
@@ -413,7 +412,6 @@ export const Customs = styled.span`
   width: fit-content;
   height: fit-content;
 
-  //줄 높이
   line-height: 1.8rem;
 
   background-color: var(--font-toggle);

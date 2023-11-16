@@ -31,7 +31,6 @@ export const Global = createGlobalStyle`
   }
 
 
-  //스크롤바 오른쪽에서 3px 띄우기
   ::-webkit-scrollbar {
     width: 9px;
   }

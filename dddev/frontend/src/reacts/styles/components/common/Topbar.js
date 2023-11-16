@@ -131,7 +131,6 @@ export const ProfileImage = styled.img`
   width: 90px;
   height: 30px;
 
-  //비율 유지
   object-fit: cover;
 
   border: 1px solid var(--border-dark);

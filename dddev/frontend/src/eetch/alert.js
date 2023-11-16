@@ -1,7 +1,6 @@
 import eetch from 'eetch/eetch';
 
 const base = `https://k9d103.p.ssafy.io:8001`;
-// const base = `http://localhost:8000`;
 
 export const addDeviceToken = async ({ accessToken, refreshToken, deviceToken }) => {
   const url = base + `/user/device-token`;
@@ -86,7 +85,6 @@ export const updateAlert = async ({ accessToken, refreshToken, groundId, keyword
   };
 
   const res = await eetch(url, options);
-  // if (!res.ok) throw new Error('gayeonNotGood');
 
   return res.json();
 };
