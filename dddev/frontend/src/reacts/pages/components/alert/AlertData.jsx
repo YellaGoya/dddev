@@ -12,7 +12,7 @@ const AlertData = () => {
   const [allAlertList, setAllAlertList] = useState([]);
 
   useEffect(() => {
-    const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(githubId)).orderBy('timestamp', 'desc').limit(20);
+    const alertUserDataCollection = db.collection('alertUserData').where('githubId', '==', Number(githubId)).orderBy('timestamp', 'desc').limit(10);
 
     // firestore 실시간 동기화, 문서 변경 발생 시 실행
     alertUserDataCollection.onSnapshot(
@@ -64,8 +64,8 @@ const AlertData = () => {
 
     const results = await Promise.all(promises);
     let validResults = results.flat().filter((result) => result !== null);
-    // validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    validResults = validResults.slice(0, 20);
+    validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    validResults = validResults.slice(0, 10);
     setAllAlertList(validResults);
   };
 
@@ -73,8 +73,6 @@ const AlertData = () => {
     const promises = arr.map(({ id, isRead, keyword }) => {
       return db
         .collection('webhookData')
-        .orderBy('timestamp', 'desc')
-        .limit(20)
         .doc(id)
         .get()
         .then((res) => {
@@ -92,7 +90,7 @@ const AlertData = () => {
 
     const results = await Promise.all(promises);
     const validResults = results.filter((result) => result !== null);
-    // validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    validResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     setUserAlertList(validResults);
   };
 
