@@ -39,6 +39,7 @@ public class UserGptAccessService {
         //1시간에 60번 이상 GPT 요청 불가!
         if(userGptAccess.getCount() >= 60) {
             log.error("GROUND ID: {}, GPT 사용 URI 접근 최근 1시간 60번 이상 접근으로 비정상접근으로 판단!", groundId);
+            if(userGptAccess.getExpiration() == -1 ) userGptAccessRepository.delete(userGptAccess);
             throw new UserUnAuthGptException("1시간에 60번만 GPT 요청이 가능합니다. 첫 시도 후 1시간 후 다시 시도하세요.");
         }
         userGptAccessRepository.save(userGptAccess);

@@ -47,6 +47,7 @@ public class UserLogAccessService {
                 //토큰에서 삭제, ela에서 인덱스 삭제
                 groundAuthService.deleteToken(groundId);
                 elasticSearchLogService.deleteIndex(groundId);
+                if(userLogAccess.getExpiration() == -1 ) userLogAccessRepository.delete(userLogAccess);
                 log.info("GROUND ID: {}, 로그 등록 URI 접근 최근 60초 1000번 이상 접근으로 비정상접근으로 판단, 등록된 모든 로그 삭제", groundId);
                 throw new UserUnAuthException.UnusualRequest("비정상적으로 많은 로그를 요청 중입니다. token을 재발급해주세요.");
             }
