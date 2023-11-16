@@ -158,8 +158,11 @@ const GitResult = () => {
             <s.DemoImg src={demo5} />
           </s.ImgWrapper>
           <s.Description>
-            PAT 토큰의 이름, 기한을 필요에 따라 설정 후, <br />
-            repo 관련 옵션을 모두 허용, 토근을 발급합니다.
+            PAT 토큰의 이름, 기한을 필요에 따라 설정 합니다. <br />
+            <br />
+            repo 관련 옵션을 모두 허용,
+            <br />
+            user는 이메일만 허용 후, 토근을 발급합니다.
           </s.Description>
         </s.DemoArticle>
         <AirlineStopsIcon onClick={scrollTop} />
