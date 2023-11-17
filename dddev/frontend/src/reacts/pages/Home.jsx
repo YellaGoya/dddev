@@ -7,6 +7,7 @@ import { setMenu } from 'redux/actions/menu';
 import { setMessage } from 'redux/actions/menu';
 import { logoutUser } from 'redux/actions/user';
 
+import SelectTransparent from 'reacts/pages/components/common/SelectTransparent';
 import PieChart from 'reacts/pages/components/chart/PieChart';
 import LineChart from 'reacts/pages/components/chart/LineChart';
 import AlertData from 'reacts/pages/components/alert/AlertData';
@@ -200,12 +201,12 @@ const Home = () => {
       eetch
         .burnDown({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, sprintId: selectedSprint.id })
         .then((res) => {
+          console.log(res);
           const { data } = res;
           const keys = Object.keys(data);
+          let total = data['1970-01-01'];
 
-          let total = keys.reduce((acc, cur) => {
-            return acc + data[cur];
-          }, 0);
+          keys.shift();
 
           const chartData = [{ id: '-', data: [{ x: '스프린트', y: total }] }];
 
@@ -232,6 +233,11 @@ const Home = () => {
     <s.DashWrapper>
       <s.ChartWrapper>
         <s.ChartTitle>대쉬보드 차트</s.ChartTitle>
+        {sprintList && sprintList.length > 0 && (
+          <s.SprintSelectWrapper>
+            <SelectTransparent label="스프린트" list={sprintList} select={setSelectedSprint} selected={selectedSprint && selectedSprint.name} />
+          </s.SprintSelectWrapper>
+        )}
         {focusTime && activeTime && totalTime && (
           <s.TimeGrid>
             <s.TimeCard>

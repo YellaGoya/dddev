@@ -46,3 +46,12 @@ export const UserMessage = styled.span`
   font-size: 0.9rem;
   font-weight: 500;
 `;
+
+export const NoAlarm = styled.li`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 50px;
+  opacity: 0.5;
+`;
