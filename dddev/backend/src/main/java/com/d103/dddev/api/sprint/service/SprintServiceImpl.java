@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import com.d103.dddev.common.MongoTime;
 import org.hibernate.TransactionException;
 import org.springframework.stereotype.Service;
 
@@ -357,6 +358,9 @@ public class SprintServiceImpl implements SprintService {
 
 		// 완료된 이슈 리스트 (종료된 시간 순서대로) 불러오기
 		List<Issue> issueDone = issueService.getSprintFocusIssueDoneAsc(sprint.getId());
+		for(Issue issue : issueDone){
+			issue.setEndDate(MongoTime.convert(issue.getEndDate()));
+		}
 
 		// 완료된 이슈 데이터 추가
 		LocalDate key = sprint.getStartDate();
