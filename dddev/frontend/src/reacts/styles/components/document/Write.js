@@ -828,7 +828,7 @@ export const CommentsWrapper = styled.div`
   padding: 50px 0 15px 0;
 
   border-radius: 0.75rem;
-  background-color: #070a0d;
+  background-color: var(--bg-dark-lite);
   border-radius: 0.75rem;
 
   .quill {

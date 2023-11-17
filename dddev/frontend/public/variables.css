@@ -13,7 +13,8 @@
   --font-on-edit: #ffdd9d;
   --bg-black: #000;
   --bg-basic: #0d1117;
-  --bg-basic-grad-bottom: #0d111700;
+  --bg-modal: #0d1117;
+  --bg-basic-grad-bottom: #0b0b0c00;
   --bg-basic-grad-top: #0d1117ff;
   --bg-lite: #161b22;
   --bg-lite-grad-bottom: #161b2200;
@@ -22,6 +23,7 @@
   --bg-liter: #293340;
   --bg-liter-hover : #415166;
   --bg-dark: #010409;
+  --bg-dark-lite : #070a0d;
   --bg-dark-grad-bottom: #01040900;
   --bg-dark-grad-top: #010409ff;
   --bg-rev: #f2f2f2;

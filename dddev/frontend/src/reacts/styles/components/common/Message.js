@@ -56,3 +56,61 @@ export const Message = styled.div`
     font-size: 1.2rem;
   }
 `;
+
+export const LiteMode = styled.div`
+  position: absolute;
+  width: 27px;
+  height: 27px;
+
+  top: 16px;
+  left: 120px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 0.5rem;
+
+  cursor: pointer;
+
+  background-color: ${({ $toggle }) => ($toggle ? 'var(--font-rev)' : 'transparent')};
+
+  &:hover {
+    background-color: ${({ $toggle }) => ($toggle ? 'var(--font-rev)' : 'var(--bg-lite)')};
+  }
+
+  & > svg {
+    fill: ${({ $toggle }) => ($toggle ? 'var(--font-basic)' : 'var(--font-rev)')};
+    width: 21px;
+    height: 21px;
+  }
+`;
+
+export const DarkMode = styled.div`
+  position: absolute;
+  width: 27px;
+  height: 27px;
+
+  top: 16px;
+  left: 153px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 0.5rem;
+
+  cursor: pointer;
+
+  background-color: ${({ $toggle }) => ($toggle ? 'var(--font-rev)' : 'transparent')};
+
+  &:hover {
+    background-color: ${({ $toggle }) => ($toggle ? 'var(--font-rev)' : 'var(--bg-lite)')};
+  }
+
+  & > svg {
+    fill: ${({ $toggle }) => ($toggle ? 'var(--font-basic)' : 'var(--font-rev)')};
+    width: 21px;
+    height: 21px;
+  }
+`;

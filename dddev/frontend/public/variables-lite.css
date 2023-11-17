@@ -1,0 +1,53 @@
+:root {
+  --font-basic: #fff;
+  --font-lite: #ddd;
+  --font-rev: #000;
+  --font-hover: #555;
+  --font-editor-placeholder: #777;
+  --font-toggle-hover: #ff8c00;
+  --font-toggle: #ffa500;
+  --font-border: #717c87;
+  --font-delete: #e46962;
+  --font-warning: #be514b;
+  --font-new :#44acf2;
+  --font-on-edit: #ffdd9d;
+  --bg-black: #fff;
+  --bg-basic: #faf2f2; /* 파란색에서 분홍색으로 변경 */
+  --bg-modal: #fefefe;
+  --bg-basic-grad-bottom: #fefefe00; /* 파란색에서 분홍색으로 변경 */
+  --bg-basic-grad-top: #fefefeff; /* 파란색에서 분홍색으로 변경 */
+  --bg-lite: #f5e9e9; /* 파란색에서 분홍색으로 변경 */
+  --bg-lite-grad-bottom: #f5e9e900; /* 파란색에서 분홍색으로 변경 */
+  --bg-lite-grad-top: #f5e9e9ff; /* 파란색에서 분홍색으로 변경 */
+  --bg-lite-hover: #e2d0d0; /* 파란색에서 분홍색으로 변경 */
+  --bg-liter: #d4bcc8; /* 파란색에서 분홍색으로 변경 */
+  --bg-liter-hover: #c2a3b0; /* 파란색에서 분홍색으로 변경 */
+  --bg-dark: #fefefe;
+  --bg-dark-lite: #eeeeee;
+  --bg-dark-grad-bottom: #fefefe00;
+  --bg-dark-grad-top: #fefefeff;
+  --bg-rev: #0d0d0d;
+  --bg-rev-hover: #181818;
+  --hr-basic: #7a7a7a;
+  --border-setting: #d9d3d3; /* 파란색에서 분홍색으로 변경 */
+  --border-basic: #d6cfcf; /* 파란색에서 분홍색으로 변경 */
+  --border-focus: #9f9191; /* 파란색에서 분홍색으로 변경 */
+  --border-cursor: #000;
+  --border-dark: #ebebeb;
+  --border-lite-hover: #e1dbdb; /* 파란색에서 분홍색으로 변경 */
+  --button-basic: #dedede;
+  --button-dark: #e9e9e9;
+  --button-darker: #e4e4e4;
+  --button-comment: #d0dae2;
+  --button-lite: #c9c2c2; /* 파란색에서 분홍색으로 변경 */
+  --button-activated: #fff;
+  --button-hover: #e1dbdb; /* 파란색에서 분홍색으로 변경 */
+  --selection-setting: #e4e4e4;
+  --selection-bg: #a66739; /* 파란색에서 주황색으로 변경 */
+  --selection-font: #000;
+  --code-highlight-bg: #c9c2c2; /* 파란색에서 분홍색으로 변경 */
+  --code-highlight-font: #000;
+  --blockquote-bg: #e9e9e9;
+  --blockquote-hover: #ded8d1; /* 파란색에서 분홍색으로 변경 */
+  --thumb-hover: #c6b7b7; /* 파란색에서 분홍색으로 변경 */
+}

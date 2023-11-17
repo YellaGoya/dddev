@@ -95,6 +95,17 @@ export const Content = styled.div`
   overflow-x: hidden;
   text-overflow: ellipsis;
 
+  &::-webkit-scrollbar {
+    height: 9px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-clip: padding-box;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+  }
+
   @media (min-width: 1560px) {
     margin: 40px 0;
     padding: 20px 20px 0px 10px;
