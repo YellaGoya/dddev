@@ -201,7 +201,6 @@ const Home = () => {
       eetch
         .burnDown({ accessToken: user.accessToken, refreshToken: user.refreshToken, groundId: params.groundId, sprintId: selectedSprint.id })
         .then((res) => {
-          console.log(res);
           const { data } = res;
           const keys = Object.keys(data);
           let total = data['1970-01-01'];

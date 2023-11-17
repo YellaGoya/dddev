@@ -11,6 +11,7 @@ const initialState = {
   groundsMine: null,
   githubId: null,
   unread: 0,
+  mode: false,
 };
 
 const userReducer = (state = initialState, action) => {
@@ -27,6 +28,8 @@ const userReducer = (state = initialState, action) => {
         groundsMap: action.payload.groundsMap,
         groundsMine: action.payload.groundsMine,
         githubId: action.payload.githubId,
+        unread: 0,
+        mode: false,
       };
 
     case LOGOUT_USER:
@@ -44,6 +47,7 @@ const userReducer = (state = initialState, action) => {
         groundsMine: action.payload.groundsMine || state.groundsMine,
         githubId: action.payload.githubId || state.githubId,
         unread: action.payload.unread || state.unread,
+        mode: action.payload.mode === undefined ? state.mode : action.payload.mode,
       };
 
     default:

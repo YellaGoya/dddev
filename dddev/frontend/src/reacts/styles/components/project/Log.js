@@ -12,7 +12,7 @@ export const LogInstructionWrapper = styled.article`
   position: relative;
   width: 100%;
   padding: 10px;
-  height: ${({ $toggle }) => ($toggle ? 'fit-content' : '53px')};
+  height: ${({ $toggle }) => ($toggle ? 'fit-content' : '59px')};
 
   overflow: hidden;
 

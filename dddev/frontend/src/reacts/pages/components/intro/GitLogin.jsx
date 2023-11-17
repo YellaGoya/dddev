@@ -17,7 +17,11 @@ const GitLogin = () => {
           <p>때로 모여 데브. 당신도 가능하다. 협업.</p>
           <p className="powered">powered by ssafy d103 team, github.</p>
         </s.DescWrapper>
-        <s.GithubLoginButton onClick={() => window.open(loginUrl)}>
+        <s.GithubLoginButton
+          onClick={() => {
+            location.href = loginUrl;
+          }}
+        >
           <GitHubIcon />
           GitHub 로그인
         </s.GithubLoginButton>
