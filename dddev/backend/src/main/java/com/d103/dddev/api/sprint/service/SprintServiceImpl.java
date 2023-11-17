@@ -351,7 +351,7 @@ public class SprintServiceImpl implements SprintService {
 		Map<LocalDate, Integer> burnDown = new TreeMap<>();
 
 		// 시작점
-		LocalDate startDate = sprint.getStartDate();
+		LocalDate startDate = LocalDate.of(1970, 1, 1);
 		Integer totalFocusTime = sprint.getTotalFocusTime();
 		burnDown.put(startDate, totalFocusTime);
 
