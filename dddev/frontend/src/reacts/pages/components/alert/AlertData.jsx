@@ -62,6 +62,7 @@ const AlertData = () => {
           </s.AlarmItem>
         );
       })}
+      {!allAlertList || allAlertList.length === 0 ? <s.NoAlarm>* 그라운드 알림 내역이 없습니다.</s.NoAlarm> : null}
     </s.AlarmList>
   );
 };
