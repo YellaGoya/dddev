@@ -52,9 +52,28 @@ export const ChartTitle = styled.h1`
   margin-left: 2px;
 `;
 
+export const SprintSelectWrapper = styled.div`
+  margin-top: 20px;
+  & > div {
+    margin: 0;
+    & > div {
+      margin: 0;
+      width: 100%;
+
+      & > svg {
+        right: 15px;
+      }
+    }
+
+    & > ul {
+      margin: 16px 0 8px 0;
+      width: 100%;
+    }
+  }
+`;
+
 export const TimeGrid = styled.article`
   position: realative;
-  margin-top: 15px;
 
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

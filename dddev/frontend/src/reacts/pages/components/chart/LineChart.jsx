@@ -30,7 +30,7 @@ const LineChart = ({ data, line = 0 }) => (
         },
       },
     }}
-    curve="catmullRom"
+    curve="monotoneX"
     margin={{ top: 30, right: 45, bottom: 50, left: 40 }}
     xScale={{ type: 'point' }}
     yScale={{
