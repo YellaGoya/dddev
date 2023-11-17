@@ -359,14 +359,11 @@ public class SprintServiceImpl implements SprintService {
 		List<Issue> issueDone = issueService.getSprintFocusIssueDoneAsc(sprint.getId());
 
 		// 완료된 이슈 데이터 추가
-		LocalDate key = null;
+		LocalDate key = sprint.getStartDate();
 		Integer time = 0;
 		for (Issue i : issueDone) {
 			System.out.println(i.getEndDate().toLocalDate() + " " + i.getFocusTime());
-			if (key == null) {
-				key = i.getEndDate().toLocalDate();
-				time = i.getFocusTime();
-			} else if (key.equals(i.getEndDate().toLocalDate())) {
+			if (key.equals(i.getEndDate().toLocalDate())) {
 				time += i.getFocusTime();
 			} else {
 				burnDown.put(key, time);
