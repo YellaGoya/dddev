@@ -166,7 +166,7 @@ const GetAlert = ({ groundId }) => {
           푸쉬
         </s.Button>
         <s.Button $toggle={pullRequestToggle} checked={pullRequestToggle} onClick={() => clickToggle('pull_request', pullRequestId)}>
-          풀 / 리퀘스트
+          풀 리퀘스트
         </s.Button>
         <s.Button onClick={removeToggle}>삭제</s.Button>
       </s.ButtonWrapper>
