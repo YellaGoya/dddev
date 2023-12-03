@@ -42,8 +42,8 @@ Javascript, React
 
 ## 아키텍쳐
 
-![](images/architecture_publicserver.png) 
-![](images/architecture_logserver.png) 
+![](exec/architecture_publicserver.png) 
+![](exec/architecture_logserver.png) 
 
 ## 회고
 내쉬다 프로젝트에서 느낀 협업 환경의 불편함을 개선하고자 진행된 프로젝트입니다.
